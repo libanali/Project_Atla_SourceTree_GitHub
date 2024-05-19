@@ -84,10 +84,11 @@ ARen_Character::ARen_Character()
 	//ATB
 	CurrentATB = 0.0f;
 	MaxATB = 100.0f;
-	ATBFillRate = 4.5f;
+	ATBFillRate = 2.5f;
 	ATB_Attack_Boost = 1.2f;
-	Current_ATB_Count = 0;
+	//Current_ATB_Count = 0;
 	Max_ATB_Count = 2;
+	Current_ATB_Count = Max_ATB_Count;
 	bCanPerformAbility = false;
 
 }
@@ -302,27 +303,6 @@ void ARen_Character::ATB_Increase()
 		CurrentATB = FMath::Clamp(NewATB, 0.0f, MaxATB);
 
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Boost ATB!"));
-
-
-	}
-
-
-}
-
-void ARen_Character::ATB_Tracking()
-{
-
-	Current_ATB_Count = FMath::Clamp(Current_ATB_Count, 0.0, Max_ATB_Count);
-
-	//If current atb is >= 50, increase atb_count to 1 and when current atb is Max, set it to 2.
-
-	if (CurrentATB >= 50 && IsCombatModeOn)
-
-	{
-
-		Current_ATB_Count = 1;
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT( "can use ability/items!"));
-
 
 
 	}
