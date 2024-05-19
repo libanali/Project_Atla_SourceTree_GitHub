@@ -84,7 +84,7 @@ ARen_Character::ARen_Character()
 	//ATB
 	CurrentATB = 0.0f;
 	MaxATB = 100.0f;
-	ATBFillRate = 3.0f;
+	ATBFillRate = 2.5f;
 	ATB_Attack_Boost = 1.2f;
 
 }
@@ -123,6 +123,16 @@ void ARen_Character::MoveForward(float Axis)
 
 	}
 
+
+	if (Axis != 0 && !bIsDead && IsCombatModeOn)
+
+	{
+
+		float DeltaTime = GetWorld()->GetDeltaSeconds();
+		CurrentATB = FMath::Min(CurrentATB + ATBFillRate * DeltaTime, MaxATB);
+
+	}
+
 }
 
 
@@ -142,6 +152,16 @@ void ARen_Character::MoveRight(float Axis)
 		AddMovementInput(Direction, Axis);
 
 	
+	}
+
+
+	if (Axis != 0 && !bIsDead && IsCombatModeOn)
+
+	{
+
+		float DeltaTime = GetWorld()->GetDeltaSeconds();
+		CurrentATB = FMath::Min(CurrentATB + ATBFillRate * DeltaTime, MaxATB);
+
 	}
 
 }
@@ -269,6 +289,21 @@ void ARen_Character::DecreaseHelath()
 
 void ARen_Character::ATB_Increase()
 {
+
+	if (CurrentATB < MaxATB && IsCombatModeOn)
+	{
+
+
+		float NewATB = CurrentATB + ATB_Attack_Boost;
+
+		CurrentATB = FMath::Clamp(NewATB, 0.0f, MaxATB);
+
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Boost ATB!"));
+
+
+	}
+
+
 }
 
 
@@ -451,6 +486,7 @@ void ARen_Character::BeginPlay()
 
 	HealthStruct.InitializeHealth();
 	ManaStruct.InitializeMana();
+	//ATBStruct.InitialiseATB();
 
 
 	CurrentMana = FMath::Clamp(CurrentMana, 0.0f, MaxMana);

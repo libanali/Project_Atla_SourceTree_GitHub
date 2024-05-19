@@ -16,6 +16,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Health_Struct.h"
 #include "Mana_Struct.h"
+#include "ATB_Struct.h"
 #include "Engine/Engine.h"
 #include "GameFramework/DamageType.h"
 #include "Ren_Character.generated.h"
@@ -99,6 +100,14 @@ public:
 	//Mana Variables
 
 
+	
+	//ATB Variables
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "ATB")
+		FATB_Struct ATBStruct;
+	//ATB Variables
+
+
+
 
 	//Attack Variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
@@ -158,6 +167,10 @@ public:
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		//ElementType CurrentElement;
 
+
+	UFUNCTION(BlueprintCallable)
+		void ATB_Increase();
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ATB")
 		float CurrentATB;
 
@@ -169,8 +182,6 @@ public:
 
 	float ATB_Attack_Boost;
 
-	UFUNCTION(BlueprintCallable)
-		void ATB_Increase();
 	//Combat Variables
 
 
