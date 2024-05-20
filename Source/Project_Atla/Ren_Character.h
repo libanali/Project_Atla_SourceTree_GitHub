@@ -174,6 +174,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void ATB_Tracking();
 
+	UFUNCTION(BlueprintCallable)
+		void PerformingAbility();
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ATB")
 		float CurrentATB;
 

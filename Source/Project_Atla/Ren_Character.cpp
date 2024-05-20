@@ -351,6 +351,11 @@ void ARen_Character::ATB_Tracking()
 	}
 
 
+}
+
+void ARen_Character::PerformingAbility()
+{
+
 
 	//if bisperformingability and atb count is >= 1 then atb_count--
 
@@ -366,15 +371,18 @@ void ARen_Character::ATB_Tracking()
 
 
 
-		if (bIsPerformingAbility && Current_ATB_Count == 2)
+	if (bIsPerformingAbility && Current_ATB_Count == 2)
 
-		{
+	{
 
-			Current_ATB_Count = 1;
-			//CurrentATB -= 50.0f;
-			CurrentATB = 50.0f;
+		Current_ATB_Count = 1;
+		//CurrentATB -= 50.0f;
+		CurrentATB = 50.0f;
 
-		}
+	}
+
+
+
 
 
 }
@@ -622,6 +630,8 @@ void ARen_Character::Tick(float DeltaTime)
 	ToggleSoftLockOnEffects();
 
 	ATB_Tracking();
+
+	PerformingAbility();
 
 
 }
