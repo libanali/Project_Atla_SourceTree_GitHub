@@ -84,11 +84,12 @@ ARen_Character::ARen_Character()
 	//ATB
 	CurrentATB = 0.0f;
 	MaxATB = 100.0f;
-	ATBFillRate = 4.5f;
+	ATBFillRate = 14.5f;
 	ATB_Attack_Boost = 1.2f;
 	Current_ATB_Count = 0;
 	Max_ATB_Count = 2;
-	bCanPerformAbility = false;
+	bCanUseAbilityOrItems = false;
+	bIsPerformingAbility = false;
 
 }
 
@@ -322,10 +323,58 @@ void ARen_Character::ATB_Tracking()
 
 		Current_ATB_Count = 1;
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT( "can use ability/items!"));
+		bCanUseAbilityOrItems = true;
+
+
+	}
+
+	else
+
+	{
+
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("cannot use ability/items!"));
+		bCanUseAbilityOrItems = false;
 
 
 
 	}
+
+
+	if (CurrentATB == MaxATB)
+
+	{
+
+		Current_ATB_Count = 2;
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Max ATB!"));
+
+
+	}
+
+
+
+	//if bisperformingability and atb count is >= 1 then atb_count--
+
+	if (bIsPerformingAbility && Current_ATB_Count == 1)
+
+	{
+
+		Current_ATB_Count--;
+		//CurrentATB -= 50.0f;
+		CurrentATB = 0.0f;
+
+	}
+
+
+
+		if (bIsPerformingAbility && Current_ATB_Count == 2)
+
+		{
+
+			Current_ATB_Count = 1;
+			//CurrentATB -= 50.0f;
+			CurrentATB = 50.0f;
+
+		}
 
 
 }
@@ -518,6 +567,7 @@ void ARen_Character::BeginPlay()
 	CalculateTotalAttack();
 
 
+
 	TArray<AActor*> OverlappingActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Enemy")), OverlappingActors);
 
@@ -570,6 +620,8 @@ void ARen_Character::Tick(float DeltaTime)
 	ToggleHardLockOnEffects();
 
 	ToggleSoftLockOnEffects();
+
+	ATB_Tracking();
 
 
 }

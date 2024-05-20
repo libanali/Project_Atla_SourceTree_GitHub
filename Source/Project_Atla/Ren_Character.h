@@ -184,7 +184,10 @@ public:
 		float ATBFillRate;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ATB")
-		bool bCanPerformAbility;
+		bool bCanUseAbilityOrItems;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ATB")
+		bool bIsPerformingAbility;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ATB")
 		int Current_ATB_Count;
