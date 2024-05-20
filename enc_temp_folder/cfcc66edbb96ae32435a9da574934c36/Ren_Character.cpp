@@ -84,8 +84,8 @@ ARen_Character::ARen_Character()
 	//ATB
 	CurrentATB = 0.0f;
 	MaxATB = 100.0f;
-	ATBFillRate = 24.5f;
-	ATB_Attack_Boost = 1.4f;
+	ATBFillRate = 14.5f;
+	ATB_Attack_Boost = 1.2f;
 	Current_ATB_Count = 0;
 	Max_ATB_Count = 2;
 	bCanUseAbilityOrItems = false;
@@ -366,25 +366,23 @@ void ARen_Character::PerformingAbility()
 		Current_ATB_Count--;
 		//CurrentATB -= 50.0f;
 		CurrentATB = 0.0f;
-		bCanUseAbilityOrItems = false;
 
 	}
 
 
 
-	else if (bIsPerformingAbility && Current_ATB_Count == 2)
+	if (bIsPerformingAbility && Current_ATB_Count == 2)
 
 	{
 
-		Current_ATB_Count--;
+		Current_ATB_Count = 1;
 		//CurrentATB -= 50.0f;
 		CurrentATB = 50.0f;
-		bCanUseAbilityOrItems = false;
 
 	}
 
 
-	Current_ATB_Count = FMath::Clamp(Current_ATB_Count, 0.0, Max_ATB_Count);
+
 
 
 }
