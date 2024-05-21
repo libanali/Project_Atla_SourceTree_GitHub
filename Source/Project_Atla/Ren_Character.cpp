@@ -8,6 +8,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Curves/CurveFloat.h"
 #include "Enemy.h"
+#include "Enemy_Character_Class.h"
 #include "Animation/AnimMontage.h"
 #include "Engine/DataTable.h"
 #include "Blueprint/UserWidget.h"
@@ -210,7 +211,7 @@ void ARen_Character::TakeDamage(float DamageAmount)
 }
 
 
-void ARen_Character::InflictDamageOnEnemy(AEnemy* Enemy)
+void ARen_Character::InflictDamageOnEnemy(AEnemy_Character_Class* Enemy)
 {
 
 	if (Enemy)
@@ -486,7 +487,7 @@ void ARen_Character::ToggleSoftLock()
 
 
 
-void ARen_Character::OnEnemyDestroyed(AEnemy* DestroyedEnemy)
+void ARen_Character::OnEnemyDestroyed(AEnemy_Character_Class* DestroyedEnemy)
 {
 
 	if (bIsHardLockEnabled && HardLockedEnemy == DestroyedEnemy)

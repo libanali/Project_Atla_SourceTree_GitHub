@@ -22,6 +22,7 @@
 #include "Ren_Character.generated.h"
 
 class AEnemy;
+class AEnemy_Character_Class;
 
 UCLASS()
 class PROJECT_ATLA_API ARen_Character : public ACharacter
@@ -159,7 +160,7 @@ public:
 		bool Blocking;
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-		void InflictDamageOnEnemy(AEnemy* Enemy);
+		void InflictDamageOnEnemy(AEnemy_Character_Class* Enemy);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		float CalculatedDamage;
@@ -243,7 +244,7 @@ public:
 		void ToggleSoftLockOnEffects();
 
 	UFUNCTION(BlueprintCallable)
-		void OnEnemyDestroyed(AEnemy* DestroyedEnemy);
+		void OnEnemyDestroyed(AEnemy_Character_Class* DestroyedEnemy);
 
 		void ToggleHardLockOnNextEnemy();
 
