@@ -34,9 +34,13 @@ public:
 
 
 
+
+
+
 	bool bIsDead;
 
 	void Death();
+
 
 
 

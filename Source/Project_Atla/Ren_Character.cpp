@@ -323,7 +323,7 @@ void ARen_Character::ATB_Tracking()
 	{
 
 		Current_ATB_Count = 1;
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT( "can use ability/items!"));
+		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT( "can use ability/items!"));
 		bCanUseAbilityOrItems = true;
 
 
@@ -333,7 +333,7 @@ void ARen_Character::ATB_Tracking()
 
 	{
 
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("cannot use ability/items!"));
+		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("cannot use ability/items!"));
 		bCanUseAbilityOrItems = false;
 
 

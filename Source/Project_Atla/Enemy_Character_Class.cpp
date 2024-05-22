@@ -58,6 +58,10 @@ void AEnemy_Character_Class::Death()
 
 }
 
+
+
+
+
 void AEnemy_Character_Class::InflictDamageOnCharacter(ARen_Character* RenCharacter)
 {
 
@@ -69,8 +73,6 @@ void AEnemy_Character_Class::InflictDamageOnCharacter(ARen_Character* RenCharact
 		float DamageToInflict = TotalEnemyAttack / (1 + RenCharacter->BaseDefence);
 
 		RenCharacter->TakeDamage(DamageToInflict);
-
-		//PlayAnimMontage(HitReaction, 1.0);
 
 	}
 
@@ -84,6 +86,8 @@ float AEnemy_Character_Class::ApplyDamage(float DamageAmount, const FHitResult& 
 	float CalculatedDamage = DamageAmount * (1 - DefencePercentage);
 
 	EnemyHealth -= CalculatedDamage;
+
+	PlayAnimMontage(HitReaction, 1.0);
 
 	return CalculatedDamage;
 
