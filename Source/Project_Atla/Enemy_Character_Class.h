@@ -36,8 +36,10 @@ public:
 
 
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 	bool bIsDead;
+
+
 
 	void Death();
 

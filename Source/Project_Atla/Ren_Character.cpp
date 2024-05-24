@@ -490,14 +490,15 @@ void ARen_Character::ToggleSoftLock()
 void ARen_Character::OnEnemyDestroyed(AEnemy_Character_Class* DestroyedEnemy)
 {
 
-	if (bIsHardLockEnabled && HardLockedEnemy == DestroyedEnemy)
+		if (bIsHardLockEnabled && HardLockedEnemy == DestroyedEnemy)
 
-	{
+		{
 
-		ToggleHardLockOnNextEnemy();
+			ToggleHardLockOnNextEnemy();
+			IsCombatModeOn = false;
+
 
 	}
-
 }
 
 void ARen_Character::ToggleHardLockOnNextEnemy()
