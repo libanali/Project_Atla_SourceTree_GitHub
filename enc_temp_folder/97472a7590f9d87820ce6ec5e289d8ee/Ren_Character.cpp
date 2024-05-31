@@ -474,7 +474,6 @@ void ARen_Character::ToggleSoftLock()
 			NearestTargetDistance = TargetDistance;
 			GEngine->AddOnScreenDebugMessage(1, 1.3f, FColor::Green, TEXT("Soft Lock!"));
 			ToggleSoftLockOnEffects();
-			IsCombatModeOn = true;
 
 		}
 	}
@@ -496,7 +495,7 @@ void ARen_Character::OnEnemyDestroyed(AEnemy_Character_Class* DestroyedEnemy)
 		{
 
 			ToggleHardLockOnNextEnemy();
-			//IsCombatModeOn = false;
+			IsCombatModeOn = false;
 
 
 	}
