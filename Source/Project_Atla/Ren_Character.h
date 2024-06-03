@@ -74,8 +74,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 		bool bIsDead;
 
-	UFUNCTION(BlueprintCallable)
-		void DecreaseHelath();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+		bool bIsHit;
 	//Health Variables
 
 
@@ -96,8 +96,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Mana")
 		void StartManaIncrease();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animations")
-		UAnimMontage* IncreaseManaAnimation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mana")
+		float ManaDeduction;
 	//Mana Variables
 
 
@@ -152,6 +152,24 @@ public:
 
 
 
+	//Elemental Variables
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		float BaseElemental;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		float TotalElemental;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		float ElementalMultiplier;
+
+	UFUNCTION(BlueprintCallable, Category = "Elemental")
+		void CalculateTotalElemental();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		bool IsCasting;
+	//Elemental Variables
+
+
 	//Combat Variables
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat")
 		bool IsCombatModeOn;
@@ -162,8 +180,14 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 		void InflictDamageOnEnemy(AEnemy_Character_Class* Enemy);
 
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+		void InflictElementalDamageOnEnemy(AEnemy_Character_Class* Enemy);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		float CalculatedDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		float CalculatedElementalDamage;
 
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		//ElementType CurrentElement;
@@ -199,10 +223,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ATB")
 		int Max_ATB_Count;
 
-
-
 	float ATB_Attack_Boost;
-
 	//Combat Variables
 
 

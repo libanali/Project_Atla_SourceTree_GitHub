@@ -82,6 +82,12 @@ ARen_Character::ARen_Character()
 	DefenceMultiplier = 2.0f;
 
 
+	//Elemental
+	BaseElemental = 5.0f;
+	ElementalMultiplier = 0.3f;
+	IsCasting = false;
+
+
 	//ATB
 	CurrentATB = 0.0f;
 	MaxATB = 100.0f;
@@ -203,12 +209,21 @@ void ARen_Character::TakeDamage(float DamageAmount)
 			CalculatedDamage = DamageAmount / (1 + TotalDefence);
 			HealthStruct.CurrentHealth -= CalculatedDamage;
 			HealthStruct.CurrentHealth = FMath::Clamp(HealthStruct.CurrentHealth - CalculatedDamage, 0.0f, HealthStruct.MaxHealth);
-
+			bIsHit = true;
 		}
 
 	}
 
 }
+
+
+void ARen_Character::CalculateTotalElemental()
+{
+
+	TotalElemental = BaseElemental * ElementalMultiplier;
+
+}
+
 
 
 void ARen_Character::InflictDamageOnEnemy(AEnemy_Character_Class* Enemy)
@@ -234,6 +249,33 @@ void ARen_Character::InflictDamageOnEnemy(AEnemy_Character_Class* Enemy)
 
 		}
 	}
+
+}
+
+
+
+void ARen_Character::InflictElementalDamageOnEnemy(AEnemy_Character_Class* Enemy)
+{
+	if (Enemy)
+
+	{
+
+		float ElementalAttackDamage = BaseElemental;
+		CalculatedElementalDamage = ElementalAttackDamage * (1 - Enemy->DefencePercentage);
+
+
+		UWorld* World = GetWorld();
+
+		if (World)
+
+		{
+
+			float ActualElementalDamageApplied = Enemy->ApplyDamage(CalculatedElementalDamage, FHitResult(), GetController(), this);
+
+		}
+
+	}
+
 
 }
 
@@ -271,24 +313,6 @@ void ARen_Character::CalculateTotalDefence()
 
 }
 
-
-
-
-
-
-void ARen_Character::DecreaseHelath()
-{
-
-	if (HealthStruct.CurrentHealth > 0.0f)
-
-	{
-
-		HealthStruct.CurrentHealth -= 40.0f;
-
-		HealthStruct.CurrentHealth = FMath::Clamp(HealthStruct.CurrentHealth, 0.0f, HealthStruct.MaxHealth);
-
-	}
-}
 
 
 
