@@ -95,9 +95,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Mana")
 		void StartManaIncrease();
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mana")
-		float ManaDeduction;
 	//Mana Variables
 
 
@@ -166,7 +163,12 @@ public:
 		void CalculateTotalElemental();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
-		bool IsCasting;
+		bool bCanCast;
+
+	float ManaReduction;
+
+	UFUNCTION(BlueprintCallable)
+		void CanUseElementalAbility();
 	//Elemental Variables
 
 

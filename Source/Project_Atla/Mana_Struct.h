@@ -19,7 +19,7 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mana")
         float MaxMana;
 
-    UPROPERTY(BlueprintReadOnly, Category = "Mana")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mana")
         float CurrentMana;
 
 

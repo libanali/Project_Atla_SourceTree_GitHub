@@ -85,7 +85,7 @@ ARen_Character::ARen_Character()
 	//Elemental
 	BaseElemental = 5.0f;
 	ElementalMultiplier = 0.3f;
-	IsCasting = false;
+	bCanCast = false;
 
 
 	//ATB
@@ -226,6 +226,34 @@ void ARen_Character::CalculateTotalElemental()
 
 
 
+void ARen_Character::CanUseElementalAbility()
+{
+
+	if (ManaStruct.CurrentMana > 0 && IsCombatModeOn)
+
+	{
+		const float ManaCost = 1.4f;
+
+
+		if (ManaStruct.CurrentMana >= ManaCost)
+
+		{
+
+			ManaStruct.CurrentMana = FMath::Clamp(ManaStruct.CurrentMana / ManaCost, 0, ManaStruct.MaxMana);
+			//bCanCast = true;
+
+		}
+
+	}
+
+}
+
+
+
+
+
+
+
 void ARen_Character::InflictDamageOnEnemy(AEnemy_Character_Class* Enemy)
 {
 
@@ -305,6 +333,8 @@ void ARen_Character::CalculateTotalAttack()
 	TotalAttack = BaseAttack * AttackMultiplier;
 
 }
+
+
 
 void ARen_Character::CalculateTotalDefence()
 {
@@ -605,6 +635,7 @@ void ARen_Character::BeginPlay()
 
 
 
+
 	TArray<AActor*> OverlappingActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Enemy")), OverlappingActors);
 
@@ -662,7 +693,7 @@ void ARen_Character::Tick(float DeltaTime)
 
 	PerformingAbility();
 
-
+	//CanUseElementalAbility();
 }
 
 // Called to bind functionality to input
