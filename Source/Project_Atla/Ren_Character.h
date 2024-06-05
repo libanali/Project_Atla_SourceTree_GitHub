@@ -165,7 +165,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		bool bCanCast;
 
-	float ManaReduction;
+	float CalculatedManaReduction;
 
 	UFUNCTION(BlueprintCallable)
 		void CanUseElementalAbility();
