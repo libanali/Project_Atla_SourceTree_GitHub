@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Enemy_Health_Struct.h"
 #include "Enemy_Character_Class.generated.h"
 
 class ARen_Character;
@@ -23,6 +24,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 		float EnemyHealth;
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+		FEnemy_Health_Struct EnemyHealthStruct;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defence")

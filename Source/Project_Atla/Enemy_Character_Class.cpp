@@ -10,7 +10,7 @@ AEnemy_Character_Class::AEnemy_Character_Class()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	EnemyHealth = 600.0f;
+	EnemyHealth = 100.0f;
 
 	bIsDead = false;
 
@@ -85,6 +85,8 @@ float AEnemy_Character_Class::ApplyDamage(float DamageAmount, const FHitResult& 
 
 	float CalculatedDamage = DamageAmount * (1 - DefencePercentage);
 
+	//EnemyHealthStruct.CurrentHealth -= CalculatedDamage;
+
 	EnemyHealth -= CalculatedDamage;
 
 	PlayAnimMontage(HitReaction, 1.0);
@@ -97,6 +99,8 @@ float AEnemy_Character_Class::ApplyDamage(float DamageAmount, const FHitResult& 
 void AEnemy_Character_Class::BeginPlay()
 {
 	Super::BeginPlay();
+
+	EnemyHealthStruct.InitializeHealth();
 	
 }
 

@@ -14,6 +14,7 @@ struct PROJECT_ATLA_API FHealth_Struct
     GENERATED_BODY()
 
 public:
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health")
         float MaxHealth;
 
@@ -21,6 +22,7 @@ public:
         float CurrentHealth;
 
     FHealth_Struct();
+
 
     void InitializeHealth();
 
