@@ -15,6 +15,11 @@ public:
 	// Sets default values for this character's properties
 	ARen_Low_Poly_Character();
 
+
+
+	void MoveForward(float Axis);
+	void MoveRight(float Axis);
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
