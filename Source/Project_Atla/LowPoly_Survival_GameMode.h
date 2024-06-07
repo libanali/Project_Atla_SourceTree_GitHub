@@ -13,5 +13,14 @@ UCLASS()
 class PROJECT_ATLA_API ALowPoly_Survival_GameMode : public AGameMode
 {
 	GENERATED_BODY()
-	
+
+
+
+	ALowPoly_Survival_GameMode();
+
+	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaTime) override;
+
+
 };
