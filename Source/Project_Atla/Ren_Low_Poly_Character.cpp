@@ -61,6 +61,14 @@ void ARen_Low_Poly_Character::MoveRight(float Axis)
 
 }
 
+void ARen_Low_Poly_Character::CalculateTotalAttack()
+{
+}
+
+void ARen_Low_Poly_Character::CalculateTotalDefence()
+{
+}
+
 // Called when the game starts or when spawned
 void ARen_Low_Poly_Character::BeginPlay()
 {

@@ -23,19 +23,67 @@ public:
 	ARen_Low_Poly_Character();
 
 
+
+	//Movement
+	void MoveForward(float Axis);
+	void MoveRight(float Axis);
+	//Movement
+
+
+	//Combat 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		bool SwordChosen;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		bool SpearChosen;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		bool StaffChosen;
+	//Combat
+
+
+	//Attack Stats
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+		float BaseAttack;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+		float AttackMultiplier;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
+		float TotalAttack;
+
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+		void CalculateTotalAttack();
+	//Attack Stats
+
+
+
+	//Defence Stats
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defence")
+		float BaseDefence;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defence")
+		float DefenceMultiplier;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defence")
+		float TotalDefence;
+
+	UFUNCTION(BlueprintCallable, Category = "Defence")
+		void CalculateTotalDefence();
+	//Defence Stats
+
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+	//Character Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 		USpringArmComponent* CameraBoom;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 		UCameraComponent* Camera;
-
-
-	void MoveForward(float Axis);
-	void MoveRight(float Axis);
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	//Character Components
 
 public:	
 	// Called every frame
