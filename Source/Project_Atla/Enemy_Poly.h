@@ -59,7 +59,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Damage")
 		void InflictDamageOnCharacter(ARen_Character* RenCharacter);
+	//Enemy Attack & Defence
 
+
+	//Combat
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+		bool Attacking;
+	//Combat
 
 
 

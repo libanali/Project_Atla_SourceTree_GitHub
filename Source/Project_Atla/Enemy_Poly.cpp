@@ -10,6 +10,8 @@ AEnemy_Poly::AEnemy_Poly()
 	PrimaryActorTick.bCanEverTick = true;
 
 
+	Attacking = false;
+
 
 }
 
