@@ -15,7 +15,7 @@
 
 
 
-class ARen_Character;
+class ARen_Low_Poly_Character;
 
 
 
@@ -31,13 +31,14 @@ public:
 
 	//Health
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
-		float CurrentHealth;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
-		float MaxHealth;
+		float EnemyHealth;
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
 		bool EnemyIsDead() const;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+		bool bIsDead;
 
 	void Death();
 	//Health
@@ -58,7 +59,7 @@ public:
 		float TotalEnemyAttack;
 
 	UFUNCTION(BlueprintCallable, Category = "Damage")
-		void InflictDamageOnCharacter(ARen_Character* RenCharacter);
+		void InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen);
 	//Enemy Attack & Defence
 
 

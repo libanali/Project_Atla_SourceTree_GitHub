@@ -11,7 +11,12 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Health_Struct.h"
 #include "Ren_Low_Poly_Character.generated.h"
+
+
+class AEnemy_Poly;
+
 
 UCLASS()
 class PROJECT_ATLA_API ARen_Low_Poly_Character : public ACharacter
@@ -39,7 +44,37 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		bool StaffChosen;
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+		void InflictDamageOnEnemy(AEnemy_Poly* Enemy);
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+		void InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		float CalculatedDamage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		float CalculatedElementalDamage;
 	//Combat
+
+
+	//Health
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+		FHealth_Struct HealthStruct;
+
+	UFUNCTION(BlueprintCallable, Category = "Health")
+		void TakeDamage(float DamageAmount);
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
+		float DamageReduction;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+		bool bIsDead;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+		bool bIsHit;
+	//Health
 
 
 	//Attack Stats

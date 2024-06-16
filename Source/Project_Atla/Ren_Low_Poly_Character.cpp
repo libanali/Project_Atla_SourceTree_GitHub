@@ -34,30 +34,93 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false;
 
+
+	//Health
+	bIsDead = false;
+
 }
 
 void ARen_Low_Poly_Character::MoveForward(float Axis)
 {
 
+	if (!bIsDead)
 
-	const FRotator Rotation = GetController()->GetControlRotation();
-	const FRotator YawRotation(0, Rotation.Yaw, 0);
-	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+	{
 
-	AddMovementInput(Direction, Axis);
+		const FRotator Rotation = GetController()->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 
+		AddMovementInput(Direction, Axis);
 
+	}
 }
 
 void ARen_Low_Poly_Character::MoveRight(float Axis)
 {
 
+	if (!bIsDead)
 
-	const FRotator Rotation = GetController()->GetControlRotation();
-	const FRotator YawRotation(0, Rotation.Yaw, 0);
-	const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+	{
 
-	AddMovementInput(Direction, Axis);
+
+		const FRotator Rotation = GetController()->GetControlRotation();
+		const FRotator YawRotation(0, Rotation.Yaw, 0);
+		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+
+		AddMovementInput(Direction, Axis);
+
+	}
+
+}
+
+void ARen_Low_Poly_Character::InflictDamageOnEnemy(AEnemy_Poly* Enemy)
+{
+
+
+
+}
+
+void ARen_Low_Poly_Character::InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy)
+{
+}
+
+void ARen_Low_Poly_Character::TakeDamage(float DamageAmount)
+{
+
+	HealthStruct.TakeDamage(DamageAmount);
+
+
+
+	if (HealthStruct.CurrentHealth <= 0.0f)
+	{
+
+		bIsDead = true;
+
+		APlayerController* PlayerController = Cast<APlayerController>(GetController());
+
+		if (PlayerController)
+
+		{
+
+			DisableInput(PlayerController);
+
+		}
+
+
+		if (DamageAmount > 0)
+
+		{
+
+			CalculatedDamage = DamageAmount / (1 + TotalDefence);
+			HealthStruct.CurrentHealth -= CalculatedDamage;
+			HealthStruct.CurrentHealth = FMath::Clamp(HealthStruct.CurrentHealth - CalculatedDamage, 0.0f, HealthStruct.MaxHealth);
+			bIsHit = true;
+		}
+
+	}
+
+
 
 }
 
@@ -73,6 +136,8 @@ void ARen_Low_Poly_Character::CalculateTotalDefence()
 void ARen_Low_Poly_Character::BeginPlay()
 {
 	Super::BeginPlay();
+
+	HealthStruct.InitializeHealth();
 	
 }
 
