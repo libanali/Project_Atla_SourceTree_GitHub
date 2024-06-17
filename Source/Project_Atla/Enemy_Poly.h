@@ -36,7 +36,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 		bool EnemyIsDead() const;
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 		bool bIsDead;
 

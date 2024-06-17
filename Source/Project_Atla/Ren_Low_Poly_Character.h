@@ -60,7 +60,7 @@ public:
 
 
 	//Health
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Health")
 		FHealth_Struct HealthStruct;
 
 	UFUNCTION(BlueprintCallable, Category = "Health")

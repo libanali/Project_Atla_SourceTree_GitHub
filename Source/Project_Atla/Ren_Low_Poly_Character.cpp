@@ -38,6 +38,15 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	//Health
 	bIsDead = false;
 
+
+	//Attack
+	BaseAttack = 3.0f;
+	AttackMultiplier = 2.0f;
+
+	//Defence
+	BaseDefence = 3.0f;
+	DefenceMultiplier = 2.0f;
+
 }
 
 void ARen_Low_Poly_Character::MoveForward(float Axis)
@@ -126,10 +135,16 @@ void ARen_Low_Poly_Character::TakeDamage(float DamageAmount)
 
 void ARen_Low_Poly_Character::CalculateTotalAttack()
 {
+
+	TotalAttack = BaseAttack * AttackMultiplier;
+
 }
 
 void ARen_Low_Poly_Character::CalculateTotalDefence()
 {
+
+	TotalDefence = BaseDefence * DefenceMultiplier;
+
 }
 
 // Called when the game starts or when spawned

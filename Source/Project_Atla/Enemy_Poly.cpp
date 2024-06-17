@@ -32,6 +32,18 @@ bool AEnemy_Poly::EnemyIsDead() const
 
 void AEnemy_Poly::Death()
 {
+
+	if (EnemyHealth <= 0)
+
+	{
+
+		bIsDead = true;
+
+		Destroy(true);
+
+	}
+
+
 }
 
 
@@ -62,6 +74,8 @@ void AEnemy_Poly::BeginPlay()
 void AEnemy_Poly::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	Death();
 
 }
 
