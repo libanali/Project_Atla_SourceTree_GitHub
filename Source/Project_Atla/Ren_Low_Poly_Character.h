@@ -40,10 +40,14 @@ public:
 		bool SwordChosen;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-		bool SpearChosen;
+		bool CrossbowChosen;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		bool StaffChosen;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		bool Attacking;
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 		void InflictDamageOnEnemy(AEnemy_Poly* Enemy);
