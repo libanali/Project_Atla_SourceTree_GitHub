@@ -38,6 +38,8 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	//Health
 	bIsDead = false;
 
+	//Combat
+	bInvincible = false;
 
 	//Attack
 	BaseAttack = 3.0f;
@@ -94,6 +96,11 @@ void ARen_Low_Poly_Character::InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy)
 {
 }
 
+
+
+
+
+
 void ARen_Low_Poly_Character::TakeDamage(float DamageAmount)
 {
 
@@ -126,6 +133,7 @@ void ARen_Low_Poly_Character::TakeDamage(float DamageAmount)
 			HealthStruct.CurrentHealth = FMath::Clamp(HealthStruct.CurrentHealth - CalculatedDamage, 0.0f, HealthStruct.MaxHealth);
 			bIsHit = true;
 		}
+
 
 	}
 

@@ -8,6 +8,9 @@
 /**
  * 
  */
+
+class ARen_Low_Poly_Character;
+
 USTRUCT(BlueprintType)
 struct PROJECT_ATLA_API FHealth_Struct
 {
@@ -21,6 +24,7 @@ public:
     UPROPERTY(BlueprintReadOnly, Category = "Health")
         float CurrentHealth;
 
+
     FHealth_Struct();
 
 
@@ -30,6 +34,7 @@ public:
     void TakeDamage(float DamageAmount);
 
     void IncreaseHealth(float HealAmount);
+
 
  
 
