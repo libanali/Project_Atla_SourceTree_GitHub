@@ -28,12 +28,9 @@ public:
 		float CurrentAbilityPoints;
 
 
+
+
 	void InitializeAbilityPoints();
-
-	void IncreaseAbilityPoints(float AbilityPointsAmount);
-
-
-
 
 
 };

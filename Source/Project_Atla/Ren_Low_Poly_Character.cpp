@@ -34,6 +34,8 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false;
 
+	//Ability
+	bCanUseAbility = false;
 
 	//Health
 	bIsDead = false;
@@ -51,6 +53,9 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 }
 
+
+
+
 void ARen_Low_Poly_Character::MoveForward(float Axis)
 {
 
@@ -66,6 +71,9 @@ void ARen_Low_Poly_Character::MoveForward(float Axis)
 
 	}
 }
+
+
+
 
 void ARen_Low_Poly_Character::MoveRight(float Axis)
 {
@@ -85,6 +93,8 @@ void ARen_Low_Poly_Character::MoveRight(float Axis)
 
 }
 
+
+
 void ARen_Low_Poly_Character::InflictDamageOnEnemy(AEnemy_Poly* Enemy)
 {
 
@@ -95,6 +105,53 @@ void ARen_Low_Poly_Character::InflictDamageOnEnemy(AEnemy_Poly* Enemy)
 void ARen_Low_Poly_Character::InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy)
 {
 }
+
+
+
+
+
+
+void ARen_Low_Poly_Character::IncreaseAbilityPoints(float Amount)
+{
+
+	AbilityStruct.CurrentAbilityPoints = FMath::Min(AbilityStruct.CurrentAbilityPoints + Amount, AbilityStruct.MaxAbilityPoints);
+
+}
+
+
+void ARen_Low_Poly_Character::UseAbility()
+{
+
+	if (bCanUseAbility)
+
+	{
+
+		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("Ability used!"));
+		AbilityStruct.CurrentAbilityPoints = 0.0f;
+		bCanUseAbility = false;
+		//Play animation. Perhaps create an enum and allow the player to choose between abilities?
+
+
+	}
+
+}
+
+void ARen_Low_Poly_Character::CheckAbilityUsage()
+{
+
+	
+	if (AbilityStruct.CurrentAbilityPoints == AbilityStruct.MaxAbilityPoints)
+
+	{
+
+		bCanUseAbility = true;
+		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("Can use ability!"));
+
+	}
+
+
+}
+
 
 
 
@@ -141,12 +198,16 @@ void ARen_Low_Poly_Character::TakeDamage(float DamageAmount)
 
 }
 
+
+
+
 void ARen_Low_Poly_Character::CalculateTotalAttack()
 {
 
 	TotalAttack = BaseAttack * AttackMultiplier;
 
 }
+
 
 void ARen_Low_Poly_Character::CalculateTotalDefence()
 {
@@ -155,12 +216,17 @@ void ARen_Low_Poly_Character::CalculateTotalDefence()
 
 }
 
+
+
+
+
 // Called when the game starts or when spawned
 void ARen_Low_Poly_Character::BeginPlay()
 {
 	Super::BeginPlay();
 
 	HealthStruct.InitializeHealth();
+	AbilityStruct.InitializeAbilityPoints();
 	
 }
 
@@ -168,6 +234,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 void ARen_Low_Poly_Character::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	CheckAbilityUsage();
 
 }
 
@@ -178,5 +246,8 @@ void ARen_Low_Poly_Character::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 	PlayerInputComponent->BindAxis("MoveForward", this, &ARen_Low_Poly_Character::MoveForward);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ARen_Low_Poly_Character::MoveRight);
+
+
+	PlayerInputComponent->BindAction("Ability", IE_Pressed, this, &ARen_Low_Poly_Character::UseAbility);
 }
 

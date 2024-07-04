@@ -12,6 +12,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Health_Struct.h"
+#include "Ability_Struct.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
 
@@ -63,6 +64,28 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		float CalculatedElementalDamage;
 	//Combat
+
+
+
+	//Ability
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+		FAbility_Struct AbilityStruct;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+		bool bCanUseAbility;
+
+	UFUNCTION(BlueprintCallable)
+		void IncreaseAbilityPoints(float Amount);
+
+	UFUNCTION(BlueprintCallable)
+		void UseAbility();
+
+	UFUNCTION(BlueprintCallable)
+		void CheckAbilityUsage();
+
+	//Ability
+
+
 
 
 	//Health

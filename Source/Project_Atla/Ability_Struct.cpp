@@ -12,15 +12,10 @@ void FAbility_Struct::InitializeAbilityPoints()
 {
 
 	CurrentAbilityPoints = 0.0f;
-	CurrentAbilityPoints = MaxAbilityPoints;
+	MaxAbilityPoints = 150.0f;
 
 
-}
-
-void FAbility_Struct::IncreaseAbilityPoints(float AbilityPointsAmount)
-{
-
-	CurrentAbilityPoints = FMath::Min(CurrentAbilityPoints + AbilityPointsAmount, MaxAbilityPoints);
 
 }
+
 
