@@ -172,6 +172,7 @@ public:
 	//Elemental Variables
 
 
+
 	//Combat Variables
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat")
 		bool IsCombatModeOn;

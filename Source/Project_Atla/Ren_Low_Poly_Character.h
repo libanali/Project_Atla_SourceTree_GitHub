@@ -82,9 +82,30 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void CheckAbilityUsage();
-
 	//Ability
 
+
+
+	//Lock-On variables
+	void ToggleSoftLock();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Lock On")
+		bool bIsSoftLockEnabled;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lock On")
+		float SoftLockRange;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Lock On")
+		float SoftLockAngle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Lock On")
+		AActor* SoftLockedEnemy;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Lock On")
+		TArray<AActor*> LockOnCandidates;
+
+	float HeightTargetingOffest;
+	//Lock-On variables
 
 
 

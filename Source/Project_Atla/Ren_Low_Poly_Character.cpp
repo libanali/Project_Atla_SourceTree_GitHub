@@ -2,6 +2,7 @@
 
 
 #include "Ren_Low_Poly_Character.h"
+#include "Kismet/Gameplaystatics.h"
 
 // Sets default values
 ARen_Low_Poly_Character::ARen_Low_Poly_Character()
@@ -36,6 +37,12 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 	//Ability
 	bCanUseAbility = false;
+
+	//Lock-On
+	bIsSoftLockEnabled = false;
+	SoftLockRange = 2300.0f;
+	SoftLockAngle = 340.0f;
+	HeightTargetingOffest = 10.0f;
 
 	//Health
 	bIsDead = false;
@@ -152,6 +159,42 @@ void ARen_Low_Poly_Character::CheckAbilityUsage()
 
 }
 
+void ARen_Low_Poly_Character::ToggleSoftLock()
+{
+
+
+	TArray<AActor*> OverlappingActors;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Enemy")), OverlappingActors);
+
+	FVector CharacterForward = GetActorForwardVector();
+	FVector CharacterLocation = GetActorLocation();
+
+	AActor* NearestEnemy = nullptr;
+	float NearestTargetDistance = SoftLockRange * SoftLockRange;
+
+	for (AActor* Actor : OverlappingActors)
+	{
+		FVector TargetDirection = Actor->GetActorLocation() - CharacterLocation;
+		float TargetDistance = TargetDirection.SizeSquared();
+		float AngleToEnemy = FMath::Acos(FVector::DotProduct(TargetDirection.GetSafeNormal(), CharacterForward)) * (180.0f / PI);
+
+		if (TargetDistance <= NearestTargetDistance && AngleToEnemy <= SoftLockAngle)
+		{
+
+			bIsSoftLockEnabled = true;
+			NearestEnemy = Actor;
+			NearestTargetDistance = TargetDistance;
+			GEngine->AddOnScreenDebugMessage(1, 1.3f, FColor::Green, TEXT("Soft Lock!"));
+
+		}
+	}
+
+	SoftLockedEnemy = NearestEnemy;
+	bIsSoftLockEnabled = SoftLockedEnemy != nullptr;
+
+
+}
+
 
 
 
@@ -227,6 +270,15 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	HealthStruct.InitializeHealth();
 	AbilityStruct.InitializeAbilityPoints();
+
+	TArray<AActor*> OverlappingActors;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Enemy")), OverlappingActors);
+
+	for (AActor* Actor : OverlappingActors)
+	{
+		LockOnCandidates.Add(Actor);
+	}
+
 	
 }
 
@@ -236,6 +288,8 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	CheckAbilityUsage();
+
+	ToggleSoftLock();
 
 }
 
