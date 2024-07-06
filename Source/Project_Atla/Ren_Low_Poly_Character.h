@@ -77,6 +77,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
 		bool bCanUseAbility;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+		UAnimMontage* AbilityAnimation;
+
 	UFUNCTION(BlueprintCallable)
 		void IncreaseAbilityPoints(float Amount);
 

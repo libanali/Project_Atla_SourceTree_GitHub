@@ -3,6 +3,7 @@
 
 #include "Ren_Low_Poly_Character.h"
 #include "Kismet/Gameplaystatics.h"
+#include "Enemy_Poly.h"
 
 // Sets default values
 ARen_Low_Poly_Character::ARen_Low_Poly_Character()
@@ -105,6 +106,26 @@ void ARen_Low_Poly_Character::MoveRight(float Axis)
 void ARen_Low_Poly_Character::InflictDamageOnEnemy(AEnemy_Poly* Enemy)
 {
 
+	if (Enemy)
+
+	{
+
+		float AttackDamage = BaseAttack;
+
+		CalculatedDamage = AttackDamage * (1 - Enemy->DefencePercentage);
+
+		UWorld* World = GetWorld();
+
+		if (World)
+
+		{
+
+			float ActualDamageApplied = Enemy->ApplyDamage(CalculatedDamage, FHitResult(), GetController(), this);
+
+		}
+
+
+	}
 
 
 }
@@ -136,6 +157,7 @@ void ARen_Low_Poly_Character::UseAbility()
 		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("Ability used!"));
 		AbilityStruct.CurrentAbilityPoints = 0.0f;
 		bCanUseAbility = false;
+		PlayAnimMontage(AbilityAnimation, 1.0f);
 		//Play animation. Perhaps create an enum and allow the player to choose between abilities?
 
 

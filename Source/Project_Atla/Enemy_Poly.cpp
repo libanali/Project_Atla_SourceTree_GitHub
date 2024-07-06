@@ -30,6 +30,18 @@ bool AEnemy_Poly::EnemyIsDead() const
 	return false;
 }
 
+float AEnemy_Poly::ApplyDamage(float DamageAmount, const FHitResult& HitInfo, AController* EventInstigator, AActor* DamageCauser)
+{
+
+	float CalculatedDamage = DamageAmount * (1 - DefencePercentage);
+
+	EnemyHealth -= CalculatedDamage;
+
+	return CalculatedDamage;
+}
+
+
+
 void AEnemy_Poly::Death()
 {
 
@@ -42,7 +54,6 @@ void AEnemy_Poly::Death()
 		Destroy(true);
 
 	}
-
 
 }
 
