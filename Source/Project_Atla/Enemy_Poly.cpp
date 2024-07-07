@@ -13,7 +13,7 @@ AEnemy_Poly::AEnemy_Poly()
 
 	Attacking = false;
 
-	EnemyHealth = 100.0f;
+	//EnemyHealth = 100.0f;
 
 	bIsDead = false;
 
@@ -78,6 +78,9 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 void AEnemy_Poly::BeginPlay()
 {
 	Super::BeginPlay();
+
+	EnemyHealth = 400.0f;
+
 	
 }
 
