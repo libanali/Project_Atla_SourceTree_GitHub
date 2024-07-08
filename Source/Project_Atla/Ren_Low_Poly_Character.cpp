@@ -38,6 +38,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 	//Ability
 	bCanUseAbility = false;
+	
 
 	//Lock-On
 	bIsSoftLockEnabled = false;
@@ -158,13 +159,34 @@ void ARen_Low_Poly_Character::UseAbility()
 		AbilityStruct.CurrentAbilityPoints = 0.0f;
 		bCanUseAbility = false;
 		PlayAnimMontage(AbilityAnimation, 1.0f);
+	}
+
+
+
 		GetMesh()->SetMaterial(0, OriginalMaterial);
 		//Play animation. Perhaps create an enum and allow the player to choose between abilities?
 
 
+}
+
+
+void ARen_Low_Poly_Character::DisableInputWhilePlayingAnimation()
+{
+
+	APlayerController* PlayerContr = GetWorld()->GetFirstPlayerController();
+
+	if (AnimIsPlaying)
+
+	{
+		PlayerContr->DisableInput(PlayerContr);
+
+
 	}
 
+
 }
+
+
 
 void ARen_Low_Poly_Character::CheckAbilityUsage()
 {
@@ -182,6 +204,9 @@ void ARen_Low_Poly_Character::CheckAbilityUsage()
 
 
 }
+
+
+
 
 void ARen_Low_Poly_Character::ToggleSoftLock()
 {
@@ -303,6 +328,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 		LockOnCandidates.Add(Actor);
 	}
 
+
+	AbilityStruct.CurrentAbilityPoints = 145.0f;
 	
 }
 
@@ -314,6 +341,7 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 	CheckAbilityUsage();
 
 	ToggleSoftLock();
+
 
 }
 

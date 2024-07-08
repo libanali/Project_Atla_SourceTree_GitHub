@@ -14,13 +14,30 @@ class PROJECT_ATLA_API ALowPoly_Survival_GameMode : public AGameMode
 {
 	GENERATED_BODY()
 
-
+public:
 
 	ALowPoly_Survival_GameMode();
 
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaTime) override;
+
+
+
+	void StartNewRound();
+
+	void SpawnEnemies();
+
+	void EndGame();
+
+
+
+protected:
+
+	int32 CurrentRound;
+	int32 EnemiesPerWave;
+
+
 
 
 };

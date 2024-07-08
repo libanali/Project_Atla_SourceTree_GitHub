@@ -77,6 +77,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
 		bool bCanUseAbility;
 
+	bool AnimIsPlaying;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
 		UAnimMontage* AbilityAnimation;
 
@@ -94,6 +96,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void CheckAbilityUsage();
+
+	void DisableInputWhilePlayingAnimation();
 	//Ability
 
 

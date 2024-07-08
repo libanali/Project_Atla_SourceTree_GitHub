@@ -21,5 +21,17 @@ void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 {
 }
 
+void ALowPoly_Survival_GameMode::StartNewRound()
+{
+}
+
+void ALowPoly_Survival_GameMode::SpawnEnemies()
+{
+}
+
+void ALowPoly_Survival_GameMode::EndGame()
+{
+}
+
 
 
