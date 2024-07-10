@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
+#include "Kismet/Gameplaystatics.h"
 #include "LowPoly_Survival_GameMode.generated.h"
 
 /**
@@ -28,6 +29,10 @@ public:
 
 	void SpawnEnemies();
 
+	void HandlePlayerDefeat();
+
+	void CheckEnemiesStatus();
+
 	void EndGame();
 
 
@@ -36,8 +41,21 @@ protected:
 
 	int32 CurrentRound;
 	int32 EnemiesPerWave;
+	int32 EnemiesSpawned;
+	int32 EnemiesDefeated;
 
+	FTimerHandle EnemySpawnTimer;
 
+	bool bGameOver;
+	bool ShouldEndGame();
 
+	FVector GetRandomSpawnLocation();
+
+	
+	UPROPERTY(EditAnywhere, Category = "Spawning")
+		TSubclassOf<class AEnemy_Poly> EnemyClass;
+
+	UPROPERTY()
+		TArray<AEnemy_Poly*> SpawnedEnemies;
 
 };

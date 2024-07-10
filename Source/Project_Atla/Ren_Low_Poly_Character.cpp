@@ -151,6 +151,7 @@ void ARen_Low_Poly_Character::IncreaseAbilityPoints(float Amount)
 void ARen_Low_Poly_Character::UseAbility()
 {
 
+
 	if (bCanUseAbility)
 
 	{
@@ -341,6 +342,7 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 	CheckAbilityUsage();
 
 	ToggleSoftLock();
+
 
 
 }
