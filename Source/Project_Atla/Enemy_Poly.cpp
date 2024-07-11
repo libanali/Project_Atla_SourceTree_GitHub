@@ -58,6 +58,13 @@ void AEnemy_Poly::Death()
 }
 
 
+void AEnemy_Poly::PlayAttackAnim()
+{
+
+	PlayAnimMontage(AttackAnimation, 1.0f);
+
+}
+
 void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 {
 

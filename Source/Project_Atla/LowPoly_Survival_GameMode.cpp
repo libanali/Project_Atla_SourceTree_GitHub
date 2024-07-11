@@ -4,6 +4,9 @@
 #include "LowPoly_Survival_GameMode.h"
 #include "Enemy_Poly.h"
 #include "Ren_Low_Poly_Character.h"
+#include "NavigationSystem.h"
+#include "GameFramework/PlayerController.h"
+#include "Engine/World.h"
 
 ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
 
@@ -13,9 +16,9 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
 	EnemiesPerWave = 5;
 	bGameOver = false;
 
-
-
 }
+
+
 
 void ALowPoly_Survival_GameMode::BeginPlay()
 {
@@ -23,6 +26,8 @@ void ALowPoly_Survival_GameMode::BeginPlay()
 	StartNewRound();
 
 }
+
+
 
 void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 {
@@ -42,6 +47,8 @@ void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 
 }
 
+
+
 void ALowPoly_Survival_GameMode::StartNewRound()
 {
 
@@ -54,6 +61,8 @@ void ALowPoly_Survival_GameMode::StartNewRound()
 
 }
 
+
+
 void ALowPoly_Survival_GameMode::SpawnEnemies()
 {
 
@@ -64,8 +73,6 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
 		FVector SpawnLocation = GetRandomSpawnLocation();
 
 		AEnemy_Poly* Enemy = GetWorld()->SpawnActor<AEnemy_Poly>(EnemyClass, SpawnLocation, FRotator::ZeroRotator);
-
-		//how about trying all actors of class?
 
 
 		if (Enemy)
@@ -90,6 +97,8 @@ void ALowPoly_Survival_GameMode::HandlePlayerDefeat()
 
 
 }
+
+
 
 void ALowPoly_Survival_GameMode::CheckEnemiesStatus()
 {
@@ -118,6 +127,7 @@ void ALowPoly_Survival_GameMode::CheckEnemiesStatus()
 
 }
 
+
 void ALowPoly_Survival_GameMode::EndGame()
 {
 
@@ -125,6 +135,8 @@ void ALowPoly_Survival_GameMode::EndGame()
 	HandlePlayerDefeat();
 
 }
+
+
 
 bool ALowPoly_Survival_GameMode::ShouldEndGame()
 {
@@ -141,7 +153,7 @@ FVector ALowPoly_Survival_GameMode::GetRandomSpawnLocation()
 
 	FVector PlayerLocation = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
 
-	float SpawnRadius = 5000.0f;
+	float SpawnRadius = 4500.0f;
 
 
 	FVector RandomDirection = FMath::VRand();
@@ -149,8 +161,22 @@ FVector ALowPoly_Survival_GameMode::GetRandomSpawnLocation()
 	FVector RandomPoint = PlayerLocation + RandomDirection * FMath::FRandRange(0.0f, SpawnRadius);
 
 
+
 	return RandomPoint;
 }
+
+FVector ALowPoly_Survival_GameMode::GetRandomSpawnInNavMesh()
+{
+	
+	return FVector();
+}
+
+
+
+
+
+
+
 
 
 

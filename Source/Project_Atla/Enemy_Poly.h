@@ -60,6 +60,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 		float TotalEnemyAttack;
 
+	UPROPERTY(EditAnywhere, Category = "Attack")
+		UAnimMontage* AttackAnimation;
+
+	void PlayAttackAnim();
+
 	UFUNCTION(BlueprintCallable, Category = "Damage")
 		void InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen);
 	//Enemy Attack & Defence
@@ -68,6 +73,7 @@ public:
 	//Combat
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 		bool Attacking;
+
 	//Combat
 
 

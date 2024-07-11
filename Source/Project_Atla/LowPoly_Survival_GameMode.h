@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
 #include "Kismet/Gameplaystatics.h"
+#include "NavigationSystem.h"
 #include "LowPoly_Survival_GameMode.generated.h"
 
 /**
@@ -36,7 +37,12 @@ public:
 	void EndGame();
 
 
+	//UFUNCTION(BlueprintImplementableEvent)
+		//void FindRandomLocationInNavMesh();
 
+	
+
+	
 protected:
 
 	int32 CurrentRound;
@@ -50,6 +56,8 @@ protected:
 	bool ShouldEndGame();
 
 	FVector GetRandomSpawnLocation();
+
+	FVector GetRandomSpawnInNavMesh();
 
 	
 	UPROPERTY(EditAnywhere, Category = "Spawning")

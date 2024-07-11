@@ -34,6 +34,7 @@ public:
 	ARen_Character();
 
 
+
 	//Character Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 		USpringArmComponent* CameraBoom;
