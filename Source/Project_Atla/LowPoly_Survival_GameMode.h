@@ -35,38 +35,5 @@ public:
 
 
 
-	void StartNewRound();
-
-	void SpawnEnemies();
-
-	void EndGame();
-
-
-
-protected:
-
-	int32 CurrentRound;
-	int32 EnemiesPerWave;
-
-
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-	FVector GetRandomSpawnLocation();
-
-<<<<<<< HEAD
-
-=======
->>>>>>> parent of 025d3f7 (Made some minor changes and added new C++ ai controller)
-	
-	UPROPERTY(EditAnywhere, Category = "Spawning")
-		TSubclassOf<class AEnemy_Poly> EnemyClass;
-
-	UPROPERTY()
-		TArray<AEnemy_Poly*> SpawnedEnemies;
-=======
->>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
-=======
->>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 
 };
