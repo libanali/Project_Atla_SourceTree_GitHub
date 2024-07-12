@@ -3,6 +3,7 @@
 
 #include "LowPoly_Survival_GameMode.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "Enemy_Poly.h"
 #include "Ren_Low_Poly_Character.h"
 #include "NavigationSystem.h"
@@ -11,15 +12,20 @@
 
 =======
 >>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 
 ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
 
 {
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	CurrentRound = 1;
 	EnemiesPerWave = 0;
 	bGameOver = false;
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 =======
 >>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 
@@ -45,6 +51,7 @@ void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 void ALowPoly_Survival_GameMode::StartNewRound()
 {
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 	EnemiesSpawned = 0;
 	EnemiesDefeated = 0;
@@ -55,12 +62,15 @@ void ALowPoly_Survival_GameMode::StartNewRound()
 
 =======
 >>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 }
 
 
 
 void ALowPoly_Survival_GameMode::SpawnEnemies()
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 	for (int32 i = 0; i < EnemiesPerWave; ++i)
@@ -124,11 +134,14 @@ void ALowPoly_Survival_GameMode::CheckEnemiesStatus()
 
 =======
 >>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 }
 
 
 void ALowPoly_Survival_GameMode::EndGame()
 {
+<<<<<<< HEAD
 <<<<<<< HEAD
 
 	bGameOver = true;
@@ -163,6 +176,8 @@ FVector ALowPoly_Survival_GameMode::GetRandomSpawnLocation()
 
 
 	return RandomPoint;
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 =======
 >>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 }

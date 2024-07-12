@@ -5,8 +5,11 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "Kismet/Gameplaystatics.h"
 #include "NavigationSystem.h"
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 =======
 >>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 #include "LowPoly_Survival_GameMode.generated.h"
@@ -50,6 +53,7 @@ protected:
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 	FVector GetRandomSpawnLocation();
 
 
@@ -59,6 +63,8 @@ protected:
 
 	UPROPERTY()
 		TArray<AEnemy_Poly*> SpawnedEnemies;
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 =======
 >>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 
