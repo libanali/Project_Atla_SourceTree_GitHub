@@ -7,11 +7,14 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 #include "Kismet/Gameplaystatics.h"
+<<<<<<< HEAD
 #include "NavigationSystem.h"
 =======
 >>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 =======
 >>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
+=======
+>>>>>>> parent of 025d3f7 (Made some minor changes and added new C++ ai controller)
 #include "LowPoly_Survival_GameMode.generated.h"
 
 /**
@@ -39,12 +42,7 @@ public:
 	void EndGame();
 
 
-	//UFUNCTION(BlueprintImplementableEvent)
-		//void FindRandomLocationInNavMesh();
 
-	
-
-	
 protected:
 
 	int32 CurrentRound;
@@ -56,7 +54,10 @@ protected:
 <<<<<<< HEAD
 	FVector GetRandomSpawnLocation();
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> parent of 025d3f7 (Made some minor changes and added new C++ ai controller)
 	
 	UPROPERTY(EditAnywhere, Category = "Spawning")
 		TSubclassOf<class AEnemy_Poly> EnemyClass;

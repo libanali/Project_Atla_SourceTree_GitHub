@@ -6,9 +6,6 @@
 <<<<<<< HEAD
 #include "Enemy_Poly.h"
 #include "Ren_Low_Poly_Character.h"
-#include "NavigationSystem.h"
-#include "GameFramework/PlayerController.h"
-#include "Engine/World.h"
 
 =======
 >>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
@@ -29,9 +26,9 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
 =======
 >>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 
+
+
 }
-
-
 
 void ALowPoly_Survival_GameMode::BeginPlay()
 {
@@ -40,13 +37,9 @@ void ALowPoly_Survival_GameMode::BeginPlay()
 
 }
 
-
-
 void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 {
 }
-
-
 
 void ALowPoly_Survival_GameMode::StartNewRound()
 {
@@ -66,8 +59,6 @@ void ALowPoly_Survival_GameMode::StartNewRound()
 >>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 }
 
-
-
 void ALowPoly_Survival_GameMode::SpawnEnemies()
 {
 <<<<<<< HEAD
@@ -80,6 +71,8 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
 		FVector SpawnLocation = GetRandomSpawnLocation();
 
 		AEnemy_Poly* Enemy = GetWorld()->SpawnActor<AEnemy_Poly>(EnemyClass, SpawnLocation, FRotator::ZeroRotator);
+
+		//how about trying all actors of class?
 
 
 		if (Enemy)
@@ -104,8 +97,6 @@ void ALowPoly_Survival_GameMode::HandlePlayerDefeat()
 
 
 }
-
-
 
 void ALowPoly_Survival_GameMode::CheckEnemiesStatus()
 {
@@ -138,7 +129,6 @@ void ALowPoly_Survival_GameMode::CheckEnemiesStatus()
 >>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 }
 
-
 void ALowPoly_Survival_GameMode::EndGame()
 {
 <<<<<<< HEAD
@@ -148,8 +138,6 @@ void ALowPoly_Survival_GameMode::EndGame()
 	HandlePlayerDefeat();
 
 }
-
-
 
 bool ALowPoly_Survival_GameMode::ShouldEndGame()
 {
@@ -166,7 +154,7 @@ FVector ALowPoly_Survival_GameMode::GetRandomSpawnLocation()
 
 	FVector PlayerLocation = GetWorld()->GetFirstPlayerController()->GetPawn()->GetActorLocation();
 
-	float SpawnRadius = 4500.0f;
+	float SpawnRadius = 5000.0f;
 
 
 	FVector RandomDirection = FMath::VRand();
@@ -174,8 +162,8 @@ FVector ALowPoly_Survival_GameMode::GetRandomSpawnLocation()
 	FVector RandomPoint = PlayerLocation + RandomDirection * FMath::FRandRange(0.0f, SpawnRadius);
 
 
-
 	return RandomPoint;
+<<<<<<< HEAD
 =======
 >>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 =======
@@ -189,6 +177,10 @@ FVector ALowPoly_Survival_GameMode::GetRandomSpawnLocation()
 
 
 
+=======
+}
+
+>>>>>>> parent of 025d3f7 (Made some minor changes and added new C++ ai controller)
 
 
 

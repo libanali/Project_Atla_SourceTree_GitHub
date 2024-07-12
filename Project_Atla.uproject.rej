@@ -1,0 +1,9 @@
+diff a/Project_Atla.uproject b/Project_Atla.uproject	(rejected hunks)
+@@ -9,7 +9,6 @@
+ 			"Type": "Runtime",
+ 			"LoadingPhase": "Default",
+ 			"AdditionalDependencies": [
+-				"Engine"
+ 				"Engine",
+ 				"AIModule"
+ 			]
