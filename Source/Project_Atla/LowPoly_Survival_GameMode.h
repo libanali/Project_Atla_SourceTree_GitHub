@@ -57,7 +57,6 @@ protected:
 
 	FVector GetRandomSpawnLocation();
 
-	FVector GetRandomSpawnInNavMesh();
 
 	
 	UPROPERTY(EditAnywhere, Category = "Spawning")

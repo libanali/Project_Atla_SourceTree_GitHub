@@ -8,12 +8,13 @@
 #include "GameFramework/PlayerController.h"
 #include "Engine/World.h"
 
+
 ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
 
 {
 
 	CurrentRound = 1;
-	EnemiesPerWave = 5;
+	EnemiesPerWave = 0;
 	bGameOver = false;
 
 }
@@ -57,7 +58,7 @@ void ALowPoly_Survival_GameMode::StartNewRound()
 
 	EnemiesPerWave += CurrentRound;
 
-	SpawnEnemies();
+	//SpawnEnemies();
 
 }
 
@@ -165,11 +166,8 @@ FVector ALowPoly_Survival_GameMode::GetRandomSpawnLocation()
 	return RandomPoint;
 }
 
-FVector ALowPoly_Survival_GameMode::GetRandomSpawnInNavMesh()
-{
-	
-	return FVector();
-}
+
+
 
 
 
