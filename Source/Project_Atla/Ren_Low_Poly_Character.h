@@ -98,7 +98,6 @@ public:
 		void CheckAbilityUsage();
 
 	void DisableInputWhilePlayingAnimation();
-
 	//Ability
 
 

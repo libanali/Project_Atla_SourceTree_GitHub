@@ -10,9 +10,6 @@ public class Project_AtlaEditorTarget : TargetRules
 		Type = TargetType.Editor;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 
-		ExtraModuleNames.AddRange( new string[] { "Project_Atla", "Core", "CoreUObject", "Engine", "InputCore", "NavigationSystem" });
-
-
-         
-    }
+		ExtraModuleNames.AddRange( new string[] { "Project_Atla" } );
+	}
 }

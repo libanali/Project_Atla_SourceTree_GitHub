@@ -4,8 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
+<<<<<<< HEAD
 #include "Kismet/Gameplaystatics.h"
 #include "NavigationSystem.h"
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 #include "LowPoly_Survival_GameMode.generated.h"
 
 /**
@@ -30,10 +33,6 @@ public:
 
 	void SpawnEnemies();
 
-	void HandlePlayerDefeat();
-
-	void CheckEnemiesStatus();
-
 	void EndGame();
 
 
@@ -47,14 +46,10 @@ protected:
 
 	int32 CurrentRound;
 	int32 EnemiesPerWave;
-	int32 EnemiesSpawned;
-	int32 EnemiesDefeated;
 
-	FTimerHandle EnemySpawnTimer;
 
-	bool bGameOver;
-	bool ShouldEndGame();
 
+<<<<<<< HEAD
 	FVector GetRandomSpawnLocation();
 
 
@@ -64,5 +59,7 @@ protected:
 
 	UPROPERTY()
 		TArray<AEnemy_Poly*> SpawnedEnemies;
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 
 };
