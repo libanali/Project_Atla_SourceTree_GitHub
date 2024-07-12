@@ -1,0 +1,9 @@
+diff a/Source/Project_Atla/LowPoly_Survival_GameMode.cpp b/Source/Project_Atla/LowPoly_Survival_GameMode.cpp	(rejected hunks)
+@@ -20,7 +20,6 @@
+ void ALowPoly_Survival_GameMode::BeginPlay()
+ {
+ 
+-
+ 	StartNewRound();
+ 
+ }

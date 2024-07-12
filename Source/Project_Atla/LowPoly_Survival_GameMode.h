@@ -4,7 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
+<<<<<<< HEAD
+<<<<<<< HEAD
 #include "Kismet/Gameplaystatics.h"
+<<<<<<< HEAD
+#include "NavigationSystem.h"
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
+=======
+>>>>>>> parent of 025d3f7 (Made some minor changes and added new C++ ai controller)
 #include "LowPoly_Survival_GameMode.generated.h"
 
 /**
@@ -29,10 +39,6 @@ public:
 
 	void SpawnEnemies();
 
-	void HandlePlayerDefeat();
-
-	void CheckEnemiesStatus();
-
 	void EndGame();
 
 
@@ -41,21 +47,26 @@ protected:
 
 	int32 CurrentRound;
 	int32 EnemiesPerWave;
-	int32 EnemiesSpawned;
-	int32 EnemiesDefeated;
 
-	FTimerHandle EnemySpawnTimer;
 
-	bool bGameOver;
-	bool ShouldEndGame();
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 	FVector GetRandomSpawnLocation();
 
+<<<<<<< HEAD
+
+=======
+>>>>>>> parent of 025d3f7 (Made some minor changes and added new C++ ai controller)
 	
 	UPROPERTY(EditAnywhere, Category = "Spawning")
 		TSubclassOf<class AEnemy_Poly> EnemyClass;
 
 	UPROPERTY()
 		TArray<AEnemy_Poly*> SpawnedEnemies;
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 
 };

@@ -2,16 +2,29 @@
 
 
 #include "LowPoly_Survival_GameMode.h"
+<<<<<<< HEAD
+<<<<<<< HEAD
 #include "Enemy_Poly.h"
 #include "Ren_Low_Poly_Character.h"
+
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 
 ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
 
 {
 
+<<<<<<< HEAD
+<<<<<<< HEAD
 	CurrentRound = 1;
-	EnemiesPerWave = 5;
+	EnemiesPerWave = 0;
 	bGameOver = false;
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 
 
 
@@ -20,42 +33,36 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
 void ALowPoly_Survival_GameMode::BeginPlay()
 {
 
-	StartNewRound();
+
 
 }
 
 void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 {
-	{
-
-		if (ShouldEndGame())
-
-		{
-
-			EndGame();
-		}
-
-		CheckEnemiesStatus();
-
-	}
-
-
 }
 
 void ALowPoly_Survival_GameMode::StartNewRound()
 {
+<<<<<<< HEAD
+<<<<<<< HEAD
 
 	EnemiesSpawned = 0;
 	EnemiesDefeated = 0;
 
 	EnemiesPerWave += CurrentRound;
 
-	SpawnEnemies();
+	//SpawnEnemies();
 
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 }
 
 void ALowPoly_Survival_GameMode::SpawnEnemies()
 {
+<<<<<<< HEAD
+<<<<<<< HEAD
 
 	for (int32 i = 0; i < EnemiesPerWave; ++i)
 
@@ -116,10 +123,16 @@ void ALowPoly_Survival_GameMode::CheckEnemiesStatus()
 
 	}
 
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 }
 
 void ALowPoly_Survival_GameMode::EndGame()
 {
+<<<<<<< HEAD
+<<<<<<< HEAD
 
 	bGameOver = true;
 	HandlePlayerDefeat();
@@ -150,7 +163,26 @@ FVector ALowPoly_Survival_GameMode::GetRandomSpawnLocation()
 
 
 	return RandomPoint;
+<<<<<<< HEAD
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 }
+
+
+
+
+
+
+
+
+=======
+}
+
+>>>>>>> parent of 025d3f7 (Made some minor changes and added new C++ ai controller)
+
+
 
 
 
