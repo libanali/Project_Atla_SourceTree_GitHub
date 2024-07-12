@@ -4,7 +4,8 @@
 #include "LowPoly_Survival_GameMode.h"
 <<<<<<< HEAD
 <<<<<<< HEAD
-
+#include "Enemy_Poly.h"
+#include "Ren_Low_Poly_Character.h"
 
 =======
 >>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
@@ -17,7 +18,9 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
 
 <<<<<<< HEAD
 <<<<<<< HEAD
-
+	CurrentRound = 1;
+	EnemiesPerWave = 0;
+	bGameOver = false;
 =======
 >>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 =======
@@ -43,7 +46,12 @@ void ALowPoly_Survival_GameMode::StartNewRound()
 <<<<<<< HEAD
 <<<<<<< HEAD
 
-	
+	EnemiesSpawned = 0;
+	EnemiesDefeated = 0;
+
+	EnemiesPerWave += CurrentRound;
+
+	//SpawnEnemies();
 
 =======
 >>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
