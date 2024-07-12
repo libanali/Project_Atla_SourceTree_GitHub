@@ -6,6 +6,7 @@
 #include "GameFramework/GameMode.h"
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #include "Kismet/Gameplaystatics.h"
 <<<<<<< HEAD
 #include "NavigationSystem.h"
@@ -15,6 +16,8 @@
 >>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 =======
 >>>>>>> parent of 025d3f7 (Made some minor changes and added new C++ ai controller)
+=======
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 #include "LowPoly_Survival_GameMode.generated.h"
 
 /**
@@ -35,5 +38,23 @@ public:
 
 
 
+<<<<<<< HEAD
+=======
+	void StartNewRound();
+
+	void SpawnEnemies();
+
+	void EndGame();
+
+
+
+protected:
+
+	int32 CurrentRound;
+	int32 EnemiesPerWave;
+
+
+
+>>>>>>> parent of 5bae13e (Enemies can now  spawn in level)
 
 };
