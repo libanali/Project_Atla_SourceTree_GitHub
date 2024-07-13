@@ -31,7 +31,10 @@ public:
 
 	//Health
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
-		float EnemyHealth;
+		float CurrentEnemyHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+		float MaxEnemyHealth;
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
 		bool EnemyIsDead() const;
@@ -39,9 +42,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 		bool bIsDead;
 
+	UFUNCTION(BlueprintCallable)
+		void IncreaseEnemyHealth(float Amount);
+
 	virtual float ApplyDamage(float DamageAmount, const FHitResult& HitInfo, AController* EventInstigator, AActor* DamageCauser);
-
-
+	  
 	void Death();
 	//Health
 

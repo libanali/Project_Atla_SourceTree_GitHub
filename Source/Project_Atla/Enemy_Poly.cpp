@@ -13,7 +13,9 @@ AEnemy_Poly::AEnemy_Poly()
 
 	Attacking = false;
 
-	//EnemyHealth = 100.0f;
+	//MaxEnemyHealth = 60.0f;
+
+	CurrentEnemyHealth = MaxEnemyHealth;
 
 	bIsDead = false;
 
@@ -30,12 +32,19 @@ bool AEnemy_Poly::EnemyIsDead() const
 	return false;
 }
 
+void AEnemy_Poly::IncreaseEnemyHealth(float Amount)
+{
+
+	CurrentEnemyHealth = FMath::Min(CurrentEnemyHealth + Amount, MaxEnemyHealth);
+
+}
+
 float AEnemy_Poly::ApplyDamage(float DamageAmount, const FHitResult& HitInfo, AController* EventInstigator, AActor* DamageCauser)
 {
 
 	float CalculatedDamage = DamageAmount * (1 - DefencePercentage);
 
-	EnemyHealth -= CalculatedDamage;
+	CurrentEnemyHealth -= CalculatedDamage;
 
 	return CalculatedDamage;
 }
@@ -45,7 +54,7 @@ float AEnemy_Poly::ApplyDamage(float DamageAmount, const FHitResult& HitInfo, AC
 void AEnemy_Poly::Death()
 {
 
-	if (EnemyHealth <= 0)
+	if (CurrentEnemyHealth <= 0)
 
 	{
 
@@ -79,7 +88,7 @@ void AEnemy_Poly::BeginPlay()
 {
 	Super::BeginPlay();
 
-	EnemyHealth = 400.0f;
+	CurrentEnemyHealth = 60.0f;
 
 	
 }
