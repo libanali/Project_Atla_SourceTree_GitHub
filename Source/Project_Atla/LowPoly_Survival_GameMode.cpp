@@ -14,10 +14,12 @@
 ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
 {
 
-    // Set default values
-    SpawnDelay = 5.0f;
-    EnemiesPerRound = 2;
-    SpawnRadius = 4000.0f;
+    //SpawnDelay = 5.0f;
+    RoundDelay = 2.5f;
+    BaseEnemiesPerRound = 4;
+    SpawnRadius = 3500.0f;
+    CurrentRound = 1;
+    AdditionalEnemyHealthPerRound = 50.0f;
    
 
 }
@@ -27,28 +29,110 @@ void ALowPoly_Survival_GameMode::BeginPlay()
 
     Super::BeginPlay();
 
-    GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALowPoly_Survival_GameMode::SpawnEnemies, SpawnDelay, true);
+    StartNextRound();
 
+}
+
+void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
+{
+
+    //StartNextRound();
 
 }
 
 void ALowPoly_Survival_GameMode::SpawnEnemies()
 {
 
-
     if (EnemyClass == nullptr) return;
 
     UWorld* World = GetWorld();
     if (World == nullptr) return;
 
-    for (int32 i = 0; i < EnemiesPerRound; i++)
+    // Calculate the number of enemies to spawn this round
+    int32 EnemiesToSpawn = BaseEnemiesPerRound + (CurrentRound - 1) * AdditionalEnemiesPerRound;
+
+    for (int32 i = 0; i < EnemiesToSpawn; i++)
     {
-        //FVector SpawnLocation = FVector(FMath::RandRange(-500, 500), FMath::RandRange(-500, 500), 100);
+        FVector SpawnLocation = GetRandomPointNearPlayer();
         FRotator SpawnRotation = FRotator::ZeroRotator;
 
-        World->SpawnActor<AEnemy_Poly>(EnemyClass, GetRandomPointNearPlayer(), SpawnRotation);
+        AEnemy_Poly* SpawnedEnemy = World->SpawnActor<AEnemy_Poly>(EnemyClass, SpawnLocation, SpawnRotation);
+        if (SpawnedEnemy)
+        {
+            // Set the enemy's health based on the current round
+            float EnemyHealth = BaseEnemyHealth + (CurrentRound - 1) * AdditionalEnemyHealthPerRound;
+            EnemyHealth = SpawnedEnemy->CurrentEnemyHealth;
+            EnemyHealth = SpawnedEnemy->MaxEnemyHealth;
+
+            
+
+            // Add to the list of spawned enemies
+            SpawnedEnemies.Add(SpawnedEnemy);
+
+            // Bind the enemy's destruction delegate
+            SpawnedEnemy->bIsDead;
+        }
     }
 
+
+}
+
+
+
+
+
+void ALowPoly_Survival_GameMode::StartNextRound()
+{
+    // Clear the list of spawned enemies
+    SpawnedEnemies.Empty();
+
+    // Start the spawning timer for the next round
+    GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALowPoly_Survival_GameMode::SpawnEnemies, RoundDelay, false);
+}
+
+
+
+
+void ALowPoly_Survival_GameMode::CheckForNextRound()
+{
+    // Check if all enemies are dead
+    bool bAllEnemiesDead = true;
+    for (AEnemy_Poly* Enemy : SpawnedEnemies)
+    {
+        if (Enemy && !Enemy->bIsDead)
+        {
+            bAllEnemiesDead = false;
+            break;
+        }
+    }
+
+    // If all enemies are dead, start the next round
+    if (bAllEnemiesDead)
+    {
+        CurrentRound++;
+        StartNextRound();
+    }
+}
+
+
+
+
+void ALowPoly_Survival_GameMode::OnEnemyDestroyed()
+{
+
+    for (int32 i = SpawnedEnemies.Num() - 1; i >= 0; i--)
+
+    {
+
+        if (SpawnedEnemies[i] && SpawnedEnemies[i]->bIsDead)
+
+        {
+
+            SpawnedEnemies.RemoveAt(i);
+
+        }
+
+    }
 
 }
 

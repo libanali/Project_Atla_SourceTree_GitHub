@@ -22,8 +22,16 @@ public:
 protected:
     virtual void BeginPlay() override;
 
+    virtual void Tick(float DeltaTime) override;
+
     // Function to spawn enemies
     void SpawnEnemies();
+
+    // Function to start the next round
+    void StartNextRound();
+
+    // Check if all enemies are destroyed
+    void CheckForNextRound();
 
     // Timer handle to manage spawning rounds
     FTimerHandle SpawnTimerHandle;
@@ -32,22 +40,42 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
         float SpawnDelay;
 
-    // Number of enemies to spawn each round
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
-        int32 EnemiesPerRound;
-
     // Enemy class to spawn
     UPROPERTY(EditDefaultsOnly, Category = "Spawning")
         TSubclassOf<AEnemy_Poly> EnemyClass;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+        float RoundDelay;
 
+    // Base number of enemies to spawn each round
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+        int32 BaseEnemiesPerRound;
 
+    // Number of additional enemies per round
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Round")
+        int32 AdditionalEnemiesPerRound;
+
+    // Current round number
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Round")
+    int32 CurrentRound;
+
+    // Base health for enemies
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+        float BaseEnemyHealth;
+
+    // Additional health per round
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+        float AdditionalEnemyHealthPerRound;
+
+    // List of currently spawned enemies
+    TArray<AEnemy_Poly*> SpawnedEnemies;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
         float SpawnRadius;
 
+    UFUNCTION()
+        void OnEnemyDestroyed();
+
     FVector GetRandomPointNearPlayer();
-
-
 	
 };
