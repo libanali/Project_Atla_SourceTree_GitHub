@@ -16,10 +16,11 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
 
     //SpawnDelay = 5.0f;
     RoundDelay = 2.5f;
-    BaseEnemiesPerRound = 4;
-    SpawnRadius = 3500.0f;
+    BaseEnemiesPerRound = 3;
+    SpawnRadius = 2000.0f;
     CurrentRound = 1;
     AdditionalEnemyHealthPerRound = 50.0f;
+    AdditionalEnemiesPerRound = 4.0f;
    
 
 }
@@ -36,7 +37,7 @@ void ALowPoly_Survival_GameMode::BeginPlay()
 void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 {
 
-    //StartNextRound();
+    OnEnemyDestroyed();
 
 }
 
@@ -60,17 +61,16 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
         if (SpawnedEnemy)
         {
             // Set the enemy's health based on the current round
-            float EnemyHealth = BaseEnemyHealth + (CurrentRound - 1) * AdditionalEnemyHealthPerRound;
-            EnemyHealth = SpawnedEnemy->CurrentEnemyHealth;
-            EnemyHealth = SpawnedEnemy->MaxEnemyHealth;
+            //BaseEnemyHealth = SpawnedEnemy->MaxEnemyHealth;
 
-            
+            float AddedEnemyHealth = SpawnedEnemy->MaxEnemyHealth + (CurrentRound - 1) * AdditionalEnemyHealthPerRound;
+
+            SpawnedEnemy->MaxEnemyHealth += AddedEnemyHealth;
 
             // Add to the list of spawned enemies
             SpawnedEnemies.Add(SpawnedEnemy);
 
-            // Bind the enemy's destruction delegate
-            SpawnedEnemy->bIsDead;
+           
         }
     }
 
@@ -131,6 +131,8 @@ void ALowPoly_Survival_GameMode::OnEnemyDestroyed()
             SpawnedEnemies.RemoveAt(i);
 
         }
+
+        CheckForNextRound();
 
     }
 
