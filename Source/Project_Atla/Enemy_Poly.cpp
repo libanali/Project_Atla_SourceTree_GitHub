@@ -32,12 +32,30 @@ bool AEnemy_Poly::EnemyIsDead() const
 	return false;
 }
 
-void AEnemy_Poly::IncreaseEnemyHealth(float Amount)
+
+
+void AEnemy_Poly::IncreaseEnemyHealth(float Amount, bool bSetInitialHealth)
 {
 
-	CurrentEnemyHealth = FMath::Min(CurrentEnemyHealth + Amount, MaxEnemyHealth);
+	if (bSetInitialHealth)
+	{
 
+		MaxEnemyHealth = Amount;
+		CurrentEnemyHealth = Amount;
+
+
+	}
+
+	else
+
+	{
+
+		CurrentEnemyHealth = FMath::Min(CurrentEnemyHealth + Amount, MaxEnemyHealth);
+
+	}
 }
+
+
 
 float AEnemy_Poly::ApplyDamage(float DamageAmount, const FHitResult& HitInfo, AController* EventInstigator, AActor* DamageCauser)
 {

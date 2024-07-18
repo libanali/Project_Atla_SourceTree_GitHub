@@ -43,7 +43,7 @@ public:
 		bool bIsDead;
 
 	UFUNCTION(BlueprintCallable)
-		void IncreaseEnemyHealth(float Amount);
+		void IncreaseEnemyHealth(float Amount, bool bSetInitialHealth = false);
 
 	virtual float ApplyDamage(float DamageAmount, const FHitResult& HitInfo, AController* EventInstigator, AActor* DamageCauser);
 	  

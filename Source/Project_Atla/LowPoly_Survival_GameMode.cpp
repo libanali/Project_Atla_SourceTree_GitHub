@@ -15,12 +15,12 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
 {
 
     //SpawnDelay = 5.0f;
-    RoundDelay = 2.5f;
+    RoundDelay = 1.5f;
     BaseEnemiesPerRound = 3;
     SpawnRadius = 2000.0f;
     CurrentRound = 1;
-    AdditionalEnemyHealthPerRound = 50.0f;
-    AdditionalEnemiesPerRound = 4.0f;
+    AdditionalEnemyHealthPerRound = 20.0f;
+    AdditionalEnemiesPerRound = 1.9f;
    
 
 }
@@ -38,6 +38,8 @@ void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 {
 
     OnEnemyDestroyed();
+
+   
 
 }
 
@@ -58,15 +60,14 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
         FRotator SpawnRotation = FRotator::ZeroRotator;
 
         AEnemy_Poly* SpawnedEnemy = World->SpawnActor<AEnemy_Poly>(EnemyClass, SpawnLocation, SpawnRotation);
+        
+        
         if (SpawnedEnemy)
         {
             // Set the enemy's health based on the current round
-            //BaseEnemyHealth = SpawnedEnemy->MaxEnemyHealth;
 
             float AddedEnemyHealth = SpawnedEnemy->MaxEnemyHealth + (CurrentRound - 1) * AdditionalEnemyHealthPerRound;
-
-            SpawnedEnemy->MaxEnemyHealth += AddedEnemyHealth;
-
+            SpawnedEnemy->IncreaseEnemyHealth(AddedEnemyHealth, true);
             // Add to the list of spawned enemies
             SpawnedEnemies.Add(SpawnedEnemy);
 
@@ -124,7 +125,7 @@ void ALowPoly_Survival_GameMode::OnEnemyDestroyed()
 
     {
 
-        if (SpawnedEnemies[i] && SpawnedEnemies[i]->bIsDead)
+        if (SpawnedEnemies.IsValidIndex(i) && SpawnedEnemies[i] && SpawnedEnemies[i]->bIsDead)
 
         {
 

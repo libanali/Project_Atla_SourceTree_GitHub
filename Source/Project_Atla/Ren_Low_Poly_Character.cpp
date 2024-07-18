@@ -312,6 +312,14 @@ void ARen_Low_Poly_Character::CalculateTotalDefence()
 
 
 
+void ARen_Low_Poly_Character::GainExperience(int32 ExpAmount)
+{
+}
+
+void ARen_Low_Poly_Character::CheckAndTriggerLevelUp()
+{
+}
+
 // Called when the game starts or when spawned
 void ARen_Low_Poly_Character::BeginPlay()
 {

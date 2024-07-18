@@ -13,6 +13,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Health_Struct.h"
 #include "Ability_Struct.h"
+#include "Engine/DataTable.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
 
@@ -174,6 +175,22 @@ public:
 	//Defence Stats
 
 
+	//Level
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
+		int32 CharacterLevel;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
+		int32 ExperiencePoints;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
+		TArray<int32> ExperienceRequired;
+
+	UFUNCTION(BlueprintCallable, Category = "Level")
+		void GainExperience(int32 ExpAmount);
+
+	UFUNCTION(BlueprintCallable, Category = "Level")
+		void CheckAndTriggerLevelUp();
+	//Level
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
