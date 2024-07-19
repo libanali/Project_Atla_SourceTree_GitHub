@@ -3,10 +3,3 @@
 
 #include "Character_Attributes.h"
 
-Character_Attributes::Character_Attributes()
-{
-}
-
-Character_Attributes::~Character_Attributes()
-{
-}

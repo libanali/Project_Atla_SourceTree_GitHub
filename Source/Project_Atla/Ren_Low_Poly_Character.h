@@ -14,6 +14,7 @@
 #include "Health_Struct.h"
 #include "Ability_Struct.h"
 #include "Engine/DataTable.h"
+#include "Character_Attributes.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
 
@@ -175,6 +176,21 @@ public:
 	//Defence Stats
 
 
+	//Elemental Stats
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defence")
+		float BaseElementalAttack;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defence")
+		float ElementalMultiplier;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defence")
+		float TotalElementalAttack;
+
+	UFUNCTION(BlueprintCallable, Category = "Defence")
+		void CalculateElementalAttack();
+	//Elemental Stats
+
+
 	//Level
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
 		int32 CharacterLevel;
@@ -185,12 +201,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
 		TArray<int32> ExperienceRequired;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
+		UDataTable* CharacterAttributesTable;
+
 	UFUNCTION(BlueprintCallable, Category = "Level")
 		void GainExperience(int32 ExpAmount);
 
 	UFUNCTION(BlueprintCallable, Category = "Level")
 		void CheckAndTriggerLevelUp();
 	//Level
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

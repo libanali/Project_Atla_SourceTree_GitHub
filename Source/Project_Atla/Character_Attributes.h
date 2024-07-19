@@ -3,13 +3,36 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Engine/UserDefinedStruct.h"
+#include "Engine/DataTable.h"
+#include "Character_Attributes.generated.h"
 
 /**
  * 
  */
-class PROJECT_ATLA_API Character_Attributes
+
+USTRUCT(BlueprintType)
+struct PROJECT_ATLA_API FCharacter_Attributes : public FTableRowBase
 {
-public:
-	Character_Attributes();
-	~Character_Attributes();
+
+	GENERATED_USTRUCT_BODY()
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
+		int32 CharacterLevel;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
+		float MaxHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
+		float BaseAttack;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
+		float BaseDefence;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
+		float BaseElemental;
+
+
+
+
 };

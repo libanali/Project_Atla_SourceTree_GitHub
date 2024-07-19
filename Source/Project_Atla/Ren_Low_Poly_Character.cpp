@@ -60,6 +60,18 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	BaseDefence = 3.0f;
 	DefenceMultiplier = 2.0f;
 
+	//Elemental
+	BaseElementalAttack = 3.0f;
+	ElementalMultiplier = 2.0f;
+
+	//Level
+	CharacterLevel = 1;
+	ExperienceRequired.Add(0); //Level 1
+	ExperienceRequired.Add(60); //Level 2
+	ExperienceRequired.Add(100);//Level 3
+	ExperienceRequired.Add(180);//Level 4
+	ExperienceRequired.Add(240);//Level 5
+
 }
 
 
@@ -308,16 +320,69 @@ void ARen_Low_Poly_Character::CalculateTotalDefence()
 
 }
 
+void ARen_Low_Poly_Character::CalculateElementalAttack()
+{
+
+	TotalElementalAttack = BaseElementalAttack * ElementalMultiplier;
+
+}
+
 
 
 
 
 void ARen_Low_Poly_Character::GainExperience(int32 ExpAmount)
 {
+
+	ExperiencePoints += ExpAmount;
+	CheckAndTriggerLevelUp();
+
 }
 
 void ARen_Low_Poly_Character::CheckAndTriggerLevelUp()
 {
+
+	UE_LOG(LogTemp, Warning, TEXT("CharacterLevel before: %d"), CharacterLevel);
+
+	if (CharacterLevel < ExperienceRequired.Num() && ExperiencePoints >= ExperienceRequired[CharacterLevel])
+
+	{
+
+		CharacterLevel++; //Increase Character Level
+		HealthStruct.CurrentHealth = HealthStruct.MaxHealth;
+
+		FString RowName = FString::Printf(TEXT("Row%d"), CharacterLevel);
+		UE_LOG(LogTemp, Warning, TEXT("RowName: %s"), *RowName); // Print the constructed RowName for verification
+
+		FCharacter_Attributes* Attributes = CharacterAttributesTable->FindRow<FCharacter_Attributes>(FName(*RowName), FString("1"), true);
+
+		if (Attributes)
+		{
+			// Print some attributes for verification
+			UE_LOG(LogTemp, Warning, TEXT("MaxHealth: %f"), Attributes->MaxHealth);
+
+
+			//Assign character attributes to the attributes in the data table
+			
+			HealthStruct.MaxHealth = Attributes->MaxHealth;
+			BaseAttack = Attributes->BaseAttack;
+			BaseAttack = Attributes->BaseDefence;
+			BaseElementalAttack = Attributes->BaseElemental;
+
+
+			UE_LOG(LogTemp, Warning, TEXT("Character leveled up to Level %d"), CharacterLevel);
+		}
+
+		else
+
+		{
+
+			UE_LOG(LogTemp, Warning, TEXT("Attributes not found for Level %d"), CharacterLevel);
+
+		}
+	}
+
+
 }
 
 // Called when the game starts or when spawned
@@ -338,6 +403,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 
 	AbilityStruct.CurrentAbilityPoints = 145.0f;
+
+	//CharacterLevel = 1;
+
 	
 }
 
