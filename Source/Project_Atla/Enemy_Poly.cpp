@@ -3,6 +3,7 @@
 
 #include "Enemy_Poly.h"
 #include "Ren_Low_Poly_Character.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AEnemy_Poly::AEnemy_Poly()
@@ -77,9 +78,10 @@ void AEnemy_Poly::Death()
 	{
 
 		bIsDead = true;
-
 		Destroy(true);
 
+		ARen_Low_Poly_Character* LowPoly_Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		LowPoly_Ren->GainExperience(25);
 	}
 
 }
