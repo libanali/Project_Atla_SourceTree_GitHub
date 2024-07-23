@@ -108,7 +108,7 @@ void AEnemy_Poly::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CurrentEnemyHealth = 60.0f;
+	CurrentEnemyHealth = 100.0f;
 
 	
 }
