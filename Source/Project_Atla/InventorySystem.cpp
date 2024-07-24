@@ -2,26 +2,36 @@
 
 
 #include "InventorySystem.h"
+#include "Ren_Low_Poly_Character.h"
+
 
 // Sets default values
-AInventorySystem::AInventorySystem()
+UInventorySystem::UInventorySystem()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	MaxSlots = 20;
 }
 
-// Called when the game starts or when spawned
-void AInventorySystem::BeginPlay()
+bool UInventorySystem::AddItem(AItem* Item, int32 Quantity)
 {
-	Super::BeginPlay();
 	
+
+	return true;
 }
 
-// Called every frame
-void AInventorySystem::Tick(float DeltaTime)
+bool UInventorySystem::RemoveItem(AItem* Item, int32 Quantity)
 {
-	Super::Tick(DeltaTime);
+	
 
+	return false;
+}
+
+
+void UInventorySystem::UseItem(AItem* Item)
+{
+
+	
+			return;
+	
 }
 

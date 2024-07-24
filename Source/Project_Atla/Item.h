@@ -15,6 +15,13 @@ public:
 	// Sets default values for this actor's properties
 	AItem();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+		FString ItemName;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+		int32 ItemID;
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -22,5 +29,9 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
+
+	virtual void Use(class ARen_Low_Poly_Character* Character);
 
 };

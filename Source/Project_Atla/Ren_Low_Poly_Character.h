@@ -15,6 +15,7 @@
 #include "Ability_Struct.h"
 #include "Engine/DataTable.h"
 #include "Character_Attributes.h"
+#include "InventorySystem.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
 
@@ -210,6 +211,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Level")
 		void CheckAndTriggerLevelUp();
 	//Level
+
+
+	//Inventory
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
+		UInventorySystem* InventoryComponent;
+	//Inventory
 
 
 protected:

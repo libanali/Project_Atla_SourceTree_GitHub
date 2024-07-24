@@ -36,6 +36,10 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false;
 
+	//Inventory
+	InventoryComponent = CreateDefaultSubobject<UInventorySystem>(TEXT("InventoryComponent"));
+
+
 	//Ability
 	bCanUseAbility = false;
 	

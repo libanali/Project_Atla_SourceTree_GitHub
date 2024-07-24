@@ -2,6 +2,8 @@
 
 
 #include "Item.h"
+#include "Ren_Low_Poly_Character.h"
+
 
 // Sets default values
 AItem::AItem()
@@ -23,5 +25,15 @@ void AItem::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AItem::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+
+
+}
+
+void AItem::Use(ARen_Low_Poly_Character* Character)
+{
 }
 
