@@ -3,6 +3,7 @@
 
 #include "Ren_Low_Poly_Character.h"
 #include "Kismet/Gameplaystatics.h"
+#include "Item.h"
 #include "Enemy_Poly.h"
 
 // Sets default values
@@ -37,7 +38,6 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	Camera->bUsePawnControlRotation = false;
 
 	//Inventory
-	InventoryComponent = CreateDefaultSubobject<UInventorySystem>(TEXT("InventoryComponent"));
 
 
 	//Ability
@@ -388,6 +388,8 @@ void ARen_Low_Poly_Character::CheckAndTriggerLevelUp()
 
 
 }
+
+
 
 // Called when the game starts or when spawned
 void ARen_Low_Poly_Character::BeginPlay()
