@@ -4,23 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Item.generated.h"
+#include "WorldItem.generated.h"
 
 UCLASS()
-class PROJECT_ATLA_API AItem : public AActor
+class PROJECT_ATLA_API AWorldItem : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AItem();
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-		FString ItemName;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
-		int32 ItemID;
-
+	AWorldItem();
 
 protected:
 	// Called when the game starts or when spawned
@@ -29,9 +22,5 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	virtual void NotifyActorBeginOverlap(AActor* OtherActor) override;
-
-	virtual void Use(class ARen_Low_Poly_Character* Character);
 
 };

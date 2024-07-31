@@ -3,7 +3,6 @@
 
 #include "Ren_Low_Poly_Character.h"
 #include "Kismet/Gameplaystatics.h"
-#include "Item.h"
 #include "Enemy_Poly.h"
 
 // Sets default values
