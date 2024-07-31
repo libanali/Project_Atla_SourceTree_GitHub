@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Item_Class.h"
 #include "WorldItem.generated.h"
 
 UCLASS()
@@ -22,5 +23,17 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+		UItem_Class* Item;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+		UStaticMeshComponent* ItemMesh;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+		FName ItemName;
+
+	UFUNCTION(BlueprintCallable, Category = "Item")
+		void InitializeItem(UItem_Class* NewItem);
 
 };

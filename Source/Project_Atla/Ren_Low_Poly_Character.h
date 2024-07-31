@@ -15,6 +15,9 @@
 #include "Ability_Struct.h"
 #include "Engine/DataTable.h"
 #include "Character_Attributes.h"
+#include "Inventory_Component.h"
+#include "Item_Class.h"
+#include "WorldItem.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
 
@@ -146,6 +149,7 @@ public:
 	//Health
 
 
+
 	//Attack Stats
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 		float BaseAttack;
@@ -177,6 +181,7 @@ public:
 	//Defence Stats
 
 
+
 	//Elemental Stats
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defence")
 		float BaseElementalAttack;
@@ -190,6 +195,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Defence")
 		void CalculateElementalAttack();
 	//Elemental Stats
+
 
 
 	//Level
@@ -213,6 +219,13 @@ public:
 	//Level
 
 
+	//Inventory
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
+		UInventory_Component* InventoryComponent;
+
+	UFUNCTION(BlueprintCallable, Category = "Inventory")
+		void PickupItem(AWorldItem* WorldItem);
+	//Inventory
 
 protected:
 	// Called when the game starts or when spawned
