@@ -30,5 +30,8 @@ public:
         MaxStackSize = 1;
         CurrentStackSize = 1;
     }
+
+
+    virtual void Use(class ARen_Low_Poly_Character* Ren);
 	
 };

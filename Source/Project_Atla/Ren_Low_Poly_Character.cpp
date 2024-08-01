@@ -57,7 +57,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 	//Attack
 	BaseAttack = 3.0f;
-	AttackMultiplier = 2.0f;
+	AttackMultiplier = 2.0f; 
 
 	//Defence
 	BaseDefence = 3.0f;
@@ -316,6 +316,32 @@ void ARen_Low_Poly_Character::CalculateTotalAttack()
 {
 
 	TotalAttack = BaseAttack * AttackMultiplier;
+
+}
+
+
+void ARen_Low_Poly_Character::IncreaseAttack(float IncreaseAmount, float Duration)
+{
+
+
+	OriginalAttack = BaseAttack;
+	BaseAttack *= IncreaseAmount;
+
+	GetWorldTimerManager().SetTimer(
+		AttackBonus,
+		[this, IncreaseAmount]() { RevertAttack(IncreaseAmount); },
+		Duration,
+		false
+	);
+
+
+
+}
+
+void ARen_Low_Poly_Character::RevertAttack(float IncreaseAmount)
+{
+
+	BaseAttack = OriginalAttack;
 
 }
 

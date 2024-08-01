@@ -160,8 +160,16 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 		float TotalAttack;
 
+	float OriginalAttack;
+
 	UFUNCTION(BlueprintCallable, Category = "Attack")
 		void CalculateTotalAttack();
+
+	void IncreaseAttack(float IncreaseAmount, float Duration);
+
+	void RevertAttack(float IncreaseAmount);
+
+	FTimerHandle AttackBonus;
 	//Attack Stats
 
 
@@ -226,6 +234,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 		void PickupItem(AWorldItem* WorldItem);
 	//Inventory
+
+
+
+
 
 protected:
 	// Called when the game starts or when spawned
