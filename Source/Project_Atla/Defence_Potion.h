@@ -4,30 +4,30 @@
 
 #include "CoreMinimal.h"
 #include "Item_Class.h"
-#include "Strength_Potion.generated.h"
+#include "Defence_Potion.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECT_ATLA_API UStrength_Potion : public UItem_Class
+class PROJECT_ATLA_API UDefence_Potion : public UItem_Class
 {
 	GENERATED_BODY()
 
 public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Potion")
-        float StrengthIncreasePercentage;
+        float DefenseIncreasePercentage;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Potion")
         float Duration;
 
-    UStrength_Potion()
+    UDefence_Potion()
     {
-        ItemName = "Strength Potion";
-        StrengthIncreasePercentage = 0.2f;
+        ItemName = "Defense Potion";
+        DefenseIncreasePercentage = 0.2f;
         Duration = 30.0f; // Example duration
     }
 
     virtual void UseItem(class ARen_Low_Poly_Character* Ren) override;
-	
 };
+	

@@ -186,6 +186,14 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Defence")
 		void CalculateTotalDefence();
+
+	float OriginalDefence;
+
+	void IncreaseDefence(float IncreaseAmount, float Duration);
+
+	void RevertDefence(float IncreaseAmount);
+
+	FTimerHandle DefenceBonus;
 	//Defence Stats
 
 

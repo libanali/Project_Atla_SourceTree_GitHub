@@ -4,7 +4,7 @@
 #include "Strength_Potion.h"
 #include "Ren_Low_Poly_Character.h"
 
-void UStrength_Potion::Use(ARen_Low_Poly_Character* Ren)
+void UStrength_Potion::UseItem(ARen_Low_Poly_Character* Ren)
 {
 
     if (Ren)

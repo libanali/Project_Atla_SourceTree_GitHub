@@ -4,7 +4,7 @@
 #include "Health_Potion.h"
 #include "Ren_Low_Poly_Character.h"
 
-void UHealth_Potion::Use(ARen_Low_Poly_Character* Ren)
+void UHealth_Potion::UseItem(ARen_Low_Poly_Character* Ren)
 {
 
 

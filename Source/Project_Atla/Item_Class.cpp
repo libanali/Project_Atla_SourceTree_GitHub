@@ -3,7 +3,7 @@
 
 #include "Item_Class.h"
 
-void UItem_Class::Use(ARen_Low_Poly_Character* Ren)
+void UItem_Class::UseItem(ARen_Low_Poly_Character* Ren)
 {
 
 

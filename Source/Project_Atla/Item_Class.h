@@ -24,6 +24,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
         int32 CurrentStackSize;
 
+
     UItem_Class()
     {
         ItemName = "Default";
@@ -31,7 +32,7 @@ public:
         CurrentStackSize = 1;
     }
 
-
-    virtual void Use(class ARen_Low_Poly_Character* Ren);
+    UFUNCTION(BlueprintCallable, Category = "Item")
+    virtual void UseItem(class ARen_Low_Poly_Character* Ren);
 	
 };

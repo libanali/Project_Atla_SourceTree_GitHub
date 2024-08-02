@@ -23,7 +23,7 @@ public:
         HealthIncreasePercentage = 0.0f;
     }
 
-    virtual void Use(class ARen_Low_Poly_Character* Ren) override;
+    virtual void UseItem(class ARen_Low_Poly_Character* Ren) override;
 
 	
 };
