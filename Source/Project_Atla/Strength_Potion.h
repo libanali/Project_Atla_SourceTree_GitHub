@@ -21,11 +21,13 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Potion")
         float Duration;
 
+
     UStrength_Potion()
     {
         ItemName = "Strength Potion";
-        StrengthIncreasePercentage = 0.2f;
-        Duration = 30.0f; // Example duration
+        StrengthIncreasePercentage = 2.2f;
+        Duration = 3.0f; // Example duration
+
     }
 
     virtual void UseItem(class ARen_Low_Poly_Character* Ren) override;

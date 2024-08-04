@@ -36,4 +36,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Item")
 		void InitializeItem(UItem_Class* NewItem);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item")
+		TSubclassOf<class UItem_Class> ItemClass;
+
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item")
+		UItem_Class* ItemInstance;
+
+
+	UFUNCTION(BlueprintCallable, Category = "Item")
+		void UseItem(class ARen_Low_Poly_Character* Ren);
+
+
+
 };

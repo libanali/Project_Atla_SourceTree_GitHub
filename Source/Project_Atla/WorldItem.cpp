@@ -2,6 +2,8 @@
 
 
 #include "WorldItem.h"
+#include "Ren_Low_Poly_Character.h"
+
 
 // Sets default values
 AWorldItem::AWorldItem()
@@ -18,6 +20,11 @@ AWorldItem::AWorldItem()
 void AWorldItem::BeginPlay()
 {
 	Super::BeginPlay();
+
+    if (ItemClass)
+    {
+        ItemInstance = NewObject<UItem_Class>(this, ItemClass);
+    }
 	
 }
 
@@ -35,6 +42,19 @@ void AWorldItem::InitializeItem(UItem_Class* NewItem)
     {
         Item = NewItem;
         ItemName = Item->ItemName;
+    }
+
+
+}
+
+void AWorldItem::UseItem(ARen_Low_Poly_Character* Ren)
+{
+    if (ItemInstance)
+
+    {
+
+        ItemInstance->UseItem(Ren);
+
     }
 
 
