@@ -360,7 +360,7 @@ void ARen_Low_Poly_Character::IncreaseDefence(float IncreaseAmount, float Durati
 	BaseDefence *= IncreaseAmount;
 
 	GetWorldTimerManager().SetTimer(
-		AttackBonus,
+		DefenceBonus,
 		[this, IncreaseAmount]() { RevertAttack(IncreaseAmount); },
 		Duration,
 		false
@@ -374,6 +374,8 @@ void ARen_Low_Poly_Character::RevertDefence(float IncreaseAmount)
 	BaseDefence = OriginalDefence; 
 
 }
+
+
 
 void ARen_Low_Poly_Character::CalculateElementalAttack()
 {

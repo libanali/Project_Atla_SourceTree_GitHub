@@ -10,12 +10,12 @@
  * 
  */
 UCLASS()
-class PROJECT_ATLA_API UHealthPotion30 : public UHealth_Potion
+class PROJECT_ATLA_API UHealthPotion : public UHealth_Potion
 {
 	GENERATED_BODY()
 
 public:
-    UHealthPotion30()
+    UHealthPotion()
     {
         ItemName = "Health Potion";
         HealthIncreasePercentage = 0.2f;

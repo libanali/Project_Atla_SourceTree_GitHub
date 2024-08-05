@@ -12,7 +12,7 @@ FHealth_Struct::FHealth_Struct()
 void FHealth_Struct::InitializeHealth()
 {
 
-	MaxHealth = 100.0f;
+	MaxHealth = 30.0f;
 	CurrentHealth = MaxHealth;
 
 }
