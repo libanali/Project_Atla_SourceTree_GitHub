@@ -4,18 +4,17 @@
 
 #include "CoreMinimal.h"
 #include "WorldItem.h"
-#include "Health_Potion_World.generated.h"
+#include "Ultra_Health_Potion_World.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECT_ATLA_API AHealth_Potion_World : public AWorldItem
+class PROJECT_ATLA_API AUltra_Health_Potion_World : public AWorldItem
 {
 	GENERATED_BODY()
 
 public:
 
-	AHealth_Potion_World();
-	
+		AUltra_Health_Potion_World();
 };

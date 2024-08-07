@@ -12,7 +12,7 @@ FHealth_Struct::FHealth_Struct()
 void FHealth_Struct::InitializeHealth()
 {
 
-	MaxHealth = 30.0f;
+	MaxHealth = 100.0f;
 	CurrentHealth = MaxHealth;
 
 }
@@ -28,7 +28,7 @@ void FHealth_Struct::TakeDamage(float DamageAmount)
 void FHealth_Struct::IncreaseHealth(float HealAmount)
 {
 
-	CurrentHealth = FMath::Min(CurrentHealth + HealAmount, MaxHealth);
+	CurrentHealth = FMath::Min(CurrentHealth * HealAmount, MaxHealth);
 
 }
 
