@@ -11,6 +11,7 @@ UInventory_Component::UInventory_Component()
 	PrimaryComponentTick.bCanEverTick = true;
 
 	MaxInventorySlots = 10;
+    ItemAdded = false;
 
 	// ...
 }
@@ -52,6 +53,7 @@ bool UInventory_Component::AddItem(UItem_Class* Item)
             if (Item->CurrentStackSize <= 0)
             {
                 return true;
+                ItemAdded = true;
             }
         }
     }
@@ -59,6 +61,7 @@ bool UInventory_Component::AddItem(UItem_Class* Item)
     if (Items.Num() < MaxInventorySlots)
     {
         Items.Add(Item);
+        ItemAdded = true;
         return true;
     }
 

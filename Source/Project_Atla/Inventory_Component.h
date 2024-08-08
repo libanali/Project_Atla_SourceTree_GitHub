@@ -37,5 +37,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Inventory")
 		bool RemoveItem(UItem_Class* Item);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
+		bool ItemAdded;
+
 		
 };
