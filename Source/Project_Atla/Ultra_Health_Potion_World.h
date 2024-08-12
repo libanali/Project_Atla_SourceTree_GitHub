@@ -17,4 +17,17 @@ class PROJECT_ATLA_API AUltra_Health_Potion_World : public AWorldItem
 public:
 
 		AUltra_Health_Potion_World();
+
+
+
+        // Called every frame
+        virtual void Tick(float DeltaTime) override;
+
+        UFUNCTION(BlueprintCallable)
+            void OnPickup();
+
+
+protected:
+    // Called when the game starts or when spawned
+    virtual void BeginPlay() override;
 };

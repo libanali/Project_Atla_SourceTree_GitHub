@@ -50,21 +50,22 @@ bool UInventory_Component::AddItem(UItem_Class* Item)
             ExistingItem->CurrentStackSize += AddAmount;
             Item->CurrentStackSize -= AddAmount;
 
+            // If the entire item stack has been added, return true
             if (Item->CurrentStackSize <= 0)
             {
                 return true;
-                ItemAdded = true;
             }
         }
     }
 
-    if (Items.Num() < MaxInventorySlots)
+    // If there's still some of the item left and we have space in the inventory
+    if (Item->CurrentStackSize > 0 && Items.Num() < MaxInventorySlots)
     {
         Items.Add(Item);
-        ItemAdded = true;
         return true;
     }
 
+    // If the item couldn't be fully added (no space or other issue)
     return false;
 }
 
