@@ -18,5 +18,17 @@ class PROJECT_ATLA_API AStrength_Potion_World : public AWorldItem
 public:
 
 	AStrength_Potion_World();
+
+
+    // Called every frame
+    virtual void Tick(float DeltaTime) override;
+
+    UFUNCTION(BlueprintCallable)
+        void OnPickup();
+
+
+protected:
+    // Called when the game starts or when spawned
+    virtual void BeginPlay() override;
 	
 };
