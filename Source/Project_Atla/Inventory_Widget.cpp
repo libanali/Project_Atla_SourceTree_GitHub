@@ -18,13 +18,15 @@ void UInventory_Widget::AddItemToScrollBox(UItem_Class* Item)
         ItemButton->SetItemDetails(Item->ItemName, Item->CurrentStackSize);
 
         // Add the button to the scroll box
-        ItemScrollBox->AddChild(ItemButton);
+        //ItemScrollBox->AddChild(ItemButton);
+
+        VerticalBox->AddChildToVerticalBox(ItemButton);
 
         GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Black, TEXT("Added"));
     
-
-
-    UE_LOG(LogTemp, Log, TEXT("Button added to scroll box."));
+        AddedToScrollBox = true;
+        
+        UE_LOG(LogTemp, Log, TEXT("Button added to scroll box."));
 
 
 }
@@ -41,15 +43,5 @@ void UInventory_Widget::NativeConstruct()
 {
 
     Super::NativeConstruct();
-
-
-    UItem_Button_Widget* ItemButton = CreateWidget<UItem_Button_Widget>(this, UItem_Button_Widget::StaticClass());
-    if (ItemButton)
-    {
-        // Add the button to the scroll box
-        ItemScrollBox->AddChild(ItemButton);
-    }
-
-
 
 }

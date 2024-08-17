@@ -13,6 +13,8 @@
 
 class UButton;
 class UTextBlock;
+class UItem_Class;
+class ARen_Low_Poly_Character;
 
 
 UCLASS()
@@ -21,14 +23,18 @@ class PROJECT_ATLA_API UItem_Button_Widget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-    UPROPERTY(meta = (BindWidget))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         UButton* ItemButton;
 
-    UPROPERTY(meta = (BindWidget))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         UTextBlock* ItemText;
 
     UFUNCTION(BlueprintCallable, Category = "Item")
         void SetItemDetails(const FName& ItemName, int32 Quantity);
+
+
+
+
 
 protected:
     virtual void NativeConstruct() override;

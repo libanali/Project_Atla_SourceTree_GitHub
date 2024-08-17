@@ -26,7 +26,7 @@ public:
 	USuper_Health_Potion()
 	{
 
-		ItemName = "Strength Potion";
+		ItemName = "Super Health Potion";
 		HealthIncreasePercentage = 1.6f;
 	}
 

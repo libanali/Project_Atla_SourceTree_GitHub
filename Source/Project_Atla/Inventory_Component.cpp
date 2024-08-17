@@ -13,7 +13,6 @@ UInventory_Component::UInventory_Component()
 	MaxInventorySlots = 10;
     ItemAdded = false;
 
-    MaxInventorySlots = 10;
 
 
 	// ...

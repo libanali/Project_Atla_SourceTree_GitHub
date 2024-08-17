@@ -4,6 +4,7 @@
 #include "Item_Button_Widget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "Item_Class.h"
 
 void UItem_Button_Widget::SetItemDetails(const FName& ItemName, int32 Quantity)
 {
@@ -14,10 +15,14 @@ void UItem_Button_Widget::SetItemDetails(const FName& ItemName, int32 Quantity)
     }
 }
 
+
+
 void UItem_Button_Widget::NativeConstruct()
 {
 
     Super::NativeConstruct();
+
+    
 
 
 }
