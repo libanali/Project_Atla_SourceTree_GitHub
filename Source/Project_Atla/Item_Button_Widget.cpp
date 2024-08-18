@@ -6,6 +6,8 @@
 #include "Components/TextBlock.h"
 #include "Item_Class.h"
 
+
+
 void UItem_Button_Widget::SetItemDetails(const FName& ItemName, int32 Quantity)
 {
 
@@ -13,9 +15,11 @@ void UItem_Button_Widget::SetItemDetails(const FName& ItemName, int32 Quantity)
     {
         ItemText->SetText(FText::FromString(FString::Printf(TEXT("%s x%d"), *ItemName.ToString(), Quantity)));
     }
+
+
+
+
 }
-
-
 
 void UItem_Button_Widget::NativeConstruct()
 {
