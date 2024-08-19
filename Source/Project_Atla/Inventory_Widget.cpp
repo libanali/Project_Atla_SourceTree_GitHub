@@ -18,9 +18,8 @@ void UInventory_Widget::AddItemToScrollBox(UItem_Class* Item)
         ItemButton->SetItemDetails(Item->ItemName, Item->CurrentStackSize);
 
         // Add the button to the scroll box
-        //ItemScrollBox->AddChild(ItemButton);
+        ItemScrollBox->AddChild(ItemButton);
 
-        VerticalBox->AddChildToVerticalBox(ItemButton);
 
         GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Black, TEXT("Added"));
     

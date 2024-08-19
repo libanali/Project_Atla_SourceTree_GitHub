@@ -27,8 +27,6 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         UScrollBox* ItemScrollBox;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-        UVerticalBox* VerticalBox;
 
     UFUNCTION(BlueprintCallable, Category = "Inventory")
         void AddItemToScrollBox(UItem_Class* Item);

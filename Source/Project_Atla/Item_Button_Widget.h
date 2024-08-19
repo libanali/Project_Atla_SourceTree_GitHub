@@ -32,9 +32,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Item")
         void SetItemDetails(const FName& ItemName, int32 Quantity);
 
-    UPROPERTY(BlueprintReadOnly, Category = "Item")
+   UPROPERTY(BlueprintReadOnly, Category = "Item")
         UItem_Class* ItemRef;
-   
+ 
 
 
 

@@ -11,6 +11,7 @@
 void UItem_Button_Widget::SetItemDetails(const FName& ItemName, int32 Quantity)
 {
 
+  
     if (ItemText)
     {
         ItemText->SetText(FText::FromString(FString::Printf(TEXT("%s x%d"), *ItemName.ToString(), Quantity)));
@@ -26,6 +27,7 @@ void UItem_Button_Widget::NativeConstruct()
 
     Super::NativeConstruct();
 
+    //GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Black, TEXT("yep yep yep yep"));
     
 
 
