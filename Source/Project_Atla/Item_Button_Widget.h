@@ -4,17 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/Button.h"
+#include "Components/TextBlock.h"
 #include "Item_Button_Widget.generated.h"
 
 /**
  * 
  */
-
-
-class UButton;
-class UTextBlock;
-class UItem_Class;
-class ARen_Low_Poly_Character;
 
 
 UCLASS()
@@ -23,23 +19,29 @@ class PROJECT_ATLA_API UItem_Button_Widget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-        UButton* ItemButton;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-        UTextBlock* ItemText;
+	virtual void NativeConstruct();
 
-    UFUNCTION(BlueprintCallable, Category = "Item")
-        void SetItemDetails(const FName& ItemName, int32 Quantity);
+	UPROPERTY(meta = (BindWidget))
+		UButton* ItemButton;
 
-   UPROPERTY(BlueprintReadOnly, Category = "Item")
-        UItem_Class* ItemRef;
- 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Item")
+		FName ItemName;
+
+	UFUNCTION(BlueprintCallable)
+		void SetItemDetails(const FName& TheItemName, int32 Quantity);
+
+	UFUNCTION(BlueprintCallable)
+		void UpdateQuantity(int32 NewQuantity);
+
+	int32 CurrentQuantity;
 
 
+private:
 
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* ItemText;
 
-protected:
-    virtual void NativeConstruct() override;
+	
 	
 };

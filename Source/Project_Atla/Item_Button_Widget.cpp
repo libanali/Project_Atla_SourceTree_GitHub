@@ -2,33 +2,32 @@
 
 
 #include "Item_Button_Widget.h"
-#include "Components/Button.h"
-#include "Components/TextBlock.h"
-#include "Item_Class.h"
-
-
-
-void UItem_Button_Widget::SetItemDetails(const FName& ItemName, int32 Quantity)
-{
-
-  
-    if (ItemText)
-    {
-        ItemText->SetText(FText::FromString(FString::Printf(TEXT("%s x%d"), *ItemName.ToString(), Quantity)));
-    }
-
-
-
-
-}
 
 void UItem_Button_Widget::NativeConstruct()
 {
 
-    Super::NativeConstruct();
+	Super::NativeConstruct();
 
-    //GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Black, TEXT("yep yep yep yep"));
-    
+}
 
+void UItem_Button_Widget::SetItemDetails(const FName& TheItemName, int32 Quantity)
+{
+
+    if (ItemText)
+    {
+        ItemText->SetText(FText::FromString(FString::Printf(TEXT("%s x%d"), *TheItemName.ToString(), Quantity)));
+    }
+
+}
+
+void UItem_Button_Widget::UpdateQuantity(int32 NewQuantity)
+{
+
+    CurrentQuantity = NewQuantity;
+
+    if (ItemText)
+    {
+        ItemText->SetText(FText::FromString(FString::Printf(TEXT("%s x%d"), *ItemName.ToString(), CurrentQuantity)));
+    }
 
 }

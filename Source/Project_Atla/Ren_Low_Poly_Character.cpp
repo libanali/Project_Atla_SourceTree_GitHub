@@ -457,6 +457,8 @@ void ARen_Low_Poly_Character::PickupItem(AWorldItem* WorldItem)
 
 }
 
+
+
 // Called when the game starts or when spawned
 void ARen_Low_Poly_Character::BeginPlay()
 {

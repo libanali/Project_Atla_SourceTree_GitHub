@@ -4,18 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Components/VerticalBox.h"
+#include "Item_Button_Widget.h"
 #include "Inventory_Widget.generated.h"
 
 /**
  * 
  */
 
-class UScrollBox;
-class UBorder;
-class UItemButtonWidget;
-//class UVerticalBox;
-class UItem_Class; 
 
 UCLASS()
 class PROJECT_ATLA_API UInventory_Widget : public UUserWidget
@@ -24,17 +19,23 @@ class PROJECT_ATLA_API UInventory_Widget : public UUserWidget
 
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-        UScrollBox* ItemScrollBox;
+
+	virtual void NativeConstruct();
 
 
-    UFUNCTION(BlueprintCallable, Category = "Inventory")
-        void AddItemToScrollBox(UItem_Class* Item);
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UScrollBox* ItemScrollBox;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
-        bool AddedToScrollBox;
 
-protected:
-    virtual void NativeConstruct() override;
+	UPROPERTY(meta = (BindWidget))
+		class UBorder* Border;
+
+
+	UFUNCTION(BlueprintCallable)
+		void AddItemToScrollBox(UItem_Class* Item);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+		TSubclassOf<UUserWidget> ItemButtonWidgetClass;
+
 	
 };
