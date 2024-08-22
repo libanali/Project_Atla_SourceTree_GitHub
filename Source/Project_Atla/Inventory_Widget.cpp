@@ -18,10 +18,10 @@ void UInventory_Widget::NativeConstruct()
 void UInventory_Widget::AddItemToScrollBox(UItem_Class* Item)
 {
 
-    if (!ItemScrollBox || !Item)
+    if (!ItemScrollBox || !ItemButtonWidgetClass || !Item)
     {
         
-            UE_LOG(LogTemp, Warning, TEXT("ItemScrollBox or Item is null."));
+            UE_LOG(LogTemp, Warning, TEXT("ItemScrollBox, ItemButtonWidgetClass, or Item is null."));
             return;
   
     }
@@ -50,6 +50,17 @@ void UInventory_Widget::AddItemToScrollBox(UItem_Class* Item)
         {
             NewItemButton->SetItemDetails(Item->ItemName, Item->CurrentStackSize);
             ItemScrollBox->AddChild(NewItemButton);
+            UE_LOG(LogTemp, Log, TEXT("Widget created for %s"), *Item->ItemName.ToString());
+            NewItemButton->SetVisibility(ESlateVisibility::Visible);
+
+        }
+
+        else
+
+        {
+
+            UE_LOG(LogTemp, Warning, TEXT("Failed to create widget for %s"), *Item->ItemName.ToString());
+
         }
     }
 
