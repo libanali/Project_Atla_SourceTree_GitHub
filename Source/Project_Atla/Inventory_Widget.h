@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Item_Button_Widget.h"
+#include "Components/VerticalBox.h"
 #include "Inventory_Widget.generated.h"
 
 /**
@@ -25,7 +26,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UScrollBox* ItemScrollBox;
-
 
 	UPROPERTY(meta = (BindWidget))
 		class UBorder* Border;

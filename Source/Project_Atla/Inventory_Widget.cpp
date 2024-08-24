@@ -13,6 +13,7 @@ void UInventory_Widget::NativeConstruct()
 	Super::NativeConstruct();
 
 
+
 }
 
 void UInventory_Widget::AddItemToScrollBox(UItem_Class* Item)
@@ -20,10 +21,10 @@ void UInventory_Widget::AddItemToScrollBox(UItem_Class* Item)
 
     if (!ItemScrollBox || !ItemButtonWidgetClass || !Item)
     {
-        
-            UE_LOG(LogTemp, Warning, TEXT("ItemScrollBox, ItemButtonWidgetClass, or Item is null."));
-            return;
-  
+
+        UE_LOG(LogTemp, Warning, TEXT("ItemScrollBox, ItemButtonWidgetClass, or Item is null."));
+        return;
+
     }
 
     bool bItemFound = false;
@@ -42,17 +43,19 @@ void UInventory_Widget::AddItemToScrollBox(UItem_Class* Item)
         }
     }
 
+
+
     // If item not found, create a new button
     if (!bItemFound)
     {
+
         UItem_Button_Widget* NewItemButton = CreateWidget<UItem_Button_Widget>(this, UItem_Button_Widget::StaticClass());
+
         if (NewItemButton)
         {
             NewItemButton->SetItemDetails(Item->ItemName, Item->CurrentStackSize);
             ItemScrollBox->AddChild(NewItemButton);
             UE_LOG(LogTemp, Log, TEXT("Widget created for %s"), *Item->ItemName.ToString());
-            NewItemButton->SetVisibility(ESlateVisibility::Visible);
-
         }
 
         else
@@ -64,5 +67,5 @@ void UInventory_Widget::AddItemToScrollBox(UItem_Class* Item)
         }
     }
 
-
 }
+

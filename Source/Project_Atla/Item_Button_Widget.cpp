@@ -8,6 +8,8 @@ void UItem_Button_Widget::NativeConstruct()
 
 	Super::NativeConstruct();
 
+    //ItemButton->SetVisibility(ESlateVisibility::Visible);
+
 }
 
 void UItem_Button_Widget::SetItemDetails(const FName& TheItemName, int32 Quantity)
