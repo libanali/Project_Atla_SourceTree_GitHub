@@ -41,5 +41,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
 		bool ItemAdded;
 
+	// Function to return the items in the inventory
+	const TArray<UItem_Class*>& GetItems() const;
+
+
+
 		
 };

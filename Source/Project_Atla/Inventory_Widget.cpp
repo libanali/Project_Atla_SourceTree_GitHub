@@ -5,16 +5,16 @@
 #include "Components/ScrollBox.h"
 #include "Item_Button_Widget.h"
 #include "Item_Class.h"
-#include "Components/TextBlock.h"
+#include "Ren_Low_Poly_Character.h"
 
 void UInventory_Widget::NativeConstruct()
 {
 
 	Super::NativeConstruct();
 
-
-
+   
 }
+
 
 void UInventory_Widget::AddItemToScrollBox(UItem_Class* Item)
 {

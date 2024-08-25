@@ -37,8 +37,6 @@ public:
 	int32 CurrentQuantity;
 
 
-private:
-
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* ItemText;
 

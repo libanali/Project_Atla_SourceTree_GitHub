@@ -82,3 +82,11 @@ bool UInventory_Component::RemoveItem(UItem_Class* Item)
 
 }
 
+const TArray<UItem_Class*>& UInventory_Component::GetItems() const
+{
+    // TODO: insert return statement here
+
+    return Items;
+
+}
+

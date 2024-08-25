@@ -6,11 +6,18 @@
 #include "Blueprint/UserWidget.h"
 #include "Item_Button_Widget.h"
 #include "Components/VerticalBox.h"
+#include "Components/ScrollBox.h"
+#include "Components/TextBlock.h"
+#include "Components/Button.h"
 #include "Inventory_Widget.generated.h"
 
 /**
  * 
  */
+
+class UScrollBox;
+
+class UInventory_Component; // Forward declaration
 
 
 UCLASS()
@@ -25,17 +32,19 @@ public:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-		class UScrollBox* ItemScrollBox;
-
-	UPROPERTY(meta = (BindWidget))
-		class UBorder* Border;
-
+		 UScrollBox* ItemScrollBox;
 
 	UFUNCTION(BlueprintCallable)
 		void AddItemToScrollBox(UItem_Class* Item);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		TSubclassOf<UUserWidget> ItemButtonWidgetClass;
+
+
+private:
+
+	UInventory_Component* InventoryComponent;
+
 
 	
 };
