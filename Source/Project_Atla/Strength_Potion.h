@@ -25,8 +25,8 @@ public:
     UStrength_Potion()
     {
         ItemName = "Strength Potion";
-        StrengthIncreasePercentage = 2.2f;
-        Duration = 3.0f; // Example duration
+        StrengthIncreasePercentage = 2.1f;
+        Duration = 3.0f; 
 
     }
 

@@ -2,6 +2,9 @@
 
 
 #include "Item_Button_Widget.h"
+#include "Item_Class.h"
+#include "Ren_Low_Poly_Character.h"
+
 
 void UItem_Button_Widget::NativeConstruct()
 {

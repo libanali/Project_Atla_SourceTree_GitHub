@@ -27,8 +27,8 @@ public:
 	UStandard_Health_Potion()
 	{
 
-		ItemName = "Strength Potion";
-		HealthIncreasePercentage = 1.2f;
+		ItemName = "Standard Health Potion";
+		HealthIncreasePercentage = 2.2f;
 	}
 
 

@@ -25,8 +25,8 @@ public:
     UDefence_Potion()
     {
         ItemName = "Defense Potion";
-        DefenseIncreasePercentage = 2.2f;
-        Duration = 30.0f; // Example duration
+        DefenseIncreasePercentage = 2.1f;
+        Duration = 5.0f; // Example duration
     }
 
 

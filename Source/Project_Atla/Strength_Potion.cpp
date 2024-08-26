@@ -12,5 +12,4 @@ void UStrength_Potion::UseItem(ARen_Low_Poly_Character* Ren)
         Ren->IncreaseAttack(StrengthIncreasePercentage, Duration);
     }
 
-
 }

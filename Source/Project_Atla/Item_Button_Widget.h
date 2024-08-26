@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "Item_Class.h"
 #include "Item_Button_Widget.generated.h"
 
 /**
@@ -28,6 +29,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Item")
 		FName ItemName;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item")
+		UItem_Class* ItemInstance;
+
 	UFUNCTION(BlueprintCallable)
 		void SetItemDetails(const FName& TheItemName, int32 Quantity);
 
@@ -37,7 +41,7 @@ public:
 	int32 CurrentQuantity;
 
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (BindWidget), Category = "Item Text")
 		class UTextBlock* ItemText;
 
 	

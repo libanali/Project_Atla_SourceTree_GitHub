@@ -19,4 +19,6 @@ public:
 
 		AStandard_Health_Potion_World();
 	
+		UFUNCTION(BlueprintCallable)
+			void OnPickup();
 };
