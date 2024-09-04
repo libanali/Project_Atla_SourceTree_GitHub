@@ -69,6 +69,7 @@ bool UInventory_Component::AddItem(UItem_Class* Item)
 
     // If the item couldn't be fully added (no space or other issue)
     return false;
+
 }
 
 

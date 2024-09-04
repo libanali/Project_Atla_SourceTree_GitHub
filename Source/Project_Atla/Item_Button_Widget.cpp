@@ -11,7 +11,7 @@ void UItem_Button_Widget::NativeConstruct()
 
 	Super::NativeConstruct();
 
-    //ItemButton->SetVisibility(ESlateVisibility::Visible);
+    GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("BUTTON!!!!!!!!!!!!!!!!!!!!!!"));
 
 }
 
@@ -20,7 +20,7 @@ void UItem_Button_Widget::SetItemDetails(const FName& TheItemName, int32 Quantit
 
     if (ItemText)
     {
-        ItemText->SetText(FText::FromString(FString::Printf(TEXT("%s x%d"), *TheItemName.ToString(), Quantity)));
+        ItemText->SetText(FText::FromString(FString::Printf(TEXT("%s"), *TheItemName.ToString())));
     }
 
 }

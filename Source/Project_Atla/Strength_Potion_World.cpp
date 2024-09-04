@@ -32,11 +32,12 @@ void AStrength_Potion_World::OnPickup()
         if (bAdded)
         {
             UE_LOG(LogTemp, Log, TEXT("Strength Potion successfully added to inventory."));
+
             Destroy();  // Destroy the world item after pickup
         }
         else
         {
-            UE_LOG(LogTemp, Warning, TEXT("Failed to add Defense Potion to inventory."));
+            UE_LOG(LogTemp, Warning, TEXT("Failed to add Strength Potion to inventory."));
         }
     }
 
