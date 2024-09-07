@@ -15,9 +15,6 @@
 #include "Ability_Struct.h"
 #include "Engine/DataTable.h"
 #include "Character_Attributes.h"
-#include "Inventory_Component.h"
-#include "Item_Class.h"
-#include "WorldItem.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
 
@@ -236,11 +233,9 @@ public:
 
 
 	//Inventory
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
-		UInventory_Component* InventoryComponent;
+	
 
-	UFUNCTION(BlueprintCallable, Category = "Inventory")
-		void PickupItem(AWorldItem* WorldItem);
+	
 	//Inventory
 
 

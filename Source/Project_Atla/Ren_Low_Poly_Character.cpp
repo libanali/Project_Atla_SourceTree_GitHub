@@ -76,7 +76,6 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	ExperienceRequired.Add(240);//Level 5
 
 	//InventorySystem
-	InventoryComponent = CreateDefaultSubobject<UInventory_Component>(TEXT("InventoryComponent"));
 
 
 }
@@ -444,18 +443,6 @@ void ARen_Low_Poly_Character::CheckAndTriggerLevelUp()
 
 
 
-void ARen_Low_Poly_Character::PickupItem(AWorldItem* WorldItem)
-{
-
-	if (WorldItem && InventoryComponent)
-	{
-		if (InventoryComponent->AddItem(WorldItem->Item))
-		{
-			WorldItem->Destroy();
-		}
-	}
-
-}
 
 
 
