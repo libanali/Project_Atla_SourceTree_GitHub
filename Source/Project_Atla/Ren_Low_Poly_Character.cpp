@@ -4,6 +4,9 @@
 #include "Ren_Low_Poly_Character.h"
 #include "Kismet/Gameplaystatics.h"
 #include "Enemy_Poly.h"
+#include "Item_Pick_Up_Actor.h"
+#include "Inventory_Component.h"
+#include "Item.h"
 
 // Sets default values
 ARen_Low_Poly_Character::ARen_Low_Poly_Character()
@@ -37,7 +40,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	Camera->bUsePawnControlRotation = false;
 
 	//Inventory
-
+	InventoryComponent = CreateDefaultSubobject<UInventory_Component>(TEXT("Inventory System"));
 
 	//Ability
 	bCanUseAbility = false;
@@ -441,6 +444,26 @@ void ARen_Low_Poly_Character::CheckAndTriggerLevelUp()
 
 }
 
+void ARen_Low_Poly_Character::OnOverLapItem(AActor* OverlappedActor, AActor* OtherActor)
+{
+
+	AItem_Pick_Up_Actor* Item_PickUp = Cast<AItem_Pick_Up_Actor>(OtherActor);
+
+	if (Item_PickUp && InventoryComponent)
+
+	{
+
+		UItem* Item = Item_PickUp->GetItem();
+		bool bAdded = InventoryComponent->AddItem(Item);
+		if (bAdded)
+		{
+			Item_PickUp->Destroy();
+		}
+
+	}
+
+}
+
 
 
 
@@ -467,6 +490,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 	AbilityStruct.CurrentAbilityPoints = 145.0f;
 
 	//CharacterLevel = 1;
+
+	OnActorBeginOverlap.AddDynamic(this, &ARen_Low_Poly_Character::OnOverLapItem);
 
 	
 }
