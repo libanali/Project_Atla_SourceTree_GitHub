@@ -7,6 +7,8 @@
 #include "Item_Pick_Up_Actor.generated.h"
 
 class UItem;
+class UBoxComponent; 
+class UStaticMeshComponent;
 
 UCLASS()
 class PROJECT_ATLA_API AItem_Pick_Up_Actor : public AActor
@@ -22,6 +24,14 @@ public:
 
 	UItem* GetItem() const { return Item; }
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pickup")
+		UBoxComponent* CollisionComponent;
+
+	// Static mesh to represent the item visually
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pickup")
+		UStaticMeshComponent* MeshComponent;
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -29,5 +39,10 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
+
+	UFUNCTION()
+		void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+			class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex,
+			bool bFromSweep, const FHitResult& SweepResult);
 
 };

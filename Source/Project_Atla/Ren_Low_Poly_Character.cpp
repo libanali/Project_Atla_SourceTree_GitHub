@@ -444,25 +444,6 @@ void ARen_Low_Poly_Character::CheckAndTriggerLevelUp()
 
 }
 
-void ARen_Low_Poly_Character::OnOverLapItem(AActor* OverlappedActor, AActor* OtherActor)
-{
-
-	AItem_Pick_Up_Actor* Item_PickUp = Cast<AItem_Pick_Up_Actor>(OtherActor);
-
-	if (Item_PickUp && InventoryComponent)
-
-	{
-
-		UItem* Item = Item_PickUp->GetItem();
-		bool bAdded = InventoryComponent->AddItem(Item);
-		if (bAdded)
-		{
-			Item_PickUp->Destroy();
-		}
-
-	}
-
-}
 
 
 

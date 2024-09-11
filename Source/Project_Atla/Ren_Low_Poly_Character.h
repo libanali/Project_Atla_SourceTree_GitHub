@@ -235,10 +235,6 @@ public:
 	//Inventory
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
 		class UInventory_Component* InventoryComponent;
-
-
-	UFUNCTION(BlueprintCallable)
-		void OnOverLapItem(AActor* OverlappedActor, AActor* OtherActor);
 	//Inventory
 
 
