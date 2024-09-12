@@ -6,6 +6,7 @@
 #include "Enemy_Poly.h"
 #include "Item_Pick_Up_Actor.h"
 #include "Inventory_Component.h"
+#include "Components/CapsuleComponent.h"
 #include "Item.h"
 
 // Sets default values
@@ -79,6 +80,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	ExperienceRequired.Add(240);//Level 5
 
 	//InventorySystem
+	
 
 
 }
@@ -472,7 +474,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	//CharacterLevel = 1;
 
-	OnActorBeginOverlap.AddDynamic(this, &ARen_Low_Poly_Character::OnOverLapItem);
+	
 
 	
 }
@@ -486,7 +488,6 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 
 	ToggleSoftLock();
 
-
 }
 
 // Called to bind functionality to input
@@ -499,5 +500,39 @@ void ARen_Low_Poly_Character::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 
 	PlayerInputComponent->BindAction("Ability", IE_Pressed, this, &ARen_Low_Poly_Character::UseAbility);
+}
+
+void ARen_Low_Poly_Character::OnOverlapWithItem(AActor* OverlappedActor, AActor* OtherActor)
+{
+
+	// Check if the overlapped actor is the pickup actor
+	AItem_Pick_Up_Actor* ItemActor = Cast<AItem_Pick_Up_Actor>(OtherActor);
+	if (ItemActor && ItemActor->GetItem())  // Ensure it's a valid item actor
+	{
+		// Try to add the item to the inventory
+		bool bItemAdded = InventoryComponent->AddItem(ItemActor->GetItem());
+
+		// Print a message to the screen if added successfully
+		if (bItemAdded)
+		{
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, (TEXT("Picked up!")));
+			}
+
+			// Destroy the item in the world after picking it up
+			ItemActor->Destroy();
+		}
+		else
+		{
+			// If the item couldn't be added (e.g., inventory full)
+			if (GEngine)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Inventory is full!"));
+			}
+		}
+	}
+
+
 }
 

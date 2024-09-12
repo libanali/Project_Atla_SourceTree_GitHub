@@ -8,7 +8,7 @@ UHealth_Potion::UHealth_Potion()
 {
 
 	ItemName = "Standard Health Potion";
-	MaxStackSize = 10;
+	MaxStackSize = 3;
 	Quantity = 1;
 
 }

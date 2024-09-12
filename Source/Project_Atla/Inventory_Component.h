@@ -27,7 +27,11 @@ public:
         TArray<UItem*> InventoryItems;
 
     // Add item to inventory
+    UFUNCTION(BlueprintCallable)
     bool AddItem(UItem* Item);
+
+    // Finds the index of the item in the inventory if it exists, otherwise returns -1
+    int32 FindItemIndex(UItem* Item) const;
 
     // Remove item if quantity is 0
     void RemoveItem(UItem* Item);

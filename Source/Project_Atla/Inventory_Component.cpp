@@ -19,27 +19,51 @@ UInventory_Component::UInventory_Component()
 
 bool UInventory_Component::AddItem(UItem* Item)
 {
-    for (UItem* ExistingItem : InventoryItems)
+    if (!Item) return false;  // Return false if the item is null
+
+    int32 ItemIndex = FindItemIndex(Item);
+
+    if (ItemIndex != INDEX_NONE)
     {
-        if (ExistingItem->ItemName == Item->ItemName)
+        UItem* ExistingItem = InventoryItems[ItemIndex];
+        int32 RemainingSpace = ExistingItem->MaxStackSize - ExistingItem->Quantity;
+
+        if (RemainingSpace > 0)
         {
-            if (ExistingItem->Quantity + Item->Quantity <= ExistingItem->MaxStackSize)
+            int32 AmountToAdd = FMath::Min(RemainingSpace, Item->Quantity);
+            ExistingItem->Quantity += AmountToAdd;
+            Item->Quantity -= AmountToAdd;
+
+            if (Item->Quantity > 0)
             {
-                ExistingItem->Quantity += Item->Quantity;
-                return true;
+                AddItem(Item);  // Recursively add the remaining items
+                GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Stacked")));
+
             }
+
+            return true;  // Return true after successfully stacking the item
         }
     }
 
-    // Add new item if space is available
-    if (HasSpace())
+    if (InventoryItems.Num() < MaxInventorySlots)
     {
         InventoryItems.Add(Item);
-        return true;
+        return true;  // Return true after adding a new item
     }
 
-    // Inventory is full
-    return false;
+    return false;  // Return false if the item couldn't be added
+}
+
+int32 UInventory_Component::FindItemIndex(UItem* Item) const
+{
+    for (int32 i = 0; i < InventoryItems.Num(); i++)
+    {
+        if (InventoryItems[i]->ItemName == Item->ItemName)
+        {
+            return i;  // Return index if found
+        }
+    }
+    return INDEX_NONE;
 }
 
 void UInventory_Component::RemoveItem(UItem* Item)
