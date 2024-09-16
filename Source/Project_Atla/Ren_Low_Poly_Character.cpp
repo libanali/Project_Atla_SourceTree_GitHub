@@ -448,42 +448,6 @@ void ARen_Low_Poly_Character::CheckAndTriggerLevelUp()
 
 
 
-/*
-void ARen_Low_Poly_Character::OnOverlapWithItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-
-	// Check if the overlapped actor is the pickup actor
-	AItem_Pick_Up_Actor* ItemActor = Cast<AItem_Pick_Up_Actor>(OtherActor);
-	if (ItemActor && ItemActor->GetItem())  // Ensure it's a valid item actor
-	{
-		// Try to add the item to the inventory
-		bool bItemAdded = InventoryComponent->AddItem(ItemActor->GetItem());
-
-		// Print a message to the screen if added successfully
-		if (bItemAdded)
-		{
-			if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, (TEXT("Picked up!")));
-			}
-
-			// Destroy the item in the world after picking it up
-			ItemActor->Destroy();
-		}
-		else
-		{
-			// If the item couldn't be added (e.g., inventory full)
-			if (GEngine)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Inventory is full!"));
-			}
-		}
-	}
-
-
-}
-*/
-
 
 
 
