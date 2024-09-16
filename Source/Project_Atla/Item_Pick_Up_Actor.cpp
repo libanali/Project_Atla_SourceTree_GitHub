@@ -15,11 +15,6 @@ AItem_Pick_Up_Actor::AItem_Pick_Up_Actor()
 	PrimaryActorTick.bCanEverTick = true;
 
  
-
-    // Initialize the static mesh to represent the item visually
-    MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
-    MeshComponent->SetupAttachment(RootComponent);
-
     
 
 }

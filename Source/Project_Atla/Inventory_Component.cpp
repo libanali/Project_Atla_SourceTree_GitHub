@@ -19,14 +19,33 @@ UInventory_Component::UInventory_Component()
 
 bool UInventory_Component::AddItem(UItem* Item)
 {
-    if (!Item) return false;  // Return false if the item is null
+    if (!Item)
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("AddItem failed: Item is null"));
+        return false;  // Return false if the item is null
+    }
+
+    // Debug: Show which item we're trying to add
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Trying to add item: %s"), *Item->ItemName.ToString()));
 
     int32 ItemIndex = FindItemIndex(Item);
+
+    // Debug: Show if we found an item index
+    if (ItemIndex == INDEX_NONE)
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, TEXT("Item not found in inventory, adding as new item"));
+    }
+    else
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Item found at index: %d"), ItemIndex));
+    }
 
     if (ItemIndex != INDEX_NONE)
     {
         UItem* ExistingItem = InventoryItems[ItemIndex];
         int32 RemainingSpace = ExistingItem->MaxStackSize - ExistingItem->Quantity;
+
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Remaining space: %d"), RemainingSpace));
 
         if (RemainingSpace > 0)
         {
@@ -34,24 +53,27 @@ bool UInventory_Component::AddItem(UItem* Item)
             ExistingItem->Quantity += AmountToAdd;
             Item->Quantity -= AmountToAdd;
 
-            if (Item->Quantity > 0)
-            {
-                AddItem(Item);  // Recursively add the remaining items
-                GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Stacked")));
+            GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, FString::Printf(TEXT("Added %d items to existing stack"), AmountToAdd));
 
+            if (Item->Quantity > 0 && HasSpace())
+            {
+                GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Stacking remaining items..."));
+                AddItem(Item);  // Recursively add the remaining items
             }
 
-            return true;  // Return true after successfully stacking the item
+            return true;
         }
     }
 
-    if (InventoryItems.Num() < MaxInventorySlots)
+    if (HasSpace())
     {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, TEXT("Adding new item to inventory"));
         InventoryItems.Add(Item);
         return true;  // Return true after adding a new item
     }
 
-    return false;  // Return false if the item couldn't be added
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Inventory full or item couldn't be added!"));
+    return false;
 }
 
 int32 UInventory_Component::FindItemIndex(UItem* Item) const

@@ -24,13 +24,6 @@ public:
 
 	UItem* GetItem() const { return Item; }
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pickup")
-		UBoxComponent* CollisionComponent;
-
-	// Static mesh to represent the item visually
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Pickup")
-		UStaticMeshComponent* MeshComponent;
-
 
 protected:
 	// Called when the game starts or when spawned

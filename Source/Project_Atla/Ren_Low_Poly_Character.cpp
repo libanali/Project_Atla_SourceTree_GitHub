@@ -80,7 +80,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	ExperienceRequired.Add(240);//Level 5
 
 	//InventorySystem
-	
+
 
 
 }
@@ -448,61 +448,8 @@ void ARen_Low_Poly_Character::CheckAndTriggerLevelUp()
 
 
 
-
-
-
-
-// Called when the game starts or when spawned
-void ARen_Low_Poly_Character::BeginPlay()
-{
-	Super::BeginPlay();
-
-	HealthStruct.InitializeHealth();
-	HealthStruct.CurrentHealth = 30.0f;
-	AbilityStruct.InitializeAbilityPoints();
-
-	TArray<AActor*> OverlappingActors;
-	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Enemy")), OverlappingActors);
-
-	for (AActor* Actor : OverlappingActors)
-	{
-		LockOnCandidates.Add(Actor);
-	}
-
-
-	AbilityStruct.CurrentAbilityPoints = 145.0f;
-
-	//CharacterLevel = 1;
-
-	
-
-	
-}
-
-// Called every frame
-void ARen_Low_Poly_Character::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-	CheckAbilityUsage();
-
-	ToggleSoftLock();
-
-}
-
-// Called to bind functionality to input
-void ARen_Low_Poly_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-	PlayerInputComponent->BindAxis("MoveForward", this, &ARen_Low_Poly_Character::MoveForward);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ARen_Low_Poly_Character::MoveRight);
-
-
-	PlayerInputComponent->BindAction("Ability", IE_Pressed, this, &ARen_Low_Poly_Character::UseAbility);
-}
-
-void ARen_Low_Poly_Character::OnOverlapWithItem(AActor* OverlappedActor, AActor* OtherActor)
+/*
+void ARen_Low_Poly_Character::OnOverlapWithItem(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 
 	// Check if the overlapped actor is the pickup actor
@@ -534,5 +481,63 @@ void ARen_Low_Poly_Character::OnOverlapWithItem(AActor* OverlappedActor, AActor*
 	}
 
 
+}
+*/
+
+
+
+
+
+
+
+
+// Called when the game starts or when spawned
+void ARen_Low_Poly_Character::BeginPlay()
+{
+	Super::BeginPlay();
+
+	HealthStruct.InitializeHealth();
+	HealthStruct.CurrentHealth = 30.0f;
+	AbilityStruct.InitializeAbilityPoints();
+
+	TArray<AActor*> OverlappingActors;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Enemy")), OverlappingActors);
+
+	for (AActor* Actor : OverlappingActors)
+	{
+		LockOnCandidates.Add(Actor);
+	}
+
+
+	AbilityStruct.CurrentAbilityPoints = 145.0f;
+
+	//CharacterLevel = 1;
+
+	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ARen_Low_Poly_Character::OnOverlapWithItem);
+
+	
+}
+
+// Called every frame
+void ARen_Low_Poly_Character::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	CheckAbilityUsage();
+
+	ToggleSoftLock();
+
+}
+
+// Called to bind functionality to input
+void ARen_Low_Poly_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+	PlayerInputComponent->BindAxis("MoveForward", this, &ARen_Low_Poly_Character::MoveForward);
+	PlayerInputComponent->BindAxis("MoveRight", this, &ARen_Low_Poly_Character::MoveRight);
+
+
+	PlayerInputComponent->BindAction("Ability", IE_Pressed, this, &ARen_Low_Poly_Character::UseAbility);
 }
 
