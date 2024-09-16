@@ -477,7 +477,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	//CharacterLevel = 1;
 
-	GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ARen_Low_Poly_Character::OnOverlapWithItem);
+	//GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ARen_Low_Poly_Character::OnOverlapWithItem);
 
 	
 }
