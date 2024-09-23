@@ -235,11 +235,6 @@ public:
 	//Level
 
 
-	//Inventory
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
-		class UInventory_Component* InventoryComponent;
-	//Inventory
-
 
 
 
