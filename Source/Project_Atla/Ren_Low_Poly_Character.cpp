@@ -5,7 +5,6 @@
 #include "Kismet/Gameplaystatics.h"
 #include "Enemy_Poly.h"
 #include "Item_Pick_Up_Actor.h"
-#include "Inventory_Component.h"
 #include "Components/CapsuleComponent.h"
 #include "Item.h"
 
@@ -41,7 +40,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	Camera->bUsePawnControlRotation = false;
 
 	//Inventory
-	InventoryComponent = CreateDefaultSubobject<UInventory_Component>(TEXT("Inventory System"));
+
 
 	//Ability
 	bCanUseAbility = false;
@@ -311,6 +310,12 @@ void ARen_Low_Poly_Character::TakeDamage(float DamageAmount)
 
 
 
+}
+
+void ARen_Low_Poly_Character::IncreaseHealth(float HealAmount)
+{
+
+	HealthStruct.IncreaseHealth(HealAmount);
 }
 
 

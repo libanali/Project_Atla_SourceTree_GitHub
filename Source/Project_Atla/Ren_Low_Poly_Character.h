@@ -135,6 +135,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 		void TakeDamage(float DamageAmount);
 
+	UFUNCTION(BlueprintCallable)
+		void IncreaseHealth(float HealAmount);
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
 		float DamageReduction;
 
