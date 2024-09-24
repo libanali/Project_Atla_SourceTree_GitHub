@@ -55,9 +55,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		bool Rolling;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-		bool bInvincible;
-
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 		void InflictDamageOnEnemy(AEnemy_Poly* Enemy);
 
