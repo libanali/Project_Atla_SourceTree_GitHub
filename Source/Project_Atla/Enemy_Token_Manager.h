@@ -4,26 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Item_Pick_Up_Actor.generated.h"
-
-class UItem;
-class UBoxComponent; 
-class UStaticMeshComponent;
+#include "Enemy_Token_Manager.generated.h"
 
 UCLASS()
-class PROJECT_ATLA_API AItem_Pick_Up_Actor : public AActor
+class PROJECT_ATLA_API AEnemy_Token_Manager : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AItem_Pick_Up_Actor();
-
-	UPROPERTY(EditAnywhere, Category = "Item")
-		UItem* Item;
-
-	UItem* GetItem() const { return Item; }
-
+	AEnemy_Token_Manager();
 
 protected:
 	// Called when the game starts or when spawned
@@ -32,7 +22,5 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
-
-	
 
 };
