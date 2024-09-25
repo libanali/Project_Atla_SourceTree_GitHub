@@ -11,6 +11,7 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Enemy_Token_Manager.h"
 #include "Enemy_Poly.generated.h"
 
 
@@ -73,7 +74,17 @@ public:
 	//Combat
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 		bool Attacking;
+
+	UPROPERTY()
+		AEnemy_Token_Manager* TokenManager;
+
+	bool bHasToken;
+
+	void RequestToken();
+	void ReleaseToken();
 	//Combat
+
+
 
 
 

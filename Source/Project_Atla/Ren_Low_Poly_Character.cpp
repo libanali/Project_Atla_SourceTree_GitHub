@@ -464,7 +464,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	Super::BeginPlay();
 
 	HealthStruct.InitializeHealth();
-	HealthStruct.CurrentHealth = 30.0f;
+	HealthStruct.CurrentHealth = 100.0f;
 	AbilityStruct.InitializeAbilityPoints();
 
 	TArray<AActor*> OverlappingActors;

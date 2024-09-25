@@ -103,6 +103,24 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 
 }
 
+void AEnemy_Poly::RequestToken()
+{
+
+
+
+
+}
+
+
+
+void AEnemy_Poly::ReleaseToken()
+{
+
+
+
+
+}
+
 // Called when the game starts or when spawned
 void AEnemy_Poly::BeginPlay()
 {

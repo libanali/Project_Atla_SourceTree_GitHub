@@ -7,6 +7,7 @@
 #include "Engine/World.h"
 #include "TimerManager.h"
 #include "NavigationSystem.h"
+#include "Enemy_Token_Manager.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -19,9 +20,11 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
     BaseEnemiesPerRound = 3;
     SpawnRadius = 2000.0f;
     CurrentRound = 1;
-    AdditionalEnemyHealthPerRound = 20.0f;
+    AdditionalEnemyHealthPerRound = 50.0f;
     AdditionalEnemiesPerRound = 1.9f;
-   
+    BaseSpawnDelay = 2.0f;         // Initial delay between spawns in the first round
+    MinSpawnDelay = 1.5f;          // Minimum delay between spawns in later rounds
+    DelayDecreasePerRound = 0.2f;
 
 }
 
@@ -31,6 +34,7 @@ void ALowPoly_Survival_GameMode::BeginPlay()
     Super::BeginPlay();
 
     StartNextRound();
+
 
 }
 
@@ -54,27 +58,32 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
     // Calculate the number of enemies to spawn this round
     int32 EnemiesToSpawn = BaseEnemiesPerRound + (CurrentRound - 1) * AdditionalEnemiesPerRound;
 
+    // Calculate the spawn delay (decrease as the rounds progress)
+    float LocalSpawnDelay = FMath::Max(MinSpawnDelay, BaseSpawnDelay - (CurrentRound - 1) * DelayDecreasePerRound);
+
+    // Spawn enemies one by one with delay
     for (int32 i = 0; i < EnemiesToSpawn; i++)
     {
-        FVector SpawnLocation = GetRandomPointNearPlayer();
-        FRotator SpawnRotation = FRotator::ZeroRotator;
+        FTimerHandle LocalSpawnTimerHandle;
+        // Use a lambda function to handle the delayed enemy spawn
+        GetWorld()->GetTimerManager().SetTimer(LocalSpawnTimerHandle, [this]()
+            {
+                FVector SpawnLocation = GetRandomPointNearPlayer();
+                FRotator SpawnRotation = FRotator::ZeroRotator;
 
-        AEnemy_Poly* SpawnedEnemy = World->SpawnActor<AEnemy_Poly>(EnemyClass, SpawnLocation, SpawnRotation);
-        
-        
-        if (SpawnedEnemy)
-        {
-            // Set the enemy's health based on the current round
+                AEnemy_Poly* SpawnedEnemy = GetWorld()->SpawnActor<AEnemy_Poly>(EnemyClass, SpawnLocation, SpawnRotation);
 
-            float AddedEnemyHealth = SpawnedEnemy->MaxEnemyHealth + (CurrentRound - 1) * AdditionalEnemyHealthPerRound;
-            SpawnedEnemy->IncreaseEnemyHealth(AddedEnemyHealth, true);
-            // Add to the list of spawned enemies
-            SpawnedEnemies.Add(SpawnedEnemy);
+                if (SpawnedEnemy)
+                {
+                    // Set the enemy's health based on the current round
+                    float AddedEnemyHealth = SpawnedEnemy->MaxEnemyHealth + (CurrentRound - 1) * AdditionalEnemyHealthPerRound;
+                    SpawnedEnemy->IncreaseEnemyHealth(AddedEnemyHealth, true);
 
-           
-        }
+                    // Add to the list of spawned enemies
+                    SpawnedEnemies.Add(SpawnedEnemy);
+                }
+            }, i * LocalSpawnDelay, false);  // Set delay for each spawn
     }
-
 
 }
 
@@ -114,6 +123,7 @@ void ALowPoly_Survival_GameMode::CheckForNextRound()
         StartNextRound();
     }
 }
+
 
 
 

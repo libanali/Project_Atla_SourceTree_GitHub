@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
 #include "Enemy_Poly.h"
+#include "Enemy_Token_Manager.h"
 #include "LowPoly_Survival_GameMode.generated.h"
 
 /**
@@ -69,6 +70,15 @@ protected:
 
     // List of currently spawned enemies
     TArray<AEnemy_Poly*> SpawnedEnemies;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawning")
+        float BaseSpawnDelay = 4.0f;  // Initial delay between spawns in the first round
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawning")
+        float MinSpawnDelay = 0.5f;   // Minimum delay between spawns
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawning")
+        float DelayDecreasePerRound = 0.2f;  // How much the delay decreases each round
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
         float SpawnRadius;
