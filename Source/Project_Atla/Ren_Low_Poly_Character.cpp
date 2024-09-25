@@ -4,9 +4,7 @@
 #include "Ren_Low_Poly_Character.h"
 #include "Kismet/Gameplaystatics.h"
 #include "Enemy_Poly.h"
-#include "Item_Pick_Up_Actor.h"
 #include "Components/CapsuleComponent.h"
-#include "Item.h"
 
 // Sets default values
 ARen_Low_Poly_Character::ARen_Low_Poly_Character()
