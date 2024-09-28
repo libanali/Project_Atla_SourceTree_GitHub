@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Enemy_AIController.h"
 #include "Enemy_Token_Manager.generated.h"
 
 UCLASS()
@@ -20,17 +21,18 @@ public:
 	// Sets default values for this actor's properties
 	AEnemy_Token_Manager();
 
-	// Grant a token to an enemy if there are available tokens
-	bool GrantToken(AEnemy_Poly* Enemy);
+	// Maximum number of enemies that can attack at once
+	int32 MaxAttackers;
 
-	// Revoke a token when an enemy finishes attacking
-	void RevokeToken(AEnemy_Poly* Enemy);
+	// Store references to AI controllers with tokens
+	TArray<AEnemy_AIController*> ActiveAttackers;
 
-	// Check if an enemy currently holds a token
-	bool HasToken(AEnemy_Poly* Enemy) const;
+	// Singleton instance to easily get token manager
+	static AEnemy_Token_Manager* GetTokenManager(UWorld* World);
 
-	// Set the maximum number of tokens (can change per wave)
-	void SetMaxTokens(int32 NewMaxTokens);
+	// Request and release token functions
+	bool RequestAttackToken(AEnemy_AIController* AIController);
+	void ReleaseAttackToken(AEnemy_AIController* AIController);
 
 protected:
 	// Called when the game starts or when spawned

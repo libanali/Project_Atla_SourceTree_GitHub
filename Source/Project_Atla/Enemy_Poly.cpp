@@ -136,6 +136,9 @@ void AEnemy_Poly::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, TEXT("Helooooooo"));
+
+
 	Death();
 
 }

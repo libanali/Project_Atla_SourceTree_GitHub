@@ -2,72 +2,49 @@
 
 
 #include "Enemy_Token_Manager.h"
+#include "Kismet/GameplayStatics.h"
 
-// Sets default values
+
 AEnemy_Token_Manager::AEnemy_Token_Manager()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
-	MaxTokens = 3;
+    PrimaryActorTick.bCanEverTick = true;
+    MaxAttackers = 1;
 
 }
 
-bool AEnemy_Token_Manager::GrantToken(AEnemy_Poly* Enemy)
+AEnemy_Token_Manager* AEnemy_Token_Manager::GetTokenManager(UWorld* World)
+
 {
+    return Cast<AEnemy_Token_Manager>(UGameplayStatics::GetActorOfClass(World, AEnemy_Token_Manager::StaticClass()));
 
-	if (ActiveEnemies.Num() < MaxTokens && !ActiveEnemies.Contains(Enemy))
+}
 
-	{
-
-		ActiveEnemies.Add(Enemy);
-		return true;
-
-	}
+bool AEnemy_Token_Manager::RequestAttackToken(AEnemy_AIController* AIController)
+{
+    if (ActiveAttackers.Num() < MaxAttackers)
+    {
+        ActiveAttackers.Add(AIController);
+        return true;
+    }
 
 
 	return false;
 }
 
-
-
-void AEnemy_Token_Manager::RevokeToken(AEnemy_Poly* Enemy)
+void AEnemy_Token_Manager::ReleaseAttackToken(AEnemy_AIController* AIController)
 {
 
-	ActiveEnemies.Remove(Enemy);
+    ActiveAttackers.Remove(AIController);
 
 }
 
-
-
-bool AEnemy_Token_Manager::HasToken(AEnemy_Poly* Enemy) const
-{
-	return ActiveEnemies.Contains(Enemy);
-}
-
-
-
-void AEnemy_Token_Manager::SetMaxTokens(int32 NewMaxTokens)
-{
-
-	MaxTokens = NewMaxTokens;
-}
-
-
-
-// Called when the game starts or when spawned
 void AEnemy_Token_Manager::BeginPlay()
 {
-	Super::BeginPlay();
-	
+    Super::BeginPlay();
+
 }
 
-
-
-// Called every frame
 void AEnemy_Token_Manager::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
-
+    Super::Tick(DeltaTime);
 }
-
