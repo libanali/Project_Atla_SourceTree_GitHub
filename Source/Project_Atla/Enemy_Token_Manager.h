@@ -19,7 +19,6 @@ public:
 	// Sets default values for this actor's properties
 	AEnemy_Token_Manager();
 
-<<<<<<< HEAD
    
 	void RegisterEnemy(AEnemy_AIController* EnemyController);
 	void EnemyTurn(AEnemy_AIController* EnemyController);
@@ -29,7 +28,6 @@ private:
 	TArray<AEnemy_AIController*> EnemyControllers;
 	int32 CurrentTurnIndex = 0;
 
-=======
 	// Maximum number of enemies that can attack at once
 	int32 MaxAttackers;
 
@@ -50,6 +48,5 @@ protected:
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
->>>>>>> 5749d8dcf7dd34f86420997710557c35eeb2c13b
 
 };
