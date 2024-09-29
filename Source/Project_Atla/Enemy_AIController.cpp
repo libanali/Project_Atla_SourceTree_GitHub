@@ -50,21 +50,14 @@ void AEnemy_AIController::AttackPlayer()
 
     if (TargetPlayer)
     {
-        // Implement attack logic here (e.g., call the attack function from Enemy_Poly)
         AEnemy_Poly* Enemy = Cast<AEnemy_Poly>(GetPawn());
 
         if (Enemy)
         {
-            Enemy->Attack();  // Call the attack logic from the Enemy class
-            GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("Attack!"));
+            Enemy->Attack();  // Make sure Attack() is implemented in AEnemy_Poly
+            GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Enemy is Attacking!"));
 
             bIsAttacking = true;
-
-            // Set a timer to reset bIsAttacking after 2 seconds (or however long you want the delay)
-            GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
-                {
-                    bIsAttacking = false;
-                });
         }
     }
 
@@ -96,9 +89,14 @@ void AEnemy_AIController::UpdateState()
 
     if (TargetPlayer)
     {
-        float DistanceToPlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
-        if (DistanceToPlayer < AttackRange) // Define AttackRange in your Enemy_Poly class
+        DistanceToPlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
+
+        // Debug the distance
+        GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("Distance to Player: %f"), DistanceToPlayer));
+
+        if (DistanceToPlayer <= AttackRange)
         {
+            GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Blue, TEXT("Within Attack Range"));
             AttackPlayer();
         }
         else
@@ -107,29 +105,49 @@ void AEnemy_AIController::UpdateState()
         }
     }
 
+}
+
+void AEnemy_AIController::FacePlayer()
+{
+
+    if (!TargetPlayer) return;
+
+    // Get the location of the enemy and the player
+    FVector EnemyLocation = GetPawn()->GetActorLocation();
+    FVector PlayerLocation = TargetPlayer->GetActorLocation();
+
+    // Calculate the direction to the player
+    FVector DirectionToPlayer = (PlayerLocation - EnemyLocation).GetSafeNormal();
+
+    // Get the desired rotation to face the player
+    FRotator DesiredRotation = FRotationMatrix::MakeFromX(DirectionToPlayer).Rotator();
+
+    // Set the pawn's rotation to smoothly face the player (optional: you can adjust this for smooth turning)
+    GetPawn()->SetActorRotation(FMath::RInterpTo(GetPawn()->GetActorRotation(), DesiredRotation, GetWorld()->GetDeltaSeconds(), 5.0f));
+
 
 }
 
 void AEnemy_AIController::Tick(float deltaTime)
 {
-    // Ensure there is a valid player target
+    // Ensure there's a valid player target
     if (TargetPlayer)
     {
-        float DistanceToPlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
-        GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Yellow, FString::Printf(TEXT("Distance to player: %f"), DistanceToPlayer));
-
-        if (DistanceToPlayer <= AttackRange)
+        // If already attacking, don't re-trigger
+        if (!bIsAttacking)
         {
-            GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, TEXT("Within Attack Range!"));
-            if (!bIsAttacking)
-            {
-                AttackPlayer();
-            }
+            UpdateState();
         }
+
         else
+
         {
-            MoveToActor(TargetPlayer, 50.0f);
+            MoveToActor(TargetPlayer, AttackRange);
+
+
         }
     }
+
+    FacePlayer();
 
 }

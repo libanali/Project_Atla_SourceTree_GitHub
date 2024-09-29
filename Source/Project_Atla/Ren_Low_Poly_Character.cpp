@@ -42,7 +42,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 	//Ability
 	bCanUseAbility = false;
-	
+	bIncreaseAbilityPoints = true;
 
 	//Lock-On
 	bIsSoftLockEnabled = false;
@@ -72,9 +72,6 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	ExperienceRequired.Add(100);//Level 3
 	ExperienceRequired.Add(180);//Level 4
 	ExperienceRequired.Add(240);//Level 5
-
-	//InventorySystem
-
 
 
 }
@@ -160,8 +157,21 @@ void ARen_Low_Poly_Character::InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy)
 void ARen_Low_Poly_Character::IncreaseAbilityPoints(float Amount)
 {
 
-	AbilityStruct.CurrentAbilityPoints = FMath::Min(AbilityStruct.CurrentAbilityPoints + Amount, AbilityStruct.MaxAbilityPoints);
+	if (bIncreaseAbilityPoints)
+	{
 
+		AbilityStruct.CurrentAbilityPoints = FMath::Min(AbilityStruct.CurrentAbilityPoints + Amount, AbilityStruct.MaxAbilityPoints);
+
+	}
+
+	else
+
+	{
+
+		AbilityStruct.CurrentAbilityPoints = FMath::Min(AbilityStruct.CurrentAbilityPoints + 0, AbilityStruct.MaxAbilityPoints);
+
+
+	}
 }
 
 
@@ -176,6 +186,7 @@ void ARen_Low_Poly_Character::UseAbility()
 		AbilityStruct.CurrentAbilityPoints = 0.0f;
 		bCanUseAbility = false;
 		PlayAnimMontage(AbilityAnimation, 1.0f);
+
 	}
 
 
@@ -202,6 +213,7 @@ void ARen_Low_Poly_Character::DisableInputWhilePlayingAnimation()
 
 
 }
+
 
 
 

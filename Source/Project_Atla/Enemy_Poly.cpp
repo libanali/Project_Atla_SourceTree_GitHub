@@ -137,7 +137,6 @@ void AEnemy_Poly::BeginPlay()
 
 	CurrentEnemyHealth = 100.0f;
 
-	
 }
 
 // Called every frame
@@ -149,6 +148,7 @@ void AEnemy_Poly::Tick(float DeltaTime)
 
 
 	Death();
+	
 
 }
 

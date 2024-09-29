@@ -11,7 +11,7 @@ AEnemy_Token_Manager::AEnemy_Token_Manager()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-    TurnDuration = 5.0f; // Example duration for each enemy's turn
+    TurnDuration = 3.0f; // Example duration for each enemy's turn
     CurrentEnemyIndex = 0;
 
 
@@ -30,6 +30,14 @@ void AEnemy_Token_Manager::RegisterEnemy(AEnemy_AIController* EnemyController)
 
 void AEnemy_Token_Manager::NextTurn()
 {
+
+    // Advance to the next enemy
+    CurrentEnemyIndex = (CurrentEnemyIndex + 1) % EnemyControllers.Num();
+
+    // Start the next turn
+    HandleNextTurn();
+
+
 }
 
 void AEnemy_Token_Manager::StartTokenSystem()
@@ -75,6 +83,8 @@ void AEnemy_Token_Manager::HandleNextTurn()
 void AEnemy_Token_Manager::BeginPlay()
 {
     Super::BeginPlay();
+
+    StartTokenSystem();
 
 }
 

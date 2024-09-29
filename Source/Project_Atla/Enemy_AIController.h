@@ -26,11 +26,13 @@ public:
     void AttackPlayer();
     void StrafeAroundPlayer();
     void UpdateState();
+    void FacePlayer();
+    float DistanceToPlayer;
+    float AttackRange;
 
 private:
     AActor* TargetPlayer;
     bool bIsAttacking = false;
-    float AttackRange;
 
 protected:
 
