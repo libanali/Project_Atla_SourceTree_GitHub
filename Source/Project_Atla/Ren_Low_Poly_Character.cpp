@@ -191,7 +191,6 @@ void ARen_Low_Poly_Character::UseAbility()
 
 
 
-		GetMesh()->SetMaterial(0, OriginalMaterial);
 		//Play animation. Perhaps create an enum and allow the player to choose between abilities?
 
 
@@ -226,8 +225,6 @@ void ARen_Low_Poly_Character::CheckAbilityUsage()
 	{
 
 		bCanUseAbility = true;
-		GetMesh()->SetMaterial(0, AbilityMaterial);
-		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("Can use ability!"));
 
 	}
 

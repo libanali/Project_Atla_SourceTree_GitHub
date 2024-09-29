@@ -72,13 +72,13 @@ protected:
     TArray<AEnemy_Poly*> SpawnedEnemies;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawning")
-        float BaseSpawnDelay = 4.0f;  // Initial delay between spawns in the first round
+        float BaseSpawnDelay;  // Initial delay between spawns in the first round
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawning")
-        float MinSpawnDelay = 0.5f;   // Minimum delay between spawns
+        float MinSpawnDelay;   // Minimum delay between spawns
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawning")
-        float DelayDecreasePerRound = 0.2f;  // How much the delay decreases each round
+        float DelayDecreasePerRound;  // How much the delay decreases each round
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
         float SpawnRadius;

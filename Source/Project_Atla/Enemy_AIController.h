@@ -29,6 +29,7 @@ public:
     void FacePlayer();
     float DistanceToPlayer;
     float AttackRange;
+    float StrafeDistance;
 
 private:
     AActor* TargetPlayer;

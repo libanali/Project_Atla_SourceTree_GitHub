@@ -9,6 +9,7 @@
 #include "NavigationSystem.h"
 #include "Enemy_Token_Manager.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "NavigationSystem.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -18,7 +19,7 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
     //SpawnDelay = 5.0f;
     RoundDelay = 1.5f;
     BaseEnemiesPerRound = 3;
-    SpawnRadius = 2000.0f;
+    SpawnRadius = 800.0f;
     CurrentRound = 1;
     AdditionalEnemyHealthPerRound = 50.0f;
     AdditionalEnemiesPerRound = 1.9f;
@@ -166,8 +167,7 @@ void ALowPoly_Survival_GameMode::OnEnemyDestroyed()
 
 FVector ALowPoly_Survival_GameMode::GetRandomPointNearPlayer()
 {
-
-    APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+ APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
     if (!PlayerController) return FVector::ZeroVector;
 
     ACharacter* PlayerCharacter = Cast<ARen_Low_Poly_Character>(PlayerController->GetPawn());
@@ -184,6 +184,5 @@ FVector ALowPoly_Survival_GameMode::GetRandomPointNearPlayer()
         0.f);
 
     return RandomPoint;
-
     
 }

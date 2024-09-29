@@ -20,6 +20,7 @@ AEnemy_AIController::AEnemy_AIController()
 
 
     AttackRange = 50.0f;
+    StrafeDistance = 900.0f;
     bIsAttacking = false;
 
 
@@ -54,13 +55,26 @@ void AEnemy_AIController::AttackPlayer()
 
         if (Enemy)
         {
-            Enemy->Attack();  // Make sure Attack() is implemented in AEnemy_Poly
-            GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Enemy is Attacking!"));
+            float DistanceToTargetPlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
 
-            bIsAttacking = true;
+            // Check if within attack range
+            if (DistanceToTargetPlayer <= AttackRange)
+            {
+                Enemy->Attack();  // Make sure Attack() is implemented in AEnemy_Poly
+                GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Enemy is Attacking!"));
+                bIsAttacking = true;  // Mark as attacking
+            }
+
+            else
+
+            {
+                // Move towards the player to get within attack range
+                MoveToActor(TargetPlayer, AttackRange);
+                GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Blue, TEXT("Moving to attack range!"));
+                bIsAttacking = false;  // Not attacking while moving
+            }
         }
     }
-
 
 }
 
@@ -69,16 +83,21 @@ void AEnemy_AIController::StrafeAroundPlayer()
 
     if (TargetPlayer)
     {
-        // Get the enemy's current rotation
-        FRotator EnemyRotation = GetPawn()->GetActorRotation();
+        FVector PlayerLocation = TargetPlayer->GetActorLocation();
 
-        // Calculate the right vector from the rotation
-        FVector RightVector = FRotationMatrix(EnemyRotation).GetScaledAxis(EAxis::Y);
+        // Calculate the desired strafe distance
+        float DesiredDistance = StrafeDistance;
 
-        // Calculate the new strafe location
-        FVector StrafeLocation = TargetPlayer->GetActorLocation() + RightVector * 200; // Circle radius
+        // Get a random angle for strafing
+        float RandomAngle = FMath::RandRange(0.f, 360.f);
+        FVector StrafeDirection = FVector(FMath::Cos(FMath::DegreesToRadians(RandomAngle)),
+            FMath::Sin(FMath::DegreesToRadians(RandomAngle)),
+            0.f);
 
-        // Move to the strafe location
+        // Calculate the strafe location based on the player's position and desired distance
+        FVector StrafeLocation = PlayerLocation + StrafeDirection * DesiredDistance;
+
+        // Move the enemy to the calculated strafe location
         MoveToLocation(StrafeLocation);
     }
 
@@ -91,8 +110,6 @@ void AEnemy_AIController::UpdateState()
     {
         DistanceToPlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
 
-        // Debug the distance
-        GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, FString::Printf(TEXT("Distance to Player: %f"), DistanceToPlayer));
 
         if (DistanceToPlayer <= AttackRange)
         {
