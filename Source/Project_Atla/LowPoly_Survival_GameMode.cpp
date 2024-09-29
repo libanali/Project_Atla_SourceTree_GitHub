@@ -35,6 +35,8 @@ void ALowPoly_Survival_GameMode::BeginPlay()
 
     StartNextRound();
 
+    //TokenManager = GetWorld()->SpawnActor<AEnemy_Token_Manager>(AEnemy_Token_Manager::StaticClass());
+
 
 }
 

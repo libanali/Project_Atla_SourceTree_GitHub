@@ -87,5 +87,9 @@ protected:
         void OnEnemyDestroyed();
 
     FVector GetRandomPointNearPlayer();
+
+
+private:
+   // ATokenManager* TokenManager;
 	
 };

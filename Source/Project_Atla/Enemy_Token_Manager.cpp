@@ -2,6 +2,7 @@
 
 
 #include "Enemy_Token_Manager.h"
+#include "Enemy_AIController.h"
 
 // Sets default values
 AEnemy_Token_Manager::AEnemy_Token_Manager()
@@ -9,65 +10,37 @@ AEnemy_Token_Manager::AEnemy_Token_Manager()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	MaxTokens = 3;
 
 }
 
-bool AEnemy_Token_Manager::GrantToken(AEnemy_Poly* Enemy)
+void AEnemy_Token_Manager::RegisterEnemy(AEnemy_AIController* EnemyController)
 {
 
-	if (ActiveEnemies.Num() < MaxTokens && !ActiveEnemies.Contains(Enemy))
+	EnemyControllers.Add(EnemyController);
 
-	{
-
-		ActiveEnemies.Add(Enemy);
-		return true;
-
-	}
-
-
-	return false;
 }
 
 
-
-void AEnemy_Token_Manager::RevokeToken(AEnemy_Poly* Enemy)
+void AEnemy_Token_Manager::EnemyTurn(AEnemy_AIController* EnemyController)
 {
 
-	ActiveEnemies.Remove(Enemy);
+    if (EnemyController)
+    {
+        EnemyController->UpdateState();// Call update to handle AI behavior
+    }
 
 }
 
-
-
-bool AEnemy_Token_Manager::HasToken(AEnemy_Poly* Enemy) const
-{
-	return ActiveEnemies.Contains(Enemy);
-}
-
-
-
-void AEnemy_Token_Manager::SetMaxTokens(int32 NewMaxTokens)
+void AEnemy_Token_Manager::NextTurn()
 {
 
-	MaxTokens = NewMaxTokens;
-}
-
-
-
-// Called when the game starts or when spawned
-void AEnemy_Token_Manager::BeginPlay()
-{
-	Super::BeginPlay();
-	
-}
-
-
-
-// Called every frame
-void AEnemy_Token_Manager::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
+    if (EnemyControllers.Num() > 0)
+    {
+        EnemyControllers[CurrentTurnIndex]->bIsAttacking = false; // Reset attacking flag
+        CurrentTurnIndex = (CurrentTurnIndex + 1) % EnemyControllers.Num(); // Cycle through
+        EnemyTurn(EnemyControllers[CurrentTurnIndex]);
+    }
 
 }
+
 
