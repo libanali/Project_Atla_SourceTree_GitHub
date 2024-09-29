@@ -90,6 +90,6 @@ protected:
 
 
 private:
-   // ATokenManager* TokenManager;
+   AEnemy_Token_Manager* TokenManager;
 	
 };

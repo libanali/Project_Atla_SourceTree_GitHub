@@ -16,32 +16,25 @@ class PROJECT_ATLA_API AEnemy_AIController : public AAIController
 
 
 public:
- 
 
-    //virtual void Tick(float DeltaSeconds) override;
+    AEnemy_AIController();
+    
 
-  
-    bool bIsAttacking;
+    virtual void BeginPlay() override;
 
-
+    void SetTarget(AActor* NewTarget);
+    void AttackPlayer();
+    void StrafeAroundPlayer();
+    void UpdateState();
 
 private:
-
-
-public:
-    AEnemy_AIController();
+    AActor* TargetPlayer;
+    bool bIsAttacking = false;
+    float AttackRange;
 
 protected:
-    //virtual void BeginPlay() override;
 
-    // This will store a reference to the player
-   
+    virtual void Tick(float deltaTime);
 
 
-    FTimerHandle TokenReleaseHandle;
-
-
-  //  class AEnemy_Token_Manager* GetTokenManager();
-
-	
 };

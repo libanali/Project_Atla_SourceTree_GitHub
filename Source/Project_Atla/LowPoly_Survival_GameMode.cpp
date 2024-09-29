@@ -35,7 +35,7 @@ void ALowPoly_Survival_GameMode::BeginPlay()
 
     StartNextRound();
 
-    //TokenManager = GetWorld()->SpawnActor<AEnemy_Token_Manager>(AEnemy_Token_Manager::StaticClass());
+    TokenManager = GetWorld()->SpawnActor<AEnemy_Token_Manager>(AEnemy_Token_Manager::StaticClass());
 
 
 }
@@ -83,6 +83,14 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
 
                     // Add to the list of spawned enemies
                     SpawnedEnemies.Add(SpawnedEnemy);
+
+                    // Register the spawned enemy with the token manager
+                    if (TokenManager)
+                    {
+                        TokenManager->RegisterEnemy(SpawnedEnemy->GetController<AEnemy_AIController>());
+                    }
+
+
                 }
             }, i * LocalSpawnDelay, false);  // Set delay for each spawn
     }
@@ -100,6 +108,11 @@ void ALowPoly_Survival_GameMode::StartNextRound()
 
     // Start the spawning timer for the next round
     GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALowPoly_Survival_GameMode::SpawnEnemies, RoundDelay, false);
+
+    if (TokenManager)
+    {
+        TokenManager->StartTokenSystem();
+    }
 }
 
 

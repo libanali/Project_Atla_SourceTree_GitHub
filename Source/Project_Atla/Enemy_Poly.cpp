@@ -94,6 +94,8 @@ void AEnemy_Poly::Attack()
 
 }
 
+
+
 void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 {
 

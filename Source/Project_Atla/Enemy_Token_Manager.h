@@ -19,27 +19,32 @@ public:
 	// Sets default values for this actor's properties
 	AEnemy_Token_Manager();
 
-   
+	// Function to register an enemy in the system
 	void RegisterEnemy(AEnemy_AIController* EnemyController);
-	void EnemyTurn(AEnemy_AIController* EnemyController);
+
+	// Function to advance to the next turn
 	void NextTurn();
 
+	// Call to start the token system once enemies are spawned
+	void StartTokenSystem();
+
 private:
+
+	// Array of enemy AI controllers
 	TArray<AEnemy_AIController*> EnemyControllers;
-	int32 CurrentTurnIndex = 0;
 
-	// Maximum number of enemies that can attack at once
-	int32 MaxAttackers;
+	// The index of the current enemy whose turn it is to attack
+	int32 CurrentEnemyIndex;
 
-	// Store references to AI controllers with tokens
-	TArray<AEnemy_AIController*> ActiveAttackers;
+	// Timer handle for managing turn duration
+	FTimerHandle TurnTimerHandle;
 
-	// Singleton instance to easily get token manager
-	static AEnemy_Token_Manager* GetTokenManager(UWorld* World);
+	// Delay between each enemy's turn (you can adjust this)
+	float TurnDuration;
 
-	// Request and release token functions
-	bool RequestAttackToken(AEnemy_AIController* AIController);
-	void ReleaseAttackToken(AEnemy_AIController* AIController);
+	// Function called every time a turn ends to move to the next enemy
+	void HandleNextTurn();
+
 
 protected:
 	// Called when the game starts or when spawned

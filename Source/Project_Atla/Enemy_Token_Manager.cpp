@@ -11,65 +11,64 @@ AEnemy_Token_Manager::AEnemy_Token_Manager()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+    TurnDuration = 5.0f; // Example duration for each enemy's turn
+    CurrentEnemyIndex = 0;
+
 
 }
 
 void AEnemy_Token_Manager::RegisterEnemy(AEnemy_AIController* EnemyController)
 {
-    PrimaryActorTick.bCanEverTick = true;
 
-}
-
-AEnemy_Token_Manager* AEnemy_Token_Manager::GetTokenManager(UWorld* World)
-
-{
-    return Cast<AEnemy_Token_Manager>(UGameplayStatics::GetActorOfClass(World, AEnemy_Token_Manager::StaticClass()));
-
-	//EnemyControllers.Add(EnemyController);
-
-}
-
-
-void AEnemy_Token_Manager::EnemyTurn(AEnemy_AIController* EnemyController)
-{
-
+    // Add the enemy's AI controller to the list
     if (EnemyController)
     {
-       // EnemyController->UpdateState();// Call update to handle AI behavior
+        EnemyControllers.Add(EnemyController);
     }
 
 }
 
 void AEnemy_Token_Manager::NextTurn()
 {
+}
+
+void AEnemy_Token_Manager::StartTokenSystem()
+{
 
     if (EnemyControllers.Num() > 0)
     {
-       // EnemyControllers[CurrentTurnIndex]->bIsAttacking = false; // Reset attacking flag
-        CurrentTurnIndex = (CurrentTurnIndex + 1) % EnemyControllers.Num(); // Cycle through
-        EnemyTurn(EnemyControllers[CurrentTurnIndex]);
+        // Start the token system by initiating the first turn
+        HandleNextTurn();
     }
+
 
 }
 
 
 
-bool AEnemy_Token_Manager::RequestAttackToken(AEnemy_AIController* AIController)
+void AEnemy_Token_Manager::HandleNextTurn()
 {
-    if (ActiveAttackers.Num() < MaxAttackers)
+
+
+    if (EnemyControllers.Num() > 0)
     {
-        ActiveAttackers.Add(AIController);
-        return true;
+        // If there are any enemies in the array, advance to the next enemy
+        if (CurrentEnemyIndex >= 0 && CurrentEnemyIndex < EnemyControllers.Num())
+        {
+            // Tell the current enemy to attack
+            AEnemy_AIController* CurrentEnemy = EnemyControllers[CurrentEnemyIndex];
+            if (CurrentEnemy)
+            {
+                CurrentEnemy->AttackPlayer();
+            }
+        }
+
+        // Move to the next enemy after the set duration
+        GetWorld()->GetTimerManager().SetTimer(TurnTimerHandle, this, &AEnemy_Token_Manager::NextTurn, TurnDuration, false);
     }
 
 
-	return false;
-}
 
-void AEnemy_Token_Manager::ReleaseAttackToken(AEnemy_AIController* AIController)
-{
-
-    ActiveAttackers.Remove(AIController);
 
 }
 
