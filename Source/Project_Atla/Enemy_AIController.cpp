@@ -58,7 +58,7 @@ void AEnemy_AIController::AttackPlayer()
         {
             // Perform your attack logic (animations, damage, etc.)
             GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Enemy is Attacking!"));
-            bIsAttacking = true;  // Mark as attacking
+            bIsAttacking = true;
         }
         else
         {
@@ -153,21 +153,26 @@ void AEnemy_AIController::Tick(float deltaTime)
     // Ensure there's a valid player target
     if (TargetPlayer)
     {
-        // If already attacking, don't re-trigger
-        if (!bIsAttacking)
+        // Check if the enemy has the token
+        if (HasToken)
         {
+            // Update state will handle the attacking or moving towards the player
             UpdateState();
-        }
 
+            // Stop movement while attacking to avoid any sliding effect
+            if (bIsAttacking)
+            {
+                StopMovement();  // Enemy shouldn't move while attacking
+            }
+        }
         else
-
         {
-            MoveToActor(TargetPlayer, AttackRange);
-
-
+            // If no token, strafe around the player and wait for an opportunity
+            StrafeAroundPlayer();
         }
-    }
 
-    FacePlayer();
+        // Ensure the enemy is always facing the player
+        FacePlayer();
+    }
 
 }

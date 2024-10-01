@@ -20,8 +20,7 @@ AEnemy_Token_Manager::AEnemy_Token_Manager()
 void AEnemy_Token_Manager::RegisterEnemy(AEnemy_AIController* EnemyController)
 {
 
-    // Add the enemy's AI controller to the list
-    if (EnemyController)
+    if (EnemyController && !EnemyControllers.Contains(EnemyController))
     {
         EnemyControllers.Add(EnemyController);
     }
@@ -30,6 +29,12 @@ void AEnemy_Token_Manager::RegisterEnemy(AEnemy_AIController* EnemyController)
 
 void AEnemy_Token_Manager::NextTurn()
 {
+
+    // Revoke token from the previous enemy
+    if (EnemyControllers.IsValidIndex(CurrentEnemyIndex))
+    {
+        EnemyControllers[CurrentEnemyIndex]->HasToken = false;
+    }
 
     // Advance to the next enemy
     CurrentEnemyIndex = (CurrentEnemyIndex + 1) % EnemyControllers.Num();
@@ -57,17 +62,27 @@ void AEnemy_Token_Manager::StartTokenSystem()
 void AEnemy_Token_Manager::HandleNextTurn()
 {
 
-
-    if (EnemyControllers.Num() > 0)
+    if (EnemyControllers.Num() > 0 && EnemyControllers.IsValidIndex(CurrentEnemyIndex))
     {
-        // If there are any enemies in the array, advance to the next enemy
-        if (CurrentEnemyIndex >= 0 && CurrentEnemyIndex < EnemyControllers.Num())
+        // Assign token to the current enemy to allow it to attack
+        AEnemy_AIController* CurrentEnemy = EnemyControllers[CurrentEnemyIndex];
+        if (CurrentEnemy)
         {
-            // Tell the current enemy to attack
-            AEnemy_AIController* CurrentEnemy = EnemyControllers[CurrentEnemyIndex];
-            if (CurrentEnemy)
+            CurrentEnemy->HasToken = true;
+            CurrentEnemy->AttackPlayer();
+        }
+
+        // Tell all other enemies to strafe
+        for (int32 i = 0; i < EnemyControllers.Num(); i++)
+        {
+            if (i != CurrentEnemyIndex)
             {
-                CurrentEnemy->AttackPlayer();
+                AEnemy_AIController* OtherEnemy = EnemyControllers[i];
+                if (OtherEnemy)
+                {
+                    OtherEnemy->HasToken = false;
+                    OtherEnemy->StrafeAroundPlayer();
+                }
             }
         }
 

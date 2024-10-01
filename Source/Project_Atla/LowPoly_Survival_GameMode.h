@@ -20,6 +20,8 @@ class PROJECT_ATLA_API ALowPoly_Survival_GameMode : public AGameMode
 public:
     ALowPoly_Survival_GameMode();
 
+    AEnemy_Token_Manager* TokenManager;
+
 protected:
     virtual void BeginPlay() override;
 
@@ -89,7 +91,6 @@ protected:
     FVector GetRandomPointNearPlayer();
 
 
-private:
-   AEnemy_Token_Manager* TokenManager;
+
 	
 };

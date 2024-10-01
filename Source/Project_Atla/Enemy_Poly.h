@@ -17,6 +17,7 @@
 
 
 class ARen_Low_Poly_Character;
+class AEnemy_AIController;
 
 
 

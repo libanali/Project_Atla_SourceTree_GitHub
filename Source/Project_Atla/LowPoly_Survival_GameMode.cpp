@@ -21,7 +21,7 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
     BaseEnemiesPerRound = 3;
     SpawnRadius = 800.0f;
     CurrentRound = 1;
-    AdditionalEnemyHealthPerRound = 50.0f;
+    AdditionalEnemyHealthPerRound = 60.0f;
     AdditionalEnemiesPerRound = 1.9f;
     BaseSpawnDelay = 2.0f;         // Initial delay between spawns in the first round
     MinSpawnDelay = 1.5f;          // Minimum delay between spawns in later rounds
@@ -69,7 +69,7 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
     {
         FTimerHandle LocalSpawnTimerHandle;
         // Use a lambda function to handle the delayed enemy spawn
-        GetWorld()->GetTimerManager().SetTimer(LocalSpawnTimerHandle, [this]()
+        GetWorld()->GetTimerManager().SetTimer(LocalSpawnTimerHandle, [this, i]()
             {
                 FVector SpawnLocation = GetRandomPointNearPlayer();
                 FRotator SpawnRotation = FRotator::ZeroRotator;
@@ -78,6 +78,9 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
 
                 if (SpawnedEnemy)
                 {
+                    // Log the spawned enemy
+                    UE_LOG(LogTemp, Log, TEXT("Spawned enemy: %s"), *SpawnedEnemy->GetName());
+
                     // Set the enemy's health based on the current round
                     float AddedEnemyHealth = SpawnedEnemy->MaxEnemyHealth + (CurrentRound - 1) * AdditionalEnemyHealthPerRound;
                     SpawnedEnemy->IncreaseEnemyHealth(AddedEnemyHealth, true);
@@ -88,10 +91,21 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
                     // Register the spawned enemy with the token manager
                     if (TokenManager)
                     {
-                        TokenManager->RegisterEnemy(SpawnedEnemy->GetController<AEnemy_AIController>());
+                        AEnemy_AIController* EnemyController = SpawnedEnemy->GetController<AEnemy_AIController>();
+                        if (EnemyController)
+                        {
+                            UE_LOG(LogTemp, Log, TEXT("Registered enemy controller: %s"), *EnemyController->GetName());
+                            TokenManager->RegisterEnemy(EnemyController);
+                        }
+                        else
+                        {
+                            UE_LOG(LogTemp, Warning, TEXT("Enemy controller is null for %s"), *SpawnedEnemy->GetName());
+                        }
                     }
-
-
+                    else
+                    {
+                        UE_LOG(LogTemp, Warning, TEXT("TokenManager is null!"));
+                    }
                 }
             }, i * LocalSpawnDelay, false);  // Set delay for each spawn
     }
@@ -110,10 +124,7 @@ void ALowPoly_Survival_GameMode::StartNextRound()
     // Start the spawning timer for the next round
     GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALowPoly_Survival_GameMode::SpawnEnemies, RoundDelay, false);
 
-    if (TokenManager)
-    {
-        TokenManager->StartTokenSystem();
-    }
+   
 }
 
 

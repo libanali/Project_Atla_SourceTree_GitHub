@@ -4,6 +4,9 @@
 #include "Enemy_Poly.h"
 #include "Ren_Low_Poly_Character.h"
 #include "Kismet/GameplayStatics.h"
+#include "LowPoly_Survival_GameMode.h"
+
+
 
 // Sets default values
 AEnemy_Poly::AEnemy_Poly()
@@ -136,6 +139,16 @@ void AEnemy_Poly::BeginPlay()
 	Super::BeginPlay();
 
 	CurrentEnemyHealth = 100.0f;
+
+	// Register this enemy with the token manager
+	if (GetWorld())
+	{
+		ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
+		if (GameMode && GameMode->TokenManager)
+		{
+			GameMode->TokenManager->RegisterEnemy(this->GetController<AEnemy_AIController>());
+		}
+	}
 
 }
 
