@@ -30,10 +30,12 @@ public:
     float DistanceToPlayer;
     float AttackRange;
     float StrafeDistance;
-
+    bool HasToken;
+ 
 private:
     AActor* TargetPlayer;
     bool bIsAttacking = false;
+
 
 protected:
 

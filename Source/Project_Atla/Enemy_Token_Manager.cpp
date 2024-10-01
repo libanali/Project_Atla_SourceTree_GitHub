@@ -76,8 +76,6 @@ void AEnemy_Token_Manager::HandleNextTurn()
     }
 
 
-
-
 }
 
 void AEnemy_Token_Manager::BeginPlay()
