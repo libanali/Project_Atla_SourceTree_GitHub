@@ -18,14 +18,14 @@
 AEnemy_AIController::AEnemy_AIController()
 {
 
-
-    AttackRange = 50.0f;
+    AttackRange = 90.0f;
     StrafeDistance = 500.0f;
     bIsAttacking = false;
     HasToken = false;
 
-
 }
+
+
 
 void AEnemy_AIController::BeginPlay()
 {
@@ -34,8 +34,14 @@ void AEnemy_AIController::BeginPlay()
     // Get the player character as the target
     TargetPlayer = GetWorld()->GetFirstPlayerController()->GetPawn();
 
-
+    AEnemy_Token_Manager* TheTokenManager = Cast<AEnemy_Token_Manager>(UGameplayStatics::GetActorOfClass(GetWorld(), AEnemy_Token_Manager::StaticClass()));
+    if (TheTokenManager)
+    {
+        TheTokenManager->RegisterEnemy(this);
+    }
 }
+
+
 
 void AEnemy_AIController::SetTarget(AActor* NewTarget)
 {
@@ -44,30 +50,32 @@ void AEnemy_AIController::SetTarget(AActor* NewTarget)
     TargetPlayer = NewTarget;
 
 
-
 }
+
+
 
 void AEnemy_AIController::AttackPlayer()
 {
-    if (TargetPlayer && GetPawn()) // Ensure the player and pawn exist
-    {
-        float DistanceToTargetPlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
+    
+            APawn* ControlledPawn = GetPawn();
+            if (ControlledPawn)
+            {
+                AEnemy_Poly* Enemy = Cast<AEnemy_Poly>(ControlledPawn);
 
-        // Check if within attack range
-        if (DistanceToTargetPlayer <= AttackRange)
-        {
-            // Perform your attack logic (animations, damage, etc.)
-            GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Enemy is Attacking!"));
-            bIsAttacking = true;
+                if (Enemy)
+                {
+                    // Perform your attack logic (animations, damage, etc.)
+                    GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Enemy is Attacking!"));
+                    bIsAttacking = true;
+                    Enemy->Attack();  // Call the attack function
+                }
+           
         }
         else
         {
-            // Move towards the player to get within attack range
-            MoveToActor(TargetPlayer, AttackRange);
-            GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Blue, TEXT("Moving to attack range!"));
-            bIsAttacking = false;  // Not attacking while moving
+            bIsAttacking = false;  // Reset attacking state if out of range
         }
-    }
+    
 }
 
 
@@ -103,27 +111,31 @@ void AEnemy_AIController::UpdateState()
 {
     if (TargetPlayer)
     {
-        DistanceToPlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
+        float DistanceToThePlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
 
-        // Check if within attacking range
-        if (DistanceToPlayer <= AttackRange && HasToken)
+        // Debug message to show current state
+        GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Yellow,
+            FString::Printf(TEXT("Distance: %f, HasToken: %s"), DistanceToThePlayer, HasToken ? TEXT("true") : TEXT("false")));
+
+        // Move towards the player if too far to attack
+        if (DistanceToThePlayer > AttackRange && !HasToken)
         {
-            UE_LOG(LogTemp, Warning, TEXT("Within Attack Range. Preparing to attack."));
-            AttackPlayer(); // Attack the player if the enemy has a token
+            MoveToActor(TargetPlayer); // Move towards player if far away
+            bIsAttacking = false;
+            GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("Chasing Player!"));
         }
-        else if (DistanceToPlayer <= StrafeDistance && !HasToken)
+        // If within attack range, attack
+        else if (DistanceToThePlayer < AttackRange && HasToken)
         {
-            UE_LOG(LogTemp, Warning, TEXT("Within Strafing Distance. Strafing around player."));
-            StrafeAroundPlayer(); // Strafe around the player if not in attack range and without a token
-        }
-        else if (DistanceToPlayer > StrafeDistance)
-        {
-            UE_LOG(LogTemp, Warning, TEXT("Chasing player."));
-            MoveToLocation(TargetPlayer->GetActorLocation()); // Move towards player if far away
+            GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Within attack range, attacking!"));
+            AttackPlayer(); // Attack the player
+            bIsAttacking = true;
+            StopMovement();
         }
     }
 
 }
+
 
 
 void AEnemy_AIController::FacePlayer()
@@ -144,35 +156,19 @@ void AEnemy_AIController::FacePlayer()
     // Set the pawn's rotation to smoothly face the player (optional: you can adjust this for smooth turning)
     GetPawn()->SetActorRotation(FMath::RInterpTo(GetPawn()->GetActorRotation(), DesiredRotation, GetWorld()->GetDeltaSeconds(), 5.0f));
 
-
 }
+
 
 
 void AEnemy_AIController::Tick(float deltaTime)
 {
-    // Ensure there's a valid player target
+    
     if (TargetPlayer)
     {
-        // Check if the enemy has the token
-        if (HasToken)
-        {
-            // Update state will handle the attacking or moving towards the player
-            UpdateState();
+        UpdateState();  // Just focus on moving and attacking for now
 
-            // Stop movement while attacking to avoid any sliding effect
-            if (bIsAttacking)
-            {
-                StopMovement();  // Enemy shouldn't move while attacking
-            }
-        }
-        else
-        {
-            // If no token, strafe around the player and wait for an opportunity
-            StrafeAroundPlayer();
-        }
-
+    }
         // Ensure the enemy is always facing the player
         FacePlayer();
-    }
-
+    
 }

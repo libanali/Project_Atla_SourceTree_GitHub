@@ -93,7 +93,14 @@ void AEnemy_Poly::Death()
 void AEnemy_Poly::Attack()
 {
 
-	PlayAnimMontage(AttackAnimation, 1.0f);
+	if (AttackAnimation)
+	{
+		PlayAnimMontage(AttackAnimation, 1.0f);
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Attack Animation is missing!"));
+	}
 
 }
 

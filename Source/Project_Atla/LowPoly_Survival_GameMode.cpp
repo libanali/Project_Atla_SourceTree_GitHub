@@ -17,15 +17,15 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
 {
 
     //SpawnDelay = 5.0f;
-    RoundDelay = 1.5f;
+    RoundDelay = 2.5f;
     BaseEnemiesPerRound = 3;
     SpawnRadius = 800.0f;
     CurrentRound = 1;
-    AdditionalEnemyHealthPerRound = 60.0f;
+    AdditionalEnemyHealthPerRound = 40.0f;
     AdditionalEnemiesPerRound = 1.9f;
     BaseSpawnDelay = 2.0f;         // Initial delay between spawns in the first round
     MinSpawnDelay = 1.5f;          // Minimum delay between spawns in later rounds
-    DelayDecreasePerRound = 0.2f;
+    DelayDecreasePerRound = 0.1f;
 
 }
 
@@ -38,7 +38,14 @@ void ALowPoly_Survival_GameMode::BeginPlay()
 
     TokenManager = GetWorld()->SpawnActor<AEnemy_Token_Manager>(AEnemy_Token_Manager::StaticClass());
 
-
+    if (TokenManager)
+    {
+        UE_LOG(LogTemp, Log, TEXT("Token Manager found and assigned."));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Token Manager is null!"));
+    }
 }
 
 void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
@@ -46,9 +53,9 @@ void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 
     OnEnemyDestroyed();
 
-   
 
 }
+
 
 void ALowPoly_Survival_GameMode::SpawnEnemies()
 {
@@ -88,32 +95,35 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
                     // Add to the list of spawned enemies
                     SpawnedEnemies.Add(SpawnedEnemy);
 
-                    // Register the spawned enemy with the token manager
-                    if (TokenManager)
-                    {
-                        AEnemy_AIController* EnemyController = SpawnedEnemy->GetController<AEnemy_AIController>();
-                        if (EnemyController)
+                    // Register the spawned enemy with the token manager (with a small delay to ensure controller is set)
+                    FTimerHandle ControllerCheckHandle;
+                    GetWorld()->GetTimerManager().SetTimer(ControllerCheckHandle, [this, SpawnedEnemy]()
                         {
-                            UE_LOG(LogTemp, Log, TEXT("Registered enemy controller: %s"), *EnemyController->GetName());
-                            TokenManager->RegisterEnemy(EnemyController);
-                        }
-                        else
-                        {
-                            UE_LOG(LogTemp, Warning, TEXT("Enemy controller is null for %s"), *SpawnedEnemy->GetName());
-                        }
-                    }
-                    else
-                    {
-                        UE_LOG(LogTemp, Warning, TEXT("TokenManager is null!"));
-                    }
+                            if (TokenManager)
+                            {
+                                AEnemy_AIController* EnemyController = SpawnedEnemy->GetController<AEnemy_AIController>();
+                                if (EnemyController)
+                                {
+                                    UE_LOG(LogTemp, Log, TEXT("Registered enemy controller: %s"), *EnemyController->GetName());
+                                    TokenManager->RegisterEnemy(EnemyController);
+                                }
+                                else
+                                {
+                                    UE_LOG(LogTemp, Warning, TEXT("Enemy controller is null for %s"), *SpawnedEnemy->GetName());
+                                }
+                            }
+                            else
+                            {
+                                UE_LOG(LogTemp, Warning, TEXT("TokenManager is null!"));
+                            }
+                        }, 0.1f, false);  // Delay before checking the AI controller
+
                 }
             }, i * LocalSpawnDelay, false);  // Set delay for each spawn
     }
 
+
 }
-
-
-
 
 
 void ALowPoly_Survival_GameMode::StartNextRound()

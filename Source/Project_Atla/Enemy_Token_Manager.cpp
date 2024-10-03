@@ -23,23 +23,25 @@ void AEnemy_Token_Manager::RegisterEnemy(AEnemy_AIController* EnemyController)
     if (EnemyController && !EnemyControllers.Contains(EnemyController))
     {
         EnemyControllers.Add(EnemyController);
+        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan,
+            FString::Printf(TEXT("Enemy %s Registered!"), *EnemyController->GetName()));
     }
 
 }
 
 void AEnemy_Token_Manager::NextTurn()
 {
-
-    // Revoke token from the previous enemy
     if (EnemyControllers.IsValidIndex(CurrentEnemyIndex))
     {
+        // Revoke token from previous enemy
         EnemyControllers[CurrentEnemyIndex]->HasToken = false;
     }
 
     // Advance to the next enemy
     CurrentEnemyIndex = (CurrentEnemyIndex + 1) % EnemyControllers.Num();
 
-    // Start the next turn
+    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString::Printf(TEXT("Next turn, current enemy index: %d"), CurrentEnemyIndex));
+
     HandleNextTurn();
 
 
@@ -57,45 +59,58 @@ void AEnemy_Token_Manager::StartTokenSystem()
 
 }
 
+void AEnemy_Token_Manager::GiveToken(AEnemy_AIController* EnemyController)
+{
+
+    if (EnemyController)
+    {
+        EnemyController->HasToken = true; // Set HasToken to true for this enemy
+        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Token given to enemy."));
+    }
+}
+
+
+
+void AEnemy_Token_Manager::EndTurn(AEnemy_AIController* EnemyController)
+{
+
+    if (EnemyController)
+    {
+        EnemyController->HasToken = false; // Revoke the token
+        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Orange, TEXT("Token revoked from enemy."));
+    }
+
+}
+
 
 
 void AEnemy_Token_Manager::HandleNextTurn()
 {
-
-    if (EnemyControllers.Num() > 0 && EnemyControllers.IsValidIndex(CurrentEnemyIndex))
+    if (EnemyControllers.Num() > 0)
     {
-        // Assign token to the current enemy to allow it to attack
-        AEnemy_AIController* CurrentEnemy = EnemyControllers[CurrentEnemyIndex];
-        if (CurrentEnemy)
+        if (CurrentEnemyIndex >= 0 && CurrentEnemyIndex < EnemyControllers.Num())
         {
-            CurrentEnemy->HasToken = true;
-            CurrentEnemy->AttackPlayer();
-        }
-
-        // Tell all other enemies to strafe
-        for (int32 i = 0; i < EnemyControllers.Num(); i++)
-        {
-            if (i != CurrentEnemyIndex)
+            AEnemy_AIController* CurrentEnemy = EnemyControllers[CurrentEnemyIndex];
+            if (CurrentEnemy)
             {
-                AEnemy_AIController* OtherEnemy = EnemyControllers[i];
-                if (OtherEnemy)
-                {
-                    OtherEnemy->HasToken = false;
-                    OtherEnemy->StrafeAroundPlayer();
-                }
+                // Ensure token is given to the current enemy
+                CurrentEnemy->HasToken = true;
+                GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green,
+                    FString::Printf(TEXT("Enemy %s received token!"), *CurrentEnemy->GetName()));
             }
         }
 
-        // Move to the next enemy after the set duration
+        // Set timer for next turn
         GetWorld()->GetTimerManager().SetTimer(TurnTimerHandle, this, &AEnemy_Token_Manager::NextTurn, TurnDuration, false);
     }
-
-
 }
+
 
 void AEnemy_Token_Manager::BeginPlay()
 {
     Super::BeginPlay();
+
+    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Blue, TEXT("Token Manager Initialized!"));
 
     StartTokenSystem();
 

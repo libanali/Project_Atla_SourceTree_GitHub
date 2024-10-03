@@ -6,6 +6,8 @@
 #include "AIController.h"
 #include "Enemy_AIController.generated.h"
 
+
+class AEnemy_Token_Manager;
 /**
  * 
  */
@@ -35,6 +37,7 @@ public:
 private:
     AActor* TargetPlayer;
     bool bIsAttacking = false;
+    AEnemy_Token_Manager* TokenManager;
 
 
 protected:

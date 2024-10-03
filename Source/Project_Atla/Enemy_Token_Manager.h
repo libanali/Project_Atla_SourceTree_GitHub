@@ -7,6 +7,8 @@
 #include "Enemy_AIController.h"
 #include "Enemy_Token_Manager.generated.h"
 
+class AEnemy_AIController;
+
 UCLASS()
 class PROJECT_ATLA_API AEnemy_Token_Manager : public AActor
 {
@@ -27,6 +29,10 @@ public:
 
 	// Call to start the token system once enemies are spawned
 	void StartTokenSystem();
+
+	void GiveToken(AEnemy_AIController* EnemyController);
+
+	void EndTurn(AEnemy_AIController* EnemyController);
 
 private:
 
