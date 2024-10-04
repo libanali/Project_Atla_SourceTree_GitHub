@@ -19,9 +19,8 @@ AEnemy_AIController::AEnemy_AIController()
 {
 
     AttackRange = 90.0f;
-    StrafeDistance = 500.0f;
+    EnemyNumber = 0;
     bIsAttacking = false;
-    HasToken = false;
 
 }
 
@@ -33,12 +32,8 @@ void AEnemy_AIController::BeginPlay()
     Super::BeginPlay();
     // Get the player character as the target
     TargetPlayer = GetWorld()->GetFirstPlayerController()->GetPawn();
+    EnemyNumber = 0;
 
-    AEnemy_Token_Manager* TheTokenManager = Cast<AEnemy_Token_Manager>(UGameplayStatics::GetActorOfClass(GetWorld(), AEnemy_Token_Manager::StaticClass()));
-    if (TheTokenManager)
-    {
-        TheTokenManager->RegisterEnemy(this);
-    }
 }
 
 
@@ -109,30 +104,7 @@ void AEnemy_AIController::StrafeAroundPlayer()
 
 void AEnemy_AIController::UpdateState()
 {
-    if (TargetPlayer)
-    {
-        float DistanceToThePlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
-
-        // Debug message to show current state
-        GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Yellow,
-            FString::Printf(TEXT("Distance: %f, HasToken: %s"), DistanceToThePlayer, HasToken ? TEXT("true") : TEXT("false")));
-
-        // Move towards the player if too far to attack
-        if (DistanceToThePlayer > AttackRange && !HasToken)
-        {
-            MoveToActor(TargetPlayer); // Move towards player if far away
-            bIsAttacking = false;
-            GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("Chasing Player!"));
-        }
-        // If within attack range, attack
-        else if (DistanceToThePlayer < AttackRange && HasToken)
-        {
-            GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Within attack range, attacking!"));
-            AttackPlayer(); // Attack the player
-            bIsAttacking = true;
-            StopMovement();
-        }
-    }
+   
 
 }
 
@@ -156,6 +128,42 @@ void AEnemy_AIController::FacePlayer()
     // Set the pawn's rotation to smoothly face the player (optional: you can adjust this for smooth turning)
     GetPawn()->SetActorRotation(FMath::RInterpTo(GetPawn()->GetActorRotation(), DesiredRotation, GetWorld()->GetDeltaSeconds(), 5.0f));
 
+}
+
+void AEnemy_AIController::UpdateBehavior()
+{
+
+    // Assume you have a reference to the player
+    if (TargetPlayer == nullptr) return;
+
+    // Get distance to the player
+    float DistanceToThePlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
+
+    // Attack if this enemy has the highest number
+    if (EnemyNumber == 1 && DistanceToThePlayer <= AttackRange) // Highest number is 1
+    {
+        AttackPlayer();
+        bIsAttacking = true;
+    }
+    else
+    {
+        StrafeAroundPlayer();
+        bIsAttacking = false;
+    }
+
+}
+
+void AEnemy_AIController::SetEnemyNumber(int32 NewNumber)
+{
+
+
+    EnemyNumber = NewNumber;
+
+}
+
+int32 AEnemy_AIController::GetEnemyNumber() const
+{
+    return EnemyNumber;
 }
 
 

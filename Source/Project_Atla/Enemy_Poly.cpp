@@ -151,10 +151,7 @@ void AEnemy_Poly::BeginPlay()
 	if (GetWorld())
 	{
 		ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
-		if (GameMode && GameMode->TokenManager)
-		{
-			GameMode->TokenManager->RegisterEnemy(this->GetController<AEnemy_AIController>());
-		}
+		
 	}
 
 }

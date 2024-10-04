@@ -29,6 +29,25 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
 
 }
 
+void ALowPoly_Survival_GameMode::UpdateEnemyNumbers()
+{
+
+    // Assign numbers to enemies
+    AssignEnemyNumbers();
+
+    // Update behavior for each enemy
+    for (AEnemy_AIController* EnemyController : ActiveEnemies)
+    {
+        if (EnemyController)
+        {
+            EnemyController->UpdateBehavior();
+        }
+    }
+
+
+}
+
+
 void ALowPoly_Survival_GameMode::BeginPlay()
 {
 
@@ -36,17 +55,13 @@ void ALowPoly_Survival_GameMode::BeginPlay()
 
     StartNextRound();
 
-    TokenManager = GetWorld()->SpawnActor<AEnemy_Token_Manager>(AEnemy_Token_Manager::StaticClass());
+    GetWorld()->GetTimerManager().SetTimer(NumberUpdateTimer, this, &ALowPoly_Survival_GameMode::UpdateEnemyNumbers, 5.0f, true);
 
-    if (TokenManager)
-    {
-        UE_LOG(LogTemp, Log, TEXT("Token Manager found and assigned."));
-    }
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Token Manager is null!"));
-    }
+
+    
 }
+
+
 
 void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 {
@@ -57,16 +72,16 @@ void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 }
 
 
+
 void ALowPoly_Survival_GameMode::SpawnEnemies()
 {
-
     if (EnemyClass == nullptr) return;
 
     UWorld* World = GetWorld();
     if (World == nullptr) return;
 
     // Calculate the number of enemies to spawn this round
-    int32 EnemiesToSpawn = BaseEnemiesPerRound + (CurrentRound - 1) * AdditionalEnemiesPerRound;
+    int32 EnemiesToSpawn = 4 + (CurrentRound - 1) * AdditionalEnemiesPerRound;
 
     // Calculate the spawn delay (decrease as the rounds progress)
     float LocalSpawnDelay = FMath::Max(MinSpawnDelay, BaseSpawnDelay - (CurrentRound - 1) * DelayDecreasePerRound);
@@ -95,33 +110,10 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
                     // Add to the list of spawned enemies
                     SpawnedEnemies.Add(SpawnedEnemy);
 
-                    // Register the spawned enemy with the token manager (with a small delay to ensure controller is set)
-                    FTimerHandle ControllerCheckHandle;
-                    GetWorld()->GetTimerManager().SetTimer(ControllerCheckHandle, [this, SpawnedEnemy]()
-                        {
-                            if (TokenManager)
-                            {
-                                AEnemy_AIController* EnemyController = SpawnedEnemy->GetController<AEnemy_AIController>();
-                                if (EnemyController)
-                                {
-                                    UE_LOG(LogTemp, Log, TEXT("Registered enemy controller: %s"), *EnemyController->GetName());
-                                    TokenManager->RegisterEnemy(EnemyController);
-                                }
-                                else
-                                {
-                                    UE_LOG(LogTemp, Warning, TEXT("Enemy controller is null for %s"), *SpawnedEnemy->GetName());
-                                }
-                            }
-                            else
-                            {
-                                UE_LOG(LogTemp, Warning, TEXT("TokenManager is null!"));
-                            }
-                        }, 0.1f, false);  // Delay before checking the AI controller
-
+                    // No more TokenManager logic required, so remove it entirely
                 }
             }, i * LocalSpawnDelay, false);  // Set delay for each spawn
     }
-
 
 }
 
@@ -186,6 +178,9 @@ void ALowPoly_Survival_GameMode::OnEnemyDestroyed()
 
 }
 
+
+
+
 FVector ALowPoly_Survival_GameMode::GetRandomPointNearPlayer()
 {
  APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
@@ -206,4 +201,28 @@ FVector ALowPoly_Survival_GameMode::GetRandomPointNearPlayer()
 
     return RandomPoint;
     
+}
+
+
+
+
+void ALowPoly_Survival_GameMode::AssignEnemyNumbers()
+{
+
+    int32 MaxNumber = ActiveEnemies.Num();
+
+    // Shuffle or sort enemies randomly or based on your logic
+    ActiveEnemies.Sort([](const AEnemy_AIController& A, const AEnemy_AIController& B) {
+        return FMath::RandBool(); // Randomize enemy numbers
+        });
+
+    // Assign numbers (1 is the highest priority)
+    for (int32 i = 0; i < ActiveEnemies.Num(); i++)
+    {
+        if (ActiveEnemies[i])
+        {
+            ActiveEnemies[i]->SetEnemyNumber(MaxNumber - i);  // Highest number first
+        }
+    }
+
 }

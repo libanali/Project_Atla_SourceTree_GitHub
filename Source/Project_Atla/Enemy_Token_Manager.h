@@ -18,7 +18,7 @@ class PROJECT_ATLA_API AEnemy_Token_Manager : public AActor
 
 	
 public:	
-	// Sets default values for this actor's properties
+
 	AEnemy_Token_Manager();
 
 	// Function to register an enemy in the system
@@ -27,11 +27,10 @@ public:
 	// Function to advance to the next turn
 	void NextTurn();
 
-	// Call to start the token system once enemies are spawned
+	// Call to start the token system
 	void StartTokenSystem();
 
 	void GiveToken(AEnemy_AIController* EnemyController);
-
 	void EndTurn(AEnemy_AIController* EnemyController);
 
 private:
@@ -45,8 +44,8 @@ private:
 	// Timer handle for managing turn duration
 	FTimerHandle TurnTimerHandle;
 
-	// Delay between each enemy's turn (you can adjust this)
-	float TurnDuration;
+	// Delay between each enemy's turn
+	float TurnDuration; // Adjust as needed
 
 	// Function called every time a turn ends to move to the next enemy
 	void HandleNextTurn();

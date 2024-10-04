@@ -20,7 +20,9 @@ class PROJECT_ATLA_API ALowPoly_Survival_GameMode : public AGameMode
 public:
     ALowPoly_Survival_GameMode();
 
-    AEnemy_Token_Manager* TokenManager;
+    void UpdateEnemyNumbers();
+
+
 
 protected:
     virtual void BeginPlay() override;
@@ -85,12 +87,21 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
         float SpawnRadius;
 
+    // List of active enemy controllers
+    TArray<AEnemy_AIController*> ActiveEnemies;
+
     UFUNCTION()
         void OnEnemyDestroyed();
 
     FVector GetRandomPointNearPlayer();
 
 
+private:
 
+    // Function to assign numbers to enemies
+    void AssignEnemyNumbers();
+
+    // Timer for updating enemy numbers
+    FTimerHandle NumberUpdateTimer;
 	
 };
