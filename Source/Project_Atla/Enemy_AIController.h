@@ -27,8 +27,8 @@ public:
     void SetTarget(AActor* NewTarget);
     void AttackPlayer();
     void StrafeAroundPlayer();
-    void UpdateState();
     void FacePlayer();
+    void ResetAttackCooldown();
     float DistanceToPlayer;
     float AttackRange;
     float StrafeDistance;
@@ -39,13 +39,18 @@ public:
     // Function to set the enemy's assigned number
     void SetEnemyNumber(int32 NewNumber);
 
+    void UpdateEnemyNumbers();
+
     // Function to get the enemy's current assigned number
     int32 GetEnemyNumber() const;
+
+    int32 EnemyNumber;
  
 private:
     AActor* TargetPlayer;
     bool bIsAttacking;
-    int32 EnemyNumber;
+    FTimerHandle AttackDelayHandle;
+    bool bIsAttackOnCooldown;  // To check if attack is cooling down
 
 
 

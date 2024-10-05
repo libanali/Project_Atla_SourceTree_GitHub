@@ -9,6 +9,7 @@
 #include "Enemy_Token_Manager.h"
 #include "GameFramework/Character.h"
 #include "Enemy_Poly.h"
+#include "LowPoly_Survival_GameMode.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -50,29 +51,29 @@ void AEnemy_AIController::SetTarget(AActor* NewTarget)
 
 
 void AEnemy_AIController::AttackPlayer()
-{
-    
-            APawn* ControlledPawn = GetPawn();
-            if (ControlledPawn)
-            {
-                AEnemy_Poly* Enemy = Cast<AEnemy_Poly>(ControlledPawn);
+{  // If attack is on cooldown, do nothing
+    if (bIsAttackOnCooldown)
+    {
+        return;
+    }
 
-                if (Enemy)
-                {
-                    // Perform your attack logic (animations, damage, etc.)
-                    GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Enemy is Attacking!"));
-                    bIsAttacking = true;
-                    Enemy->Attack();  // Call the attack function
-                }
-           
-        }
-        else
+    APawn* ControlledPawn = GetPawn();
+    if (ControlledPawn)
+    {
+        AEnemy_Poly* Enemy = Cast<AEnemy_Poly>(ControlledPawn);
+        if (Enemy)
         {
-            bIsAttacking = false;  // Reset attacking state if out of range
-        }
-    
-}
+            // Log the attack and play the attack animation
+            GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Enemy is Attacking!"));
+            bIsAttacking = true;
+            bIsAttackOnCooldown = true;  // Set the cooldown flag
+            Enemy->Attack();  // Call the attack function to play the animation
 
+            // Set a timer to reset attack cooldown after a delay (e.g., 2 seconds)
+            GetWorld()->GetTimerManager().SetTimer(AttackDelayHandle, this, &AEnemy_AIController::ResetAttackCooldown, 2.0f, false);
+        }
+    }
+}
 
 
 void AEnemy_AIController::StrafeAroundPlayer()
@@ -102,14 +103,6 @@ void AEnemy_AIController::StrafeAroundPlayer()
 }
 
 
-void AEnemy_AIController::UpdateState()
-{
-   
-
-}
-
-
-
 void AEnemy_AIController::FacePlayer()
 {
 
@@ -130,27 +123,51 @@ void AEnemy_AIController::FacePlayer()
 
 }
 
+void AEnemy_AIController::ResetAttackCooldown()
+{
+
+    bIsAttacking = false;
+    bIsAttackOnCooldown = false;
+
+
+    // Get the game mode and update enemy numbers
+    if (GetWorld())
+    {
+        ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
+        if (GameMode)
+        {
+            GameMode->UpdateEnemyNumbers();  // Reassign enemy numbers to cycle to the next one
+        }
+    }
+
+
+    // After cooldown, start strafing or moving again
+    if (!bIsAttacking)  // Ensure it's not in attack mode
+    {
+        StrafeAroundPlayer();  // Resume movement, like strafing
+    }
+
+}
+
+
+
 void AEnemy_AIController::UpdateBehavior()
 {
 
-    // Assume you have a reference to the player
-    if (TargetPlayer == nullptr) return;
+    if (!TargetPlayer) return;
 
-    // Get distance to the player
+    // Calculate distance to the player
     float DistanceToThePlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
 
-    // Attack if this enemy has the highest number
-    if (EnemyNumber == 1 && DistanceToThePlayer <= AttackRange) // Highest number is 1
+    // Attack if this enemy has the highest number and is in range
+    if (EnemyNumber == 1 && DistanceToThePlayer <= AttackRange && !bIsAttacking)
     {
-        AttackPlayer();
-        bIsAttacking = true;
+        AttackPlayer();  // Start attacking if not already attacking
     }
-    else
+    else if (!bIsAttacking)  // If the enemy is not attacking, move/strafe
     {
         StrafeAroundPlayer();
-        bIsAttacking = false;
     }
-
 }
 
 void AEnemy_AIController::SetEnemyNumber(int32 NewNumber)
@@ -158,6 +175,13 @@ void AEnemy_AIController::SetEnemyNumber(int32 NewNumber)
 
 
     EnemyNumber = NewNumber;
+
+}
+
+void AEnemy_AIController::UpdateEnemyNumbers()
+{
+
+    
 
 }
 
@@ -173,7 +197,7 @@ void AEnemy_AIController::Tick(float deltaTime)
     
     if (TargetPlayer)
     {
-        UpdateState();  // Just focus on moving and attacking for now
+        UpdateBehavior();  // Just focus on moving and attacking for now
 
     }
         // Ensure the enemy is always facing the player

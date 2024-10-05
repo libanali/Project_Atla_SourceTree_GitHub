@@ -16,7 +16,6 @@
 ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
 {
 
-    //SpawnDelay = 5.0f;
     RoundDelay = 2.5f;
     BaseEnemiesPerRound = 3;
     SpawnRadius = 800.0f;
@@ -31,19 +30,36 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
 
 void ALowPoly_Survival_GameMode::UpdateEnemyNumbers()
 {
+    // Assume SpawnedEnemies contains the currently active enemies
+    if (SpawnedEnemies.Num() == 0) return;
 
-    // Assign numbers to enemies
-    AssignEnemyNumbers();
+    // Find the enemy currently assigned as number 1 (the attacker)
+    int32 CurrentAttackerIndex = -1;
 
-    // Update behavior for each enemy
-    for (AEnemy_AIController* EnemyController : ActiveEnemies)
+    for (int32 i = 0; i < SpawnedEnemies.Num(); i++)
     {
-        if (EnemyController)
+        AEnemy_AIController* EnemyController = Cast<AEnemy_AIController>(SpawnedEnemies[i]->GetController());
+        if (EnemyController && EnemyController->EnemyNumber == 1)
         {
-            EnemyController->UpdateBehavior();
+            CurrentAttackerIndex = i;
+            break;
         }
     }
 
+    // Cycle the numbers (wrap around)
+    for (int32 i = 0; i < SpawnedEnemies.Num(); i++)
+    {
+        AEnemy_AIController* EnemyController = Cast<AEnemy_AIController>(SpawnedEnemies[i]->GetController());
+        if (EnemyController)
+        {
+            // Move numbers forward, and if it's the last enemy, wrap around to make the first enemy attack next
+            EnemyController->EnemyNumber = (i == CurrentAttackerIndex) ? SpawnedEnemies.Num() : i + 1;
+
+            // Print the enemy's name and assigned number on screen
+            FString EnemyName = SpawnedEnemies[i]->GetName();
+            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString::Printf(TEXT("Enemy: %s, Assigned Number: %d"), *EnemyName, EnemyController->EnemyNumber));
+        }
+    }
 
 }
 
@@ -68,6 +84,7 @@ void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 
     OnEnemyDestroyed();
 
+    UpdateEnemyNumbers();
 
 }
 
