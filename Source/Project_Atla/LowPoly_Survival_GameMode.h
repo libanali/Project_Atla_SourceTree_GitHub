@@ -22,6 +22,10 @@ public:
 
     void UpdateEnemyNumbers();
 
+    AEnemy_AIController* CurrentAttacker;
+
+    void CycleToNextEnemy();
+
 
 
 protected:
@@ -90,10 +94,15 @@ protected:
     // List of active enemy controllers
     TArray<AEnemy_AIController*> ActiveEnemies;
 
+
+
     UFUNCTION()
         void OnEnemyDestroyed();
 
     FVector GetRandomPointNearPlayer();
+
+
+
 
 
 private:
@@ -103,5 +112,7 @@ private:
 
     // Timer for updating enemy numbers
     FTimerHandle NumberUpdateTimer;
+
+
 	
 };

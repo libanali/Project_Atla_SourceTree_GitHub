@@ -30,37 +30,33 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
 
 void ALowPoly_Survival_GameMode::UpdateEnemyNumbers()
 {
-    // Assume SpawnedEnemies contains the currently active enemies
     if (SpawnedEnemies.Num() == 0) return;
 
-    // Find the enemy currently assigned as number 1 (the attacker)
-    int32 CurrentAttackerIndex = -1;
-
-    for (int32 i = 0; i < SpawnedEnemies.Num(); i++)
+    // If no enemy is currently attacking, assign one
+    if (CurrentAttacker == nullptr || !CurrentAttacker->IsValidLowLevel())
     {
-        AEnemy_AIController* EnemyController = Cast<AEnemy_AIController>(SpawnedEnemies[i]->GetController());
-        if (EnemyController && EnemyController->EnemyNumber == 1)
+        // Get the first enemy in the list as the new attacker
+        AEnemy_AIController* NewAttacker = Cast<AEnemy_AIController>(SpawnedEnemies[0]->GetController());
+        if (NewAttacker)
         {
-            CurrentAttackerIndex = i;
-            break;
+            CurrentAttacker = NewAttacker;
+            CurrentAttacker->AttackPlayer();
         }
     }
 
-    // Cycle the numbers (wrap around)
-    for (int32 i = 0; i < SpawnedEnemies.Num(); i++)
+    // Loop through all enemies
+    for (AEnemy_Poly* Enemy : SpawnedEnemies)
     {
-        AEnemy_AIController* EnemyController = Cast<AEnemy_AIController>(SpawnedEnemies[i]->GetController());
+        AEnemy_AIController* EnemyController = Cast<AEnemy_AIController>(Enemy->GetController());
         if (EnemyController)
         {
-            // Move numbers forward, and if it's the last enemy, wrap around to make the first enemy attack next
-            EnemyController->EnemyNumber = (i == CurrentAttackerIndex) ? SpawnedEnemies.Num() : i + 1;
-
-            // Print the enemy's name and assigned number on screen
-            FString EnemyName = SpawnedEnemies[i]->GetName();
-            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Cyan, FString::Printf(TEXT("Enemy: %s, Assigned Number: %d"), *EnemyName, EnemyController->EnemyNumber));
+            if (EnemyController != CurrentAttacker)
+            {
+                // Strafe if this enemy is not the current attacker
+                EnemyController->StrafeAroundPlayer();
+            }
         }
     }
-
 }
 
 
@@ -73,6 +69,7 @@ void ALowPoly_Survival_GameMode::BeginPlay()
 
     GetWorld()->GetTimerManager().SetTimer(NumberUpdateTimer, this, &ALowPoly_Survival_GameMode::UpdateEnemyNumbers, 5.0f, true);
 
+    CurrentAttacker = nullptr;
 
     
 }
@@ -84,7 +81,7 @@ void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 
     OnEnemyDestroyed();
 
-    UpdateEnemyNumbers();
+  //  UpdateEnemyNumbers();
 
 }
 
@@ -241,5 +238,25 @@ void ALowPoly_Survival_GameMode::AssignEnemyNumbers()
             ActiveEnemies[i]->SetEnemyNumber(MaxNumber - i);  // Highest number first
         }
     }
+
+}
+
+void ALowPoly_Survival_GameMode::CycleToNextEnemy()
+{
+
+    int32 CurrentAttackerIndex = SpawnedEnemies.IndexOfByKey(CurrentAttacker->GetPawn());
+    if (CurrentAttackerIndex != INDEX_NONE)
+    {
+        // Get the next enemy
+        int32 NextAttackerIndex = (CurrentAttackerIndex + 1) % SpawnedEnemies.Num();
+        AEnemy_AIController* NextAttacker = Cast<AEnemy_AIController>(SpawnedEnemies[NextAttackerIndex]->GetController());
+
+        if (NextAttacker)
+        {
+            CurrentAttacker = NextAttacker;
+            CurrentAttacker->AttackPlayer();
+        }
+    }
+
 
 }

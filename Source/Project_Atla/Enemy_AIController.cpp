@@ -136,7 +136,7 @@ void AEnemy_AIController::ResetAttackCooldown()
         ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
         if (GameMode)
         {
-            GameMode->UpdateEnemyNumbers();  // Reassign enemy numbers to cycle to the next one
+            GameMode->CycleToNextEnemy();
         }
     }
 
@@ -154,19 +154,24 @@ void AEnemy_AIController::ResetAttackCooldown()
 void AEnemy_AIController::UpdateBehavior()
 {
 
-    if (!TargetPlayer) return;
+    ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
 
-    // Calculate distance to the player
-    float DistanceToThePlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
 
-    // Attack if this enemy has the highest number and is in range
-    if (EnemyNumber == 1 && DistanceToThePlayer <= AttackRange && !bIsAttacking)
+    if (TargetPlayer == nullptr || !GetPawn()) return;
+
+    // Attack only if this enemy is the current attacker
+    if (GameMode->CurrentAttacker == this)
     {
-        AttackPlayer();  // Start attacking if not already attacking
+        float DistanceToThePlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
+
+        if (DistanceToThePlayer <= AttackRange)
+        {
+            AttackPlayer();
+        }
     }
-    else if (!bIsAttacking)  // If the enemy is not attacking, move/strafe
+    else
     {
-        StrafeAroundPlayer();
+        StrafeAroundPlayer();  // Strafe if not attacking
     }
 }
 

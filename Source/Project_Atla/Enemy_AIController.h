@@ -45,10 +45,11 @@ public:
     int32 GetEnemyNumber() const;
 
     int32 EnemyNumber;
+    bool bIsAttacking;
+
  
 private:
     AActor* TargetPlayer;
-    bool bIsAttacking;
     FTimerHandle AttackDelayHandle;
     bool bIsAttackOnCooldown;  // To check if attack is cooling down
 
