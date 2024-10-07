@@ -26,6 +26,13 @@ public:
 
     void CycleToNextEnemy();
 
+    bool bIsSpawningEnemies = false;
+
+    void ResetAttackCycle();
+
+    void StartEnemyAttackCycle();
+
+
 
 
 protected:

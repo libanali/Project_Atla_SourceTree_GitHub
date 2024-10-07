@@ -94,18 +94,16 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
     UWorld* World = GetWorld();
     if (World == nullptr) return;
 
-    // Calculate the number of enemies to spawn this round
-    int32 EnemiesToSpawn = 4 + (CurrentRound - 1) * AdditionalEnemiesPerRound;
+    // Mark that spawning is starting
+    bIsSpawningEnemies = true;
 
-    // Calculate the spawn delay (decrease as the rounds progress)
+    int32 EnemiesToSpawn = 4 + (CurrentRound - 1) * AdditionalEnemiesPerRound;
     float LocalSpawnDelay = FMath::Max(MinSpawnDelay, BaseSpawnDelay - (CurrentRound - 1) * DelayDecreasePerRound);
 
-    // Spawn enemies one by one with delay
     for (int32 i = 0; i < EnemiesToSpawn; i++)
     {
         FTimerHandle LocalSpawnTimerHandle;
-        // Use a lambda function to handle the delayed enemy spawn
-        GetWorld()->GetTimerManager().SetTimer(LocalSpawnTimerHandle, [this, i]()
+        GetWorld()->GetTimerManager().SetTimer(LocalSpawnTimerHandle, [this, i, EnemiesToSpawn]()  // Pass EnemiesToSpawn as capture variable
             {
                 FVector SpawnLocation = GetRandomPointNearPlayer();
                 FRotator SpawnRotation = FRotator::ZeroRotator;
@@ -114,21 +112,22 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
 
                 if (SpawnedEnemy)
                 {
-                    // Log the spawned enemy
                     UE_LOG(LogTemp, Log, TEXT("Spawned enemy: %s"), *SpawnedEnemy->GetName());
 
-                    // Set the enemy's health based on the current round
                     float AddedEnemyHealth = SpawnedEnemy->MaxEnemyHealth + (CurrentRound - 1) * AdditionalEnemyHealthPerRound;
                     SpawnedEnemy->IncreaseEnemyHealth(AddedEnemyHealth, true);
 
-                    // Add to the list of spawned enemies
                     SpawnedEnemies.Add(SpawnedEnemy);
-
-                    // No more TokenManager logic required, so remove it entirely
                 }
-            }, i * LocalSpawnDelay, false);  // Set delay for each spawn
-    }
 
+                // If this is the last enemy being spawned, mark spawning as finished
+                if (i == EnemiesToSpawn - 1)
+                {
+                    bIsSpawningEnemies = false;  // Mark that spawning is complete
+                }
+
+            }, i * LocalSpawnDelay, false);
+    }
 }
 
 
@@ -140,7 +139,8 @@ void ALowPoly_Survival_GameMode::StartNextRound()
     // Start the spawning timer for the next round
     GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALowPoly_Survival_GameMode::SpawnEnemies, RoundDelay, false);
 
-   
+    bIsSpawningEnemies = true;
+
 }
 
 
@@ -148,7 +148,6 @@ void ALowPoly_Survival_GameMode::StartNextRound()
 
 void ALowPoly_Survival_GameMode::CheckForNextRound()
 {
-    // Check if all enemies are dead
     bool bAllEnemiesDead = true;
     for (AEnemy_Poly* Enemy : SpawnedEnemies)
     {
@@ -159,9 +158,12 @@ void ALowPoly_Survival_GameMode::CheckForNextRound()
         }
     }
 
-    // If all enemies are dead, start the next round
-    if (bAllEnemiesDead)
+    if (bAllEnemiesDead && !bIsSpawningEnemies)
     {
+        // Reset the attack cycle before moving to the next round
+        ResetAttackCycle();
+
+        // Move to the next round
         CurrentRound++;
         StartNextRound();
     }
@@ -175,20 +177,15 @@ void ALowPoly_Survival_GameMode::OnEnemyDestroyed()
 {
 
     for (int32 i = SpawnedEnemies.Num() - 1; i >= 0; i--)
-
     {
-
         if (SpawnedEnemies.IsValidIndex(i) && SpawnedEnemies[i] && SpawnedEnemies[i]->bIsDead)
-
         {
-
             SpawnedEnemies.RemoveAt(i);
-
         }
-
-        CheckForNextRound();
-
     }
+
+    // After removing dead enemies, check for the next round
+    CheckForNextRound();
 
 }
 
@@ -256,6 +253,27 @@ void ALowPoly_Survival_GameMode::CycleToNextEnemy()
             CurrentAttacker = NextAttacker;
             CurrentAttacker->AttackPlayer();
         }
+    }
+
+
+}
+
+void ALowPoly_Survival_GameMode::ResetAttackCycle()
+{
+
+    // Reset the current attacker
+    CurrentAttacker = nullptr;
+
+
+}
+
+void ALowPoly_Survival_GameMode::StartEnemyAttackCycle()
+{
+
+    if (!bIsSpawningEnemies && SpawnedEnemies.Num() > 0)
+    {
+        // Start the cycle since all enemies have been spawned
+        CycleToNextEnemy();  // Call your logic for cycling enemies here
     }
 
 

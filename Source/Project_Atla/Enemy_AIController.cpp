@@ -81,23 +81,18 @@ void AEnemy_AIController::StrafeAroundPlayer()
 
    if (TargetPlayer)
     {
-        // Get the enemy's current location
-        FVector EnemyLocation = GetPawn()->GetActorLocation();
+       // Determine the desired strafe distance
+       float StrafeDistance = 300.0f; // Adjust as necessary for your gameplay
+       FVector Direction = (TargetPlayer->GetActorLocation() - GetPawn()->GetActorLocation()).GetSafeNormal();
 
-        // Calculate the direction to the player
-        FVector DirectionToPlayer = (TargetPlayer->GetActorLocation() - EnemyLocation).GetSafeNormal();
+       // Get a perpendicular vector for strafing (rotate 90 degrees)
+       FVector StrafeDirection = FVector(-Direction.Y, Direction.X, 0.0f); // Right strafe
 
-        // Calculate the right vector
-        FVector RightVector = FVector::CrossProduct(DirectionToPlayer, FVector::UpVector);
-        
-        // Randomly choose left or right for strafing
-        float RandomSign = FMath::RandBool() ? 1.0f : -1.0f;
+       // Calculate the new strafe location
+       FVector NewLocation = TargetPlayer->GetActorLocation() + StrafeDirection * StrafeDistance;
 
-        // Calculate the strafe location using the strafe distance
-        FVector StrafeLocation = TargetPlayer->GetActorLocation() + RightVector * StrafeDistance * RandomSign;
-
-        // Move to the strafe location
-        MoveToLocation(StrafeLocation);
+       // Move to the new location
+       MoveToLocation(NewLocation, -1.0f, true);
     }
 
 }
@@ -154,26 +149,36 @@ void AEnemy_AIController::ResetAttackCooldown()
 void AEnemy_AIController::UpdateBehavior()
 {
 
+    // Cast the game mode to your specific game mode class
     ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
 
+    if (TargetPlayer == nullptr || !GetPawn() || GameMode == nullptr) return;
 
-    if (TargetPlayer == nullptr || !GetPawn()) return;
+    // Get distance to the player
+    float DistanceToThePlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
 
-    // Attack only if this enemy is the current attacker
+    // Check if this enemy is the current attacker
     if (GameMode->CurrentAttacker == this)
     {
-        float DistanceToThePlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
-
+        // Check if the enemy is within attack range
         if (DistanceToThePlayer <= AttackRange)
         {
-            AttackPlayer();
+            AttackPlayer();  // Attack if within range
+        }
+        else
+        {
+            // Move closer to the player if out of range
+            MoveToActor(TargetPlayer, -1.0f, true);
         }
     }
     else
     {
-        StrafeAroundPlayer();  // Strafe if not attacking
+        // Non-attacking enemies should strafe around the player
+        StrafeAroundPlayer();  // Call your strafing behavior
     }
 }
+
+
 
 void AEnemy_AIController::SetEnemyNumber(int32 NewNumber)
 {
@@ -183,12 +188,7 @@ void AEnemy_AIController::SetEnemyNumber(int32 NewNumber)
 
 }
 
-void AEnemy_AIController::UpdateEnemyNumbers()
-{
 
-    
-
-}
 
 int32 AEnemy_AIController::GetEnemyNumber() const
 {
