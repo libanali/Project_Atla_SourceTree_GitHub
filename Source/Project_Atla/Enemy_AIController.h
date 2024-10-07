@@ -44,6 +44,8 @@ public:
 
     int32 EnemyNumber;
     bool bIsAttacking;
+    bool bIsClosingIn;
+    bool bIsInAttackRange;
 
  
 private:

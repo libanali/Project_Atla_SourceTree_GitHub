@@ -19,7 +19,7 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
     RoundDelay = 2.5f;
     BaseEnemiesPerRound = 3;
     SpawnRadius = 800.0f;
-    CurrentRound = 1;
+    CurrentRound = 2;
     AdditionalEnemyHealthPerRound = 40.0f;
     AdditionalEnemiesPerRound = 1.9f;
     BaseSpawnDelay = 2.0f;         // Initial delay between spawns in the first round
@@ -220,11 +220,16 @@ FVector ALowPoly_Survival_GameMode::GetRandomPointNearPlayer()
 void ALowPoly_Survival_GameMode::AssignEnemyNumbers()
 {
 
+    // Remove any destroyed enemies from the ActiveEnemies array
+    ActiveEnemies.RemoveAll([](AEnemy_AIController* EnemyAI) {
+        return !EnemyAI || !EnemyAI->GetPawn() || EnemyAI->GetPawn()->IsPendingKillPending();
+        });
+
     int32 MaxNumber = ActiveEnemies.Num();
 
-    // Shuffle or sort enemies randomly or based on your logic
+    // Shuffle or sort enemies randomly
     ActiveEnemies.Sort([](const AEnemy_AIController& A, const AEnemy_AIController& B) {
-        return FMath::RandBool(); // Randomize enemy numbers
+        return FMath::RandBool();
         });
 
     // Assign numbers (1 is the highest priority)
@@ -241,20 +246,45 @@ void ALowPoly_Survival_GameMode::AssignEnemyNumbers()
 void ALowPoly_Survival_GameMode::CycleToNextEnemy()
 {
 
-    int32 CurrentAttackerIndex = SpawnedEnemies.IndexOfByKey(CurrentAttacker->GetPawn());
-    if (CurrentAttackerIndex != INDEX_NONE)
+    // Ensure the current attacker is valid and hasn't been destroyed
+    if (CurrentAttacker && CurrentAttacker->GetPawn())
     {
-        // Get the next enemy
-        int32 NextAttackerIndex = (CurrentAttackerIndex + 1) % SpawnedEnemies.Num();
-        AEnemy_AIController* NextAttacker = Cast<AEnemy_AIController>(SpawnedEnemies[NextAttackerIndex]->GetController());
+        int32 CurrentAttackerIndex = SpawnedEnemies.IndexOfByKey(CurrentAttacker->GetPawn());
 
-        if (NextAttacker)
+        if (CurrentAttackerIndex != INDEX_NONE)
         {
-            CurrentAttacker = NextAttacker;
-            CurrentAttacker->AttackPlayer();
+            // Cycle to the next attacker, limit the number of attempts to avoid infinite recursion
+            int32 NumAttempts = 0;
+            int32 NextAttackerIndex;
+            AEnemy_AIController* NextAttacker;
+
+            do
+            {
+                NextAttackerIndex = (CurrentAttackerIndex + 1) % SpawnedEnemies.Num();
+                NextAttacker = Cast<AEnemy_AIController>(SpawnedEnemies[NextAttackerIndex]->GetController());
+
+                // Break if we find a valid attacker
+                if (NextAttacker && NextAttacker->GetPawn())
+                {
+                    CurrentAttacker = NextAttacker;
+                    CurrentAttacker->AttackPlayer();
+                    return; // Exit the function once we find a valid attacker
+                }
+
+                CurrentAttackerIndex = NextAttackerIndex;
+                NumAttempts++;
+
+            } while (NumAttempts < SpawnedEnemies.Num());  // Avoid infinite recursion by limiting to number of enemies
+
+            // If no valid attackers are found after looping through all enemies, reset the cycle
+            ResetAttackCycle();
         }
     }
-
+    else
+    {
+        // If the current attacker is destroyed, try cycling to the next one
+        ResetAttackCycle();
+    }
 
 }
 

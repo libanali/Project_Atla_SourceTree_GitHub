@@ -86,9 +86,6 @@ public:
 		AEnemy_Token_Manager* TokenManager;
 
 	bool bHasToken;
-
-	void RequestToken();
-	void ReleaseToken();
 	//Combat
 
 

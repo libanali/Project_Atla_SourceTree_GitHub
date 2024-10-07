@@ -22,6 +22,8 @@ AEnemy_AIController::AEnemy_AIController()
     AttackRange = 90.0f;
     EnemyNumber = 0;
     bIsAttacking = false;
+    bIsClosingIn = false;
+    bIsInAttackRange = false;
 
 }
 
@@ -51,7 +53,8 @@ void AEnemy_AIController::SetTarget(AActor* NewTarget)
 
 
 void AEnemy_AIController::AttackPlayer()
-{  // If attack is on cooldown, do nothing
+{  
+   // If attack is on cooldown, do nothing
     if (bIsAttackOnCooldown)
     {
         return;
@@ -61,16 +64,28 @@ void AEnemy_AIController::AttackPlayer()
     if (ControlledPawn)
     {
         AEnemy_Poly* Enemy = Cast<AEnemy_Poly>(ControlledPawn);
-        if (Enemy)
+        if (Enemy && TargetPlayer)
         {
-            // Log the attack and play the attack animation
-            GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Enemy is Attacking!"));
-            bIsAttacking = true;
-            bIsAttackOnCooldown = true;  // Set the cooldown flag
-            Enemy->Attack();  // Call the attack function to play the animation
+            // Calculate distance to the player
+            float DistanceToThePlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
 
-            // Set a timer to reset attack cooldown after a delay (e.g., 2 seconds)
-            GetWorld()->GetTimerManager().SetTimer(AttackDelayHandle, this, &AEnemy_AIController::ResetAttackCooldown, 2.0f, false);
+            // Check if enemy is within attack range
+            if (DistanceToThePlayer <= AttackRange)
+            {
+                // Log the attack and play the attack animation
+                GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Enemy is Attacking!"));
+                bIsAttacking = true;
+                bIsAttackOnCooldown = true;  // Set the cooldown flag
+                Enemy->Attack();  // Call the attack function to play the animation
+
+                // Set a timer to reset attack cooldown after a delay (e.g., 2 seconds)
+                GetWorld()->GetTimerManager().SetTimer(AttackDelayHandle, this, &AEnemy_AIController::ResetAttackCooldown, 2.0f, false);
+            }
+            else
+            {
+                // Enemy is not in range, move closer to the player
+                MoveToActor(TargetPlayer, AttackRange - 50.0f);  // Move closer before attacking
+            }
         }
     }
 }
@@ -79,22 +94,39 @@ void AEnemy_AIController::AttackPlayer()
 void AEnemy_AIController::StrafeAroundPlayer()
 {
 
-   if (TargetPlayer)
+    if (TargetPlayer == nullptr || !GetPawn()) return;
+
+    // Determine the desired strafe distance from the player
+    float DesiredStrafeDistance = 280.0f;  // The distance you want the enemy to keep from the player
+    float CurrentDistanceToPlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
+
+    // If the enemy is too close, move it further away
+    if (CurrentDistanceToPlayer < DesiredStrafeDistance)
     {
-       // Determine the desired strafe distance
-       float StrafeDistance = 300.0f; // Adjust as necessary for your gameplay
-       FVector Direction = (TargetPlayer->GetActorLocation() - GetPawn()->GetActorLocation()).GetSafeNormal();
+        // Calculate the direction away from the player
+        FVector AwayFromPlayer = (GetPawn()->GetActorLocation() - TargetPlayer->GetActorLocation()).GetSafeNormal();
 
-       // Get a perpendicular vector for strafing (rotate 90 degrees)
-       FVector StrafeDirection = FVector(-Direction.Y, Direction.X, 0.0f); // Right strafe
+        // Calculate a new location further away
+        FVector NewLocation = TargetPlayer->GetActorLocation() + (AwayFromPlayer * DesiredStrafeDistance);
 
-       // Calculate the new strafe location
-       FVector NewLocation = TargetPlayer->GetActorLocation() + StrafeDirection * StrafeDistance;
-
-       // Move to the new location
-       MoveToLocation(NewLocation, -1.0f, true);
+        // Move the enemy to the new location
+        MoveToLocation(NewLocation, -1.0f, true);
     }
+    else
+    {
+        // Strafe around the player while maintaining distance
+        FVector Direction = (TargetPlayer->GetActorLocation() - GetPawn()->GetActorLocation()).GetSafeNormal();
 
+        // Get a perpendicular vector for strafing (rotate 90 degrees)
+        FVector StrafeDirection = FVector(-Direction.Y, Direction.X, 0.0f); // Right strafe
+
+        // Calculate the new strafe location, keeping the desired distance
+        FVector NewLocation = TargetPlayer->GetActorLocation() + (StrafeDirection * DesiredStrafeDistance);
+
+        // Move to the new location
+        MoveToLocation(NewLocation, -1.0f, true);
+
+    }
 }
 
 
@@ -149,32 +181,32 @@ void AEnemy_AIController::ResetAttackCooldown()
 void AEnemy_AIController::UpdateBehavior()
 {
 
-    // Cast the game mode to your specific game mode class
     ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
 
-    if (TargetPlayer == nullptr || !GetPawn() || GameMode == nullptr) return;
+    if (TargetPlayer == nullptr || !GetPawn()) return;
 
-    // Get distance to the player
-    float DistanceToThePlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
-
-    // Check if this enemy is the current attacker
+    // Attack only if this enemy is the current attacker
     if (GameMode->CurrentAttacker == this)
     {
-        // Check if the enemy is within attack range
-        if (DistanceToThePlayer <= AttackRange)
+        // Calculate distance to the player
+        float DistanceToThePlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
+
+        // If not in range, move closer to the player first
+        if (DistanceToThePlayer > AttackRange)
         {
-            AttackPlayer();  // Attack if within range
+            MoveToActor(TargetPlayer, AttackRange - 80.0f);  // Adjust to stop slightly within attack range
         }
         else
         {
-            // Move closer to the player if out of range
-            MoveToActor(TargetPlayer, -1.0f, true);
+            // Stop moving and initiate the attack
+            StopMovement();
+            AttackPlayer();
         }
     }
     else
     {
-        // Non-attacking enemies should strafe around the player
-        StrafeAroundPlayer();  // Call your strafing behavior
+        // Strafe if not attacking
+        StrafeAroundPlayer();
     }
 }
 

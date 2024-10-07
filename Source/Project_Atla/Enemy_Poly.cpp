@@ -68,6 +68,15 @@ float AEnemy_Poly::ApplyDamage(float DamageAmount, const FHitResult& HitInfo, AC
 
 	CurrentEnemyHealth -= CalculatedDamage;
 
+	if (CurrentEnemyHealth <= 0)
+
+	{
+
+		Death();
+
+	}
+
+
 	return CalculatedDamage;
 }
 
@@ -75,18 +84,46 @@ float AEnemy_Poly::ApplyDamage(float DamageAmount, const FHitResult& HitInfo, AC
 
 void AEnemy_Poly::Death()
 {
-
-	if (CurrentEnemyHealth <= 0)
-
+	// If the enemy is already dead, exit early
+	if (bIsDead)
 	{
-
-		bIsDead = true;
-		Destroy(true);
-
-		ARen_Low_Poly_Character* LowPoly_Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-		LowPoly_Ren->GainExperience(25);
+		return;
 	}
 
+	// Set the enemy as dead
+	bIsDead = true;
+
+	// Cast to the game mode to access enemy management
+	ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
+	if (GameMode)
+	{
+		// Remove this enemy from the SpawnedEnemies list
+		GameMode->SpawnedEnemies.Remove(this);
+
+		// Remove this enemy's AIController from the ActiveEnemies list
+		AEnemy_AIController* AIController = Cast<AEnemy_AIController>(GetController());
+		if (AIController)
+		{
+			GameMode->ActiveEnemies.Remove(AIController);
+		}
+
+		// If this enemy is the current attacker, reset and cycle to the next enemy
+		if (GameMode->CurrentAttacker == AIController)
+		{
+			GameMode->ResetAttackCycle();
+			GameMode->CycleToNextEnemy();  // Continue the attack cycle
+		}
+	}
+
+	// Grant experience to the player character
+	ARen_Low_Poly_Character* LowPoly_Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if (LowPoly_Ren)
+	{
+		LowPoly_Ren->GainExperience(25);  // Give experience points to the player
+	}
+
+	// Destroy the enemy after all necessary actions
+	Destroy(true);
 }
 
 
@@ -122,23 +159,6 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 
 }
 
-void AEnemy_Poly::RequestToken()
-{
-
-
-
-
-}
-
-
-
-void AEnemy_Poly::ReleaseToken()
-{
-
-
-
-
-}
 
 // Called when the game starts or when spawned
 void AEnemy_Poly::BeginPlay()
@@ -162,7 +182,7 @@ void AEnemy_Poly::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 
-	Death();
+	//Death();
 	
 
 }

@@ -32,7 +32,11 @@ public:
 
     void StartEnemyAttackCycle();
 
+    // List of currently spawned enemies
+    TArray<AEnemy_Poly*> SpawnedEnemies;
 
+    // List of active enemy controllers
+    TArray<AEnemy_AIController*> ActiveEnemies;
 
 
 protected:
@@ -83,9 +87,6 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
         float AdditionalEnemyHealthPerRound;
 
-    // List of currently spawned enemies
-    TArray<AEnemy_Poly*> SpawnedEnemies;
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Spawning")
         float BaseSpawnDelay;  // Initial delay between spawns in the first round
 
@@ -98,8 +99,7 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
         float SpawnRadius;
 
-    // List of active enemy controllers
-    TArray<AEnemy_AIController*> ActiveEnemies;
+   
 
 
 
