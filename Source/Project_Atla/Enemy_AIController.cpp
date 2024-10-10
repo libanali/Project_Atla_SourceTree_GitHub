@@ -77,6 +77,7 @@ void AEnemy_AIController::AttackPlayer()
                 bIsAttacking = true;
                 bIsAttackOnCooldown = true;  // Set the cooldown flag
                 Enemy->Attack();  // Call the attack function to play the animation
+                StopMovement();
 
                 // Set a timer to reset attack cooldown after a delay (e.g., 2 seconds)
                 GetWorld()->GetTimerManager().SetTimer(AttackDelayHandle, this, &AEnemy_AIController::ResetAttackCooldown, 2.0f, false);

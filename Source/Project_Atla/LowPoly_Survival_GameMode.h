@@ -99,7 +99,16 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
         float SpawnRadius;
 
-   
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
+        TSubclassOf<AEnemy_Poly> BP_Spider;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
+        TSubclassOf<AEnemy_Poly> BP_Wolf;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy")
+        TSubclassOf<AEnemy_Poly> BP_RockTroll;
+
+    TSubclassOf<AEnemy_Poly> GetEnemyClassForCurrentRound();
 
 
 

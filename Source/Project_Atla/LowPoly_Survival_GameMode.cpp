@@ -18,8 +18,8 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
 
     RoundDelay = 2.5f;
     BaseEnemiesPerRound = 3;
-    SpawnRadius = 800.0f;
-    CurrentRound = 2;
+    SpawnRadius = 900.0f;
+    CurrentRound = 10;
     AdditionalEnemyHealthPerRound = 40.0f;
     AdditionalEnemiesPerRound = 1.9f;
     BaseSpawnDelay = 2.0f;         // Initial delay between spawns in the first round
@@ -89,6 +89,7 @@ void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 
 void ALowPoly_Survival_GameMode::SpawnEnemies()
 {
+    // Early return if EnemyClass is not set
     if (EnemyClass == nullptr) return;
 
     UWorld* World = GetWorld();
@@ -97,38 +98,50 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
     // Mark that spawning is starting
     bIsSpawningEnemies = true;
 
+    // Determine the number of enemies to spawn for the current round
     int32 EnemiesToSpawn = 4 + (CurrentRound - 1) * AdditionalEnemiesPerRound;
     float LocalSpawnDelay = FMath::Max(MinSpawnDelay, BaseSpawnDelay - (CurrentRound - 1) * DelayDecreasePerRound);
 
+    // Spawn enemies based on the current round
     for (int32 i = 0; i < EnemiesToSpawn; i++)
     {
         FTimerHandle LocalSpawnTimerHandle;
-        GetWorld()->GetTimerManager().SetTimer(LocalSpawnTimerHandle, [this, i, EnemiesToSpawn]()  // Pass EnemiesToSpawn as capture variable
+        GetWorld()->GetTimerManager().SetTimer(LocalSpawnTimerHandle, [this, i, EnemiesToSpawn]()
             {
                 FVector SpawnLocation = GetRandomPointNearPlayer();
                 FRotator SpawnRotation = FRotator::ZeroRotator;
 
-                AEnemy_Poly* SpawnedEnemy = GetWorld()->SpawnActor<AEnemy_Poly>(EnemyClass, SpawnLocation, SpawnRotation);
+                // Choose enemy type based on round number
+                TSubclassOf<AEnemy_Poly> EnemyToSpawnClass = GetEnemyClassForCurrentRound();
 
-                if (SpawnedEnemy)
+                if (EnemyToSpawnClass)
                 {
-                    UE_LOG(LogTemp, Log, TEXT("Spawned enemy: %s"), *SpawnedEnemy->GetName());
+                    // Spawn the selected enemy type
+                    AEnemy_Poly* SpawnedEnemy = GetWorld()->SpawnActor<AEnemy_Poly>(EnemyToSpawnClass, SpawnLocation, SpawnRotation);
+                    if (SpawnedEnemy)
+                    {
+                        UE_LOG(LogTemp, Log, TEXT("Spawned enemy: %s"), *SpawnedEnemy->GetName());
 
-                    float AddedEnemyHealth = SpawnedEnemy->MaxEnemyHealth + (CurrentRound - 1) * AdditionalEnemyHealthPerRound;
-                    SpawnedEnemy->IncreaseEnemyHealth(AddedEnemyHealth, true);
+                        // Increase enemy health based on the current round
+                        float AddedEnemyHealth = SpawnedEnemy->MaxEnemyHealth + (CurrentRound - 1) * AdditionalEnemyHealthPerRound;
+                        SpawnedEnemy->IncreaseEnemyHealth(AddedEnemyHealth, true);
 
-                    SpawnedEnemies.Add(SpawnedEnemy);
+                        // Add to spawned enemies list
+                        SpawnedEnemies.Add(SpawnedEnemy);
+                    }
                 }
 
                 // If this is the last enemy being spawned, mark spawning as finished
                 if (i == EnemiesToSpawn - 1)
                 {
-                    bIsSpawningEnemies = false;  // Mark that spawning is complete
+                    bIsSpawningEnemies = false;
                 }
 
             }, i * LocalSpawnDelay, false);
     }
 }
+
+
 
 
 void ALowPoly_Survival_GameMode::StartNextRound()
@@ -172,6 +185,41 @@ void ALowPoly_Survival_GameMode::CheckForNextRound()
 
 
 
+
+TSubclassOf<AEnemy_Poly> ALowPoly_Survival_GameMode::GetEnemyClassForCurrentRound()
+{
+    // For rounds 1-4, only spawn spiders
+    if (CurrentRound >= 1 && CurrentRound <= 4)
+    {
+        return BP_Spider;  // Reference to BP_Spider blueprint
+    }
+
+    // For rounds 5-9, spawn spiders and wolves
+    if (CurrentRound >= 5 && CurrentRound <= 9)
+    {
+        return FMath::RandBool() ? BP_Spider : BP_Wolf;  // Randomly choose between Spider and Wolf
+    }
+
+    // For rounds 10 and above, spawn spiders, wolves, and rock trolls
+    if (CurrentRound >= 10)
+    {
+        int32 RandomChoice = FMath::RandRange(0, 2);
+        switch (RandomChoice)
+        {
+        case 0:
+            return BP_Spider;
+        case 1:
+            return BP_Wolf;
+        case 2:
+            return BP_RockTroll;
+        default:
+            return BP_Spider;
+        }
+    }
+
+    // Default to spawning spiders if something goes wrong
+    return BP_Spider;
+}
 
 void ALowPoly_Survival_GameMode::OnEnemyDestroyed()
 {
