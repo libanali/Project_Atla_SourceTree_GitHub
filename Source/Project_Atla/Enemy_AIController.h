@@ -33,7 +33,7 @@ public:
     float AttackRange;
 
     // Function to update the behavior of the enemy
-    void UpdateBehavior();
+    void UpdateBehaviour();
 
     // Function to set the enemy's assigned number
     void SetEnemyNumber(int32 NewNumber);
@@ -52,7 +52,9 @@ private:
     AActor* TargetPlayer;
     FTimerHandle AttackDelayHandle;
     bool bIsAttackOnCooldown;  // To check if attack is cooling down
-
+    float LastDecisionTime;  // Tracks the time of the last movement decision
+    float DecisionInterval;  // The time interval between decisions
+    bool bIsStrafing;        // Tracks if the AI is currently strafing
 
 
 protected:

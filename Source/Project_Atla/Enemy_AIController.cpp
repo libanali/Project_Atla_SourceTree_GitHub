@@ -24,6 +24,9 @@ AEnemy_AIController::AEnemy_AIController()
     bIsAttacking = false;
     bIsClosingIn = false;
     bIsInAttackRange = false;
+    LastDecisionTime = 0.0f;
+    DecisionInterval = 2.0f;  // AI makes a new decision every 2 seconds
+    bIsStrafing = false;
 
 }
 
@@ -60,6 +63,8 @@ void AEnemy_AIController::AttackPlayer()
         return;
     }
 
+    StopMovement();
+
     APawn* ControlledPawn = GetPawn();
     if (ControlledPawn)
     {
@@ -77,7 +82,6 @@ void AEnemy_AIController::AttackPlayer()
                 bIsAttacking = true;
                 bIsAttackOnCooldown = true;  // Set the cooldown flag
                 Enemy->Attack();  // Call the attack function to play the animation
-                StopMovement();
 
                 // Set a timer to reset attack cooldown after a delay (e.g., 2 seconds)
                 GetWorld()->GetTimerManager().SetTimer(AttackDelayHandle, this, &AEnemy_AIController::ResetAttackCooldown, 2.0f, false);
@@ -97,36 +101,72 @@ void AEnemy_AIController::StrafeAroundPlayer()
 
     if (TargetPlayer == nullptr || !GetPawn()) return;
 
-    // Determine the desired strafe distance from the player
-    float DesiredStrafeDistance = 280.0f;  // The distance you want the enemy to keep from the player
+    // Get reference to the Game Mode
+    ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
+    if (GameMode == nullptr) return;
+
+    // Retrieve all enemies currently in the game (or from SpawnedEnemies array)
+    TArray<AActor*> AllEnemies;
+    UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemy_Poly::StaticClass(), AllEnemies);
+    int32 TotalEnemies = AllEnemies.Num();
+
+    // Find the current enemy's index in the array
+    int32 EnemyIndex = AllEnemies.Find(this->GetPawn());
+    if (EnemyIndex == INDEX_NONE) return;  // If enemy not found, early exit
+
+    // Calculate distance between the enemy and the player
+    float DesiredStrafeDistance = 300.0f;  // The distance you want the enemy to keep from the player
     float CurrentDistanceToPlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
 
-    // If the enemy is too close, move it further away
-    if (CurrentDistanceToPlayer < DesiredStrafeDistance)
+    // Check if enough time has passed since the last decision
+    float CurrentTime = GetWorld()->GetTimeSeconds();
+    if (CurrentTime - LastDecisionTime >= DecisionInterval)
     {
-        // Calculate the direction away from the player
-        FVector AwayFromPlayer = (GetPawn()->GetActorLocation() - TargetPlayer->GetActorLocation()).GetSafeNormal();
+        // Make a new decision: whether to strafe or stay still/move closer
+        float RandomChance = FMath::RandRange(0.0f, 1.0f); // Random float between 0 and 1
+        bIsStrafing = RandomChance > 0.5f;  // 50% chance to strafe
 
-        // Calculate a new location further away
-        FVector NewLocation = TargetPlayer->GetActorLocation() + (AwayFromPlayer * DesiredStrafeDistance);
+        // Update the last decision time
+        LastDecisionTime = CurrentTime;
+    }
 
-        // Move the enemy to the new location
-        MoveToLocation(NewLocation, -1.0f, true);
+    // Perform strafing or standing behavior based on the current state (bIsStrafing)
+    if (bIsStrafing)
+    {
+        // Strafing behavior
+        if (CurrentDistanceToPlayer < DesiredStrafeDistance)
+        {
+            // Move away if too close
+            FVector AwayFromPlayer = (GetPawn()->GetActorLocation() - TargetPlayer->GetActorLocation()).GetSafeNormal();
+            FVector NewLocation = TargetPlayer->GetActorLocation() + (AwayFromPlayer * DesiredStrafeDistance);
+            MoveToLocation(NewLocation, -1.0f, true);
+        }
+        else
+        {
+            // Calculate the strafing angle based on the enemy's index
+            float StrafeAngle = 360.0f / TotalEnemies * EnemyIndex;
+
+            // Determine the direction for strafing
+            FVector StrafeDirection = FRotationMatrix(FRotator(0, StrafeAngle, 0)).GetUnitAxis(EAxis::X);
+
+            // Calculate the new location, keeping the desired strafe distance
+            FVector NewLocation = TargetPlayer->GetActorLocation() + (StrafeDirection * DesiredStrafeDistance);
+            MoveToLocation(NewLocation, -1.0f, true);
+        }
     }
     else
     {
-        // Strafe around the player while maintaining distance
-        FVector Direction = (TargetPlayer->GetActorLocation() - GetPawn()->GetActorLocation()).GetSafeNormal();
-
-        // Get a perpendicular vector for strafing (rotate 90 degrees)
-        FVector StrafeDirection = FVector(-Direction.Y, Direction.X, 0.0f); // Right strafe
-
-        // Calculate the new strafe location, keeping the desired distance
-        FVector NewLocation = TargetPlayer->GetActorLocation() + (StrafeDirection * DesiredStrafeDistance);
-
-        // Move to the new location
-        MoveToLocation(NewLocation, -1.0f, true);
-
+        // Standing still or moving closer
+        if (CurrentDistanceToPlayer > DesiredStrafeDistance + 50.0f)
+        {
+            // Move closer to the player to maintain pressure
+            MoveToActor(TargetPlayer, DesiredStrafeDistance - 50.0f);
+        }
+        else
+        {
+            // Stay in place, giving the player a chance to attack
+            StopMovement();
+        }
     }
 }
 
@@ -179,7 +219,7 @@ void AEnemy_AIController::ResetAttackCooldown()
 
 
 
-void AEnemy_AIController::UpdateBehavior()
+void AEnemy_AIController::UpdateBehaviour()
 {
 
     ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
@@ -235,7 +275,7 @@ void AEnemy_AIController::Tick(float deltaTime)
     
     if (TargetPlayer)
     {
-        UpdateBehavior();  // Just focus on moving and attacking for now
+        UpdateBehaviour();  // Just focus on moving and attacking for now
 
     }
         // Ensure the enemy is always facing the player

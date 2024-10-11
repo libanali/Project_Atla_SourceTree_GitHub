@@ -19,7 +19,7 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
     RoundDelay = 2.5f;
     BaseEnemiesPerRound = 3;
     SpawnRadius = 900.0f;
-    CurrentRound = 10;
+    CurrentRound = 1;
     AdditionalEnemyHealthPerRound = 40.0f;
     AdditionalEnemiesPerRound = 1.9f;
     BaseSpawnDelay = 2.0f;         // Initial delay between spawns in the first round
@@ -102,7 +102,6 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
     int32 EnemiesToSpawn = 4 + (CurrentRound - 1) * AdditionalEnemiesPerRound;
     float LocalSpawnDelay = FMath::Max(MinSpawnDelay, BaseSpawnDelay - (CurrentRound - 1) * DelayDecreasePerRound);
 
-    // Spawn enemies based on the current round
     for (int32 i = 0; i < EnemiesToSpawn; i++)
     {
         FTimerHandle LocalSpawnTimerHandle;
@@ -111,34 +110,36 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
                 FVector SpawnLocation = GetRandomPointNearPlayer();
                 FRotator SpawnRotation = FRotator::ZeroRotator;
 
-                // Choose enemy type based on round number
+                // Add a small offset to the spawn location based on the enemy index to space them out
+                float SpawnOffset = 200.0f; // Adjust this value to control spacing
+                SpawnLocation.X += i * SpawnOffset;
+                SpawnLocation.Y += i * SpawnOffset;
+
                 TSubclassOf<AEnemy_Poly> EnemyToSpawnClass = GetEnemyClassForCurrentRound();
 
                 if (EnemyToSpawnClass)
                 {
-                    // Spawn the selected enemy type
                     AEnemy_Poly* SpawnedEnemy = GetWorld()->SpawnActor<AEnemy_Poly>(EnemyToSpawnClass, SpawnLocation, SpawnRotation);
                     if (SpawnedEnemy)
                     {
                         UE_LOG(LogTemp, Log, TEXT("Spawned enemy: %s"), *SpawnedEnemy->GetName());
 
-                        // Increase enemy health based on the current round
                         float AddedEnemyHealth = SpawnedEnemy->MaxEnemyHealth + (CurrentRound - 1) * AdditionalEnemyHealthPerRound;
                         SpawnedEnemy->IncreaseEnemyHealth(AddedEnemyHealth, true);
 
-                        // Add to spawned enemies list
                         SpawnedEnemies.Add(SpawnedEnemy);
                     }
                 }
 
-                // If this is the last enemy being spawned, mark spawning as finished
                 if (i == EnemiesToSpawn - 1)
                 {
                     bIsSpawningEnemies = false;
                 }
 
             }, i * LocalSpawnDelay, false);
+
     }
+
 }
 
 
