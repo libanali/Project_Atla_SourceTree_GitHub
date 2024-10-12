@@ -243,7 +243,7 @@ void ALowPoly_Survival_GameMode::OnEnemyDestroyed()
 
 FVector ALowPoly_Survival_GameMode::GetRandomPointNearPlayer()
 {
- APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+    APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
     if (!PlayerController) return FVector::ZeroVector;
 
     ACharacter* PlayerCharacter = Cast<ARen_Low_Poly_Character>(PlayerController->GetPawn());
@@ -259,7 +259,21 @@ FVector ALowPoly_Survival_GameMode::GetRandomPointNearPlayer()
         FMath::Sin(FMath::DegreesToRadians(RandomAngle)) * RandomRadius,
         0.f);
 
-    return RandomPoint;
+    // Ensure the point is on the NavMesh
+    UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(GetWorld());
+    if (NavSys)
+    {
+        FNavLocation NavMeshLocation;
+        bool bOnNavMesh = NavSys->ProjectPointToNavigation(RandomPoint, NavMeshLocation, FVector(500.f, 500.f, 500.f));
+
+        if (bOnNavMesh)
+        {
+            return NavMeshLocation.Location;
+        }
+    }
+
+    // Fallback to player's location if the point is not valid on NavMesh
+    return PlayerLocation;
     
 }
 
