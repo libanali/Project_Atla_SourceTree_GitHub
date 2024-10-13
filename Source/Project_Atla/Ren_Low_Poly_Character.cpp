@@ -319,10 +319,13 @@ void ARen_Low_Poly_Character::TakeDamage(float DamageAmount)
 
 }
 
+
+
 void ARen_Low_Poly_Character::IncreaseHealth(float HealAmount)
 {
 
 	HealthStruct.IncreaseHealth(HealAmount);
+
 }
 
 
@@ -336,12 +339,14 @@ void ARen_Low_Poly_Character::CalculateTotalAttack()
 }
 
 
+
 void ARen_Low_Poly_Character::IncreaseAttack(float IncreaseAmount, float Duration)
 {
 
 
 	OriginalAttack = BaseAttack;
 	BaseAttack *= IncreaseAmount;
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Increase Attack"));
 
 	GetWorldTimerManager().SetTimer(
 		AttackBonus,
@@ -358,8 +363,11 @@ void ARen_Low_Poly_Character::RevertAttack(float IncreaseAmount)
 {
 
 	BaseAttack = OriginalAttack;
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Orange, TEXT("attack back to normal"));
+
 
 }
+
 
 
 void ARen_Low_Poly_Character::CalculateTotalDefence()
@@ -369,25 +377,33 @@ void ARen_Low_Poly_Character::CalculateTotalDefence()
 
 }
 
+
 void ARen_Low_Poly_Character::IncreaseDefence(float IncreaseAmount, float Duration)
 {
 
 	OriginalDefence = BaseDefence;
 	BaseDefence *= IncreaseAmount;
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Increase Defence"));
+
+
 
 	GetWorldTimerManager().SetTimer(
 		DefenceBonus,
-		[this, IncreaseAmount]() { RevertAttack(IncreaseAmount); },
+		[this, IncreaseAmount]() { RevertDefence(IncreaseAmount); },
 		Duration,
 		false
 	);
 
 }
 
+
+
 void ARen_Low_Poly_Character::RevertDefence(float IncreaseAmount)
 {
 
 	BaseDefence = OriginalDefence; 
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Orange, TEXT("Defence back to normal"));
+
 
 }
 
@@ -399,7 +415,6 @@ void ARen_Low_Poly_Character::CalculateElementalAttack()
 	TotalElementalAttack = BaseElementalAttack * ElementalMultiplier;
 
 }
-
 
 
 
@@ -457,10 +472,6 @@ void ARen_Low_Poly_Character::CheckAndTriggerLevelUp()
 
 
 }
-
-
-
-
 
 
 

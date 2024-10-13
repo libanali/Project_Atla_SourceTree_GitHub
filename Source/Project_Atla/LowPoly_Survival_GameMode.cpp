@@ -251,28 +251,68 @@ FVector ALowPoly_Survival_GameMode::GetRandomPointNearPlayer()
 
     FVector PlayerLocation = PlayerCharacter->GetActorLocation();
 
-    // Generate a random point around the player within the specified radius
-    float RandomAngle = FMath::RandRange(0.f, 360.f);
-    float RandomRadius = FMath::RandRange(0.f, SpawnRadius);
+    UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(GetWorld());
+    if (!NavSystem) return FVector::ZeroVector;
 
-    FVector RandomPoint = PlayerLocation + FVector(FMath::Cos(FMath::DegreesToRadians(RandomAngle)) * RandomRadius,
-        FMath::Sin(FMath::DegreesToRadians(RandomAngle)) * RandomRadius,
-        0.f);
+    FNavLocation ProjectedLocation;
+    FVector RandomPoint;
+    bool bIsOnNavMesh = false;
 
-    // Ensure the point is on the NavMesh
-    UNavigationSystemV1* NavSys = UNavigationSystemV1::GetCurrent(GetWorld());
-    if (NavSys)
+    const int32 MaxAttempts = 10;
+    int32 AttemptCount = 0;
+
+    const float MinZValue = PlayerLocation.Z - 50.f;  // Set reasonable Z boundaries
+    const float MaxZValue = PlayerLocation.Z + 50.f;  // Avoid spawning too high above the player
+    const float MaxTraceDistance = 5000.0f; // Max distance to trace downwards to find ground
+
+    while (!bIsOnNavMesh && AttemptCount < MaxAttempts)
     {
-        FNavLocation NavMeshLocation;
-        bool bOnNavMesh = NavSys->ProjectPointToNavigation(RandomPoint, NavMeshLocation, FVector(500.f, 500.f, 500.f));
+        float RandomAngle = FMath::RandRange(0.f, 360.f);
+        float RandomRadius = FMath::RandRange(0.f, SpawnRadius);
 
-        if (bOnNavMesh)
+        RandomPoint = PlayerLocation + FVector(
+            FMath::Cos(FMath::DegreesToRadians(RandomAngle)) * RandomRadius,
+            FMath::Sin(FMath::DegreesToRadians(RandomAngle)) * RandomRadius,
+            0.f  // Z will be adjusted later
+        );
+
+        // Try to project to the navmesh
+        bIsOnNavMesh = NavSystem->ProjectPointToNavigation(
+            RandomPoint,
+            ProjectedLocation,
+            FVector(500.f, 500.f, 500.f)
+        );
+
+        if (bIsOnNavMesh)
         {
-            return NavMeshLocation.Location;
+            FVector FinalSpawnLocation = ProjectedLocation.Location;
+
+            // Perform a downward trace to find the ground level
+            FHitResult HitResult;
+            FVector TraceStart = FinalSpawnLocation + FVector(0.f, 0.f, MaxTraceDistance); // Start trace from high above
+            FVector TraceEnd = FinalSpawnLocation - FVector(0.f, 0.f, MaxTraceDistance); // Trace down to find ground
+            FCollisionQueryParams TraceParams;
+            TraceParams.AddIgnoredActor(PlayerCharacter);  // Ignore player in the trace
+
+            // Perform the trace
+            bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams);
+
+            if (bHit)
+            {
+                // Set the Z value to the ground level from the hit
+                FinalSpawnLocation.Z = HitResult.Location.Z;
+
+                // Ensure the spawn location isn't too far above or below the player
+                FinalSpawnLocation.Z = FMath::Clamp(FinalSpawnLocation.Z, MinZValue, MaxZValue);
+
+                return FinalSpawnLocation; // Return valid spawn point
+            }
         }
+
+        AttemptCount++;
     }
 
-    // Fallback to player's location if the point is not valid on NavMesh
+    // Fallback: return player location if no valid NavMesh point was found
     return PlayerLocation;
     
 }

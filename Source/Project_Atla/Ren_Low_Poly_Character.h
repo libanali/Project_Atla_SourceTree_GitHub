@@ -159,6 +159,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Attack")
 		void CalculateTotalAttack();
 
+	UFUNCTION(BlueprintCallable)
 	void IncreaseAttack(float IncreaseAmount, float Duration);
 
 	void RevertAttack(float IncreaseAmount);
@@ -183,6 +184,7 @@ public:
 
 	float OriginalDefence;
 
+	UFUNCTION(BlueprintCallable)
 	void IncreaseDefence(float IncreaseAmount, float Duration);
 
 	void RevertDefence(float IncreaseAmount);
