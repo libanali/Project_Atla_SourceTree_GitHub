@@ -99,6 +99,12 @@ public:
 
 
 
+	//Technique
+
+
+	//Technique
+
+
 	//Lock-On variables
 	void ToggleSoftLock();
 
