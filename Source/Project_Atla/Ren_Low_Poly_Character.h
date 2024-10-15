@@ -15,6 +15,7 @@
 #include "Ability_Struct.h"
 #include "Engine/DataTable.h"
 #include "Character_Attributes.h"
+#include "Technique_Struct.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
 
@@ -58,8 +59,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 		void InflictDamageOnEnemy(AEnemy_Poly* Enemy);
 
-	UFUNCTION(BlueprintCallable, Category = "Combat")
-		void InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy);
+	//UFUNCTION(BlueprintCallable, Category = "Combat")
+	//	void InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		float CalculatedDamage;
@@ -100,8 +101,31 @@ public:
 
 
 	//Technique
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Technique")
+		FTechnique_Struct TechniqueStruct;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Technique")
+		float GaugeIncreaseRate;
 
+	UFUNCTION(BlueprintCallable)
+		void CheckGaugeMaximum();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Technique")
+		TArray<FTechnique_Struct> Techniques;
+
+	UFUNCTION(BlueprintCallable)
+		void UseTechnique(int32 TechniqueIndex);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
+		UAnimMontage* DownwardSlashAnimMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
+		UAnimMontage* PowerStrikeAnimMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
+		UAnimMontage* FuryStrikeAnimMontage;
+
+	
 	//Technique
 
 
@@ -160,7 +184,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 		float TotalAttack;
 
-	float OriginalAttack;
+	UFUNCTION(BlueprintCallable, Category = "Attack")
+		void InflictAbilityDamageOnEnemy(AEnemy_Poly* Enemy, int32 TechniqueIndex);
 
 	UFUNCTION(BlueprintCallable, Category = "Attack")
 		void CalculateTotalAttack();
@@ -171,6 +196,8 @@ public:
 	void RevertAttack(float IncreaseAmount);
 
 	FTimerHandle AttackBonus;
+
+	float OriginalAttack;
 	//Attack Stats
 
 

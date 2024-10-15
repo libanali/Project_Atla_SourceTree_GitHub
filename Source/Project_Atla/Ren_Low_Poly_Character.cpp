@@ -37,12 +37,15 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false;
 
-	//Inventory
-
 
 	//Ability
 	bCanUseAbility = false;
 	bIncreaseAbilityPoints = true;
+
+
+	//Technique
+	GaugeIncreaseRate = 5.7f;
+
 
 	//Lock-On
 	bIsSoftLockEnabled = false;
@@ -145,11 +148,44 @@ void ARen_Low_Poly_Character::InflictDamageOnEnemy(AEnemy_Poly* Enemy)
 
 }
 
-void ARen_Low_Poly_Character::InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy)
+
+
+void ARen_Low_Poly_Character::InflictAbilityDamageOnEnemy(AEnemy_Poly* Enemy, int32 TechniqueIndex)
 {
+
+	if (Enemy)
+	{
+		// Check if the technique index is valid and the technique is unlocked
+		if (TechniqueIndex >= 0 && TechniqueIndex < Techniques.Num() && Techniques[TechniqueIndex].bIsUnlocked)
+		{
+			// Get the base damage and technique bonus
+			float BaseDamage = BaseAttack;
+			float TechniqueDamageBonus = Techniques[TechniqueIndex].DamageBonus;
+
+			// Apply the technique's damage bonus
+			float FinalDamage = BaseDamage * TechniqueDamageBonus;
+
+			// Adjust for the enemy's defense
+			FinalDamage *= (1 - Enemy->DefencePercentage);
+
+			// Apply the damage to the enemy
+			UWorld* World = GetWorld();
+			if (World)
+			{
+				float ActualDamageApplied = Enemy->ApplyDamage(FinalDamage, FHitResult(), GetController(), this);
+
+				// Additional logic for technique effects can go here
+				UE_LOG(LogTemp, Log, TEXT("Technique '%s' used, inflicting %f damage"), *Techniques[TechniqueIndex].TechniqueName, FinalDamage);
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Technique is locked or does not exist!"));
+		}
+	}
+
+
 }
-
-
 
 
 
@@ -175,6 +211,7 @@ void ARen_Low_Poly_Character::IncreaseAbilityPoints(float Amount)
 }
 
 
+
 void ARen_Low_Poly_Character::UseAbility()
 {
 
@@ -189,12 +226,8 @@ void ARen_Low_Poly_Character::UseAbility()
 
 	}
 
-
-
-		//Play animation. Perhaps create an enum and allow the player to choose between abilities?
-
-
 }
+
 
 
 void ARen_Low_Poly_Character::DisableInputWhilePlayingAnimation()
@@ -206,7 +239,6 @@ void ARen_Low_Poly_Character::DisableInputWhilePlayingAnimation()
 
 	{
 		PlayerContr->DisableInput(PlayerContr);
-
 
 	}
 
@@ -230,6 +262,54 @@ void ARen_Low_Poly_Character::CheckAbilityUsage()
 
 
 }
+
+
+
+
+void ARen_Low_Poly_Character::CheckGaugeMaximum()
+{
+
+	//Check if current gauge has enough to increase skill point.
+
+	if (TechniqueStruct.CurrentGauge >= TechniqueStruct.MaxGauge)
+
+	{
+
+		TechniqueStruct.TechniquePoints++;
+		TechniqueStruct.CurrentGauge = 0.0f;
+
+	}
+
+
+}
+
+
+void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
+{
+	if (TechniqueIndex >= 0 && TechniqueIndex < Techniques.Num())
+	{
+		FTechnique_Struct& SelectedTechnique = Techniques[TechniqueIndex];
+
+		// Check if the technique is unlocked and if there are enough technique points
+		if (SelectedTechnique.bIsUnlocked && TechniqueStruct.TechniquePoints >= SelectedTechnique.PointsRequired)
+		{
+			// Use the technique logic here
+			TechniqueStruct.TechniquePoints -= SelectedTechnique.PointsRequired; // Deduct required points
+
+			// Additional logic for using the technique (e.g., damage bonus, animations, etc.)
+			PlayAnimMontage(SelectedTechnique.TechniqueAnimation);
+
+			// Log success
+			UE_LOG(LogTemp, Log, TEXT("Technique %s used, %d points deducted."), *SelectedTechnique.TechniqueName, SelectedTechnique.PointsRequired);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Technique is locked or insufficient technique points!"));
+		}
+	}
+
+}
+
 
 
 
@@ -487,6 +567,10 @@ void ARen_Low_Poly_Character::BeginPlay()
 	HealthStruct.CurrentHealth = 100.0f;
 	AbilityStruct.InitializeAbilityPoints();
 
+	TechniqueStruct.CurrentGauge = 0.0f;
+	TechniqueStruct.MaxGauge = 100.0f;
+	TechniqueStruct.TechniquePoints = 0;
+
 	TArray<AActor*> OverlappingActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Enemy")), OverlappingActors);
 
@@ -496,11 +580,17 @@ void ARen_Low_Poly_Character::BeginPlay()
 	}
 
 
-	AbilityStruct.CurrentAbilityPoints = 145.0f;
+	AbilityStruct.CurrentAbilityPoints = 0.0f;
 
 	//CharacterLevel = 1;
 
 	//GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ARen_Low_Poly_Character::OnOverlapWithItem);
+
+
+	// Initialize techniques
+	Techniques.Add(FTechnique_Struct{TEXT("Downward Slash"), TEXT("A simple attack technique."), true, DownwardSlashAnimMontage, 1.0f, 1});
+	Techniques.Add(FTechnique_Struct{TEXT("Power Strike"), TEXT("A simple attack technique."), false, PowerStrikeAnimMontage, 1.3f, 2});
+	Techniques.Add(FTechnique_Struct{ TEXT("Fury Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1});
 
 	
 }
@@ -512,7 +602,13 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 
 	CheckAbilityUsage();
 
+	CheckGaugeMaximum();
+
 	ToggleSoftLock();
+
+	TechniqueStruct.CurrentGauge += GaugeIncreaseRate * DeltaTime;
+
+
 
 }
 

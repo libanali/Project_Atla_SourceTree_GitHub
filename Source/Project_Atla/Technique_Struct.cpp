@@ -3,10 +3,5 @@
 
 #include "Technique_Struct.h"
 
-Technique_Struct::Technique_Struct()
-{
-}
 
-Technique_Struct::~Technique_Struct()
-{
-}
+
