@@ -45,13 +45,13 @@ public:
 		bool SwordChosen;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
-		bool CrossbowChosen;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		bool StaffChosen;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		bool Attacking;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		bool ActivatePlungeRadius;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		bool Rolling;
@@ -124,8 +124,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
 		UAnimMontage* FuryStrikeAnimMontage;
-
-	
 	//Technique
 
 

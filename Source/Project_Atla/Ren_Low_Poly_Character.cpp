@@ -41,6 +41,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	//Ability
 	bCanUseAbility = false;
 	bIncreaseAbilityPoints = true;
+	ActivatePlungeRadius = false;
 
 
 	//Technique
@@ -588,7 +589,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 
 	// Initialize techniques
-	Techniques.Add(FTechnique_Struct{TEXT("Downward Slash"), TEXT("A simple attack technique."), true, DownwardSlashAnimMontage, 1.0f, 1});
+	Techniques.Add(FTechnique_Struct{TEXT("Downward Slash"), TEXT("A simple attack technique."), true, DownwardSlashAnimMontage, 1.3f, 1});
 	Techniques.Add(FTechnique_Struct{TEXT("Power Strike"), TEXT("A simple attack technique."), false, PowerStrikeAnimMontage, 1.3f, 2});
 	Techniques.Add(FTechnique_Struct{ TEXT("Fury Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1});
 
