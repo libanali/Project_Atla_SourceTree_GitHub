@@ -82,8 +82,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 		bool Attacking;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+		bool IsPetrified;
+
 	UPROPERTY()
 		AEnemy_Token_Manager* TokenManager;
+
+	void CheckIfPetrified();
+
+	void PetrifiedEffectEnd();
+
+	FTimerHandle PertifiedEffectTimer;
 
 	bool bHasToken;
 	//Combat
