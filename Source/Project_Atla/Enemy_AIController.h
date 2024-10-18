@@ -46,6 +46,8 @@ public:
     bool bIsAttacking;
     bool bIsClosingIn;
     bool bIsInAttackRange;
+    bool bIsPetrified;
+    FTimerHandle PetrifiedEffectTimer;
 
  
 private:

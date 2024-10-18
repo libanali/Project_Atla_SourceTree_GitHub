@@ -31,7 +31,6 @@ AEnemy_Poly::AEnemy_Poly()
 
 	BaseAttack = 5.0f;
 
-	IsPetrified = false;
 
 }
 
@@ -164,30 +163,7 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 }
 
 
-void AEnemy_Poly::CheckIfPetrified()
-{
 
-	if (IsPetrified)
-
-	{
-
-		GetMesh()->bPauseAnims = true;
-		GetCharacterMovement()->DisableMovement();
-		GetWorldTimerManager().SetTimer(PertifiedEffectTimer, this, &AEnemy_Poly::PetrifiedEffectEnd, 5.0f, false);
-
-	}
-
-}
-
-void AEnemy_Poly::PetrifiedEffectEnd()
-{
-
-	IsPetrified = false;
-	GetMesh()->bPauseAnims = false;
-	GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-	//GetWorldTimerManager().ClearTimer(PertifiedEffectTimer);
-
-}
 
 
 
@@ -214,8 +190,6 @@ void AEnemy_Poly::Tick(float DeltaTime)
 
 
 	//Death();
-
-	CheckIfPetrified();
 	
 
 }

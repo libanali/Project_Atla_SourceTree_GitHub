@@ -315,6 +315,8 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 
 
 
+
+
 void ARen_Low_Poly_Character::ToggleSoftLock()
 {
 
@@ -570,7 +572,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	TechniqueStruct.CurrentGauge = 0.0f;
 	TechniqueStruct.MaxGauge = 100.0f;
-	TechniqueStruct.TechniquePoints = 0;
+	TechniqueStruct.TechniquePoints = 3;
 
 	TArray<AActor*> OverlappingActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Enemy")), OverlappingActors);
@@ -590,9 +592,12 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	// Initialize techniques
 	Techniques.Add(FTechnique_Struct{TEXT("Downward Slash"), TEXT("A simple attack technique."), true, DownwardSlashAnimMontage, 1.3f, 1});
-	Techniques.Add(FTechnique_Struct{TEXT("Power Strike"), TEXT("A simple attack technique."), false, PowerStrikeAnimMontage, 1.3f, 2});
-	Techniques.Add(FTechnique_Struct{ TEXT("Fury Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1});
+	Techniques.Add(FTechnique_Struct{TEXT("Power Strike"), TEXT("A simple attack technique."), true, PowerStrikeAnimMontage, 1.3f, 2});
+	Techniques.Add(FTechnique_Struct{ TEXT("Fury Strike"), TEXT("A simple attack technique."), true, FuryStrikeAnimMontage, 1.5f, 1});
+	Techniques.Add(FTechnique_Struct{ TEXT("Crazy Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1 });
 
+
+	
 	
 }
 
@@ -623,5 +628,6 @@ void ARen_Low_Poly_Character::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 
 	PlayerInputComponent->BindAction("Ability", IE_Pressed, this, &ARen_Low_Poly_Character::UseAbility);
+
 }
 

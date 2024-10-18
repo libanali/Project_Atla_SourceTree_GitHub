@@ -88,12 +88,6 @@ public:
 	UPROPERTY()
 		AEnemy_Token_Manager* TokenManager;
 
-	void CheckIfPetrified();
-
-	void PetrifiedEffectEnd();
-
-	FTimerHandle PertifiedEffectTimer;
-
 	bool bHasToken;
 	//Combat
 

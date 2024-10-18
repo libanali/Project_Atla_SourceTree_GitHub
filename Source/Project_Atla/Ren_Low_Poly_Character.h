@@ -124,6 +124,7 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
 		UAnimMontage* FuryStrikeAnimMontage;
+
 	//Technique
 
 
