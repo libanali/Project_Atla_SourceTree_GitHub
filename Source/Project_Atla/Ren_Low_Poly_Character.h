@@ -124,10 +124,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
 		UAnimMontage* FuryStrikeAnimMontage;
-
-	UFUNCTION(BlueprintCallable)
-		void UnlockTechnique4();
-
 	//Technique
 
 
