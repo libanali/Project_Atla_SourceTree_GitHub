@@ -317,6 +317,15 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 
 
 
+void ARen_Low_Poly_Character::UnlockTechnique4()
+{
+
+	Techniques.Add(FTechnique_Struct{ TEXT("crazy Strike"), TEXT("A simple attack technique."), true, FuryStrikeAnimMontage, 1.5f, 1 });
+
+
+
+}
+
 void ARen_Low_Poly_Character::ToggleSoftLock()
 {
 
@@ -595,7 +604,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	Techniques.Add(FTechnique_Struct{TEXT("Power Strike"), TEXT("A simple attack technique."), true, PowerStrikeAnimMontage, 1.3f, 2});
 	Techniques.Add(FTechnique_Struct{ TEXT("Fury Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1});
 	Techniques.Add(FTechnique_Struct{ TEXT("mad Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1 });
-	Techniques.Add(FTechnique_Struct{ TEXT("crazy Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1 });
+	//Techniques.Add(FTechnique_Struct{ TEXT("crazy Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1 });
 	Techniques.Add(FTechnique_Struct{ TEXT("happy Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1 });
 
 
