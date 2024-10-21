@@ -69,14 +69,14 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	BaseElementalAttack = 3.0f;
 	ElementalMultiplier = 2.0f;
 
-	//Level
+	/*Level
 	CharacterLevel = 1;
 	ExperienceRequired.Add(0); //Level 1
 	ExperienceRequired.Add(60); //Level 2
 	ExperienceRequired.Add(100);//Level 3
 	ExperienceRequired.Add(180);//Level 4
 	ExperienceRequired.Add(240);//Level 5
-
+	*/
 
 }
 
@@ -498,7 +498,7 @@ void ARen_Low_Poly_Character::CalculateElementalAttack()
 
 
 
-
+/*
 void ARen_Low_Poly_Character::GainExperience(int32 ExpAmount)
 {
 
@@ -553,7 +553,7 @@ void ARen_Low_Poly_Character::CheckAndTriggerLevelUp()
 
 }
 
-
+*/
 
 
 

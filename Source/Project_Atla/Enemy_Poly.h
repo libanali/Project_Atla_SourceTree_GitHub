@@ -30,6 +30,15 @@ public:
 	// Sets default values for this character's properties
 	AEnemy_Poly();
 
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Drops")
+		TArray<FItemDrop> PossibleItemDrops;
+
 
 	//Health
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
@@ -101,11 +110,7 @@ protected:
 
 
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+private:
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 };

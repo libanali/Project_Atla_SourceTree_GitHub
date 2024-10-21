@@ -127,6 +127,7 @@ void AEnemy_Poly::Death()
 
 	// Destroy the enemy after all necessary actions
 	Destroy(true);
+	AttemptItemDrop();
 }
 
 
@@ -179,6 +180,25 @@ void AEnemy_Poly::BeginPlay()
 	{
 		ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
 		
+	}
+
+}
+
+void AEnemy_Poly::AttemptItemDrop()
+{
+
+}
+
+void AEnemy_Poly::SpawnItem(TSubclassOf<AActor> ItemClass)
+{
+
+	if (ItemClass)
+	{
+		FVector SpawnLocation = GetActorLocation();  // Spawn at the enemy's location
+		FRotator SpawnRotation = FRotator::ZeroRotator;
+
+		// Spawn the item actor
+		GetWorld()->SpawnActor<AActor>(ItemClass, SpawnLocation, SpawnRotation);
 	}
 
 }
