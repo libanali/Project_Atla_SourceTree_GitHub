@@ -20,6 +20,23 @@ class ARen_Low_Poly_Character;
 class AEnemy_AIController;
 
 
+// Struct to hold item drop information
+USTRUCT(BlueprintType)
+struct FItemDrop
+{
+	GENERATED_BODY()
+
+		// Reference to the item Blueprint
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Drop")
+		TSubclassOf<AActor> ItemClass;  // Change this to AActor since your items are Blueprints
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Drop")
+		float DropChance;  // Probability of this item dropping (0 to 1)
+
+	// Default constructor
+	FItemDrop() : ItemClass(nullptr), DropChance(0.f) {}
+};
+
 
 UCLASS()
 class PROJECT_ATLA_API AEnemy_Poly : public ACharacter
@@ -30,8 +47,6 @@ public:
 	// Sets default values for this character's properties
 	AEnemy_Poly();
 
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
@@ -108,9 +123,13 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 
 
 private:
 
+	void AttemptItemDrop();
+	void SpawnItem(TSubclassOf<AActor> ItemClass);
 
 };

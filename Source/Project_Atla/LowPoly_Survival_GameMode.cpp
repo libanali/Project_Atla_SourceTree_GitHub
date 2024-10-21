@@ -134,9 +134,25 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
                 if (i == EnemiesToSpawn - 1)
                 {
                     bIsSpawningEnemies = false;
+
+                    ARen_Low_Poly_Character* PlayerChar = Cast<ARen_Low_Poly_Character>(GetWorld()->GetFirstPlayerController()->GetPawn());
+
+                    if (PlayerChar)
+
+                    {
+
+                        float HealthBonus = 3.0f;
+                        float AttackBonus = 2.0f;
+                        float DefenceBonus = 2.5f;
+
+                        PlayerChar->IncreaseStats(HealthBonus, AttackBonus, DefenceBonus);
+
+                    }
+
                 }
 
-            }, i * LocalSpawnDelay, false);
+        }, i * LocalSpawnDelay, false);
+
 
     }
 

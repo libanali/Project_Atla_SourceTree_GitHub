@@ -59,6 +59,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 		void InflictDamageOnEnemy(AEnemy_Poly* Enemy);
 
+	UFUNCTION(BlueprintCallable)
+		void IncreaseStats(float AdditionalHealth, float AdditionalAttack, float AdditionalDefence);
+
 	//UFUNCTION(BlueprintCallable, Category = "Combat")
 	//	void InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy);
 
@@ -254,11 +257,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
 		UDataTable* CharacterAttributesTable;
 
-	UFUNCTION(BlueprintCallable, Category = "Level")
-		void GainExperience(int32 ExpAmount);
+	//UFUNCTION(BlueprintCallable, Category = "Level")
+	//	void GainExperience(int32 ExpAmount);
 
-	UFUNCTION(BlueprintCallable, Category = "Level")
-		void CheckAndTriggerLevelUp();
+	//UFUNCTION(BlueprintCallable, Category = "Level")
+	//	void CheckAndTriggerLevelUp();
 	//Level
 
 

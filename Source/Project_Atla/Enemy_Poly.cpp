@@ -122,7 +122,7 @@ void AEnemy_Poly::Death()
 	ARen_Low_Poly_Character* LowPoly_Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 	if (LowPoly_Ren)
 	{
-		LowPoly_Ren->GainExperience(25);  // Give experience points to the player
+	//	LowPoly_Ren->GainExperience(25);  // Give experience points to the player
 	}
 
 	// Destroy the enemy after all necessary actions
@@ -184,9 +184,56 @@ void AEnemy_Poly::BeginPlay()
 
 }
 
+
+
+// Called every frame
+void AEnemy_Poly::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+
+	//Death();
+	
+
+}
+
 void AEnemy_Poly::AttemptItemDrop()
 {
+	// Determine if an item should drop with a 45% chance
+	float DropRoll = FMath::FRand();  // Random float between 0 and 1
 
+	// Check if the item should drop (45% chance)
+	if (DropRoll > 0.45f)
+	{
+		return;  // Exit if the drop check fails
+	}
+
+	// If the drop roll passes, proceed to calculate total probabilities for specific item drops
+	float TotalProbability = 0.f;
+
+	// Calculate total probabilities for the possible item drops
+	for (const FItemDrop& ItemDrop : PossibleItemDrops)
+	{
+		TotalProbability += ItemDrop.DropChance;  // Access DropChance here
+	}
+
+	// If the drop roll is less than the total probability, an item can drop
+	DropRoll = FMath::FRand();  // Reroll for item selection
+
+	if (DropRoll < TotalProbability)
+	{
+		// Randomly select an item based on probabilities
+		float CumulativeProbability = 0.f;
+		for (const FItemDrop& ItemDrop : PossibleItemDrops)
+		{
+			CumulativeProbability += ItemDrop.DropChance;  // Access DropChance here
+			if (DropRoll <= CumulativeProbability)
+			{
+				SpawnItem(ItemDrop.ItemClass);  // Access ItemClass here
+				break;  // Exit loop after spawning an item
+			}
+		}
+	}
 }
 
 void AEnemy_Poly::SpawnItem(TSubclassOf<AActor> ItemClass)
@@ -201,16 +248,6 @@ void AEnemy_Poly::SpawnItem(TSubclassOf<AActor> ItemClass)
 		GetWorld()->SpawnActor<AActor>(ItemClass, SpawnLocation, SpawnRotation);
 	}
 
-}
-
-// Called every frame
-void AEnemy_Poly::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-
-	//Death();
-	
 
 }
 
