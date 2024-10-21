@@ -19,25 +19,7 @@
 class ARen_Low_Poly_Character;
 class AEnemy_AIController;
 
-/*
-// Struct to hold item drop information
-USTRUCT(BlueprintType)
-struct FItemDrop
-{
-	GENERATED_BODY()
 
-		// Reference to the item Blueprint
-		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Drop")
-		TSubclassOf<AActor> ItemClass;  // Change this to AActor since your items are Blueprints
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Drop")
-		float DropChance;  // Probability of this item dropping (0 to 1)
-
-	FItemDrop() : ItemClass(nullptr), DropChance(0.f) {}
-};
-
-
-*/
 
 UCLASS()
 class PROJECT_ATLA_API AEnemy_Poly : public ACharacter
@@ -130,7 +112,5 @@ protected:
 
 private:
 
-	void AttemptItemDrop();
-	void SpawnItem(TSubclassOf<AActor> ItemClass);
 
 };
