@@ -152,9 +152,9 @@ void ARen_Low_Poly_Character::InflictDamageOnEnemy(AEnemy_Poly* Enemy)
 void ARen_Low_Poly_Character::IncreaseStats(float AdditionalHealth, float AdditionalAttack, float AdditionalDefence)
 {
 
-	float HealthAdditionalAmount = HealthStruct.MaxHealth * (AdditionalHealth / 100);
-	float AttackAdditionalAmount = BaseAttack * (AdditionalAttack / 100);
-	float DefenceAdditionalAmount = BaseDefence * (AdditionalDefence / 100);
+	float HealthAdditionalAmount = HealthStruct.MaxHealth *= AdditionalHealth;
+	float AttackAdditionalAmount = BaseAttack *= AdditionalAttack;
+	float DefenceAdditionalAmount = BaseDefence *= AdditionalDefence;
 
 	HealthStruct.CurrentHealth = HealthStruct.MaxHealth;
 

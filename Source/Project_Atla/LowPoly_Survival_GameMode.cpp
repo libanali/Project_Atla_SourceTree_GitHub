@@ -95,8 +95,24 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
     UWorld* World = GetWorld();
     if (World == nullptr) return;
 
+
     // Mark that spawning is starting
     bIsSpawningEnemies = true;
+
+    // Increase player stats at the start of the new round
+    if (ARen_Low_Poly_Character* Player = Cast<ARen_Low_Poly_Character>(GetWorld()->GetFirstPlayerController()->GetPawn()))
+    {
+        // Example: increase health by 3%, attack by 2%, and defense by 2.5% per round
+        float HealthIncreasePercent = 1.3f;
+        float AttackIncreasePercent = 1.4f;
+        float DefenceIncreasePercent = 1.35f;
+
+        Player->IncreaseStats(HealthIncreasePercent, AttackIncreasePercent, DefenceIncreasePercent);
+
+        // Log to verify that the player's stats are being increased
+        UE_LOG(LogTemp, Log, TEXT("Player stats increased: Health + %f%%, Attack + %f%%, Defense + %f%%"), HealthIncreasePercent, AttackIncreasePercent, DefenceIncreasePercent);
+    }
+
 
     // Determine the number of enemies to spawn for the current round
     int32 EnemiesToSpawn = 4 + (CurrentRound - 1) * AdditionalEnemiesPerRound;
@@ -131,24 +147,12 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
                     }
                 }
 
+
                 if (i == EnemiesToSpawn - 1)
                 {
                     bIsSpawningEnemies = false;
 
-                    ARen_Low_Poly_Character* PlayerChar = Cast<ARen_Low_Poly_Character>(GetWorld()->GetFirstPlayerController()->GetPawn());
-
-                    if (PlayerChar)
-
-                    {
-
-                        float HealthBonus = 3.0f;
-                        float AttackBonus = 2.0f;
-                        float DefenceBonus = 2.5f;
-
-                        PlayerChar->IncreaseStats(HealthBonus, AttackBonus, DefenceBonus);
-
-                    }
-
+              
                 }
 
         }, i * LocalSpawnDelay, false);
