@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/WidgetSwitcher.h"
 #include "Command_Menu_Widget.generated.h"
 
 /**
@@ -36,6 +37,9 @@ public:
     UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
         class UImage* CommandMenuIcon;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        UWidgetSwitcher* WidgetSwitcher;
+
     // State variable for tracking the current menu
     ECommandMenuState CurrentMenuState;
 
@@ -55,6 +59,10 @@ public:
     // Handle back button navigation (Circle / B button)
     UFUNCTION()
         void HandleBackNavigation();
+
+
+    UFUNCTION()
+        void OnItemsButtonClicked();
 
     // Function to show or hide the command menu icon
     void SetCommandMenuIconVisibility(bool bIsVisible);

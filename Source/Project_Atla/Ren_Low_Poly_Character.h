@@ -284,6 +284,9 @@ public:
 		void ToggleCommandMenu();
 
 	UFUNCTION()
+		void OpenInventory();
+
+	UFUNCTION()
 		void HandleBackInput();
 
 	UFUNCTION()

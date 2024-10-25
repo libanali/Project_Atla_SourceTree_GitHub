@@ -635,31 +635,52 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 void ARen_Low_Poly_Character::ToggleCommandMenu()
 {
-	if (CommandMenuWidget)
+	if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher)
 	{
-		if (CommandMenuWidget->ItemsButton->GetVisibility() == ESlateVisibility::Visible)
+		if (CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex() == 1)
 		{
-			// Hide the buttons and switch back to gameplay input
-			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Hidden);
-			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Hidden);
-
+			// Return to gameplay if UI is open
+			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(0);
 			SetInputModeForGameplay();
-			bIsInUIMode = false; // Exiting the command menu
+			bIsInUIMode = false;
 		}
 		else
 		{
-			// Show the buttons
+			// Show command menu
+			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
+
+			// Make sure buttons are visible
 			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Visible);
 			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Visible);
 
-			// Set focus to the ItemsButton
+			// Set focus to ItemsButton
 			CommandMenuWidget->ItemsButton->SetKeyboardFocus();
-
-			// Switch to UI input mode
 			SetInputModeForUI();
-			bIsInUIMode = true; // Entering the command menu
+			bIsInUIMode = true;
 		}
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("CommandMenuWidget index set to: %d"), CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex());
+
+}
+
+
+
+
+void ARen_Low_Poly_Character::OpenInventory()
+{
+
+	if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher)
+	{
+		// Set the WidgetSwitcher to display the inventory (index 2)
+		CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(2);
+
+		// Optional: Set focus on the scroll box or first button in the inventory, if desired
+		SetInputModeForUI();
+		bIsInUIMode = true;  // Track that we're still in UI mode
+	}
+
+
 }
 
 
@@ -668,24 +689,23 @@ void ARen_Low_Poly_Character::HandleBackInput()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Back button pressed!"));
 
-	if (bIsInUIMode)
+	if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher)
 	{
-		// If in the command menu, handle closing the menu
-		if (CommandMenuWidget && CommandMenuWidget->ItemsButton->GetVisibility() == ESlateVisibility::Visible)
-		{
-			// Hide the command menu buttons
-			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Hidden);
-			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Hidden);
+		int CurrentIndex = CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex();
 
-			// Switch back to gameplay input
-			SetInputModeForGameplay();
-			bIsInUIMode = false; // Menu closed
+		if (CurrentIndex == 2) // Inventory screen
+		{
+			// Go back to the main command menu
+			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
+			bIsInUIMode = true; // Still in UI mode
 		}
-	}
-	else
-	{
-		// If not in the command menu, this is for gameplay actions (e.g., dodge)
-		//PerformDodgeAction();
+		else if (CurrentIndex == 1) // Main command menu
+		{
+			// Return to command icon
+			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(0);
+			SetInputModeForGameplay();
+			bIsInUIMode = false; // Return to gameplay
+		}
 	}
 }
 
@@ -695,13 +715,16 @@ void ARen_Low_Poly_Character::HandleBackInput()
 void ARen_Low_Poly_Character::SetInputModeForUI()
 {
 
-	// Set input mode to UI only, disable game input
 	APlayerController* PlayerController = Cast<APlayerController>(GetController());
 	if (PlayerController)
 	{
-		PlayerController->SetInputMode(FInputModeUIOnly());
-	}
+		FInputModeGameAndUI InputMode;
+		InputMode.SetWidgetToFocus(CommandMenuWidget->TakeWidget());  // Focus on the widget
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
 
+		PlayerController->SetInputMode(InputMode);
+		PlayerController->bShowMouseCursor = true;
+	}
 
 }
 
@@ -768,7 +791,7 @@ void ARen_Low_Poly_Character::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 
 	PlayerInputComponent->BindAction("Ability", IE_Pressed, this, &ARen_Low_Poly_Character::UseAbility);
-	PlayerInputComponent->BindAction("Roll Dodge/Back", IE_Pressed, this, &ARen_Low_Poly_Character::HandleBackInput);
+	PlayerInputComponent->BindAction("Roll Dodge or Back", IE_Pressed, this, &ARen_Low_Poly_Character::HandleBackInput);
 
 }
 

@@ -4,6 +4,7 @@
 #include "Command_Menu_Widget.h"
 #include "Components/Button.h"
 #include "Components/Image.h"
+#include "Ren_Low_Poly_Character.h"
 
 
 
@@ -16,7 +17,7 @@ void UCommand_Menu_Widget::NativeOnInitialized()
     // Bind button click events to transition methods
     if (ItemsButton)
     {
-        ItemsButton->OnClicked.AddDynamic(this, &UCommand_Menu_Widget::ShowItemsMenu);
+        ItemsButton->OnClicked.AddDynamic(this, &UCommand_Menu_Widget::OnItemsButtonClicked);
     }
 
     if (TechniquesButton)
@@ -34,7 +35,10 @@ void UCommand_Menu_Widget::NativeOnInitialized()
 
     ItemsButton->SetKeyboardFocus();
 
+    WidgetSwitcher->SetActiveWidgetIndex(0);
+
 }
+
 
 void UCommand_Menu_Widget::ShowItemsMenu()
 {
@@ -60,29 +64,42 @@ void UCommand_Menu_Widget::ShowTechniquesMenu()
 
 void UCommand_Menu_Widget::ReturnToMainMenu()
 {
-    CurrentMenuState = ECommandMenuState::MainMenu;
-
-    // Go back to the main menu (reveal buttons again)
-    ItemsButton->SetVisibility(ESlateVisibility::Visible);
-    TechniquesButton->SetVisibility(ESlateVisibility::Visible);
-
+    if (WidgetSwitcher)
+    {
+        // Set the active widget back to the main menu
+        WidgetSwitcher->SetActiveWidgetIndex(0);  // Index 0 corresponds to the Main menu
+        CurrentMenuState = ECommandMenuState::MainMenu;
+    }
 
 }
 
 void UCommand_Menu_Widget::HandleBackNavigation()
 {
 
-    // Navigate back based on the current state
     if (CurrentMenuState == ECommandMenuState::ItemsMenu || CurrentMenuState == ECommandMenuState::TechniquesMenu)
     {
-        // If in a submenu, return to the main command menu
+        // If in a submenu, go back to the main command menu
         ReturnToMainMenu();
     }
     else if (CurrentMenuState == ECommandMenuState::MainMenu)
     {
-        // If in the main menu, close the command menu and return to gameplay
+        // If in the main menu, hide the command menu (return to gameplay)
         SetVisibility(ESlateVisibility::Hidden);
     }
+
+
+}
+
+void UCommand_Menu_Widget::OnItemsButtonClicked()
+{
+
+
+    ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(GetOwningPlayerPawn());
+    if (PlayerCharacter)
+    {
+        PlayerCharacter->OpenInventory();
+    }
+
 
 
 }
