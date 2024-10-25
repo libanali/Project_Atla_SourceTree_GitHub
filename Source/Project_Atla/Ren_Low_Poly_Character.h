@@ -16,6 +16,8 @@
 #include "Engine/DataTable.h"
 #include "Character_Attributes.h"
 #include "Technique_Struct.h"
+#include "Blueprint/UserWidget.h"
+#include "Command_Menu_Widget.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
 
@@ -32,6 +34,11 @@ public:
 	// Sets default values for this character's properties
 	ARen_Low_Poly_Character();
 
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 
 	//Movement
@@ -266,7 +273,30 @@ public:
 
 
 
+	//Command
+	UPROPERTY()
+		UCommand_Menu_Widget* CommandMenuWidget;
 
+	UPROPERTY(EditAnywhere, Category = "UI")
+		TSubclassOf<UUserWidget> CommandMenuWidgetClass;
+
+	UFUNCTION()
+		void ToggleCommandMenu();
+
+	UFUNCTION()
+		void HandleBackInput();
+
+	UFUNCTION()
+		void SetInputModeForUI();
+
+	UFUNCTION()
+		void SetInputModeForGameplay();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+		bool bIsInUIMode;
+
+	void EnableUIInputWithGameInput();
+	//Command
 
 
 protected:
@@ -281,12 +311,8 @@ protected:
 		UCameraComponent* Camera;
 	//Character Components
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+private:	
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
+	
 	
 };

@@ -1,0 +1,65 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Blueprint/UserWidget.h"
+#include "Command_Menu_Widget.generated.h"
+
+/**
+ * 
+ */
+
+UENUM(BlueprintType)  // Enum to track the current menu state
+enum class ECommandMenuState : uint8
+{
+    MainMenu UMETA(DisplayName = "Main Menu"),
+    ItemsMenu UMETA(DisplayName = "Items Menu"),
+    TechniquesMenu UMETA(DisplayName = "Techniques Menu")
+};
+
+
+
+UCLASS()
+class PROJECT_ATLA_API UCommand_Menu_Widget : public UUserWidget
+{
+	GENERATED_BODY()
+
+public:
+    // Bind buttons to UI elements in UMG
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UButton* ItemsButton;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UButton* TechniquesButton;
+
+    UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+        class UImage* CommandMenuIcon;
+
+    // State variable for tracking the current menu
+    ECommandMenuState CurrentMenuState;
+
+    // Native Construct override to set initial bindings
+    virtual void NativeOnInitialized() override;
+
+    // Functions to handle the menu transitions
+    UFUNCTION()
+        void ShowItemsMenu();
+
+    UFUNCTION()
+        void ShowTechniquesMenu();
+
+    UFUNCTION()
+        void ReturnToMainMenu();
+
+    // Handle back button navigation (Circle / B button)
+    UFUNCTION()
+        void HandleBackNavigation();
+
+    // Function to show or hide the command menu icon
+    void SetCommandMenuIconVisibility(bool bIsVisible);
+
+
+    virtual void Tick(float DeltaTime);
+
+};

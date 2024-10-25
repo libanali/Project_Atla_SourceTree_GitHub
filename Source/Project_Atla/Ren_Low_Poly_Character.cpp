@@ -5,6 +5,11 @@
 #include "Kismet/Gameplaystatics.h"
 #include "Enemy_Poly.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/Image.h"
+#include "Command_Menu_Widget.h"
+#include "Components/Button.h"
+#include "Components/Widget.h"
+
 
 // Sets default values
 ARen_Low_Poly_Character::ARen_Low_Poly_Character()
@@ -78,6 +83,8 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	ExperienceRequired.Add(240);//Level 5
 	*/
 
+	//Command
+	bIsInUIMode = false;
 }
 
 
@@ -607,11 +614,132 @@ void ARen_Low_Poly_Character::BeginPlay()
 	Techniques.Add(FTechnique_Struct{ TEXT("happy Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1 });
 
 
+	// Create the command menu widget
+	if (CommandMenuWidgetClass)
+	{
+		CommandMenuWidget = CreateWidget<UCommand_Menu_Widget>(GetWorld(), CommandMenuWidgetClass);
+		if (CommandMenuWidget)
+		{
+			CommandMenuWidget->AddToViewport(); // Add it to the player's viewport
+			//CommandMenuWidget->SetVisibility(ESlateVisibility::Hidden); // Initially hide it
+		}
+	}
 
+	// Bind the input action
+	InputComponent->BindAction("Open Commands Menu", IE_Pressed, this, &ARen_Low_Poly_Character::ToggleCommandMenu);
+	InputComponent->BindAction("Roll Dodge or Back", IE_Pressed, this, &ARen_Low_Poly_Character::HandleBackInput);
 
 	
 	
 }
+
+void ARen_Low_Poly_Character::ToggleCommandMenu()
+{
+	if (CommandMenuWidget)
+	{
+		if (CommandMenuWidget->ItemsButton->GetVisibility() == ESlateVisibility::Visible)
+		{
+			// Hide the buttons and switch back to gameplay input
+			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Hidden);
+			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Hidden);
+
+			SetInputModeForGameplay();
+			bIsInUIMode = false; // Exiting the command menu
+		}
+		else
+		{
+			// Show the buttons
+			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Visible);
+			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Visible);
+
+			// Set focus to the ItemsButton
+			CommandMenuWidget->ItemsButton->SetKeyboardFocus();
+
+			// Switch to UI input mode
+			SetInputModeForUI();
+			bIsInUIMode = true; // Entering the command menu
+		}
+	}
+}
+
+
+
+void ARen_Low_Poly_Character::HandleBackInput()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Back button pressed!"));
+
+	if (bIsInUIMode)
+	{
+		// If in the command menu, handle closing the menu
+		if (CommandMenuWidget && CommandMenuWidget->ItemsButton->GetVisibility() == ESlateVisibility::Visible)
+		{
+			// Hide the command menu buttons
+			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Hidden);
+			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Hidden);
+
+			// Switch back to gameplay input
+			SetInputModeForGameplay();
+			bIsInUIMode = false; // Menu closed
+		}
+	}
+	else
+	{
+		// If not in the command menu, this is for gameplay actions (e.g., dodge)
+		//PerformDodgeAction();
+	}
+}
+
+
+
+
+void ARen_Low_Poly_Character::SetInputModeForUI()
+{
+
+	// Set input mode to UI only, disable game input
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController)
+	{
+		PlayerController->SetInputMode(FInputModeUIOnly());
+	}
+
+
+}
+
+
+
+
+
+void ARen_Low_Poly_Character::SetInputModeForGameplay()
+{
+
+	// Set input mode back to game only, enable game input
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController)
+	{
+		PlayerController->SetInputMode(FInputModeGameOnly());
+	}
+
+}
+
+
+void ARen_Low_Poly_Character::EnableUIInputWithGameInput()
+{
+
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	if (PlayerController)
+	{
+		FInputModeGameAndUI InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		InputMode.SetWidgetToFocus(CommandMenuWidget->TakeWidget());
+
+		// This allows both UI and game input (for actions like back button)
+		PlayerController->SetInputMode(InputMode);
+		PlayerController->bShowMouseCursor = true;
+	}
+
+}
+
+
 
 // Called every frame
 void ARen_Low_Poly_Character::Tick(float DeltaTime)
@@ -626,9 +754,9 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 
 	TechniqueStruct.CurrentGauge += GaugeIncreaseRate * DeltaTime;
 
-
-
 }
+
+
 
 // Called to bind functionality to input
 void ARen_Low_Poly_Character::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -640,6 +768,7 @@ void ARen_Low_Poly_Character::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 
 	PlayerInputComponent->BindAction("Ability", IE_Pressed, this, &ARen_Low_Poly_Character::UseAbility);
+	PlayerInputComponent->BindAction("Roll Dodge/Back", IE_Pressed, this, &ARen_Low_Poly_Character::HandleBackInput);
 
 }
 
