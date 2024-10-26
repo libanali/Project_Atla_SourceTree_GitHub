@@ -74,17 +74,9 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	BaseElementalAttack = 3.0f;
 	ElementalMultiplier = 2.0f;
 
-	/*Level
-	CharacterLevel = 1;
-	ExperienceRequired.Add(0); //Level 1
-	ExperienceRequired.Add(60); //Level 2
-	ExperienceRequired.Add(100);//Level 3
-	ExperienceRequired.Add(180);//Level 4
-	ExperienceRequired.Add(240);//Level 5
-	*/
-
 	//Command
 	bIsInUIMode = false;
+	bInventoryClosed = false;
 }
 
 
@@ -633,6 +625,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 	
 }
 
+
+
 void ARen_Low_Poly_Character::ToggleCommandMenu()
 {
 	if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher)
@@ -753,6 +747,7 @@ void ARen_Low_Poly_Character::OpenInventory()
 
 
 
+
 void ARen_Low_Poly_Character::HandleBackInput()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Back button pressed!"));
@@ -813,6 +808,8 @@ void ARen_Low_Poly_Character::SetInputModeForGameplay()
 }
 
 
+
+
 void ARen_Low_Poly_Character::EnableUIInputWithGameInput()
 {
 
@@ -829,6 +826,7 @@ void ARen_Low_Poly_Character::EnableUIInputWithGameInput()
 	}
 
 }
+
 
 
 

@@ -298,6 +298,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		bool bIsInUIMode;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+		bool bInventoryClosed;
+
 	void EnableUIInputWithGameInput();
 
 	void UpdateVisibilityBasedOnIndex(int Index);

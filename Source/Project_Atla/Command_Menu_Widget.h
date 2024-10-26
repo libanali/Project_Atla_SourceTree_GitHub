@@ -70,6 +70,7 @@ public:
     UFUNCTION()
         void OnItemsButtonClicked();
 
+
     // Function to show or hide the command menu icon
     void SetCommandMenuIconVisibility(bool bIsVisible);
 
