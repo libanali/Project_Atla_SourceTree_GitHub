@@ -40,6 +40,12 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         UWidgetSwitcher* WidgetSwitcher;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Widgets")
+        TSubclassOf<UUserWidget> InventoryWidgetClass;  // This will hold the class type
+
+    UPROPERTY()
+        UUserWidget* InventoryWidgetInstance;
+
     // State variable for tracking the current menu
     ECommandMenuState CurrentMenuState;
 
@@ -66,6 +72,8 @@ public:
 
     // Function to show or hide the command menu icon
     void SetCommandMenuIconVisibility(bool bIsVisible);
+
+    void UpdateVisibilityBasedOnIndex(int CurrentIndex);
 
 
     virtual void Tick(float DeltaTime);

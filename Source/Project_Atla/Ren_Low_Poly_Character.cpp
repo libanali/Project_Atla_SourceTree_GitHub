@@ -637,30 +637,96 @@ void ARen_Low_Poly_Character::ToggleCommandMenu()
 {
 	if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher)
 	{
-		if (CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex() == 1)
+		int CurrentIndex = CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex();
+
+		// Check if we are currently at index 0 to open the command menu
+		if (CurrentIndex == 0)
 		{
-			// Return to gameplay if UI is open
-			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(0);
-			SetInputModeForGameplay();
-			bIsInUIMode = false;
-		}
-		else
-		{
-			// Show command menu
 			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
+			UpdateVisibilityBasedOnIndex(1);  // Update visibility right after switching to index 1
 
 			// Make sure buttons are visible
 			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Visible);
 			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Visible);
 
 			// Set focus to ItemsButton
-			CommandMenuWidget->ItemsButton->SetKeyboardFocus();
+			if (CommandMenuWidget->ItemsButton)
+			{
+				CommandMenuWidget->ItemsButton->SetKeyboardFocus(); // Focus on the Items Button
+			}
+
 			SetInputModeForUI();
 			bIsInUIMode = true;
+
+			// Log for debugging
+			UE_LOG(LogTemp, Warning, TEXT("Command Menu opened, index set to: %d"), CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex());
+		}
+		else if (CurrentIndex == 1) // If already in the command menu
+		{
+			UpdateVisibilityBasedOnIndex(1);  // Update visibility for index 1
+			if (CommandMenuWidget->ItemsButton)
+			{
+				CommandMenuWidget->ItemsButton->SetKeyboardFocus(); // Ensure focus remains on the Items Button
+			}
+
+			// Log for debugging
+			UE_LOG(LogTemp, Warning, TEXT("Command Menu already open, focus set on Items Button."));
+		}
+		else if (CurrentIndex == 2) // If currently in the inventory
+		{
+			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
+			UpdateVisibilityBasedOnIndex(1);  // Update visibility when switching back to command menu
+
+			// Make sure buttons are visible when returning to command menu
+			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Visible);
+			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Visible);
+
+			// Set focus to ItemsButton
+			if (CommandMenuWidget->ItemsButton)
+			{
+				CommandMenuWidget->ItemsButton->SetKeyboardFocus(); // Focus on the Items Button
+			}
+
+			// Log for debugging
+			UE_LOG(LogTemp, Warning, TEXT("Returned to Command Menu from Inventory, index set to: %d"), CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex());
+		}
+	}
+}
+
+
+void ARen_Low_Poly_Character::UpdateVisibilityBasedOnIndex(int Index)
+{
+
+
+	if (CommandMenuWidget)
+	{
+		// If index is 1, we are in the command menu
+		if (Index == 1)
+		{
+			// Show command menu buttons
+			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Visible);
+			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Visible);
+
+			// Remove Inventory Widget from viewport if it was added
+			if (CommandMenuWidget->InventoryWidgetInstance && CommandMenuWidget->InventoryWidgetInstance->IsInViewport())
+			{
+				CommandMenuWidget->InventoryWidgetInstance->RemoveFromParent();
+			}
+		}
+		else if (Index == 2) // If index is 2, show inventory
+		{
+			// Hide command menu buttons
+			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Collapsed);
+			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Collapsed);
+
+			// Add Inventory Widget to viewport if it's not already there
+			if (CommandMenuWidget->InventoryWidgetInstance && !CommandMenuWidget->InventoryWidgetInstance->IsInViewport())
+			{
+				CommandMenuWidget->InventoryWidgetInstance->AddToViewport();
+			}
 		}
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("CommandMenuWidget index set to: %d"), CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex());
 
 }
 
@@ -674,6 +740,8 @@ void ARen_Low_Poly_Character::OpenInventory()
 	{
 		// Set the WidgetSwitcher to display the inventory (index 2)
 		CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(2);
+		//CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Hidden);
+		//CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Hidden);
 
 		// Optional: Set focus on the scroll box or first button in the inventory, if desired
 		SetInputModeForUI();
@@ -693,18 +761,18 @@ void ARen_Low_Poly_Character::HandleBackInput()
 	{
 		int CurrentIndex = CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex();
 
-		if (CurrentIndex == 2) // Inventory screen
-		{
-			// Go back to the main command menu
-			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
-			bIsInUIMode = true; // Still in UI mode
-		}
-		else if (CurrentIndex == 1) // Main command menu
+		if (CurrentIndex == 1) // If in command menu
 		{
 			// Return to command icon
 			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(0);
 			SetInputModeForGameplay();
 			bIsInUIMode = false; // Return to gameplay
+		}
+		else if (CurrentIndex == 2) // If in inventory
+		{
+			// Go back to the main command menu
+			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
+			bIsInUIMode = true; // Still in UI mode
 		}
 	}
 }

@@ -37,6 +37,17 @@ void UCommand_Menu_Widget::NativeOnInitialized()
 
     WidgetSwitcher->SetActiveWidgetIndex(0);
 
+
+    if (InventoryWidgetClass)
+    {
+        InventoryWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), InventoryWidgetClass);
+        if (InventoryWidgetInstance)
+        {
+            InventoryWidgetInstance->AddToViewport();
+            InventoryWidgetInstance->SetVisibility(ESlateVisibility::Hidden); // Initially hidden
+        }
+    }
+
 }
 
 
@@ -117,6 +128,26 @@ void UCommand_Menu_Widget::SetCommandMenuIconVisibility(bool bIsVisible)
         else
         {
             CommandMenuIcon->SetVisibility(ESlateVisibility::Hidden);
+        }
+    }
+
+
+}
+
+
+
+void UCommand_Menu_Widget::UpdateVisibilityBasedOnIndex(int CurrentIndex)
+{
+
+    if (InventoryWidgetInstance)
+    {
+        if (CurrentIndex == 2) // If in inventory index
+        {
+            InventoryWidgetInstance->SetVisibility(ESlateVisibility::Visible);
+        }
+        else
+        {
+            InventoryWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
         }
     }
 

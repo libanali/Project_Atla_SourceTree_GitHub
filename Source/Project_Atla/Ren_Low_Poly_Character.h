@@ -277,7 +277,7 @@ public:
 	UPROPERTY()
 		UCommand_Menu_Widget* CommandMenuWidget;
 
-	UPROPERTY(EditAnywhere, Category = "UI")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		TSubclassOf<UUserWidget> CommandMenuWidgetClass;
 
 	UFUNCTION()
@@ -299,6 +299,8 @@ public:
 		bool bIsInUIMode;
 
 	void EnableUIInputWithGameInput();
+
+	void UpdateVisibilityBasedOnIndex(int Index);
 	//Command
 
 
