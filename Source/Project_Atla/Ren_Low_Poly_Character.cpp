@@ -76,7 +76,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 	//Command
 	bIsInUIMode = false;
-	bInventoryClosed = false;
+	bBackto0 = false;
 }
 
 
@@ -761,6 +761,7 @@ void ARen_Low_Poly_Character::HandleBackInput()
 			// Return to command icon
 			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(0);
 			SetInputModeForGameplay();
+			bBackto0 = true;
 			bIsInUIMode = false; // Return to gameplay
 		}
 		else if (CurrentIndex == 2) // If in inventory

@@ -299,7 +299,7 @@ public:
 		bool bIsInUIMode;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-		bool bInventoryClosed;
+		bool bBackto0;
 
 	void EnableUIInputWithGameInput();
 
