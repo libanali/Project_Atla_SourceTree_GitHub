@@ -280,6 +280,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		TSubclassOf<UUserWidget> CommandMenuWidgetClass;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+		UUserWidget* InventoryButtonWidget;
+
 	UFUNCTION()
 		void ToggleCommandMenu();
 
@@ -298,8 +302,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		bool bIsInUIMode;
 
+	// Track if the inventory is open
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-		bool bBackto0;
+		bool bIsInventoryOpen = false;
 
 	void EnableUIInputWithGameInput();
 

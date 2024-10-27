@@ -76,7 +76,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 	//Command
 	bIsInUIMode = false;
-	bBackto0 = false;
+	bIsInventoryOpen = false;
 }
 
 
@@ -627,6 +627,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 
 
+
 void ARen_Low_Poly_Character::ToggleCommandMenu()
 {
 	if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher)
@@ -681,6 +682,7 @@ void ARen_Low_Poly_Character::ToggleCommandMenu()
 				CommandMenuWidget->ItemsButton->SetKeyboardFocus(); // Focus on the Items Button
 			}
 
+			bIsInventoryOpen = false;
 			// Log for debugging
 			UE_LOG(LogTemp, Warning, TEXT("Returned to Command Menu from Inventory, index set to: %d"), CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex());
 		}
@@ -694,30 +696,30 @@ void ARen_Low_Poly_Character::UpdateVisibilityBasedOnIndex(int Index)
 
 	if (CommandMenuWidget)
 	{
-		// If index is 1, we are in the command menu
 		if (Index == 1)
 		{
-			// Show command menu buttons
 			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Visible);
 			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Visible);
 
-			// Remove Inventory Widget from viewport if it was added
 			if (CommandMenuWidget->InventoryWidgetInstance && CommandMenuWidget->InventoryWidgetInstance->IsInViewport())
 			{
 				CommandMenuWidget->InventoryWidgetInstance->RemoveFromParent();
+				CommandMenuWidget->ItemsButton->SetKeyboardFocus();
+
 			}
+
+			CommandMenuWidget->ItemsButton->SetKeyboardFocus();
 		}
-		else if (Index == 2) // If index is 2, show inventory
+		else if (Index == 2)
 		{
-			// Hide command menu buttons
 			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Collapsed);
 			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Collapsed);
 
-			// Add Inventory Widget to viewport if it's not already there
 			if (CommandMenuWidget->InventoryWidgetInstance && !CommandMenuWidget->InventoryWidgetInstance->IsInViewport())
 			{
 				CommandMenuWidget->InventoryWidgetInstance->AddToViewport();
 			}
+
 		}
 	}
 
@@ -734,11 +736,20 @@ void ARen_Low_Poly_Character::OpenInventory()
 	{
 		// Set the WidgetSwitcher to display the inventory (index 2)
 		CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(2);
-		//CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Hidden);
-		//CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Hidden);
+		bIsInventoryOpen = true;
 
-		// Optional: Set focus on the scroll box or first button in the inventory, if desired
-		SetInputModeForUI();
+
+		// Check and focus the inventory button after confirming it is initialized
+		if (InventoryButtonWidget)
+		{
+			InventoryButtonWidget->SetKeyboardFocus();
+		
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("InventoryButtonWidget is null, focus cannot be set."));
+		}		SetInputModeForUI();
+
 		bIsInUIMode = true;  // Track that we're still in UI mode
 	}
 
@@ -761,7 +772,6 @@ void ARen_Low_Poly_Character::HandleBackInput()
 			// Return to command icon
 			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(0);
 			SetInputModeForGameplay();
-			bBackto0 = true;
 			bIsInUIMode = false; // Return to gameplay
 		}
 		else if (CurrentIndex == 2) // If in inventory
