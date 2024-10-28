@@ -22,7 +22,7 @@ void UCommand_Menu_Widget::NativeOnInitialized()
 
     if (TechniquesButton)
     {
-        TechniquesButton->OnClicked.AddDynamic(this, &UCommand_Menu_Widget::ShowTechniquesMenu);
+        TechniquesButton->OnClicked.AddDynamic(this, &UCommand_Menu_Widget::OnTechniquesButtonClicked);
     }
 
 
@@ -45,6 +45,17 @@ void UCommand_Menu_Widget::NativeOnInitialized()
         {
             InventoryWidgetInstance->AddToViewport();
             InventoryWidgetInstance->SetVisibility(ESlateVisibility::Hidden); // Initially hidden
+        }
+    }
+
+
+    if (TechniquesWidgetClass)
+    {
+        TechniquesWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), TechniquesWidgetClass);
+        if (TechniquesWidgetInstance)
+        {
+            TechniquesWidgetInstance->AddToViewport();
+            TechniquesWidgetInstance->SetVisibility(ESlateVisibility::Hidden); // Initially hidden
         }
     }
 
@@ -115,6 +126,17 @@ void UCommand_Menu_Widget::OnItemsButtonClicked()
 
 }
 
+void UCommand_Menu_Widget::OnTechniquesButtonClicked()
+{
+
+    ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(GetOwningPlayerPawn());
+    if (PlayerCharacter)
+    {
+        PlayerCharacter->OpenTechniques();
+    }
+
+}
+
 
 
 
@@ -155,19 +177,23 @@ void UCommand_Menu_Widget::UpdateVisibilityBasedOnIndex(int CurrentIndex)
     }
 
 
+    if (TechniquesWidgetInstance)
+    {
+        if (CurrentIndex == 3) // Techniques index
+        {
+            TechniquesWidgetInstance->SetVisibility(ESlateVisibility::Visible);
+        }
+        else
+        {
+            TechniquesWidgetInstance->SetVisibility(ESlateVisibility::Hidden);
+        }
+    }
+
 }
 
 void UCommand_Menu_Widget::Tick(float DeltaTime)
 {
 
-    if (ItemsButton->HasKeyboardFocus())
-
-    {
-
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Black, TEXT("Has focud!!"));
-
-
-    }
 
 
 

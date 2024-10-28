@@ -725,9 +725,14 @@ void ARen_Low_Poly_Character::UpdateVisibilityBasedOnIndex(int Index)
 			else if (Index == 3)
 
 			{
+				// Set techniques widget visibility and other required elements
+				if (CommandMenuWidget->TechniquesWidgetInstance && !CommandMenuWidget->TechniquesWidgetInstance->IsInViewport())
+				{
+					CommandMenuWidget->TechniquesWidgetInstance->AddToViewport();
+				}
 
-
-
+				CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Collapsed);
+				CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Collapsed);
 			}
 
 		}

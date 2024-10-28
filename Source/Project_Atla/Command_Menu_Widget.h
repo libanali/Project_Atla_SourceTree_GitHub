@@ -46,6 +46,12 @@ public:
     UPROPERTY()
         UUserWidget* InventoryWidgetInstance;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CommandMenu")
+        TSubclassOf<UUserWidget> TechniquesWidgetClass;
+
+    UPROPERTY()
+    UUserWidget* TechniquesWidgetInstance;
+
     // State variable for tracking the current menu
     ECommandMenuState CurrentMenuState;
 
@@ -69,6 +75,9 @@ public:
 
     UFUNCTION()
         void OnItemsButtonClicked();
+
+    UFUNCTION()
+        void OnTechniquesButtonClicked();
 
 
     // Function to show or hide the command menu icon

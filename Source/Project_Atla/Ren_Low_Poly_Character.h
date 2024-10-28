@@ -284,6 +284,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		UUserWidget* InventoryButtonWidget;
 
+	//Command
+
+
+
 	UFUNCTION()
 		void ToggleCommandMenu();
 
