@@ -77,6 +77,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	//Command
 	bIsInUIMode = false;
 	bIsInventoryOpen = false;
+	bIsTechniquesOpen = false;
 }
 
 
@@ -683,6 +684,7 @@ void ARen_Low_Poly_Character::ToggleCommandMenu()
 			}
 
 			bIsInventoryOpen = false;
+			bIsTechniquesOpen = false;
 			// Log for debugging
 			UE_LOG(LogTemp, Warning, TEXT("Returned to Command Menu from Inventory, index set to: %d"), CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex());
 		}
@@ -720,6 +722,14 @@ void ARen_Low_Poly_Character::UpdateVisibilityBasedOnIndex(int Index)
 				CommandMenuWidget->InventoryWidgetInstance->AddToViewport();
 			}
 
+			else if (Index == 3)
+
+			{
+
+
+
+			}
+
 		}
 	}
 
@@ -737,6 +747,8 @@ void ARen_Low_Poly_Character::OpenInventory()
 		// Set the WidgetSwitcher to display the inventory (index 2)
 		CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(2);
 		bIsInventoryOpen = true;
+		bIsTechniquesOpen = false;
+
 
 
 		// Check and focus the inventory button after confirming it is initialized
@@ -756,6 +768,32 @@ void ARen_Low_Poly_Character::OpenInventory()
 
 }
 
+void ARen_Low_Poly_Character::OpenTechniques()
+{
+
+	if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher)
+	{
+		// Set the WidgetSwitcher to display the techniques menu (index 3)
+		CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(3);
+
+		// Update visibility specifically for techniques menu
+		UpdateVisibilityBasedOnIndex(3);
+		bIsInventoryOpen = false;
+		bIsTechniquesOpen = true;
+
+
+	}
+
+
+	SetInputModeForUI();
+	bIsInUIMode = true; // Track UI mode for techniques menu
+
+}
+
+
+
+
+
 
 
 
@@ -774,11 +812,20 @@ void ARen_Low_Poly_Character::HandleBackInput()
 			SetInputModeForGameplay();
 			bIsInUIMode = false; // Return to gameplay
 		}
+
 		else if (CurrentIndex == 2) // If in inventory
+
 		{
 			// Go back to the main command menu
 			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
 			bIsInUIMode = true; // Still in UI mode
+		}
+
+		else if (CurrentIndex == 3)
+
+		{
+			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
+			bIsInUIMode = true;
 		}
 	}
 }

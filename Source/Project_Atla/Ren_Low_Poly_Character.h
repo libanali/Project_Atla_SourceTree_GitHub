@@ -291,6 +291,9 @@ public:
 		void OpenInventory();
 
 	UFUNCTION()
+		void OpenTechniques();
+
+	UFUNCTION()
 		void HandleBackInput();
 
 	UFUNCTION()
@@ -305,6 +308,10 @@ public:
 	// Track if the inventory is open
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		bool bIsInventoryOpen = false;
+
+	// Track if the Techniques is open
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+		bool bIsTechniquesOpen = false;
 
 	void EnableUIInputWithGameInput();
 
