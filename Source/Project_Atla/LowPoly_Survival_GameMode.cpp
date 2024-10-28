@@ -25,6 +25,7 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
     BaseSpawnDelay = 2.0f;         // Initial delay between spawns in the first round
     MinSpawnDelay = 1.5f;          // Minimum delay between spawns in later rounds
     DelayDecreasePerRound = 0.1f;
+    bIsSpawningEnemies = false;
 
 }
 

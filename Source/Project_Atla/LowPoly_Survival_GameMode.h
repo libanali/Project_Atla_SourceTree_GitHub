@@ -26,7 +26,8 @@ public:
 
     void CycleToNextEnemy();
 
-    bool bIsSpawningEnemies = false;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool bIsSpawningEnemies;
 
     void ResetAttackCycle();
 
