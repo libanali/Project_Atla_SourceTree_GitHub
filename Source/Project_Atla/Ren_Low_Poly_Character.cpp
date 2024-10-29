@@ -78,6 +78,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	bIsInUIMode = false;
 	bIsInventoryOpen = false;
 	bIsTechniquesOpen = false;
+	bIsInventoryEmpty = true;
 }
 
 
@@ -163,7 +164,7 @@ void ARen_Low_Poly_Character::IncreaseStats(float AdditionalHealth, float Additi
 
 
 
-void ARen_Low_Poly_Character::InflictAbilityDamageOnEnemy(AEnemy_Poly* Enemy, int32 TechniqueIndex)
+void ARen_Low_Poly_Character::InflictTechniqueDamageOnEnemy(AEnemy_Poly* Enemy, int32 TechniqueIndex)
 {
 
 	if (Enemy)
@@ -306,11 +307,12 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 		// Check if the technique is unlocked and if there are enough technique points
 		if (SelectedTechnique.bIsUnlocked && TechniqueStruct.TechniquePoints >= SelectedTechnique.PointsRequired)
 		{
-			// Use the technique logic here
+
 			TechniqueStruct.TechniquePoints -= SelectedTechnique.PointsRequired; // Deduct required points
 
 			// Additional logic for using the technique (e.g., damage bonus, animations, etc.)
 			PlayAnimMontage(SelectedTechnique.TechniqueAnimation);
+
 
 			// Log success
 			UE_LOG(LogTemp, Log, TEXT("Technique %s used, %d points deducted."), *SelectedTechnique.TechniqueName, SelectedTechnique.PointsRequired);
@@ -579,9 +581,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 	HealthStruct.CurrentHealth = 100.0f;
 	AbilityStruct.InitializeAbilityPoints();
 
-	TechniqueStruct.CurrentGauge = 0.0f;
+	TechniqueStruct.CurrentGauge = 70.0f;
 	TechniqueStruct.MaxGauge = 100.0f;
-	TechniqueStruct.TechniquePoints = 3;
+	TechniqueStruct.TechniquePoints = 0;
 
 	TArray<AActor*> OverlappingActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Enemy")), OverlappingActors);
@@ -617,6 +619,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 			//CommandMenuWidget->SetVisibility(ESlateVisibility::Hidden); // Initially hide it
 		}
 	}
+	
+
 
 	// Bind the input action
 	InputComponent->BindAction("Open Commands Menu", IE_Pressed, this, &ARen_Low_Poly_Character::ToggleCommandMenu);
@@ -625,6 +629,33 @@ void ARen_Low_Poly_Character::BeginPlay()
 	
 	
 }
+
+
+
+
+void ARen_Low_Poly_Character::SetItemsButtonFocus()
+{
+
+
+	if (CommandMenuWidget && CommandMenuWidget->ItemsButton)
+	{
+		if (!bIsInventoryEmpty)
+		{
+			CommandMenuWidget->ItemsButton->SetKeyboardFocus(); // Focus on the Items Button
+			UE_LOG(LogTemp, Warning, TEXT("Focus set on Items Button after delay."));
+		}
+		else
+		{
+			CommandMenuWidget->TechniquesButton->SetKeyboardFocus(); // Focus on the Techniques Button
+			UE_LOG(LogTemp, Warning, TEXT("Focus set on Techniques Button because inventory is empty."));
+		}
+	}
+}
+
+
+
+
+
 
 
 
@@ -645,11 +676,8 @@ void ARen_Low_Poly_Character::ToggleCommandMenu()
 			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Visible);
 			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Visible);
 
-			// Set focus to ItemsButton
-			if (CommandMenuWidget->ItemsButton)
-			{
-				CommandMenuWidget->ItemsButton->SetKeyboardFocus(); // Focus on the Items Button
-			}
+			// Add slight delay before setting keyboard focus to ensure UI updates
+			GetWorldTimerManager().SetTimerForNextTick(this, &ARen_Low_Poly_Character::SetItemsButtonFocus);
 
 			SetInputModeForUI();
 			bIsInUIMode = true;
@@ -677,11 +705,9 @@ void ARen_Low_Poly_Character::ToggleCommandMenu()
 			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Visible);
 			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Visible);
 
-			// Set focus to ItemsButton
-			if (CommandMenuWidget->ItemsButton)
-			{
-				CommandMenuWidget->ItemsButton->SetKeyboardFocus(); // Focus on the Items Button
-			}
+			
+			GetWorldTimerManager().SetTimerForNextTick(this, &ARen_Low_Poly_Character::SetItemsButtonFocus);
+			
 
 			bIsInventoryOpen = false;
 			bIsTechniquesOpen = false;
@@ -740,7 +766,6 @@ void ARen_Low_Poly_Character::UpdateVisibilityBasedOnIndex(int Index)
 
 
 }
-
 
 
 
@@ -824,6 +849,10 @@ void ARen_Low_Poly_Character::HandleBackInput()
 			// Go back to the main command menu
 			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
 			bIsInUIMode = true; // Still in UI mode
+
+			GetWorldTimerManager().SetTimerForNextTick(this, &ARen_Low_Poly_Character::SetItemsButtonFocus);
+			
+
 		}
 
 		else if (CurrentIndex == 3)

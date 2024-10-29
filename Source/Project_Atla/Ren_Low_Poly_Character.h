@@ -137,6 +137,7 @@ public:
 	//Technique
 
 
+
 	//Lock-On variables
 	void ToggleSoftLock();
 
@@ -193,7 +194,7 @@ public:
 		float TotalAttack;
 
 	UFUNCTION(BlueprintCallable, Category = "Attack")
-		void InflictAbilityDamageOnEnemy(AEnemy_Poly* Enemy, int32 TechniqueIndex);
+		void InflictTechniqueDamageOnEnemy(AEnemy_Poly* Enemy, int32 TechniqueIndex);
 
 	UFUNCTION(BlueprintCallable, Category = "Attack")
 		void CalculateTotalAttack();
@@ -263,12 +264,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
 		UDataTable* CharacterAttributesTable;
-
-	//UFUNCTION(BlueprintCallable, Category = "Level")
-	//	void GainExperience(int32 ExpAmount);
-
-	//UFUNCTION(BlueprintCallable, Category = "Level")
-	//	void CheckAndTriggerLevelUp();
 	//Level
 
 
@@ -284,9 +279,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		UUserWidget* InventoryButtonWidget;
 
-	//Command
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+		bool bIsInventoryEmpty;
 
-
+	void SetItemsButtonFocus();
 
 	UFUNCTION()
 		void ToggleCommandMenu();
@@ -320,6 +316,7 @@ public:
 	void EnableUIInputWithGameInput();
 
 	void UpdateVisibilityBasedOnIndex(int Index);
+
 	//Command
 
 
