@@ -328,6 +328,31 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 
 
 
+void ARen_Low_Poly_Character::CheckTechniquePoints()
+{
+
+	// Assume no techniques are usable at first
+	bCanInteractWithButton = false;
+
+	// Loop through each technique to check if the player has enough points and if it’s unlocked
+	for (const FTechnique_Struct& Technique : Techniques)
+	{
+		if (Technique.TechniquePoints >= Technique.PointsRequired && Technique.bIsUnlocked)
+		{
+			// Set the boolean to true if any technique is usable
+			bCanInteractWithButton = true;
+			break; // Exit the loop once we find a usable technique
+		}
+	}
+
+	// Debug log to check the status of interaction
+	UE_LOG(LogTemp, Warning, TEXT("Can Interact with Technique Button: %s"), bCanInteractWithButton ? TEXT("True") : TEXT("False"));
+}
+
+
+
+
+
 void ARen_Low_Poly_Character::ToggleSoftLock()
 {
 
@@ -583,7 +608,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	TechniqueStruct.CurrentGauge = 70.0f;
 	TechniqueStruct.MaxGauge = 100.0f;
-	TechniqueStruct.TechniquePoints = 0;
+	TechniqueStruct.TechniquePoints = 1;
 
 	TArray<AActor*> OverlappingActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Enemy")), OverlappingActors);
@@ -602,11 +627,11 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 
 	// Initialize techniques
-	Techniques.Add(FTechnique_Struct{TEXT("Downward Slash"), TEXT("A simple attack technique."), true, DownwardSlashAnimMontage, 1.3f, 1});
+	Techniques.Add(FTechnique_Struct{TEXT("Downward Slash"), TEXT("A simple attack technique."), true, DownwardSlashAnimMontage, 1.3f, 2});
 	Techniques.Add(FTechnique_Struct{TEXT("Power Strike"), TEXT("A simple attack technique."), true, PowerStrikeAnimMontage, 1.3f, 2});
-	Techniques.Add(FTechnique_Struct{ TEXT("Fury Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1});
+	Techniques.Add(FTechnique_Struct{ TEXT("Fury Strike"), TEXT("A simple attack technique."), true, FuryStrikeAnimMontage, 1.5f, 1});
 	Techniques.Add(FTechnique_Struct{ TEXT("mad Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1 });
-	Techniques.Add(FTechnique_Struct{ TEXT("happy Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1 });
+	Techniques.Add(FTechnique_Struct{ TEXT("happy Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1});
 
 
 	// Create the command menu widget
@@ -932,6 +957,8 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 	CheckGaugeMaximum();
 
 	ToggleSoftLock();
+
+	CheckTechniquePoints();
 
 	TechniqueStruct.CurrentGauge += GaugeIncreaseRate * DeltaTime;
 

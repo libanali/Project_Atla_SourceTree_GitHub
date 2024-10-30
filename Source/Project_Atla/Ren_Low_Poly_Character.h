@@ -134,6 +134,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
 		UAnimMontage* FuryStrikeAnimMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
+		bool bCanInteractWithButton;
+
+	void CheckTechniquePoints();
 	//Technique
 
 
