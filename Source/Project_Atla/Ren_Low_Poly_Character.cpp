@@ -313,6 +313,8 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 			// Additional logic for using the technique (e.g., damage bonus, animations, etc.)
 			PlayAnimMontage(SelectedTechnique.TechniqueAnimation);
 
+			UpdateAllButtonOpacities();
+
 
 			// Log success
 			UE_LOG(LogTemp, Log, TEXT("Technique %s used, %d points deducted."), *SelectedTechnique.TechniqueName, SelectedTechnique.PointsRequired);
@@ -331,22 +333,42 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 void ARen_Low_Poly_Character::CheckTechniquePoints()
 {
 
-	// Assume no techniques are usable at first
-	bCanInteractWithButton = false;
+	TechniqueAvailability.SetNum(Techniques.Num());
 
-	// Loop through each technique to check if the player has enough points and if it’s unlocked
-	for (const FTechnique_Struct& Technique : Techniques)
+	for (int32 i = 0; i < Techniques.Num(); i++)
 	{
-		if (Technique.TechniquePoints >= Technique.PointsRequired && Technique.bIsUnlocked)
-		{
-			// Set the boolean to true if any technique is usable
-			bCanInteractWithButton = true;
-			break; // Exit the loop once we find a usable technique
-		}
+		const FTechnique_Struct& Technique = Techniques[i];
+		TechniqueAvailability[i] = (Technique.TechniquePoints >= Technique.PointsRequired && Technique.bIsUnlocked);
 	}
 
-	// Debug log to check the status of interaction
-	UE_LOG(LogTemp, Warning, TEXT("Can Interact with Technique Button: %s"), bCanInteractWithButton ? TEXT("True") : TEXT("False"));
+	UpdateAllButtonOpacities(); // Call to update button opacities
+
+}
+
+void ARen_Low_Poly_Character::UpdateButtonOpacity(int32 TechniqueIndex)
+{
+
+	if (TechniqueButtonss) // Check if the button is valid
+	{
+		const FTechnique_Struct& Technique = Techniques[TechniqueIndex];
+
+		// Check if technique points are enough and the technique is unlocked
+		float NewOpacity = (Technique.TechniquePoints >= Technique.PointsRequired && Technique.bIsUnlocked) ? 1.0f : 0.5f;
+
+		// Set the button's render opacity directly
+		TechniqueButtonss->SetRenderOpacity(NewOpacity); // Update the opacity directly
+	}
+
+}
+
+void ARen_Low_Poly_Character::UpdateAllButtonOpacities()
+{
+
+	for (int32 i = 0; i < Techniques.Num(); ++i)
+	{
+		UpdateButtonOpacity(i); // Update the opacity for each button corresponding to the technique
+	}
+
 }
 
 
@@ -629,7 +651,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	// Initialize techniques
 	Techniques.Add(FTechnique_Struct{TEXT("Downward Slash"), TEXT("A simple attack technique."), true, DownwardSlashAnimMontage, 1.3f, 2});
 	Techniques.Add(FTechnique_Struct{TEXT("Power Strike"), TEXT("A simple attack technique."), true, PowerStrikeAnimMontage, 1.3f, 2});
-	Techniques.Add(FTechnique_Struct{ TEXT("Fury Strike"), TEXT("A simple attack technique."), true, FuryStrikeAnimMontage, 1.5f, 1});
+	Techniques.Add(FTechnique_Struct{ TEXT("Fury Strike"), TEXT("A simple attack technique."), true, FuryStrikeAnimMontage, 1.5f, 2});
 	Techniques.Add(FTechnique_Struct{ TEXT("mad Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1 });
 	Techniques.Add(FTechnique_Struct{ TEXT("happy Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1});
 
@@ -645,6 +667,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 		}
 	}
 	
+	TechniqueAvailability.Init(false, Techniques.Num());
+
 
 
 	// Bind the input action
@@ -959,6 +983,8 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 	ToggleSoftLock();
 
 	CheckTechniquePoints();
+
+	UpdateAllButtonOpacities();
 
 	TechniqueStruct.CurrentGauge += GaugeIncreaseRate * DeltaTime;
 
