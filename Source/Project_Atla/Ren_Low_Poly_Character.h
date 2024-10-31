@@ -138,17 +138,8 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Techniques")
 		TArray<bool> TechniqueAvailability;
 
-	UPROPERTY(BlueprintReadWrite, Category = "Techniques")
-		UButton* TechniqueButtonss;
-
 	UFUNCTION(BlueprintCallable)
 	void CheckTechniquePoints();
-
-	UFUNCTION(BlueprintCallable)
-		void UpdateButtonOpacity(int32 TechniqueIndex);
-
-	UFUNCTION(BlueprintCallable)
-		void UpdateAllButtonOpacities();
 	//Technique
 
 

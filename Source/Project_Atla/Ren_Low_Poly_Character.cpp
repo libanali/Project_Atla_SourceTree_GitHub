@@ -313,7 +313,7 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 			// Additional logic for using the technique (e.g., damage bonus, animations, etc.)
 			PlayAnimMontage(SelectedTechnique.TechniqueAnimation);
 
-			UpdateAllButtonOpacities();
+			
 
 
 			// Log success
@@ -332,44 +332,22 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 
 void ARen_Low_Poly_Character::CheckTechniquePoints()
 {
-
+	// Resize the TechniqueAvailability array to match the number of techniques
 	TechniqueAvailability.SetNum(Techniques.Num());
 
+	// Loop through each technique to check if it’s available
 	for (int32 i = 0; i < Techniques.Num(); i++)
 	{
 		const FTechnique_Struct& Technique = Techniques[i];
+
+		// Set availability based on points and unlock status
 		TechniqueAvailability[i] = (Technique.TechniquePoints >= Technique.PointsRequired && Technique.bIsUnlocked);
 	}
 
-	UpdateAllButtonOpacities(); // Call to update button opacities
-
 }
 
-void ARen_Low_Poly_Character::UpdateButtonOpacity(int32 TechniqueIndex)
-{
 
-	if (TechniqueButtonss) // Check if the button is valid
-	{
-		const FTechnique_Struct& Technique = Techniques[TechniqueIndex];
 
-		// Check if technique points are enough and the technique is unlocked
-		float NewOpacity = (Technique.TechniquePoints >= Technique.PointsRequired && Technique.bIsUnlocked) ? 1.0f : 0.5f;
-
-		// Set the button's render opacity directly
-		TechniqueButtonss->SetRenderOpacity(NewOpacity); // Update the opacity directly
-	}
-
-}
-
-void ARen_Low_Poly_Character::UpdateAllButtonOpacities()
-{
-
-	for (int32 i = 0; i < Techniques.Num(); ++i)
-	{
-		UpdateButtonOpacity(i); // Update the opacity for each button corresponding to the technique
-	}
-
-}
 
 
 
@@ -652,7 +630,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	Techniques.Add(FTechnique_Struct{TEXT("Downward Slash"), TEXT("A simple attack technique."), true, DownwardSlashAnimMontage, 1.3f, 2});
 	Techniques.Add(FTechnique_Struct{TEXT("Power Strike"), TEXT("A simple attack technique."), true, PowerStrikeAnimMontage, 1.3f, 2});
 	Techniques.Add(FTechnique_Struct{ TEXT("Fury Strike"), TEXT("A simple attack technique."), true, FuryStrikeAnimMontage, 1.5f, 2});
-	Techniques.Add(FTechnique_Struct{ TEXT("mad Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1 });
+	Techniques.Add(FTechnique_Struct{ TEXT("mad Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1});
 	Techniques.Add(FTechnique_Struct{ TEXT("happy Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1});
 
 
@@ -983,8 +961,6 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 	ToggleSoftLock();
 
 	CheckTechniquePoints();
-
-	UpdateAllButtonOpacities();
 
 	TechniqueStruct.CurrentGauge += GaugeIncreaseRate * DeltaTime;
 
