@@ -211,10 +211,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void IncreaseAttack(float IncreaseAmount);
 
-
-	FTimerHandle AttackBonus;
-
-	float OriginalAttack;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defence")
+		float AttackIncrease;
 	//Attack Stats
 
 
@@ -232,13 +230,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Defence")
 		void CalculateTotalDefence();
 
-	float OriginalDefence;
-
 	UFUNCTION(BlueprintCallable)
 	void IncreaseDefence(float IncreaseAmount);
 
-
-	FTimerHandle DefenceBonus;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defence")
+		float DefenceIncrease;
 	//Defence Stats
 
 

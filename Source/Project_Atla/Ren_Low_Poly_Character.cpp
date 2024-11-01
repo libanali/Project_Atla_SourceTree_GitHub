@@ -65,10 +65,12 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	//Attack
 	BaseAttack = 3.0f;
 	AttackMultiplier = 2.0f; 
+	AttackIncrease = 3.0f;
 
 	//Defence
 	BaseDefence = 3.0f;
 	DefenceMultiplier = 2.0f;
+	DefenceIncrease = 2.0f;
 
 	//Elemental
 	BaseElementalAttack = 3.0f;
@@ -478,8 +480,6 @@ void ARen_Low_Poly_Character::CalculateTotalAttack()
 void ARen_Low_Poly_Character::IncreaseAttack(float IncreaseAmount)
 {
 
-
-	OriginalAttack = BaseAttack;
 	BaseAttack *= IncreaseAmount;
 	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Increase Attack"));
 
@@ -499,10 +499,11 @@ void ARen_Low_Poly_Character::CalculateTotalDefence()
 }
 
 
+
+
 void ARen_Low_Poly_Character::IncreaseDefence(float IncreaseAmount)
 {
 
-	OriginalDefence = BaseDefence;
 	BaseDefence *= IncreaseAmount;
 	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Increase Defence"));
 
