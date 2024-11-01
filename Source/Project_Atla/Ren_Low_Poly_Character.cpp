@@ -327,6 +327,23 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 
 }
 
+void ARen_Low_Poly_Character::UnlockTechnique(FString TechniqueID)
+{
+
+	for (FTechnique_Struct& Technique : Techniques)
+	{
+		if (Technique.TechniqueName == TechniqueID && !Technique.bIsUnlocked)
+		{
+			Technique.bIsUnlocked = true;
+			// Optionally, add any UI update or notification here to indicate the technique was unlocked
+			UE_LOG(LogTemp, Log, TEXT("Unlocked Technique: %s"), *Technique.TechniqueName);
+			break;
+		}
+	}
+
+
+}
+
 
 
 
@@ -343,7 +360,6 @@ void ARen_Low_Poly_Character::CheckTechniquePoints()
 		// Set availability based on points and unlock status
 		TechniqueAvailability[i] = (Technique.TechniquePoints >= Technique.PointsRequired && Technique.bIsUnlocked);
 	}
-
 }
 
 
@@ -459,7 +475,7 @@ void ARen_Low_Poly_Character::CalculateTotalAttack()
 
 
 
-void ARen_Low_Poly_Character::IncreaseAttack(float IncreaseAmount, float Duration)
+void ARen_Low_Poly_Character::IncreaseAttack(float IncreaseAmount)
 {
 
 
@@ -467,25 +483,11 @@ void ARen_Low_Poly_Character::IncreaseAttack(float IncreaseAmount, float Duratio
 	BaseAttack *= IncreaseAmount;
 	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Increase Attack"));
 
-	GetWorldTimerManager().SetTimer(
-		AttackBonus,
-		[this, IncreaseAmount]() { RevertAttack(IncreaseAmount); },
-		Duration,
-		false
-	);
-
-
 
 }
 
-void ARen_Low_Poly_Character::RevertAttack(float IncreaseAmount)
-{
-
-	BaseAttack = OriginalAttack;
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Orange, TEXT("attack back to normal"));
 
 
-}
 
 
 
@@ -497,34 +499,17 @@ void ARen_Low_Poly_Character::CalculateTotalDefence()
 }
 
 
-void ARen_Low_Poly_Character::IncreaseDefence(float IncreaseAmount, float Duration)
+void ARen_Low_Poly_Character::IncreaseDefence(float IncreaseAmount)
 {
 
 	OriginalDefence = BaseDefence;
 	BaseDefence *= IncreaseAmount;
 	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Increase Defence"));
 
-
-
-	GetWorldTimerManager().SetTimer(
-		DefenceBonus,
-		[this, IncreaseAmount]() { RevertDefence(IncreaseAmount); },
-		Duration,
-		false
-	);
-
 }
 
 
 
-void ARen_Low_Poly_Character::RevertDefence(float IncreaseAmount)
-{
-
-	BaseDefence = OriginalDefence; 
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Orange, TEXT("Defence back to normal"));
-
-
-}
 
 
 
@@ -629,9 +614,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 	// Initialize techniques
 	Techniques.Add(FTechnique_Struct{TEXT("Downward Slash"), TEXT("A simple attack technique."), true, DownwardSlashAnimMontage, 1.3f, 2});
 	Techniques.Add(FTechnique_Struct{TEXT("Power Strike"), TEXT("A simple attack technique."), true, PowerStrikeAnimMontage, 1.3f, 2});
-	Techniques.Add(FTechnique_Struct{ TEXT("Fury Strike"), TEXT("A simple attack technique."), true, FuryStrikeAnimMontage, 1.5f, 2});
-	Techniques.Add(FTechnique_Struct{ TEXT("mad Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1});
-	Techniques.Add(FTechnique_Struct{ TEXT("happy Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1});
+	Techniques.Add(FTechnique_Struct{ TEXT("Fury Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 2});
+	//Techniques.Add(FTechnique_Struct{ TEXT("mad Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1});
+	//Techniques.Add(FTechnique_Struct{ TEXT("happy Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1});
 
 
 	// Create the command menu widget

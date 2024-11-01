@@ -126,6 +126,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void UseTechnique(int32 TechniqueIndex);
 
+	UFUNCTION(BlueprintCallable)
+		void UnlockTechnique(FString TechniqueID);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
 		UAnimMontage* DownwardSlashAnimMontage;
 
@@ -206,9 +209,8 @@ public:
 		void CalculateTotalAttack();
 
 	UFUNCTION(BlueprintCallable)
-	void IncreaseAttack(float IncreaseAmount, float Duration);
+	void IncreaseAttack(float IncreaseAmount);
 
-	void RevertAttack(float IncreaseAmount);
 
 	FTimerHandle AttackBonus;
 
@@ -233,9 +235,8 @@ public:
 	float OriginalDefence;
 
 	UFUNCTION(BlueprintCallable)
-	void IncreaseDefence(float IncreaseAmount, float Duration);
+	void IncreaseDefence(float IncreaseAmount);
 
-	void RevertDefence(float IncreaseAmount);
 
 	FTimerHandle DefenceBonus;
 	//Defence Stats
