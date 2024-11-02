@@ -51,6 +51,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 	//Technique
 	GaugeIncreaseRate = 5.7f;
+	CanIncreaseTechniqueBarRate = false;
 
 
 	//Lock-On
@@ -151,6 +152,8 @@ void ARen_Low_Poly_Character::InflictDamageOnEnemy(AEnemy_Poly* Enemy)
 
 
 }
+
+
 
 void ARen_Low_Poly_Character::IncreaseStats(float AdditionalHealth, float AdditionalAttack, float AdditionalDefence)
 {
@@ -343,6 +346,16 @@ void ARen_Low_Poly_Character::UnlockTechnique(FString TechniqueID)
 		}
 	}
 
+
+}
+
+
+
+
+void ARen_Low_Poly_Character::IncreaseTechniquePoints(int IncreaseAmount)
+{
+
+		TechniqueStruct.TechniquePoints += IncreaseAmount;
 
 }
 

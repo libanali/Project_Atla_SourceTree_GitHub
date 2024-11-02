@@ -129,6 +129,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void UnlockTechnique(FString TechniqueID);
 
+	UFUNCTION(BlueprintCallable)
+		void IncreaseTechniquePoints(int IncreaseAmount);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		bool CanIncreaseTechniqueBarRate;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
 		UAnimMontage* DownwardSlashAnimMontage;
 

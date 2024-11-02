@@ -54,6 +54,7 @@ void ATreasure_Chest::HandleChestReward(ARen_Low_Poly_Character* Ren)
 
 	case ETreasureChestType::UnlockTechnique:
 		Ren->UnlockTechnique(TechniqueName);
+		break;
 
 	default:
 		break;
