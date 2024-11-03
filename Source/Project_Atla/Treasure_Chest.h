@@ -14,7 +14,8 @@ enum class ETreasureChestType : uint8
 	AttackBoost UMETA(DisplayName = "Attack Boost"),
 	DefenseBoost UMETA(DisplayName = "Defense Boost"),
 	UnlockTechnique UMETA(DisplayName = "Unlock Technique"),
-	RareItem UMETA(DisplayName = "Rare Item")
+	RareItem1 UMETA(DisplayName = "Rare Item 1"),
+	RareItem2 UMETA(DisplayName = "Rare Item 2")
 };
 
 
