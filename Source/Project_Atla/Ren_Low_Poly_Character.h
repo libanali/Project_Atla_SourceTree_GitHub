@@ -120,8 +120,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void CheckGaugeMaximum();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Technique")
-		TArray<FTechnique_Struct> Techniques;
+	UFUNCTION(BlueprintCallable)
+		void CheckTechniquePointsMaximum();
+
+	UFUNCTION(BlueprintCallable)
+		void StopFillingGauge();
 
 	UFUNCTION(BlueprintCallable)
 		void UseTechnique(int32 TechniqueIndex);
@@ -131,6 +134,15 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 		void IncreaseTechniquePoints(int IncreaseAmount);
+
+	UFUNCTION(BlueprintCallable)
+		void CheckTechniquePoints();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Technique")
+		bool bIsTechniquePointsMax;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Technique")
+		TArray<FTechnique_Struct> Techniques;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		bool CanIncreaseTechniqueBarRate;
@@ -149,9 +161,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Techniques")
 		TArray<bool> TechniqueAvailability;
-
-	UFUNCTION(BlueprintCallable)
-	void CheckTechniquePoints();
 	//Technique
 
 

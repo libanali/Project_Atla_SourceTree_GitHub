@@ -38,6 +38,10 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Technique System")
         int32 TechniquePoints;
 
+    // Total technique points earned by the player
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Technique System")
+        int32 MaxTechniquePoints;
+
     // Name of the technique
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Technique")
         FString TechniqueName;
