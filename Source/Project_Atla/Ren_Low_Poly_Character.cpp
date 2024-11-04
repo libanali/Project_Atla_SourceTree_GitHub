@@ -313,7 +313,7 @@ void ARen_Low_Poly_Character::CheckTechniquePointsMaximum()
 	{
 
 		bIsTechniquePointsMax = true;
-		TechniqueStruct.CurrentGauge = 99.0f;
+		//TechniqueStruct.CurrentGauge = 99.0f;
 
 
 	}
@@ -333,16 +333,22 @@ void ARen_Low_Poly_Character::CheckTechniquePointsMaximum()
 
 void ARen_Low_Poly_Character::StopFillingGauge()
 {
-
 	if (!bIsTechniquePointsMax)
-
 	{
-
-
 		float Delta = GetWorld()->GetDeltaSeconds();
 
+		// Increment the gauge based on Delta
 		TechniqueStruct.CurrentGauge += GaugeIncreaseRate * Delta;
 
+
+
+		// Check if we have reached the max technique points
+		if (TechniqueStruct.TechniquePoints >= TechniqueStruct.MaxTechniquePoints)
+		{
+			TechniqueStruct.TechniquePoints = TechniqueStruct.MaxTechniquePoints; // Clamp to max
+			bIsTechniquePointsMax = true; // Set max flag
+
+		}
 
 	}
 
