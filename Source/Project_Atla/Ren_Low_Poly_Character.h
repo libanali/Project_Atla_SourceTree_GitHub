@@ -136,13 +136,16 @@ public:
 		bool CanIncreaseTechniqueBarRate;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
-		UAnimMontage* DownwardSlashAnimMontage;
+		UAnimMontage* VoltageBreakerAnimMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
-		UAnimMontage* PowerStrikeAnimMontage;
+		UAnimMontage* StormStrikeFlurryAnimMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
-		UAnimMontage* FuryStrikeAnimMontage;
+		UAnimMontage* TempestBarrageAnimMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
+		UAnimMontage* StaticRushAnimMontage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Techniques")
 		TArray<bool> TechniqueAvailability;

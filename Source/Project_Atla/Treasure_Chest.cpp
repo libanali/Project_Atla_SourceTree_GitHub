@@ -13,7 +13,8 @@ ATreasure_Chest::ATreasure_Chest()
 
 	bIsOpen = false;
 
-
+	AttackIncrease = 3.0f;
+	DefenceIncrease = 2.0f;
 
 }
 

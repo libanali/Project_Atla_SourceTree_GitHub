@@ -607,7 +607,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	TechniqueStruct.CurrentGauge = 70.0f;
 	TechniqueStruct.MaxGauge = 100.0f;
-	TechniqueStruct.TechniquePoints = 1;
+	TechniqueStruct.TechniquePoints = 10;
 
 	TArray<AActor*> OverlappingActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Enemy")), OverlappingActors);
@@ -626,10 +626,10 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 
 	// Initialize techniques
-	Techniques.Add(FTechnique_Struct{TEXT("Downward Slash"), TEXT("A simple attack technique."), true, DownwardSlashAnimMontage, 1.3f, 2});
-	Techniques.Add(FTechnique_Struct{TEXT("Power Strike"), TEXT("A simple attack technique."), true, PowerStrikeAnimMontage, 1.3f, 2});
-	Techniques.Add(FTechnique_Struct{ TEXT("Fury Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 2});
-	//Techniques.Add(FTechnique_Struct{ TEXT("mad Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1});
+	Techniques.Add(FTechnique_Struct{TEXT("Downward Slash"), TEXT("A simple attack technique."), true, VoltageBreakerAnimMontage, 1.3f, 1});
+	Techniques.Add(FTechnique_Struct{TEXT("Power Strike"), TEXT("A simple attack technique."), true, StormStrikeFlurryAnimMontage, 1.6f, 1});
+	Techniques.Add(FTechnique_Struct{ TEXT("Fury Strike"), TEXT("A simple attack technique."), false, TempestBarrageAnimMontage, 1.7f, 1});
+	Techniques.Add(FTechnique_Struct{ TEXT("mad Strike"), TEXT("A simple attack technique."), false, StaticRushAnimMontage, 1.9f, 1});
 	//Techniques.Add(FTechnique_Struct{ TEXT("happy Strike"), TEXT("A simple attack technique."), false, FuryStrikeAnimMontage, 1.5f, 1});
 
 
