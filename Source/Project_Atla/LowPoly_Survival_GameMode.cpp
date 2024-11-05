@@ -341,6 +341,13 @@ FVector ALowPoly_Survival_GameMode::GetRandomPointNearPlayer()
 
 
 
+int32 ALowPoly_Survival_GameMode::CalculatePointsForEnemy(FScore_Struct EnemyScoreStruct)
+{
+
+    //Calculate points by multiplying base points with the round multiplier
+    return FMath::RoundToInt(EnemyScoreStruct.BasePoints * EnemyScoreStruct.RoundMultiplier * CurrentRound);
+}
+
 void ALowPoly_Survival_GameMode::AssignEnemyNumbers()
 {
 

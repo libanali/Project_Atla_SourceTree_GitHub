@@ -6,6 +6,7 @@
 #include "GameFramework/GameMode.h"
 #include "Enemy_Poly.h"
 #include "Enemy_Token_Manager.h"
+#include "Score_Struct.h"
 #include "LowPoly_Survival_GameMode.generated.h"
 
 /**
@@ -111,6 +112,16 @@ protected:
 
     TSubclassOf<AEnemy_Poly> GetEnemyClassForCurrentRound();
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
+        FScore_Struct SpiderScore;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
+        FScore_Struct WolfScore;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
+        FScore_Struct RockTrollScore;
+
+    int32 CalculatePointsForEnemy(FScore_Struct EnemyScoreStruct);
 
 
     UFUNCTION()
