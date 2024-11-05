@@ -55,6 +55,10 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	bIsTechniquePointsMax = false;
 
 
+	//Score
+	PlayerScore = 0;
+
+
 	//Lock-On
 	bIsSoftLockEnabled = false;
 	SoftLockRange = 2300.0f;
@@ -847,6 +851,16 @@ void ARen_Low_Poly_Character::UpdateVisibilityBasedOnIndex(int Index)
 		}
 	}
 
+
+}
+
+
+
+
+void ARen_Low_Poly_Character::AddPoints(int32 Points)
+{
+
+	PlayerScore += Points;
 
 }
 

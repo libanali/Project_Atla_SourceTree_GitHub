@@ -15,6 +15,11 @@ struct PROJECT_ATLA_API FScore_Struct
 
 public:
 
+    // Constructor to initialize default values
+    FScore_Struct()
+        : BasePoints(0), RoundMultiplier(1.0f)
+    {}
+
     // Base points for the enemy type
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
         int32 BasePoints;
@@ -23,8 +28,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
         float RoundMultiplier;
 
-    // Constructor to initialize default values
-    FScore_Struct()
-        : BasePoints(0), RoundMultiplier(1.0f)
-    {}
+
+
+  
 };

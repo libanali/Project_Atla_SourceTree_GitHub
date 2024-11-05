@@ -40,6 +40,8 @@ public:
     // List of active enemy controllers
     TArray<AEnemy_AIController*> ActiveEnemies;
 
+    int32 CalculatePointsForEnemy(FScore_Struct EnemyScoreStruct);
+
 
 protected:
     virtual void BeginPlay() override;
@@ -121,7 +123,6 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
         FScore_Struct RockTrollScore;
 
-    int32 CalculatePointsForEnemy(FScore_Struct EnemyScoreStruct);
 
 
     UFUNCTION()

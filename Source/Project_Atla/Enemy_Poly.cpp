@@ -87,42 +87,41 @@ float AEnemy_Poly::ApplyDamage(float DamageAmount, const FHitResult& HitInfo, AC
 
 void AEnemy_Poly::Death()
 {
-	// If the enemy is already dead, exit early
 	if (bIsDead)
 	{
 		return;
 	}
 
-	// Set the enemy as dead
 	bIsDead = true;
 
-	// Cast to the game mode to access enemy management
+	// Get reference to the game mode to handle enemy removal and score calculation
 	ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
 	if (GameMode)
 	{
-		// Remove this enemy from the SpawnedEnemies list
+		// Calculate points for this enemy using its score struct
+		int32 PointsEarned = GameMode->CalculatePointsForEnemy(Enemy_Score);
+
+		// Award points to the player
+		ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+		if (PlayerCharacter)
+		{
+			PlayerCharacter->AddPoints(PointsEarned);  
+		}
+
+		// Additional code for removing the enemy from lists, handling AI, etc., if needed
 		GameMode->SpawnedEnemies.Remove(this);
 
-		// Remove this enemy's AIController from the ActiveEnemies list
 		AEnemy_AIController* AIController = Cast<AEnemy_AIController>(GetController());
 		if (AIController)
 		{
 			GameMode->ActiveEnemies.Remove(AIController);
 		}
 
-		// If this enemy is the current attacker, reset and cycle to the next enemy
 		if (GameMode->CurrentAttacker == AIController)
 		{
 			GameMode->ResetAttackCycle();
-			GameMode->CycleToNextEnemy();  // Continue the attack cycle
+			GameMode->CycleToNextEnemy();
 		}
-	}
-
-	// Grant experience to the player character
-	ARen_Low_Poly_Character* LowPoly_Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-	if (LowPoly_Ren)
-	{
-	//	LowPoly_Ren->GainExperience(25);  // Give experience points to the player
 	}
 
 	// Destroy the enemy after all necessary actions

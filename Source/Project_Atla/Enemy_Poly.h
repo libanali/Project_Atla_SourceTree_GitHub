@@ -12,6 +12,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Enemy_Token_Manager.h"
+#include "Score_Struct.h"
 #include "Enemy_Poly.generated.h"
 
 
@@ -116,7 +117,10 @@ public:
 	//Combat
 
 
-
+	//Score system
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
+		FScore_Struct Enemy_Score;  // Enemy-specific score data
+	//Score system
 
 
 protected:

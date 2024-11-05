@@ -337,8 +337,17 @@ public:
 	void EnableUIInputWithGameInput();
 
 	void UpdateVisibilityBasedOnIndex(int Index);
-
 	//Command
+
+
+
+	//Scoring system
+	UFUNCTION(BlueprintCallable, Category = "Score")
+		void AddPoints(int32 Points);
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scoring")
+		int32 PlayerScore;
+	//Scoring system
 
 
 protected:
