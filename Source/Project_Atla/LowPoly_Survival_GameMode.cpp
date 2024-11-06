@@ -72,6 +72,7 @@ void ALowPoly_Survival_GameMode::BeginPlay()
 
     CurrentAttacker = nullptr;
 
+    SpecialEventInterval = FMath::RandRange(3, 5);
     
 }
 

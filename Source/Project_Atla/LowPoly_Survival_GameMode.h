@@ -12,6 +12,10 @@
 /**
  * 
  */
+
+
+
+
 UCLASS()
 class PROJECT_ATLA_API ALowPoly_Survival_GameMode : public AGameMode
 {
@@ -41,6 +45,9 @@ public:
     TArray<AEnemy_AIController*> ActiveEnemies;
 
     int32 CalculatePointsForEnemy(FScore_Struct EnemyScoreStruct);
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rounds")
+        int32 SpecialEventInterval = 3;
 
 
 protected:
