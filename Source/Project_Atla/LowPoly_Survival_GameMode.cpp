@@ -82,9 +82,6 @@ void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 {
 
     OnEnemyDestroyed();
-
-  //  UpdateEnemyNumbers();
-
 }
 
 
