@@ -26,6 +26,7 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
     MinSpawnDelay = 1.5f;          // Minimum delay between spawns in later rounds
     DelayDecreasePerRound = 0.1f;
     bIsSpawningEnemies = false;
+    bIsPowerUpSpawned = false;
 
 }
 
@@ -173,6 +174,8 @@ void ALowPoly_Survival_GameMode::StartNextRound()
     GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALowPoly_Survival_GameMode::SpawnEnemies, RoundDelay, false);
 
     bIsSpawningEnemies = true;
+
+    bIsPowerUpSpawned = false;
 
 }
 

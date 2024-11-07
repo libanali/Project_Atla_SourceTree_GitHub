@@ -130,7 +130,8 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
         FScore_Struct RockTrollScore;
 
-
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+        bool bIsPowerUpSpawned;
 
     UFUNCTION()
         void OnEnemyDestroyed();
