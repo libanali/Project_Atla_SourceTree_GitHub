@@ -10,6 +10,8 @@
 #include "Enemy_Token_Manager.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "NavigationSystem.h"
+#include "GameFramework/Actor.h"
+#include "Engine/StaticMeshActor.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -276,10 +278,8 @@ FVector ALowPoly_Survival_GameMode::GetRandomPointNearPlayer()
     UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(GetWorld());
     if (!NavSystem) return FVector::ZeroVector;
 
-    FNavLocation ProjectedLocation;
     FVector RandomPoint;
     bool bIsOnNavMesh = false;
-
     const int32 MaxAttempts = 10;
     int32 AttemptCount = 0;
 
@@ -298,16 +298,18 @@ FVector ALowPoly_Survival_GameMode::GetRandomPointNearPlayer()
             0.f  // Z will be adjusted later
         );
 
-        // Try to project to the navmesh
+        FNavLocation ProjectedLocation; // Create the ProjectedLocation here
+
+        // Try to project the point to the NavMesh
         bIsOnNavMesh = NavSystem->ProjectPointToNavigation(
             RandomPoint,
             ProjectedLocation,
-            FVector(500.f, 500.f, 500.f)
+            FVector(500.f, 500.f, 500.f)  // Define the extent for projection
         );
 
         if (bIsOnNavMesh)
         {
-            FVector FinalSpawnLocation = ProjectedLocation.Location;
+            FVector FinalSpawnLocation = ProjectedLocation.Location; // Use the projected location
 
             // Perform a downward trace to find the ground level
             FHitResult HitResult;
@@ -336,7 +338,7 @@ FVector ALowPoly_Survival_GameMode::GetRandomPointNearPlayer()
 
     // Fallback: return player location if no valid NavMesh point was found
     return PlayerLocation;
-    
+   
 }
 
 

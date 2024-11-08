@@ -174,6 +174,28 @@ void ARen_Low_Poly_Character::IncreaseStats(float AdditionalHealth, float Additi
 }
 
 
+void ARen_Low_Poly_Character::Death()
+{
+
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+
+
+	if (HealthStruct.CurrentHealth <= 0)
+
+	{
+
+		DisableInput(PlayerController);
+
+		GetCapsuleComponent()->SetGenerateOverlapEvents(false);
+		
+		bIsDead = true;
+	}
+
+
+
+}
+
+
 
 void ARen_Low_Poly_Character::InflictTechniqueDamageOnEnemy(AEnemy_Poly* Enemy, int32 TechniqueIndex)
 {
@@ -1049,6 +1071,7 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 
 	StopFillingGauge();
 
+	Death();
 
 }
 

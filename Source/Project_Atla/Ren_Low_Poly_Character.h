@@ -81,6 +81,12 @@ public:
 
 
 
+	//Health
+	UFUNCTION(BlueprintCallable)
+		void Death();
+	//Health
+
+
 	//Ability
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
 		FAbility_Struct AbilityStruct;
