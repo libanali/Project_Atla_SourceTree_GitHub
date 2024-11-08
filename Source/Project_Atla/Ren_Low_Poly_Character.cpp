@@ -57,6 +57,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 	//Score
 	PlayerScore = 0;
+	bDoublePoints = false;
 
 
 	//Lock-On
@@ -860,7 +861,19 @@ void ARen_Low_Poly_Character::UpdateVisibilityBasedOnIndex(int Index)
 void ARen_Low_Poly_Character::AddPoints(int32 Points)
 {
 
+
+
+	if (bDoublePoints)
+
+	{
+
+		Points *= 2;
+
+
+	}
+
 	PlayerScore += Points;
+
 
 }
 

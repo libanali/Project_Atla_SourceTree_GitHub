@@ -347,6 +347,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scoring")
 		int32 PlayerScore;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scoring")
+		bool bDoublePoints;
 	//Scoring system
 
 
