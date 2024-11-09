@@ -21,7 +21,7 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
     RoundDelay = 2.5f;
     BaseEnemiesPerRound = 3;
     SpawnRadius = 1200.0f;
-    CurrentRound = 1;
+    CurrentRound = 4;
     AdditionalEnemyHealthPerRound = 40.0f;
     AdditionalEnemiesPerRound = 1.9f;
     BaseSpawnDelay = 2.0f;         // Initial delay between spawns in the first round
@@ -278,8 +278,10 @@ FVector ALowPoly_Survival_GameMode::GetRandomPointNearPlayer()
     UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(GetWorld());
     if (!NavSystem) return FVector::ZeroVector;
 
+    FNavLocation ProjectedLocation;
     FVector RandomPoint;
     bool bIsOnNavMesh = false;
+
     const int32 MaxAttempts = 10;
     int32 AttemptCount = 0;
 
@@ -298,18 +300,16 @@ FVector ALowPoly_Survival_GameMode::GetRandomPointNearPlayer()
             0.f  // Z will be adjusted later
         );
 
-        FNavLocation ProjectedLocation; // Create the ProjectedLocation here
-
-        // Try to project the point to the NavMesh
+        // Try to project to the navmesh
         bIsOnNavMesh = NavSystem->ProjectPointToNavigation(
             RandomPoint,
             ProjectedLocation,
-            FVector(500.f, 500.f, 500.f)  // Define the extent for projection
+            FVector(500.f, 500.f, 500.f)
         );
 
         if (bIsOnNavMesh)
         {
-            FVector FinalSpawnLocation = ProjectedLocation.Location; // Use the projected location
+            FVector FinalSpawnLocation = ProjectedLocation.Location;
 
             // Perform a downward trace to find the ground level
             FHitResult HitResult;
