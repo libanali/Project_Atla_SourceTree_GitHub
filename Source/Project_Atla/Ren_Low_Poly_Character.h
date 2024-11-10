@@ -359,6 +359,26 @@ public:
 	//Scoring system
 
 
+
+	//UI Enemy Detection
+	// Array of all enemies in the level
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemies")
+		TArray<AEnemy_Poly*> AllEnemies;
+
+	// Reference to the UI arrow widget (you can later bind this to the widget)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+		UWidget* EnemyDirectionArrowWidget;
+
+	// Function to update the direction of the arrow widget
+	UFUNCTION(BlueprintCallable, Category = "UI")
+		void UpdateEnemyDirectionArrow();
+
+	// Helper function to get direction and angle to an enemy
+	UFUNCTION(BlueprintCallable, Category = "UI")
+		void CalculateDirectionToEnemy(AEnemy_Poly* Enemy);
+	//UI Enemy Detection
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

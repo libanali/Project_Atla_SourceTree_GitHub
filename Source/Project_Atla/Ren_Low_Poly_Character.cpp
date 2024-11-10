@@ -680,6 +680,16 @@ void ARen_Low_Poly_Character::CheckAndTriggerLevelUp()
 
 
 
+void ARen_Low_Poly_Character::UpdateEnemyDirectionArrow()
+{
+}
+
+
+
+void ARen_Low_Poly_Character::CalculateDirectionToEnemy(AEnemy_Poly* Enemy)
+{
+}
+
 // Called when the game starts or when spawned
 void ARen_Low_Poly_Character::BeginPlay()
 {
