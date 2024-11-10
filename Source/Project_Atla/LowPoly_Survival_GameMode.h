@@ -7,6 +7,10 @@
 #include "Enemy_Poly.h"
 #include "Enemy_Token_Manager.h"
 #include "Score_Struct.h"
+#include "GameFramework/Actor.h"
+#include "Engine/TriggerVolume.h"
+#include "Components/BoxComponent.h"  // Include BoxComponent header
+
 #include "LowPoly_Survival_GameMode.generated.h"
 
 /**
@@ -48,6 +52,15 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Rounds")
         int32 SpecialEventInterval = 3;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Zones")
+        TArray<AActor*> SpawnZones;
+
+
+
+
+private:
+    FVector GetRandomPointInZone(const FBox& Zone);
 
 
 protected:
@@ -137,6 +150,7 @@ protected:
         void OnEnemyDestroyed();
 
     FVector GetRandomPointNearPlayer();
+
 
 
 

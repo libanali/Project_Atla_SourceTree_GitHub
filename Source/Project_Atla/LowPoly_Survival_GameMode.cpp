@@ -76,7 +76,19 @@ void ALowPoly_Survival_GameMode::BeginPlay()
     CurrentAttacker = nullptr;
 
     SpecialEventInterval = FMath::RandRange(3, 5);
-    
+    // Find all actors in the level with the tag "SpawnZone"
+    TArray<AActor*> FoundActors;
+    UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Spawn Zone"), FoundActors);
+
+    // Store these actors as spawn zones
+    SpawnZones.Empty();
+    for (AActor* Actor : FoundActors)
+    {
+        if (Actor)
+        {
+            SpawnZones.Add(Actor);
+        }
+    }
 }
 
 
@@ -90,13 +102,12 @@ void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 
 
 void ALowPoly_Survival_GameMode::SpawnEnemies()
-{
+{  
     // Early return if EnemyClass is not set
     if (EnemyClass == nullptr) return;
 
     UWorld* World = GetWorld();
     if (World == nullptr) return;
-
 
     // Mark that spawning is starting
     bIsSpawningEnemies = true;
@@ -115,7 +126,6 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
         UE_LOG(LogTemp, Log, TEXT("Player stats increased: Health + %f%%, Attack + %f%%, Defense + %f%%"), HealthIncreasePercent, AttackIncreasePercent, DefenceIncreasePercent);
     }
 
-
     // Determine the number of enemies to spawn for the current round
     int32 EnemiesToSpawn = 4 + (CurrentRound - 1) * AdditionalEnemiesPerRound;
     float LocalSpawnDelay = FMath::Max(MinSpawnDelay, BaseSpawnDelay - (CurrentRound - 1) * DelayDecreasePerRound);
@@ -125,7 +135,7 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
         FTimerHandle LocalSpawnTimerHandle;
         GetWorld()->GetTimerManager().SetTimer(LocalSpawnTimerHandle, [this, i, EnemiesToSpawn]()
             {
-                FVector SpawnLocation = GetRandomPointNearPlayer();
+                FVector SpawnLocation = GetRandomPointNearPlayer();  // Get random spawn location inside spawn zones
                 FRotator SpawnRotation = FRotator::ZeroRotator;
 
                 // Add a small offset to the spawn location based on the enemy index to space them out
@@ -149,19 +159,13 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
                     }
                 }
 
-
                 if (i == EnemiesToSpawn - 1)
                 {
                     bIsSpawningEnemies = false;
-
-              
                 }
 
-        }, i * LocalSpawnDelay, false);
-
-
+            }, i * LocalSpawnDelay, false);
     }
-
 }
 
 
@@ -267,78 +271,31 @@ void ALowPoly_Survival_GameMode::OnEnemyDestroyed()
 
 FVector ALowPoly_Survival_GameMode::GetRandomPointNearPlayer()
 {
-    APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-    if (!PlayerController) return FVector::ZeroVector;
-
-    ACharacter* PlayerCharacter = Cast<ARen_Low_Poly_Character>(PlayerController->GetPawn());
-    if (!PlayerCharacter) return FVector::ZeroVector;
-
-    FVector PlayerLocation = PlayerCharacter->GetActorLocation();
-
-    UNavigationSystemV1* NavSystem = UNavigationSystemV1::GetCurrent(GetWorld());
-    if (!NavSystem) return FVector::ZeroVector;
-
-    FNavLocation ProjectedLocation;
-    FVector RandomPoint;
-    bool bIsOnNavMesh = false;
-
-    const int32 MaxAttempts = 10;
-    int32 AttemptCount = 0;
-
-    const float MinZValue = PlayerLocation.Z - 50.f;  // Set reasonable Z boundaries
-    const float MaxZValue = PlayerLocation.Z + 50.f;  // Avoid spawning too high above the player
-    const float MaxTraceDistance = 5000.0f; // Max distance to trace downwards to find ground
-
-    while (!bIsOnNavMesh && AttemptCount < MaxAttempts)
+    // Check if we have any spawn zones in the array
+    if (SpawnZones.Num() == 0)
     {
-        float RandomAngle = FMath::RandRange(0.f, 360.f);
-        float RandomRadius = FMath::RandRange(0.f, SpawnRadius);
-
-        RandomPoint = PlayerLocation + FVector(
-            FMath::Cos(FMath::DegreesToRadians(RandomAngle)) * RandomRadius,
-            FMath::Sin(FMath::DegreesToRadians(RandomAngle)) * RandomRadius,
-            0.f  // Z will be adjusted later
-        );
-
-        // Try to project to the navmesh
-        bIsOnNavMesh = NavSystem->ProjectPointToNavigation(
-            RandomPoint,
-            ProjectedLocation,
-            FVector(500.f, 500.f, 500.f)
-        );
-
-        if (bIsOnNavMesh)
-        {
-            FVector FinalSpawnLocation = ProjectedLocation.Location;
-
-            // Perform a downward trace to find the ground level
-            FHitResult HitResult;
-            FVector TraceStart = FinalSpawnLocation + FVector(0.f, 0.f, MaxTraceDistance); // Start trace from high above
-            FVector TraceEnd = FinalSpawnLocation - FVector(0.f, 0.f, MaxTraceDistance); // Trace down to find ground
-            FCollisionQueryParams TraceParams;
-            TraceParams.AddIgnoredActor(PlayerCharacter);  // Ignore player in the trace
-
-            // Perform the trace
-            bool bHit = GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, TraceParams);
-
-            if (bHit)
-            {
-                // Set the Z value to the ground level from the hit
-                FinalSpawnLocation.Z = HitResult.Location.Z;
-
-                // Ensure the spawn location isn't too far above or below the player
-                FinalSpawnLocation.Z = FMath::Clamp(FinalSpawnLocation.Z, MinZValue, MaxZValue);
-
-                return FinalSpawnLocation; // Return valid spawn point
-            }
-        }
-
-        AttemptCount++;
+        UE_LOG(LogTemp, Warning, TEXT("No spawn zones found!"));
+        return FVector::ZeroVector;  // Return default if no spawn zones are available
     }
 
-    // Fallback: return player location if no valid NavMesh point was found
-    return PlayerLocation;
-   
+    // Pick a random spawn zone actor from the list
+    AActor* RandomSpawnZone = SpawnZones[FMath::RandRange(0, SpawnZones.Num() - 1)];
+
+    // Define a radius for the spawn area around the spawn zone actor
+    float SpawnRadiuss = 500.0f;  // Adjust this radius as needed
+
+    // Get the spawn zone's location
+    FVector SpawnZoneLocation = RandomSpawnZone->GetActorLocation();
+
+    // Generate a random point within a circle defined by SpawnRadius
+    float RandomX = FMath::RandRange(SpawnZoneLocation.X - SpawnRadiuss, SpawnZoneLocation.X + SpawnRadiuss);
+    float RandomY = FMath::RandRange(SpawnZoneLocation.Y - SpawnRadiuss, SpawnZoneLocation.Y + SpawnRadiuss);
+
+    // You could also optionally keep Z coordinate similar or random within a vertical range
+    float RandomZ = SpawnZoneLocation.Z;
+
+    // Return a random point within the spawn zone area
+    return FVector(RandomX, RandomY, RandomZ);
 }
 
 
