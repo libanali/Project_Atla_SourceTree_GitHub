@@ -680,15 +680,7 @@ void ARen_Low_Poly_Character::CheckAndTriggerLevelUp()
 
 
 
-void ARen_Low_Poly_Character::UpdateEnemyDirectionArrow()
-{
-}
 
-
-
-void ARen_Low_Poly_Character::CalculateDirectionToEnemy(AEnemy_Poly* Enemy)
-{
-}
 
 // Called when the game starts or when spawned
 void ARen_Low_Poly_Character::BeginPlay()
@@ -740,7 +732,48 @@ void ARen_Low_Poly_Character::BeginPlay()
 	
 	TechniqueAvailability.Init(false, Techniques.Num());
 
+	// Get all tagged enemies
+	TArray<AActor*> TaggedEnemies;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Enemy"), TaggedEnemies);
 
+	// Filter and cast tagged actors to AEnemy_Poly type and add to AllEnemies array
+	for (AActor* Actor : TaggedEnemies)
+	{
+		AEnemy_Poly* Enemy = Cast<AEnemy_Poly>(Actor);
+		if (Enemy)
+		{
+			AllTheEnemies.Add(Enemy);
+
+			// Create the enemy arrow widget
+			if (EnemyArrowWidgetClass)
+			{
+				UEnemy_Arrow_Widget* ArrowWidget = CreateWidget<UEnemy_Arrow_Widget>(GetWorld(), EnemyArrowWidgetClass);
+				if (ArrowWidget)
+				{
+					ArrowWidget->AddToViewport();
+					OffScreenArrows.Add(ArrowWidget);// Store the widget reference
+					// Log a message indicating the widget was added
+					UE_LOG(LogTemp, Log, TEXT("Enemy arrow widget added to viewport for enemy: %s"), *Enemy->GetName());
+				}
+				else
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Failed to create Enemy arrow widget for enemy: %s"), *Enemy->GetName());
+				}
+			
+			}
+		}
+	}
+
+	UE_LOG(LogTemp, Log, TEXT("BeginPlay executed for ARen_Low_Poly_Character"));
+
+	// Get the player's camera forward vector (from the camera component)
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController)
+	{
+		// Get the player's view direction
+		FRotator CameraRotation = PlayerController->GetControlRotation();
+		CameraForward = CameraRotation.Vector();  // Get the direction the camera is facing
+	}
 
 	// Bind the input action
 	InputComponent->BindAction("Open Commands Menu", IE_Pressed, this, &ARen_Low_Poly_Character::ToggleCommandMenu);
@@ -1081,10 +1114,130 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 
 	StopFillingGauge();
 
+	UpdateEnemyDirectionArrow();
+
 	Death();
+
+	// Step 1: Clear out the old arrows before checking for new off-screen enemies
+	RemoveOffScreenArrows();
+
+	// Step 2: Find all enemies tagged as "Enemy"
+	TArray<AActor*> TaggedEnemies;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Enemy"), TaggedEnemies);
+
+	// Step 3: Filter and cast tagged actors to AEnemy_Poly type
+	TArray<AEnemy_Poly*> AllEnemies;
+	for (AActor* Actor : TaggedEnemies)
+	{
+		AEnemy_Poly* Enemy = Cast<AEnemy_Poly>(Actor);
+		if (Enemy)
+		{
+			AllEnemies.Add(Enemy);
+		}
+	}
+
+	// Step 4: Loop through all enemies and check if they're off-screen
+	for (AEnemy_Poly* Enemy : AllEnemies)
+	{
+		FVector2D OutScreenPosition;  // Declare OutScreenPosition here
+
+		if (Enemy && IsEnemyOffScreen(Enemy, OutScreenPosition))
+		{
+			// Step 5: Calculate direction to the enemy
+			CalculateDirectionToEnemy(Enemy);
+
+			// Step 6: Update the direction arrow for the off-screen enemy
+			UpdateEnemyDirectionArrow();
+		}
+	}
+}
+
+
+
+
+FVector ARen_Low_Poly_Character::GetCameraForwardVector()
+{
+	return GetControlRotation().Vector(); // Use control rotation as a simple approach
+}
+
+void ARen_Low_Poly_Character::UpdateEnemyDirectionArrow()
+{
+
+	// Check if we have any arrows to update
+	for (UEnemy_Arrow_Widget* ArrowWidget : OffScreenArrows)
+	{
+		if (ArrowWidget)
+		{
+			ArrowWidget->UpdateArrowRotation(ArrowAngleToEnemy); // Update each arrow's rotation
+		}
+	}
+}
+
+void ARen_Low_Poly_Character::CalculateDirectionToEnemy(AEnemy_Poly* Enemy)
+{
+
+	if (!Enemy) return;
+
+	// Get the direction from the character to the enemy
+	FVector EnemyLocation = Enemy->GetActorLocation();
+	FVector CharacterLocation = GetActorLocation();
+	FVector DirectionToEnemy = (EnemyLocation - CharacterLocation).GetSafeNormal();
+
+	// Get the forward vector of the camera
+	CameraForward = GetActorForwardVector(); // Or use your camera's forward vector if it's different
+
+	// Calculate the angle between the camera and the enemy
+	float Angle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(CameraForward, DirectionToEnemy)));
+	ArrowAngleToEnemy = Angle; // Store the angle for later use
+}
+
+
+
+bool ARen_Low_Poly_Character::IsEnemyOffScreen(AEnemy_Poly* Enemy, FVector2D& OutScreenPosition)
+{
+	if (!Enemy) return false;
+
+	// Get the player camera's location and direction
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!PlayerController) return false;
+
+	FVector EnemyLocation = Enemy->GetActorLocation();
+	FVector2D ScreenPosition;
+
+	// Convert world position of enemy to screen position
+	bool bIsOnScreen = PlayerController->ProjectWorldLocationToScreen(EnemyLocation, ScreenPosition);
+	OutScreenPosition = ScreenPosition;
+	return !bIsOnScreen; // If not on screen, return true
+}
+
+
+
+void ARen_Low_Poly_Character::RemoveOffScreenArrows()
+{
+
+	// Clear the existing arrows
+	for (UEnemy_Arrow_Widget* ArrowWidget : OffScreenArrows)
+	{
+		if (ArrowWidget)
+		{
+			ArrowWidget->RemoveFromParent(); // Remove the widget from the UI
+		}
+	}
+	OffScreenArrows.Empty(); // Clear the array
+
+
+
 
 }
 
+AEnemy_Poly* ARen_Low_Poly_Character::GetClosestEnemy()
+{
+	return nullptr;
+}
+
+void ARen_Low_Poly_Character::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+}
 
 
 // Called to bind functionality to input
@@ -1100,4 +1253,3 @@ void ARen_Low_Poly_Character::SetupPlayerInputComponent(UInputComponent* PlayerI
 	PlayerInputComponent->BindAction("Roll Dodge or Back", IE_Pressed, this, &ARen_Low_Poly_Character::HandleBackInput);
 
 }
-

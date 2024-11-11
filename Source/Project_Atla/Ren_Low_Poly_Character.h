@@ -18,6 +18,7 @@
 #include "Technique_Struct.h"
 #include "Blueprint/UserWidget.h"
 #include "Command_Menu_Widget.h"
+#include "Enemy_Arrow_Widget.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
 
@@ -361,22 +362,47 @@ public:
 
 
 	//UI Enemy Detection
-	// Array of all enemies in the level
+	 // Store all the enemies in the level
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemies")
-		TArray<AEnemy_Poly*> AllEnemies;
+		TArray<AEnemy_Poly*> AllTheEnemies;
 
-	// Reference to the UI arrow widget (you can later bind this to the widget)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-		UWidget* EnemyDirectionArrowWidget;
+	// Store reference to the arrow widget class
+	UPROPERTY(EditAnywhere, Category = "UI")
+		TSubclassOf<UUserWidget> EnemyArrowWidgetClass;
+
+	// Store off-screen arrows
+	TArray<UEnemy_Arrow_Widget*> OffScreenArrows;
+
+	// Store off-screen enemies
+	TArray<AEnemy_Poly*> OffScreenEnemies;
+
+	// Function to get the forward vector of the camera
+	FVector GetCameraForwardVector();
 
 	// Function to update the direction of the arrow widget
 	UFUNCTION(BlueprintCallable, Category = "UI")
 		void UpdateEnemyDirectionArrow();
 
-	// Helper function to get direction and angle to an enemy
+	// Helper function to get the direction and angle to an enemy
 	UFUNCTION(BlueprintCallable, Category = "UI")
 		void CalculateDirectionToEnemy(AEnemy_Poly* Enemy);
+
+	// Function to check if an enemy is off-screen
+	bool IsEnemyOffScreen(AEnemy_Poly* Enemy, FVector2D& OutScreenPosition);
+
+	// Store the angle to the enemy (for arrow rotation)
+	float ArrowAngleToEnemy;
+
+	// Function to remove off-screen arrows when enemies are on-screen
+	void RemoveOffScreenArrows();
+
+	// Function to find the closest enemy
+	AEnemy_Poly* GetClosestEnemy();
+
+	// Called when the character is destroyed or the level is unloaded
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	//UI Enemy Detection
+
 
 
 protected:
@@ -393,6 +419,7 @@ protected:
 
 private:	
 
-	
+
+		FVector CameraForward;
 	
 };
