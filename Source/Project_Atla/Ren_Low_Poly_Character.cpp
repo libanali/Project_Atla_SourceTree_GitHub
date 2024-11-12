@@ -57,6 +57,8 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	bIsTechniquePointsMax = false;
 
 	//Combat
+	//SwordChosen = true;
+	//StaffChosen = false;
 	isAttackedFromBehind = false;
 
 	//Score
@@ -74,19 +76,23 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	//Health
 	bIsDead = false;
 
+
 	//Attack
 	BaseAttack = 3.0f;
 	AttackMultiplier = 2.0f; 
 	AttackIncrease = 3.0f;
+
 
 	//Defence
 	BaseDefence = 3.0f;
 	DefenceMultiplier = 2.0f;
 	DefenceIncrease = 2.0f;
 
+
 	//Elemental
 	BaseElementalAttack = 3.0f;
 	ElementalMultiplier = 2.0f;
+
 
 	//Command
 	bIsInUIMode = false;
