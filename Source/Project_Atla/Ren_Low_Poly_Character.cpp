@@ -703,6 +703,8 @@ void ARen_Low_Poly_Character::UpdateEnemyArrows()
 
 }
 
+
+
 void ARen_Low_Poly_Character::CheckAndDisplayArrow(AActor* Enemy, UEnemy_Detection_Arrow* ArrowWidget)
 {
 
@@ -721,33 +723,66 @@ void ARen_Low_Poly_Character::CheckAndDisplayArrow(AActor* Enemy, UEnemy_Detecti
 	// Get the viewport size
 	int32 ViewportWidth, ViewportHeight;
 	GetWorld()->GetFirstPlayerController()->GetViewportSize(ViewportWidth, ViewportHeight);
-	FVector2D ViewportSize(ViewportWidth, ViewportHeight);  // Now ViewportSize is properly initialized
+	FVector2D ViewportSize(ViewportWidth, ViewportHeight);
 
 	// Check if the enemy is off-screen
 	bool bOffScreen = ScreenPosition.X < 0 || ScreenPosition.X > ViewportSize.X || ScreenPosition.Y < 0 || ScreenPosition.Y > ViewportSize.Y;
 
-	// Debugging output: Add logging to track the arrow's visibility change
-	if (bOffScreen)
-	{
-		ArrowWidget->SetVisibility(ESlateVisibility::Visible);
-		UE_LOG(LogTemp, Warning, TEXT("Enemy is off-screen, showing arrow."));
-	}
-	else
-	{
-		ArrowWidget->SetVisibility(ESlateVisibility::Hidden);
-		UE_LOG(LogTemp, Warning, TEXT("Enemy is on-screen, hiding arrow."));
-	}
-
 	// If the enemy is off-screen, show the arrow
 	if (bOffScreen)
 	{
+		ArrowWidget->SetVisibility(ESlateVisibility::Visible);
+
 		// Calculate the rotation of the arrow to point towards the enemy
 		FVector PlayerLocation = GetActorLocation();
 		FVector EnemyLocation = EnemyPoly->GetActorLocation();
 		FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(PlayerLocation, EnemyLocation);
 
-		// Update the rotation of the arrow widget
+		// Calculate the direction from the center of the screen to the enemy
+		FVector2D Direction = ScreenPosition - FVector2D(ViewportSize.X / 2, ViewportSize.Y / 2);
+		Direction.Normalize();
+
+		FVector2D EdgePosition = FVector2D(0, 0);  // Position along the edge
+		float EdgePadding = 70.0f;
+
+		// Determine if the arrow should be on the top/bottom or left/right
+		if (FMath::Abs(Direction.X) > FMath::Abs(Direction.Y))
+		{
+			// Place on the left or right edge
+			if (Direction.X < 0)
+			{
+				EdgePosition.X = EdgePadding;  // Left edge
+			}
+			else
+			{
+				EdgePosition.X = ViewportSize.X - EdgePadding;  // Right edge
+			}
+			EdgePosition.Y = ViewportSize.Y / 2 + (Direction.Y * (ViewportSize.Y / 2 - EdgePadding)); // Center vertically along the edge
+		}
+		else
+		{
+			// Place on the top or bottom edge
+			if (Direction.Y < 0)
+			{
+				EdgePosition.Y = EdgePadding;  // Top edge
+			}
+			else
+			{
+				EdgePosition.Y = ViewportSize.Y - EdgePadding;  // Bottom edge
+			}
+			EdgePosition.X = ViewportSize.X / 2 + (Direction.X * (ViewportSize.X / 2 - EdgePadding)); // Center horizontally along the edge
+		}
+
+		// Set the arrow widget position to the calculated edge position
+		ArrowWidget->SetPositionInViewport(EdgePosition);
+
+		// Update the rotation of the arrow widget to face the enemy
 		ArrowWidget->UpdateArrowRotation(LookAtRotation.Yaw);
+	}
+	else
+	{
+		// If the enemy is on-screen, hide the arrow
+		ArrowWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 }
 
