@@ -63,6 +63,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		bool Rolling;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		bool isAttackedFromBehind;
+
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 		void InflictDamageOnEnemy(AEnemy_Poly* Enemy);
 

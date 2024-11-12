@@ -56,6 +56,8 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	CanIncreaseTechniqueBarRate = false;
 	bIsTechniquePointsMax = false;
 
+	//Combat
+	isAttackedFromBehind = false;
 
 	//Score
 	PlayerScore = 0;
@@ -67,6 +69,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	SoftLockRange = 2300.0f;
 	SoftLockAngle = 340.0f;
 	HeightTargetingOffest = 10.0f;
+
 
 	//Health
 	bIsDead = false;
