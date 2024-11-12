@@ -98,17 +98,29 @@ void AEnemy_Poly::Death()
 	ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
 	if (GameMode)
 	{
-		// Calculate points for this enemy using its score struct
+		// Calculate points for this enemy
 		int32 PointsEarned = GameMode->CalculatePointsForEnemy(Enemy_Score);
 
 		// Award points to the player
 		ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 		if (PlayerCharacter)
 		{
-			PlayerCharacter->AddPoints(PointsEarned);  
+			PlayerCharacter->AddPoints(PointsEarned);
+
+			// Remove the arrow widget for this enemy
+			if (PlayerCharacter->EnemyArrowMap.Contains(this))
+			{
+				UEnemy_Detection_Arrow* ArrowWidget = PlayerCharacter->EnemyArrowMap[this];
+				if (ArrowWidget)
+				{
+					ArrowWidget->RemoveFromViewport();  // Remove from screen
+					ArrowWidget = nullptr;
+				}
+				PlayerCharacter->EnemyArrowMap.Remove(this);  // Remove from map
+			}
 		}
 
-		// Additional code for removing the enemy from lists, handling AI, etc., if needed
+		// Additional code for removing the enemy from lists, handling AI, etc.
 		GameMode->SpawnedEnemies.Remove(this);
 
 		AEnemy_AIController* AIController = Cast<AEnemy_AIController>(GetController());
