@@ -18,12 +18,11 @@
 #include "Technique_Struct.h"
 #include "Blueprint/UserWidget.h"
 #include "Command_Menu_Widget.h"
-#include "Enemy_Arrow_Widget.h"
+#include "Enemy_Detection_Arrow.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
 
 class AEnemy_Poly;
-
 
 
 UCLASS()
@@ -86,6 +85,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void Death();
 	//Health
+
 
 
 	//Ability
@@ -360,50 +360,23 @@ public:
 	//Scoring system
 
 
+	//Enemy Arrow UI
+	UPROPERTY()
+		TArray<UEnemy_Detection_Arrow*> EnemyArrowWidgets;
 
-	//UI Enemy Detection
-	 // Store all the enemies in the level
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemies")
-		TArray<AEnemy_Poly*> AllTheEnemies;
-
-	// Store reference to the arrow widget class
+	// Class reference for the Enemy Arrow Widget
 	UPROPERTY(EditAnywhere, Category = "UI")
 		TSubclassOf<UUserWidget> EnemyArrowWidgetClass;
 
-	// Store off-screen arrows
-	TArray<UEnemy_Arrow_Widget*> OffScreenArrows;
 
-	// Store off-screen enemies
-	TArray<AEnemy_Poly*> OffScreenEnemies;
+	void UpdateEnemyArrows();
 
-	// Function to get the forward vector of the camera
-	FVector GetCameraForwardVector();
+	// Helper function to check if enemy is off-screen and update the arrow
+	void CheckAndDisplayArrow(AActor* Enemy, UEnemy_Detection_Arrow* ArrowWidget);
 
-	// Function to update the direction of the arrow widget
-	UFUNCTION(BlueprintCallable, Category = "UI")
-		void UpdateEnemyDirectionArrow();
+	TMap<AEnemy_Poly*, UEnemy_Detection_Arrow*> EnemyArrowMap;
 
-	// Helper function to get the direction and angle to an enemy
-	UFUNCTION(BlueprintCallable, Category = "UI")
-		void CalculateDirectionToEnemy(AEnemy_Poly* Enemy);
-
-	// Function to check if an enemy is off-screen
-	bool IsEnemyOffScreen(AEnemy_Poly* Enemy, FVector2D& OutScreenPosition);
-
-	// Store the angle to the enemy (for arrow rotation)
-	float ArrowAngleToEnemy;
-
-	// Function to remove off-screen arrows when enemies are on-screen
-	void RemoveOffScreenArrows();
-
-	// Function to find the closest enemy
-	AEnemy_Poly* GetClosestEnemy();
-
-	// Called when the character is destroyed or the level is unloaded
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
-	//UI Enemy Detection
-
-
+	//Enemy Arrow UI
 
 protected:
 	// Called when the game starts or when spawned
@@ -417,9 +390,5 @@ protected:
 		UCameraComponent* Camera;
 	//Character Components
 
-private:	
-
-
-		FVector CameraForward;
 	
 };

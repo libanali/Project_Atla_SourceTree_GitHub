@@ -3,12 +3,14 @@
 
 #include "Ren_Low_Poly_Character.h"
 #include "Kismet/Gameplaystatics.h"
+#include "Kismet/KismetMathLibrary.h"
 #include "Enemy_Poly.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/Image.h"
 #include "Command_Menu_Widget.h"
 #include "Components/Button.h"
 #include "Components/Widget.h"
+#include "Enemy_Detection_Arrow.h"
 
 
 // Sets default values
@@ -682,6 +684,80 @@ void ARen_Low_Poly_Character::CheckAndTriggerLevelUp()
 
 
 
+void ARen_Low_Poly_Character::UpdateEnemyArrows()
+{
+
+
+	// Loop through the enemies in the map and update the arrow widgets
+	for (const TPair<AEnemy_Poly*, UEnemy_Detection_Arrow*>& EnemyArrowPair : EnemyArrowMap)
+	{
+		AEnemy_Poly* Enemy = EnemyArrowPair.Key;
+		UEnemy_Detection_Arrow* ArrowWidget = EnemyArrowPair.Value;
+
+		if (Enemy && ArrowWidget)
+		{
+			// Call the function to check the position and update the arrow widget
+			CheckAndDisplayArrow(Enemy, ArrowWidget);
+		}
+	}
+
+}
+
+void ARen_Low_Poly_Character::CheckAndDisplayArrow(AActor* Enemy, UEnemy_Detection_Arrow* ArrowWidget)
+{
+
+	// Safely cast the enemy to AEnemy_Poly to access its properties
+	AEnemy_Poly* EnemyPoly = Cast<AEnemy_Poly>(Enemy);
+	if (!EnemyPoly)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Enemy is not of type AEnemy_Poly!"));
+		return;
+	}
+
+	// Get the screen position of the enemy
+	FVector2D ScreenPosition;
+	bool bIsOnScreen = UGameplayStatics::ProjectWorldToScreen(GetWorld()->GetFirstPlayerController(), Enemy->GetActorLocation(), ScreenPosition);
+
+	// Get the viewport size
+	int32 ViewportWidth, ViewportHeight;
+	GetWorld()->GetFirstPlayerController()->GetViewportSize(ViewportWidth, ViewportHeight);
+	FVector2D ViewportSize(ViewportWidth, ViewportHeight);  // Now ViewportSize is properly initialized
+
+	// Check if the enemy is off-screen
+	bool bOffScreen = ScreenPosition.X < 0 || ScreenPosition.X > ViewportSize.X || ScreenPosition.Y < 0 || ScreenPosition.Y > ViewportSize.Y;
+
+	// Debugging output: Add logging to track the arrow's visibility change
+	if (bOffScreen)
+	{
+		ArrowWidget->SetVisibility(ESlateVisibility::Visible);
+		UE_LOG(LogTemp, Warning, TEXT("Enemy is off-screen, showing arrow."));
+	}
+	else
+	{
+		ArrowWidget->SetVisibility(ESlateVisibility::Hidden);
+		UE_LOG(LogTemp, Warning, TEXT("Enemy is on-screen, hiding arrow."));
+	}
+
+	// If the enemy is off-screen, show the arrow
+	if (bOffScreen)
+	{
+		// Calculate the rotation of the arrow to point towards the enemy
+		FVector PlayerLocation = GetActorLocation();
+		FVector EnemyLocation = EnemyPoly->GetActorLocation();
+		FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(PlayerLocation, EnemyLocation);
+
+		// Update the rotation of the arrow widget
+		ArrowWidget->UpdateArrowRotation(LookAtRotation.Yaw);
+	}
+}
+
+
+
+
+
+
+
+
 // Called when the game starts or when spawned
 void ARen_Low_Poly_Character::BeginPlay()
 {
@@ -730,51 +806,71 @@ void ARen_Low_Poly_Character::BeginPlay()
 		}
 	}
 	
-	TechniqueAvailability.Init(false, Techniques.Num());
+	FVector2D ViewportSizee;
 
-	// Get all tagged enemies
-	TArray<AActor*> TaggedEnemies;
-	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Enemy"), TaggedEnemies);
+	// Get the viewport size once at the start
+	GEngine->GameViewport->GetViewportSize(ViewportSizee);
 
-	// Filter and cast tagged actors to AEnemy_Poly type and add to AllEnemies array
-	for (AActor* Actor : TaggedEnemies)
+	// Find all enemies of class AEnemy_Poly in the world
+	TArray<AActor*> FoundEnemies;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemy_Poly::StaticClass(), FoundEnemies);
+
+	// Log the number of enemies found
+	UE_LOG(LogTemp, Warning, TEXT("Number of enemies found: %d"), FoundEnemies.Num());
+
+	// Loop through each found enemy and create a detection arrow for each
+	for (AActor* EnemyActor : FoundEnemies)
 	{
-		AEnemy_Poly* Enemy = Cast<AEnemy_Poly>(Actor);
+		// Cast the actor to AEnemy_Poly
+		AEnemy_Poly* Enemy = Cast<AEnemy_Poly>(EnemyActor);
 		if (Enemy)
 		{
-			AllTheEnemies.Add(Enemy);
+			UE_LOG(LogTemp, Warning, TEXT("Enemy found at location: %s"), *Enemy->GetActorLocation().ToString());
 
-			// Create the enemy arrow widget
 			if (EnemyArrowWidgetClass)
 			{
-				UEnemy_Arrow_Widget* ArrowWidget = CreateWidget<UEnemy_Arrow_Widget>(GetWorld(), EnemyArrowWidgetClass);
-				if (ArrowWidget)
+				// Create the arrow widget for the enemy
+				UEnemy_Detection_Arrow* NewArrowWidget = CreateWidget<UEnemy_Detection_Arrow>(GetWorld(), EnemyArrowWidgetClass);
+				if (NewArrowWidget)
 				{
-					ArrowWidget->AddToViewport();
-					OffScreenArrows.Add(ArrowWidget);// Store the widget reference
-					// Log a message indicating the widget was added
-					UE_LOG(LogTemp, Log, TEXT("Enemy arrow widget added to viewport for enemy: %s"), *Enemy->GetName());
+					// Add to the viewport
+					NewArrowWidget->AddToViewport();
+
+					// Store the widget in the map with the enemy as the key
+					EnemyArrowMap.Add(Enemy, NewArrowWidget);
+
+					UE_LOG(LogTemp, Warning, TEXT("Created and added Enemy Detection Arrow widget to viewport."));
+
+					// Check if the widget is visible and log the result
+					if (NewArrowWidget->IsVisible())
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Enemy arrow widget is visible on screen."));
+					}
+					else
+					{
+						UE_LOG(LogTemp, Warning, TEXT("Enemy arrow widget is NOT visible on screen."));
+					}
 				}
 				else
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Failed to create Enemy arrow widget for enemy: %s"), *Enemy->GetName());
+					UE_LOG(LogTemp, Error, TEXT("Failed to create Enemy Detection Arrow widget."));
 				}
-			
 			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("EnemyArrowWidgetClass is null. Ensure it is set in the character class properties."));
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Failed to cast actor to AEnemy_Poly."));
 		}
 	}
 
-	UE_LOG(LogTemp, Log, TEXT("BeginPlay executed for ARen_Low_Poly_Character"));
 
-	// Get the player's camera forward vector (from the camera component)
-	APlayerController* PlayerController = Cast<APlayerController>(GetController());
-	if (PlayerController)
-	{
-		// Get the player's view direction
-		FRotator CameraRotation = PlayerController->GetControlRotation();
-		CameraForward = CameraRotation.Vector();  // Get the direction the camera is facing
-	}
+	TechniqueAvailability.Init(false, Techniques.Num());
 
+	
 	// Bind the input action
 	InputComponent->BindAction("Open Commands Menu", IE_Pressed, this, &ARen_Low_Poly_Character::ToggleCommandMenu);
 	InputComponent->BindAction("Roll Dodge or Back", IE_Pressed, this, &ARen_Low_Poly_Character::HandleBackInput);
@@ -1114,130 +1210,13 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 
 	StopFillingGauge();
 
-	UpdateEnemyDirectionArrow();
-
 	Death();
 
-	// Step 1: Clear out the old arrows before checking for new off-screen enemies
-	RemoveOffScreenArrows();
-
-	// Step 2: Find all enemies tagged as "Enemy"
-	TArray<AActor*> TaggedEnemies;
-	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Enemy"), TaggedEnemies);
-
-	// Step 3: Filter and cast tagged actors to AEnemy_Poly type
-	TArray<AEnemy_Poly*> AllEnemies;
-	for (AActor* Actor : TaggedEnemies)
-	{
-		AEnemy_Poly* Enemy = Cast<AEnemy_Poly>(Actor);
-		if (Enemy)
-		{
-			AllEnemies.Add(Enemy);
-		}
-	}
-
-	// Step 4: Loop through all enemies and check if they're off-screen
-	for (AEnemy_Poly* Enemy : AllEnemies)
-	{
-		FVector2D OutScreenPosition;  // Declare OutScreenPosition here
-
-		if (Enemy && IsEnemyOffScreen(Enemy, OutScreenPosition))
-		{
-			// Step 5: Calculate direction to the enemy
-			CalculateDirectionToEnemy(Enemy);
-
-			// Step 6: Update the direction arrow for the off-screen enemy
-			UpdateEnemyDirectionArrow();
-		}
-	}
-}
-
-
-
-
-FVector ARen_Low_Poly_Character::GetCameraForwardVector()
-{
-	return GetControlRotation().Vector(); // Use control rotation as a simple approach
-}
-
-void ARen_Low_Poly_Character::UpdateEnemyDirectionArrow()
-{
-
-	// Check if we have any arrows to update
-	for (UEnemy_Arrow_Widget* ArrowWidget : OffScreenArrows)
-	{
-		if (ArrowWidget)
-		{
-			ArrowWidget->UpdateArrowRotation(ArrowAngleToEnemy); // Update each arrow's rotation
-		}
-	}
-}
-
-void ARen_Low_Poly_Character::CalculateDirectionToEnemy(AEnemy_Poly* Enemy)
-{
-
-	if (!Enemy) return;
-
-	// Get the direction from the character to the enemy
-	FVector EnemyLocation = Enemy->GetActorLocation();
-	FVector CharacterLocation = GetActorLocation();
-	FVector DirectionToEnemy = (EnemyLocation - CharacterLocation).GetSafeNormal();
-
-	// Get the forward vector of the camera
-	CameraForward = GetActorForwardVector(); // Or use your camera's forward vector if it's different
-
-	// Calculate the angle between the camera and the enemy
-	float Angle = FMath::RadiansToDegrees(FMath::Acos(FVector::DotProduct(CameraForward, DirectionToEnemy)));
-	ArrowAngleToEnemy = Angle; // Store the angle for later use
-}
-
-
-
-bool ARen_Low_Poly_Character::IsEnemyOffScreen(AEnemy_Poly* Enemy, FVector2D& OutScreenPosition)
-{
-	if (!Enemy) return false;
-
-	// Get the player camera's location and direction
-	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-	if (!PlayerController) return false;
-
-	FVector EnemyLocation = Enemy->GetActorLocation();
-	FVector2D ScreenPosition;
-
-	// Convert world position of enemy to screen position
-	bool bIsOnScreen = PlayerController->ProjectWorldLocationToScreen(EnemyLocation, ScreenPosition);
-	OutScreenPosition = ScreenPosition;
-	return !bIsOnScreen; // If not on screen, return true
-}
-
-
-
-void ARen_Low_Poly_Character::RemoveOffScreenArrows()
-{
-
-	// Clear the existing arrows
-	for (UEnemy_Arrow_Widget* ArrowWidget : OffScreenArrows)
-	{
-		if (ArrowWidget)
-		{
-			ArrowWidget->RemoveFromParent(); // Remove the widget from the UI
-		}
-	}
-	OffScreenArrows.Empty(); // Clear the array
-
-
-
+	UpdateEnemyArrows();
 
 }
 
-AEnemy_Poly* ARen_Low_Poly_Character::GetClosestEnemy()
-{
-	return nullptr;
-}
 
-void ARen_Low_Poly_Character::EndPlay(const EEndPlayReason::Type EndPlayReason)
-{
-}
 
 
 // Called to bind functionality to input

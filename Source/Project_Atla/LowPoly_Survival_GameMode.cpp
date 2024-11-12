@@ -152,13 +152,38 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
                     {
                         UE_LOG(LogTemp, Log, TEXT("Spawned enemy: %s"), *SpawnedEnemy->GetName());
 
+                        // Increase enemy health based on the current round
                         float AddedEnemyHealth = SpawnedEnemy->MaxEnemyHealth + (CurrentRound - 1) * AdditionalEnemyHealthPerRound;
                         SpawnedEnemy->IncreaseEnemyHealth(AddedEnemyHealth, true);
 
+                        // Add the spawned enemy to the list
                         SpawnedEnemies.Add(SpawnedEnemy);
+
+                        // Create the arrow widget for this enemy
+                        if (ARen_Low_Poly_Character* Player = Cast<ARen_Low_Poly_Character>(GetWorld()->GetFirstPlayerController()->GetPawn()))
+                        {
+                            if (Player && Player->EnemyArrowWidgetClass)
+                            {
+                                // Create the arrow widget for the enemy
+                                UEnemy_Detection_Arrow* NewArrowWidget = CreateWidget<UEnemy_Detection_Arrow>(GetWorld(), Player->EnemyArrowWidgetClass);
+                                if (NewArrowWidget)
+                                {
+                                    // Add to the viewport
+                                    NewArrowWidget->AddToViewport();
+
+                                    // Store the widget in a map for later reference 
+                                    Player->EnemyArrowMap.Add(SpawnedEnemy, NewArrowWidget);
+                                }
+                                else
+                                {
+                                    UE_LOG(LogTemp, Error, TEXT("Failed to create arrow widget for spawned enemy."));
+                                }
+                            }
+                        }
                     }
                 }
 
+                // If all enemies have been spawned, mark spawning as done
                 if (i == EnemiesToSpawn - 1)
                 {
                     bIsSpawningEnemies = false;
