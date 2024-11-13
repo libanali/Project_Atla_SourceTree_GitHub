@@ -57,9 +57,8 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	bIsTechniquePointsMax = false;
 
 	//Combat
-	//SwordChosen = true;
-	//StaffChosen = false;
 	isAttackedFromBehind = false;
+
 
 	//Score
 	PlayerScore = 0;

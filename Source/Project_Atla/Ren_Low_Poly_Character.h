@@ -22,6 +22,14 @@
 #include "Ren_Low_Poly_Character.generated.h"
 
 
+UENUM(BlueprintType)
+enum class EWeaponType : uint8
+{
+	Sword UMETA(DisplayName = "Sword"),
+	Staff UMETA(DisplayName = "Staff")
+};
+
+
 class AEnemy_Poly;
 
 
@@ -53,6 +61,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		bool StaffChosen;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		EWeaponType WeaponType;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		bool Attacking;
