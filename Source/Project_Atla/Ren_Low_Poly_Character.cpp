@@ -58,7 +58,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 	//Combat
 	isAttackedFromBehind = false;
-
+n 
 
 	//Score
 	PlayerScore = 0;
