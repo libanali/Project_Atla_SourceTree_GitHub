@@ -29,7 +29,7 @@ AEnemy_Poly::AEnemy_Poly()
 
 	AttackMultiplier = 1.5f;
 
-	BaseAttack = 50.0f;
+	BaseAttack = 99.0f;
 
 
 }

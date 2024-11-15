@@ -751,7 +751,7 @@ void ARen_Low_Poly_Character::CheckAndDisplayArrow(AActor* Enemy, UEnemy_Detecti
 		Direction.Normalize();
 
 		FVector2D EdgePosition = FVector2D(0, 0);  // Position along the edge
-		float EdgePadding = 40.0f;
+		float EdgePadding = 15.0f;
 
 		// Determine if the arrow should be on the top/bottom or left/right
 		if (FMath::Abs(Direction.X) > FMath::Abs(Direction.Y))
