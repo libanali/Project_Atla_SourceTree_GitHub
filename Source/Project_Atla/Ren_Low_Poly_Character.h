@@ -80,11 +80,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 		void InflictDamageOnEnemy(AEnemy_Poly* Enemy);
 
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+		void InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy);
+
 	UFUNCTION(BlueprintCallable)
 		void IncreaseStats(float AdditionalHealth, float AdditionalAttack, float AdditionalDefence);
-
-	//UFUNCTION(BlueprintCallable, Category = "Combat")
-	//	void InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		float CalculatedDamage;
@@ -115,7 +115,10 @@ public:
 	bool AnimIsPlaying;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
-		UAnimMontage* AbilityAnimation;
+		UAnimMontage* AbilitySwordAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ability")
+		UAnimMontage* AbilityStaffAnimation;
 
 	UFUNCTION(BlueprintCallable)
 		void IncreaseAbilityPoints(float Amount);

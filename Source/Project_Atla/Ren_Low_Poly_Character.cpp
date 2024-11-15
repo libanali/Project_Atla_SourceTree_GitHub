@@ -169,6 +169,10 @@ void ARen_Low_Poly_Character::InflictDamageOnEnemy(AEnemy_Poly* Enemy)
 
 }
 
+void ARen_Low_Poly_Character::InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy)
+{
+}
+
 
 
 void ARen_Low_Poly_Character::IncreaseStats(float AdditionalHealth, float AdditionalAttack, float AdditionalDefence)
@@ -279,7 +283,23 @@ void ARen_Low_Poly_Character::UseAbility()
 		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("Ability used!"));
 		AbilityStruct.CurrentAbilityPoints = 0.0f;
 		bCanUseAbility = false;
-		PlayAnimMontage(AbilityAnimation, 1.0f);
+
+
+		if (WeaponType == EWeaponType::Sword)
+
+		{
+
+			PlayAnimMontage(AbilitySwordAnimation, 1.0f);
+
+		}
+
+		else if (WeaponType == EWeaponType::Staff)
+
+		{
+
+				PlayAnimMontage(AbilityStaffAnimation, 1.0f);
+
+		}
 
 	}
 
@@ -627,66 +647,6 @@ void ARen_Low_Poly_Character::CalculateElementalAttack()
 	TotalElementalAttack = BaseElementalAttack * ElementalMultiplier;
 
 }
-
-
-
-/*
-void ARen_Low_Poly_Character::GainExperience(int32 ExpAmount)
-{
-
-	ExperiencePoints += ExpAmount;
-	CheckAndTriggerLevelUp();
-
-}
-
-void ARen_Low_Poly_Character::CheckAndTriggerLevelUp()
-{
-
-	UE_LOG(LogTemp, Warning, TEXT("CharacterLevel before: %d"), CharacterLevel);
-
-	if (CharacterLevel < ExperienceRequired.Num() && ExperiencePoints >= ExperienceRequired[CharacterLevel])
-
-	{
-
-		CharacterLevel++; //Increase Character Level
-		HealthStruct.CurrentHealth = HealthStruct.MaxHealth;
-
-		FString RowName = FString::Printf(TEXT("Row%d"), CharacterLevel);
-		UE_LOG(LogTemp, Warning, TEXT("RowName: %s"), *RowName); // Print the constructed RowName for verification
-
-		FCharacter_Attributes* Attributes = CharacterAttributesTable->FindRow<FCharacter_Attributes>(FName(*RowName), FString("1"), true);
-
-		if (Attributes)
-		{
-			// Print some attributes for verification
-			UE_LOG(LogTemp, Warning, TEXT("MaxHealth: %f"), Attributes->MaxHealth);
-
-
-			//Assign character attributes to the attributes in the data table
-			
-			HealthStruct.MaxHealth = Attributes->MaxHealth;
-			BaseAttack = Attributes->BaseAttack;
-			BaseAttack = Attributes->BaseDefence;
-			BaseElementalAttack = Attributes->BaseElemental;
-
-
-			UE_LOG(LogTemp, Warning, TEXT("Character leveled up to Level %d"), CharacterLevel);
-		}
-
-		else
-
-		{
-
-			UE_LOG(LogTemp, Warning, TEXT("Attributes not found for Level %d"), CharacterLevel);
-
-		}
-	}
-
-
-}
-
-*/
-
 
 
 
