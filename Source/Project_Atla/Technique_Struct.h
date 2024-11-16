@@ -32,8 +32,8 @@ public:
         : TechniqueName(TEXT("Unknown")), Description(TEXT("No Description")), bIsUnlocked(false), TechniqueAnimation(nullptr), DamageBonus(1.0f), PointsRequired(1){}
 
     // Parameterized constructor
-    FTechnique_Struct(FString Name, FString Desc, bool bUnlocked, UAnimMontage* AnimMontage, float InDamageBonus, int32 InPointsRequired)
-        : TechniqueName(Name), Description(Desc), bIsUnlocked(bUnlocked), TechniqueAnimation(AnimMontage), DamageBonus(InDamageBonus), PointsRequired(InPointsRequired){}
+    FTechnique_Struct(FString Name, FString Desc, bool bUnlocked, UAnimMontage* AnimMontage, float InDamageBonus, int32 InPointsRequired, ETheWeaponType InWeaponType)
+        : TechniqueName(Name), Description(Desc), bIsUnlocked(bUnlocked), TechniqueAnimation(AnimMontage), DamageBonus(InDamageBonus), PointsRequired(InPointsRequired), Weapon(InWeaponType){}
 
 
     // Current value of the technique gauge
