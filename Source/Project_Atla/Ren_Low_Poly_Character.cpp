@@ -787,20 +787,23 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	AbilityStruct.CurrentAbilityPoints = 0.0f;
 
-	//CharacterLevel = 1;
-
-	//GetCapsuleComponent()->OnComponentBeginOverlap.AddDynamic(this, &ARen_Low_Poly_Character::OnOverlapWithItem);
 
 
-	// Initialize Sword techniques
-	Techniques.Add(FTechnique_Struct{TEXT("Stormstrike Flurry"), TEXT("A simple attack technique."), true, StormStrikeFlurryAnimMontage, 1.6f, 1, ETheWeaponType::Sword});
-	Techniques.Add(FTechnique_Struct{TEXT("Voltage Breaker"), TEXT("A simple attack technique."), true, VoltageBreakerAnimMontage, 1.3f, 1, ETheWeaponType::Sword });
-	Techniques.Add(FTechnique_Struct{TEXT("Tempest Barrage"), TEXT("A simple attack technique."), true, TempestBarrageAnimMontage, 1.7f, 1, ETheWeaponType::Sword });
-	Techniques.Add(FTechnique_Struct{TEXT("Static Rush"), TEXT("A simple attack technique."), true, StaticRushAnimMontage, 1.9f, 1, ETheWeaponType::Sword });
+	if (WeaponType == EWeaponType::Sword)
+	{
+		// Initialize Sword techniques
+		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("A simple attack technique."), true, StormStrikeFlurryAnimMontage, 1.6f, 1 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("A simple attack technique."), false, VoltageBreakerAnimMontage, 1.3f, 1 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("A simple attack technique."), false, TempestBarrageAnimMontage, 1.7f, 1 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("A simple attack technique."), false, StaticRushAnimMontage, 1.9f, 1 });
+	}
 
-	// Initialize Staff techniques
 
-
+	if (WeaponType == EWeaponType::Staff)
+	{
+		// Initialize Staff techniques
+		Techniques.Add(FTechnique_Struct{ TEXT("Inferno Rain"), TEXT("A simple attack technique."), true, InfernoRainAnimMontage, 1.9f, 2});
+	}
 
 
 	// Create the command menu widget
