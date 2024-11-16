@@ -15,8 +15,8 @@
 #include "Ability_Struct.h"
 #include "Engine/DataTable.h"
 #include "Character_Attributes.h"
-#include "Technique_Struct.h"
 #include "Blueprint/UserWidget.h"
+#include "Technique_Struct.h"
 #include "Command_Menu_Widget.h"
 #include "Enemy_Detection_Arrow.h"
 #include "Ren_Low_Poly_Character.generated.h"
@@ -182,6 +182,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
 		UAnimMontage* StaticRushAnimMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
+		UAnimMontage* InfernoRainAnimMontage;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Techniques")
 		TArray<bool> TechniqueAvailability;

@@ -9,15 +9,6 @@
  * 
  */
 
-UENUM(BlueprintType)
-enum class ETheWeaponType : uint8
-
-{
-
-    Sword UMETA(DisplayName = "Sword"),
-    Staff UMETA(DisplayName = "Staff")
-
-};
 
 
 USTRUCT(BlueprintType)
@@ -29,11 +20,11 @@ public:
 
     // Default constructor
     FTechnique_Struct()
-        : TechniqueName(TEXT("Unknown")), Description(TEXT("No Description")), bIsUnlocked(false), TechniqueAnimation(nullptr), DamageBonus(1.0f), PointsRequired(1){}
+        : TechniqueName(TEXT("Unknown")), Description(TEXT("No Description")), bIsUnlocked(false), TechniqueAnimation(nullptr), DamageBonus(1.0f), PointsRequired(1) {}
 
     // Parameterized constructor
     FTechnique_Struct(FString Name, FString Desc, bool bUnlocked, UAnimMontage* AnimMontage, float InDamageBonus, int32 InPointsRequired)
-        : TechniqueName(Name), Description(Desc), bIsUnlocked(bUnlocked), TechniqueAnimation(AnimMontage), DamageBonus(InDamageBonus), PointsRequired(InPointsRequired){}
+        : TechniqueName(Name), Description(Desc), bIsUnlocked(bUnlocked), TechniqueAnimation(AnimMontage), DamageBonus(InDamageBonus), PointsRequired(InPointsRequired) {}
 
 
     // Current value of the technique gauge
@@ -75,6 +66,8 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Technique System")
         int32 PointsRequired;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Technique System")
-        ETheWeaponType Weapon;
+    // Weapon type associated with this technique
+   // UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Technique System")
+      //  EWeaponType WeaponType;
+	
 };

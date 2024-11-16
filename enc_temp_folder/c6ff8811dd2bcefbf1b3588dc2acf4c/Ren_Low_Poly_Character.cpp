@@ -794,10 +794,10 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 
 	// Initialize Sword techniques
-	Techniques.Add(FTechnique_Struct{TEXT("Stormstrike Flurry"), TEXT("A simple attack technique."), true, StormStrikeFlurryAnimMontage, 1.6f, 1});
+	Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("A simple attack technique."), true, StormStrikeFlurryAnimMontage, 1.6f, 1});
 	Techniques.Add(FTechnique_Struct{TEXT("Voltage Breaker"), TEXT("A simple attack technique."), true, VoltageBreakerAnimMontage, 1.3f, 1});
-	Techniques.Add(FTechnique_Struct{TEXT("Tempest Barrage"), TEXT("A simple attack technique."), true, TempestBarrageAnimMontage, 1.7f, 1});
-	Techniques.Add(FTechnique_Struct{TEXT("Static Rush"), TEXT("A simple attack technique."), true, StaticRushAnimMontage, 1.9f, 1});
+	Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("A simple attack technique."), true, TempestBarrageAnimMontage, 1.7f, 1});
+	Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("A simple attack technique."), true, StaticRushAnimMontage, 1.9f, 1});
 
 	// Initialize Staff techniques
 
