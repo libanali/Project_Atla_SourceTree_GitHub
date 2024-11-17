@@ -90,7 +90,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 
 	//Elemental
-	BaseElementalAttack = 3.0f;
+	BaseElementalAttack = 4.0f;
 	ElementalMultiplier = 2.0f;
 
 
@@ -172,16 +172,70 @@ void ARen_Low_Poly_Character::InflictDamageOnEnemy(AEnemy_Poly* Enemy)
 
 void ARen_Low_Poly_Character::InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy)
 {
+
+
+	if (Enemy)
+
+	{
+
+		float ElementalDamage = BaseElementalAttack;
+
+		CalculatedDamage = ElementalDamage * (1 - Enemy->DefencePercentage);
+
+		UWorld* World = GetWorld();
+
+		if (World)
+
+		{
+
+			float ActualDamageApplied = Enemy->ApplyDamage(CalculatedDamage, FHitResult(), GetController(), this);
+
+		}
+
+
+	}
+
+
+
+}
+
+void ARen_Low_Poly_Character::UpdateStatsBasedOnWeapon()
+{
+
+	if (WeaponType == EWeaponType::Sword)
+
+	{
+
+		BaseAttack = 5.0f;
+		BaseDefence = 2.0f;
+		BaseElementalAttack = 4.0f;
+		HealthStruct.MaxHealth = 140.0f;
+
+	}
+
+	else if (WeaponType == EWeaponType::Staff)
+
+	{
+
+		BaseAttack = 3.0f;
+		BaseDefence = 2.0f;
+		BaseElementalAttack = 4.0f;
+		HealthStruct.MaxHealth = 130.0f;
+
+	}
+
+
 }
 
 
 
-void ARen_Low_Poly_Character::IncreaseStats(float AdditionalHealth, float AdditionalAttack, float AdditionalDefence)
+void ARen_Low_Poly_Character::IncreaseStats(float AdditionalHealth, float AdditionalAttack, float AdditionalDefence, float AdditionalElemental)
 {
 
 	float HealthAdditionalAmount = HealthStruct.MaxHealth *= AdditionalHealth;
 	float AttackAdditionalAmount = BaseAttack *= AdditionalAttack;
 	float DefenceAdditionalAmount = BaseDefence *= AdditionalDefence;
+	float ElementalAdditionalAmount = BaseElementalAttack += AdditionalElemental;
 
 	HealthStruct.CurrentHealth = HealthStruct.MaxHealth;
 
@@ -768,7 +822,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	Super::BeginPlay();
 
 	HealthStruct.InitializeHealth();
-	HealthStruct.CurrentHealth = 100.0f;
+	HealthStruct.CurrentHealth = HealthStruct.MaxHealth;
 	AbilityStruct.InitializeAbilityPoints();
 
 	TechniqueStruct.CurrentGauge = 70.0f;
@@ -787,7 +841,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	AbilityStruct.CurrentAbilityPoints = 0.0f;
 
-
+	UpdateStatsBasedOnWeapon();
 
 	if (WeaponType == EWeaponType::Sword)
 	{
@@ -802,8 +856,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 	if (WeaponType == EWeaponType::Staff)
 	{
 		// Initialize Staff techniques
-		Techniques.Add(FTechnique_Struct{ TEXT("Inferno Rain"), TEXT("A simple attack technique."), true, InfernoRainAnimMontage, 1.9f, 2});
+		Techniques.Add(FTechnique_Struct{ TEXT("Inferno Rain"), TEXT("A simple attack technique."), true, InfernoRainAnimMontage, 1.5f, 2});
 	}
+
 
 
 	// Create the command menu widget

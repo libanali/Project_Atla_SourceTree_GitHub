@@ -21,7 +21,7 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
     RoundDelay = 2.5f;
     BaseEnemiesPerRound = 3;
     SpawnRadius = 1200.0f;
-    CurrentRound = 4;
+    CurrentRound = 1;
     AdditionalEnemyHealthPerRound = 40.0f;
     AdditionalEnemiesPerRound = 1.9f;
     BaseSpawnDelay = 2.0f;         // Initial delay between spawns in the first round
@@ -119,8 +119,9 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
         float HealthIncreasePercent = 1.3f;
         float AttackIncreasePercent = 1.4f;
         float DefenceIncreasePercent = 1.35f;
+        float ElementalIncreasePercent = 1.45f;
 
-        Player->IncreaseStats(HealthIncreasePercent, AttackIncreasePercent, DefenceIncreasePercent);
+        Player->IncreaseStats(HealthIncreasePercent, AttackIncreasePercent, DefenceIncreasePercent, ElementalIncreasePercent);
 
         // Log to verify that the player's stats are being increased
         UE_LOG(LogTemp, Log, TEXT("Player stats increased: Health + %f%%, Attack + %f%%, Defense + %f%%"), HealthIncreasePercent, AttackIncreasePercent, DefenceIncreasePercent);

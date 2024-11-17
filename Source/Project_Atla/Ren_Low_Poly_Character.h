@@ -83,8 +83,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 		void InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy);
 
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+		void UpdateStatsBasedOnWeapon();
+
 	UFUNCTION(BlueprintCallable)
-		void IncreaseStats(float AdditionalHealth, float AdditionalAttack, float AdditionalDefence);
+		void IncreaseStats(float AdditionalHealth, float AdditionalAttack, float AdditionalDefence, float AdditionalElemental);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		float CalculatedDamage;
