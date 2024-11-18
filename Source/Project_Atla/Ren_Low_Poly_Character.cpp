@@ -253,20 +253,21 @@ void ARen_Low_Poly_Character::IncreaseStats(float AdditionalHealth, float Additi
 void ARen_Low_Poly_Character::UpdateHighScore(int32 NewScore)
 {
 
+	// Check which weapon type the player is using and compare the score
 	if (WeaponType == EWeaponType::Sword)
 	{
-		// Update the sword high score if the new score is higher
 		if (NewScore > SwordHighScore)
 		{
 			SwordHighScore = NewScore;
+			UE_LOG(LogTemp, Warning, TEXT("New Sword High Score: %d"), SwordHighScore);
 		}
 	}
 	else if (WeaponType == EWeaponType::Staff)
 	{
-		// Update the staff high score if the new score is higher
 		if (NewScore > StaffHighScore)
 		{
 			StaffHighScore = NewScore;
+			UE_LOG(LogTemp, Warning, TEXT("New Staff High Score: %d"), StaffHighScore);
 		}
 	}
 }
@@ -288,8 +289,12 @@ void ARen_Low_Poly_Character::DisplayGameOverUI()
 		// Set up the widget with final score and high score
 		GameOverWidget->SetUpGameOverUI(FinalScore, HighScore);
 
+		GameOverWidget->UpdateDisplayedScore();
+		
 		// Add the widget to the viewport
 		GameOverWidget->AddToViewport();
+
+		UpdateHighScore(FinalScore);
 	}
 
 
@@ -320,14 +325,17 @@ void ARen_Low_Poly_Character::SaveHighScore()
 void ARen_Low_Poly_Character::LoadHighScore()
 {
 
-	UPlayer_Save_Game* LoadGameInstance = Cast<UPlayer_Save_Game>(UGameplayStatics::LoadGameFromSlot("Player Save Slot", 0));
+	UPlayer_Save_Game* LoadGameInstance = Cast<UPlayer_Save_Game>(UGameplayStatics::LoadGameFromSlot(TEXT("Player Save Slot"), 0));
 
 	if (LoadGameInstance)
 
 	{
 
-		LoadGameInstance->SwordHighScore = SwordHighScore;
-		LoadGameInstance->StaffHighScore = StaffHighScore;
+		SwordHighScore = LoadGameInstance->SwordHighScore;
+		StaffHighScore = LoadGameInstance->StaffHighScore;
+
+		UE_LOG(LogTemp, Warning, TEXT("Loaded Sword High Score: %d"), SwordHighScore);
+		UE_LOG(LogTemp, Warning, TEXT("Loaded Staff High Score: %d"), StaffHighScore);
 
 	}
 
@@ -337,6 +345,9 @@ void ARen_Low_Poly_Character::LoadHighScore()
 
 		SwordHighScore = 0;
 		StaffHighScore = 0;
+
+		UE_LOG(LogTemp, Warning, TEXT("No saved data found. Resetting high scores."));
+
 
 	}
 
@@ -362,6 +373,8 @@ void ARen_Low_Poly_Character::Death()
 		bIsDead = true;
 
 		SaveHighScore();
+
+		DisplayGameOverUI();
 
 	}
 

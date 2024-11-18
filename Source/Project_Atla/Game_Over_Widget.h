@@ -19,13 +19,14 @@ public:
     UFUNCTION(BlueprintCallable, Category = "UI")
         void SetUpGameOverUI(int32 FinalScore, int32 HighScore);
 
+    // Function called every time the timer ticks to update the score
+    UFUNCTION()
+        void UpdateDisplayedScore();
+
 protected:
     // Override NativeConstruct to initialize the widget
     virtual void NativeConstruct() override;
 
-    // Function called every time the timer ticks to update the score
-    UFUNCTION()
-        void UpdateDisplayedScore();
 
 private:
     // UI elements
