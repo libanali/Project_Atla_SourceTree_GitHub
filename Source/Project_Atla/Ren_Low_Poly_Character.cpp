@@ -13,6 +13,7 @@
 #include "Technique_Struct.h"
 #include "Enemy_Detection_Arrow.h"
 #include "Player_Save_Game.h"
+#include "Game_Over_Widget.h"
 
 
 // Sets default values
@@ -268,6 +269,31 @@ void ARen_Low_Poly_Character::UpdateHighScore(int32 NewScore)
 			StaffHighScore = NewScore;
 		}
 	}
+}
+
+void ARen_Low_Poly_Character::DisplayGameOverUI()
+{
+
+	// Create the Game Over Widget
+	UGame_Over_Widget* GameOverWidget = CreateWidget<UGame_Over_Widget>(GetWorld(), GameOverWidgetClass);
+
+	if (GameOverWidget)
+	{
+		// Use the player's score and high score from the character class
+		int32 FinalScore = PlayerScore;
+
+		// Determine the high score based on the equipped weapon
+		int32 HighScore = (WeaponType == EWeaponType::Sword) ? SwordHighScore : StaffHighScore;
+
+		// Set up the widget with final score and high score
+		GameOverWidget->SetUpGameOverUI(FinalScore, HighScore);
+
+		// Add the widget to the viewport
+		GameOverWidget->AddToViewport();
+	}
+
+
+
 }
 
 

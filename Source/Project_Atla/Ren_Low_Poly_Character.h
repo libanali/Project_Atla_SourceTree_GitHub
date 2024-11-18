@@ -107,13 +107,18 @@ public:
 
 	// Function to update high score based on weapon type
 	void UpdateHighScore(int32 NewScore);
+
+	void DisplayGameOverUI();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+		TSubclassOf<UUserWidget> GameOverWidgetClass;
 	//High score
 
 
-	//Save Game
+	//Save Data
 	void SaveHighScore();
 	void LoadHighScore();
-
+	//Save Data
 
 	//Health
 	UFUNCTION(BlueprintCallable)
