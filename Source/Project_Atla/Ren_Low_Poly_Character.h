@@ -98,6 +98,23 @@ public:
 
 
 
+	//High score
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Score")
+		int32 SwordHighScore;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Score")
+		int32 StaffHighScore;
+
+	// Function to update high score based on weapon type
+	void UpdateHighScore(int32 NewScore);
+	//High score
+
+
+	//Save Game
+	void SaveHighScore();
+	void LoadHighScore();
+
+
 	//Health
 	UFUNCTION(BlueprintCallable)
 		void Death();

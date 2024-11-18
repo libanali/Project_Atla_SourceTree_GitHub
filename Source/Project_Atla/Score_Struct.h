@@ -28,6 +28,13 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
         float RoundMultiplier;
 
+    // High score for the staff
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HighScore")
+        int32 HighScoreStaff;
+
+    // High score for the sword
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HighScore")
+        int32 HighScoreSword;
 
 
   

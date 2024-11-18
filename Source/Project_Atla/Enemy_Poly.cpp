@@ -106,6 +106,7 @@ void AEnemy_Poly::Death()
 		if (PlayerCharacter)
 		{
 			PlayerCharacter->AddPoints(PointsEarned);
+			PlayerCharacter->UpdateHighScore(PointsEarned);
 
 			// Remove the arrow widget for this enemy
 			if (PlayerCharacter->EnemyArrowMap.Contains(this))

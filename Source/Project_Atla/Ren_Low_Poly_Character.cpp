@@ -12,6 +12,7 @@
 #include "Components/Widget.h"
 #include "Technique_Struct.h"
 #include "Enemy_Detection_Arrow.h"
+#include "Player_Save_Game.h"
 
 
 // Sets default values
@@ -65,6 +66,9 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	PlayerScore = 0;
 	bDoublePoints = false;
 
+	//High score
+	SwordHighScore = 0;
+	StaffHighScore = 0;
 
 	//Lock-On
 	bIsSoftLockEnabled = false;
@@ -243,6 +247,78 @@ void ARen_Low_Poly_Character::IncreaseStats(float AdditionalHealth, float Additi
 }
 
 
+
+
+void ARen_Low_Poly_Character::UpdateHighScore(int32 NewScore)
+{
+
+	if (WeaponType == EWeaponType::Sword)
+	{
+		// Update the sword high score if the new score is higher
+		if (NewScore > SwordHighScore)
+		{
+			SwordHighScore = NewScore;
+		}
+	}
+	else if (WeaponType == EWeaponType::Staff)
+	{
+		// Update the staff high score if the new score is higher
+		if (NewScore > StaffHighScore)
+		{
+			StaffHighScore = NewScore;
+		}
+	}
+}
+
+
+
+void ARen_Low_Poly_Character::SaveHighScore()
+{
+
+	UPlayer_Save_Game* SaveGameInstance = Cast<UPlayer_Save_Game>(UGameplayStatics::CreateSaveGameObject(UPlayer_Save_Game::StaticClass()));
+
+	// Check if the SaveGameInstance was created successfully
+	if (SaveGameInstance)
+	{
+		// Set the high score data (Sword and Staff scores)
+		SaveGameInstance->SwordHighScore = SwordHighScore;
+		SaveGameInstance->StaffHighScore = StaffHighScore;
+
+		UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Player Save Slot"), 0);
+	}
+
+}
+
+
+
+void ARen_Low_Poly_Character::LoadHighScore()
+{
+
+	UPlayer_Save_Game* LoadGameInstance = Cast<UPlayer_Save_Game>(UGameplayStatics::LoadGameFromSlot("Player Save Slot", 0));
+
+	if (LoadGameInstance)
+
+	{
+
+		LoadGameInstance->SwordHighScore = SwordHighScore;
+		LoadGameInstance->StaffHighScore = StaffHighScore;
+
+	}
+
+	else
+
+	{
+
+		SwordHighScore = 0;
+		StaffHighScore = 0;
+
+	}
+
+}
+
+
+
+
 void ARen_Low_Poly_Character::Death()
 {
 
@@ -258,6 +334,9 @@ void ARen_Low_Poly_Character::Death()
 		GetCapsuleComponent()->SetGenerateOverlapEvents(false);
 		
 		bIsDead = true;
+
+		SaveHighScore();
+
 	}
 
 
@@ -820,6 +899,8 @@ void ARen_Low_Poly_Character::CheckAndDisplayArrow(AActor* Enemy, UEnemy_Detecti
 void ARen_Low_Poly_Character::BeginPlay()
 {
 	Super::BeginPlay();
+
+	LoadHighScore();
 
 	HealthStruct.InitializeHealth();
 	HealthStruct.CurrentHealth = HealthStruct.MaxHealth;
