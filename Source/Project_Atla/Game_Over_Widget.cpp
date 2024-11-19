@@ -32,7 +32,7 @@ void UGame_Over_Widget::SetUpGameOverUI(int32 FinalScore, int32 HighScore)
             ScoreUpdateTimer,
             this,
             &UGame_Over_Widget::UpdateDisplayedScore,
-            2.0f,  // Tick every 0.02 seconds (adjust for speed)
+            0.02f,  // Tick every 0.02 seconds (adjust for speed)
             true
         );
     }
@@ -40,7 +40,6 @@ void UGame_Over_Widget::SetUpGameOverUI(int32 FinalScore, int32 HighScore)
 
 void UGame_Over_Widget::UpdateDisplayedScore()
 {
-
     // Increment the displayed score, smaller steps to avoid overshooting
     int32 IncrementAmount = FMath::Max(0, TargetScore - CurrentDisplayedScore); // Increment by at least 1, but less if the gap is small
     CurrentDisplayedScore += IncrementAmount;
