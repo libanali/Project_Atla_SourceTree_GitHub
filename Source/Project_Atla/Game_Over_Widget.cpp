@@ -15,7 +15,6 @@ void UGame_Over_Widget::NativeConstruct()
 
 void UGame_Over_Widget::SetUpGameOverUI(int32 FinalScore, int32 HighScore)
 {
-
     // Set the target score to the player's final score
     TargetScore = FinalScore;
 
@@ -25,36 +24,18 @@ void UGame_Over_Widget::SetUpGameOverUI(int32 FinalScore, int32 HighScore)
         HighScoreText->SetText(FText::FromString(FString::Printf(TEXT("High Score: %d"), HighScore)));
     }
 
-    // Start animating the displayed score
+    // Directly set CurrentDisplayedScore to TargetScore to display the final score immediately
+    CurrentDisplayedScore = TargetScore;
+
+    // Update the UI to show the final score
     if (FinalScoreText)
     {
-        GetWorld()->GetTimerManager().SetTimer(
-            ScoreUpdateTimer,
-            this,
-            &UGame_Over_Widget::UpdateDisplayedScore,
-            0.02f,  // Tick every 0.02 seconds (adjust for speed)
-            true
-        );
+        FinalScoreText->SetText(FText::FromString(FString::Printf(TEXT("Final Score: %d"), CurrentDisplayedScore)));
     }
 }
 
 void UGame_Over_Widget::UpdateDisplayedScore()
 {
-    // Increment the displayed score, smaller steps to avoid overshooting
-    int32 IncrementAmount = FMath::Max(0, TargetScore - CurrentDisplayedScore); // Increment by at least 1, but less if the gap is small
-    CurrentDisplayedScore += IncrementAmount;
-
-    // Update the UI
-    if (FinalScoreText)
-    {
-        FinalScoreText->SetText(FText::FromString(FString::Printf(TEXT("Final Score: %d"), CurrentDisplayedScore)));
-    }
-
-    // Stop the timer when we reach the target score
-    if (CurrentDisplayedScore >= TargetScore)
-    {
-        CurrentDisplayedScore = TargetScore;
-        GetWorld()->GetTimerManager().ClearTimer(ScoreUpdateTimer);
-    }
+ 
 
 }

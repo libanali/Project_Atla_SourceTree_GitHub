@@ -23,6 +23,15 @@ public:
     UFUNCTION()
         void UpdateDisplayedScore();
 
+
+    // Final score to display
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+        int32 TargetScore;
+
+    // Current displayed score
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+        int32 CurrentDisplayedScore;
+
 protected:
     // Override NativeConstruct to initialize the widget
     virtual void NativeConstruct() override;
@@ -36,11 +45,7 @@ private:
     UPROPERTY(meta = (BindWidget))
         class UTextBlock* HighScoreText;
 
-    // Final score to display
-    int32 TargetScore;
-
-    // Current displayed score
-    int32 CurrentDisplayedScore;
+ 
 
     // Timer handle for updating the score display
     FTimerHandle ScoreUpdateTimer;

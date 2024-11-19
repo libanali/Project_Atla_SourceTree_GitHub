@@ -289,7 +289,7 @@ void ARen_Low_Poly_Character::DisplayGameOverUI()
 		// Set up the widget with final score and high score
 		GameOverWidget->SetUpGameOverUI(FinalScore, HighScore);
 
-		GameOverWidget->UpdateDisplayedScore();
+		//GameOverWidget->UpdateDisplayedScore();
 		
 		// Add the widget to the viewport
 		GameOverWidget->AddToViewport();
