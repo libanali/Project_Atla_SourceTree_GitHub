@@ -305,6 +305,44 @@ void ARen_Low_Poly_Character::DisplayGameOverUI()
 
 }
 
+void ARen_Low_Poly_Character::Score_Reaction_Anim()
+{
+
+
+	// Create the Game Over Widget
+	UGame_Over_Widget* GameOverWidget = CreateWidget<UGame_Over_Widget>(GetWorld(), GameOverWidgetClass);
+
+	if (GameOverWidget)
+
+	{
+
+		if (GameOverWidget->CurrentDisplayedScore > SwordHighScore || GameOverWidget->CurrentDisplayedScore > StaffHighScore)
+
+		{
+
+			PlayAnimMontage(VictoryAnim, 1.0f);
+			GEngine->AddOnScreenDebugMessage(1, 2.0f, FColor::Green, TEXT("Playing Cheering Animation"));
+			UE_LOG(LogTemp, Warning, TEXT("NEW HIGH SCORE"));
+			bIsGreaterThanHighScore = true;
+		}
+
+		else
+
+		{
+
+			GEngine->AddOnScreenDebugMessage(1, 2.0f, FColor::Green, TEXT("Playing Sad Animation"));
+			bIsGreaterThanHighScore = false;
+			UE_LOG(LogTemp, Warning, TEXT("TRY AGAIN MAN"));
+
+			//Play anim in anim blueprint
+
+		}
+
+	}
+
+
+}
+
 
 
 void ARen_Low_Poly_Character::SaveHighScore()
@@ -1090,7 +1128,7 @@ void ARen_Low_Poly_Character::SetItemsButtonFocus()
 
 void ARen_Low_Poly_Character::ToggleCommandMenu()
 {
-	if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher)
+	if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher && !bIsDead)
 	{
 		int CurrentIndex = CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex();
 

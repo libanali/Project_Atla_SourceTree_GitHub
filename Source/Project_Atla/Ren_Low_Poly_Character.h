@@ -105,13 +105,24 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Score")
 		int32 StaffHighScore;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
+		bool bIsGreaterThanHighScore;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
+		UAnimMontage* VictoryAnim;
+
 	// Function to update high score based on weapon type
 	void UpdateHighScore(int32 NewScore);
 
 	void DisplayGameOverUI();
 
+	void Score_Reaction_Anim();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		TSubclassOf<UUserWidget> GameOverWidgetClass;
+
+
+	
 	//High score
 
 

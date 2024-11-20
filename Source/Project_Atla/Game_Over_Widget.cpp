@@ -4,6 +4,9 @@
 #include "Game_Over_Widget.h"
 #include "Components/TextBlock.h"
 #include "TimerManager.h"
+#include "Ren_Low_Poly_Character.h"
+#include "Kismet/GameplayStatics.h"
+
 
 void UGame_Over_Widget::NativeConstruct()
 {
@@ -47,6 +50,16 @@ void UGame_Over_Widget::UpdateDisplayedScore()
         // Stop the timer when the final score is reached
        
             GetWorld()->GetTimerManager().ClearTimer(ScoreUpdateTimer);
+
+            ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+            if (Ren)
+
+            {
+
+                Ren->Score_Reaction_Anim();
+
+            }
         
     }
 
@@ -57,6 +70,8 @@ void UGame_Over_Widget::UpdateDisplayedScore()
     }
 
 }
+
+
 
 void UGame_Over_Widget::StartScoreAnimation()
 {
