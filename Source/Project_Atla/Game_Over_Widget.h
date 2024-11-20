@@ -24,6 +24,10 @@ public:
         void UpdateDisplayedScore();
 
 
+    void StartScoreAnimation();
+
+
+
     // Final score to display
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
         int32 TargetScore;

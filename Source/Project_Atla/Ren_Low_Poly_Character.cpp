@@ -289,15 +289,19 @@ void ARen_Low_Poly_Character::DisplayGameOverUI()
 		// Set up the widget with final score and high score
 		GameOverWidget->SetUpGameOverUI(FinalScore, HighScore);
 
-		//GameOverWidget->UpdateDisplayedScore();
-		
+		// Trigger the score animation
+		GameOverWidget->StartScoreAnimation();
+
 		// Add the widget to the viewport
 		GameOverWidget->AddToViewport();
 
+		// Update the high score if the final score exceeds it
 		UpdateHighScore(FinalScore);
 	}
-
-
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to create Game Over Widget!"));
+	}
 
 }
 
@@ -359,28 +363,35 @@ void ARen_Low_Poly_Character::LoadHighScore()
 void ARen_Low_Poly_Character::Death()
 {
 
-	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-
-
-	if (HealthStruct.CurrentHealth <= 0)
-
+	if (bIsDead)  // Exit early if already dead
 	{
-
-		DisableInput(PlayerController);
-
-		GetCapsuleComponent()->SetGenerateOverlapEvents(false);
-		
-		bIsDead = true;
-
-		SaveHighScore();
-
-		DisplayGameOverUI();
-
+		return;
 	}
 
+	bIsDead = true;  // Mark the player as dead
 
+	// Disable player input and overlap events only once
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+	if (PlayerController)
+	{
+		DisableInput(PlayerController);
+	}
+
+	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
+
+	// Perform any additional death-related tasks, such as saving scores and showing the UI
+	SaveHighScore();
+
+	// Display Game Over UI only once
+	DisplayGameOverUI();
+
+	// Debug message for testing (optional)
+	GEngine->AddOnScreenDebugMessage(1, 2.0f, FColor::Black, TEXT("Player has died"));
 
 }
+
+
+
 
 
 
@@ -449,7 +460,7 @@ void ARen_Low_Poly_Character::IncreaseAbilityPoints(float Amount)
 void ARen_Low_Poly_Character::UseAbility()
 {
 
-	if (bCanUseAbility)
+	if (bCanUseAbility && !bIsDead)
 
 	{
 
@@ -716,39 +727,21 @@ void ARen_Low_Poly_Character::ToggleSoftLock()
 void ARen_Low_Poly_Character::TakeDamage(float DamageAmount)
 {
 
+	// Apply damage to health
 	HealthStruct.TakeDamage(DamageAmount);
 
-
-
-	if (HealthStruct.CurrentHealth <= 0.0f)
+	// If the health is <= 0, call the Death function
+	if (HealthStruct.CurrentHealth <= 0.0f && !bIsDead)
 	{
+		Death();  // Call Death only once
+	}
 
-		bIsDead = true;
-
-		APlayerController* PlayerController = Cast<APlayerController>(GetController());
-
-		if (PlayerController)
-
-		{
-
-			DisableInput(PlayerController);
-
-		}
-
-
-		if (DamageAmount > 0)
-
-		{
-
-			CalculatedDamage = DamageAmount / (1 + TotalDefence);
-			HealthStruct.CurrentHealth -= CalculatedDamage;
-			HealthStruct.CurrentHealth = FMath::Clamp(HealthStruct.CurrentHealth - CalculatedDamage, 0.0f, HealthStruct.MaxHealth);
-			bIsHit = true;
-			DisableInput(PlayerController);
-
-			
-		}
-
+	// If damage amount is greater than zero, apply calculated damage
+	if (DamageAmount > 0)
+	{
+		CalculatedDamage = DamageAmount / (1 + TotalDefence);
+		HealthStruct.CurrentHealth = FMath::Clamp(HealthStruct.CurrentHealth - CalculatedDamage, 0.0f, HealthStruct.MaxHealth);
+		bIsHit = true;
 
 	}
 
@@ -1072,7 +1065,7 @@ void ARen_Low_Poly_Character::SetItemsButtonFocus()
 {
 
 
-	if (CommandMenuWidget && CommandMenuWidget->ItemsButton)
+	if (CommandMenuWidget && CommandMenuWidget->ItemsButton && !bIsDead)
 	{
 		if (!bIsInventoryEmpty)
 		{
@@ -1395,8 +1388,6 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 	CheckTechniquePointsMaximum();
 
 	StopFillingGauge();
-
-	Death();
 
 	UpdateEnemyArrows();
 
