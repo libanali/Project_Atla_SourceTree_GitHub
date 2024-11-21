@@ -121,6 +121,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		TSubclassOf<UUserWidget> GameOverWidgetClass;
 
+	UPROPERTY()
+		class UGame_Over_Widget* GameOverWidgetInstance;
 
 	
 	//High score

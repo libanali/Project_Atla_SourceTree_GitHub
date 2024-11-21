@@ -252,7 +252,6 @@ void ARen_Low_Poly_Character::IncreaseStats(float AdditionalHealth, float Additi
 
 void ARen_Low_Poly_Character::UpdateHighScore(int32 NewScore)
 {
-
 	// Check which weapon type the player is using and compare the score
 	if (WeaponType == EWeaponType::Sword)
 	{
@@ -270,15 +269,21 @@ void ARen_Low_Poly_Character::UpdateHighScore(int32 NewScore)
 			UE_LOG(LogTemp, Warning, TEXT("New Staff High Score: %d"), StaffHighScore);
 		}
 	}
+
+	// After updating the high score, save it
+	SaveHighScore();
 }
+
 
 void ARen_Low_Poly_Character::DisplayGameOverUI()
 {
+	// Check if the GameOverWidgetInstance already exists, if not create it
+	if (!GameOverWidgetInstance)
+	{
+		GameOverWidgetInstance = CreateWidget<UGame_Over_Widget>(GetWorld(), GameOverWidgetClass);
+	}
 
-	// Create the Game Over Widget
-	UGame_Over_Widget* GameOverWidget = CreateWidget<UGame_Over_Widget>(GetWorld(), GameOverWidgetClass);
-
-	if (GameOverWidget)
+	if (GameOverWidgetInstance)
 	{
 		// Use the player's score and high score from the character class
 		int32 FinalScore = PlayerScore;
@@ -287,59 +292,71 @@ void ARen_Low_Poly_Character::DisplayGameOverUI()
 		int32 HighScore = (WeaponType == EWeaponType::Sword) ? SwordHighScore : StaffHighScore;
 
 		// Set up the widget with final score and high score
-		GameOverWidget->SetUpGameOverUI(FinalScore, HighScore);
+		GameOverWidgetInstance->SetUpGameOverUI(FinalScore, HighScore);
 
 		// Trigger the score animation
-		GameOverWidget->StartScoreAnimation();
+		GameOverWidgetInstance->StartScoreAnimation();
 
-		// Add the widget to the viewport
-		GameOverWidget->AddToViewport();
+		// Add the widget to the viewport if it's not already there
+		if (!GameOverWidgetInstance->IsInViewport())
+		{
+			GameOverWidgetInstance->AddToViewport();
+		}
 
 		// Update the high score if the final score exceeds it
-		UpdateHighScore(FinalScore);
+	//	UpdateHighScore(FinalScore);
+
+		SaveHighScore();
 	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("Failed to create Game Over Widget!"));
 	}
-
 }
+
+
 
 void ARen_Low_Poly_Character::Score_Reaction_Anim()
 {
 
-
-	// Create the Game Over Widget
-	UGame_Over_Widget* GameOverWidget = CreateWidget<UGame_Over_Widget>(GetWorld(), GameOverWidgetClass);
-
-	if (GameOverWidget)
-
+	// Ensure WeaponType is set correctly
+	if (WeaponType == EWeaponType::Sword)
 	{
-
-		if (GameOverWidget->CurrentDisplayedScore > SwordHighScore || GameOverWidget->CurrentDisplayedScore > StaffHighScore)
-
-		{
-
-			PlayAnimMontage(VictoryAnim, 1.0f);
-			GEngine->AddOnScreenDebugMessage(1, 2.0f, FColor::Green, TEXT("Playing Cheering Animation"));
-			UE_LOG(LogTemp, Warning, TEXT("NEW HIGH SCORE"));
-			bIsGreaterThanHighScore = true;
-		}
-
-		else
-
-		{
-
-			GEngine->AddOnScreenDebugMessage(1, 2.0f, FColor::Green, TEXT("Playing Sad Animation"));
-			bIsGreaterThanHighScore = false;
-			UE_LOG(LogTemp, Warning, TEXT("TRY AGAIN MAN"));
-
-			//Play anim in anim blueprint
-
-		}
-
+		UE_LOG(LogTemp, Warning, TEXT("Using Sword Weapon"));
+	}
+	else if (WeaponType == EWeaponType::Staff)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Using Staff Weapon"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Unknown Weapon Type!"));
 	}
 
+	// Fetch the correct high score based on WeaponType
+	int32 HighScore = (WeaponType == EWeaponType::Sword) ? SwordHighScore : StaffHighScore;
+
+	// Debug log to verify HighScore selection
+	UE_LOG(LogTemp, Warning, TEXT("HighScore selected: %d"), HighScore);
+
+	if (GameOverWidgetInstance)
+	{
+		if (GameOverWidgetInstance->CurrentDisplayedScore > HighScore)
+		{
+			PlayAnimMontage(VictoryAnim, 1.0f); // Cheer animation
+			UE_LOG(LogTemp, Warning, TEXT("New High Score!"));
+			bIsGreaterThanHighScore = true;
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Try Harder..."));
+			bIsGreaterThanHighScore = false;
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("GameOverWidgetInstance is null!"));
+	}
 
 }
 

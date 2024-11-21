@@ -48,19 +48,16 @@ void UGame_Over_Widget::UpdateDisplayedScore()
         CurrentDisplayedScore = TargetScore;
 
         // Stop the timer when the final score is reached
-       
-            GetWorld()->GetTimerManager().ClearTimer(ScoreUpdateTimer);
+        GetWorld()->GetTimerManager().ClearTimer(ScoreUpdateTimer);
 
-            ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+        ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
-            if (Ren)
-
-            {
-
-                Ren->Score_Reaction_Anim();
-
-            }
-        
+        if (Ren)
+        {
+            Ren->Score_Reaction_Anim();
+            // Now that the animation is complete, update the high score
+            Ren->UpdateHighScore(TargetScore);  // Update high score here
+        }
     }
 
     // Update the final score text with the current displayed score
@@ -86,11 +83,9 @@ void UGame_Over_Widget::StartScoreAnimation()
             ScoreUpdateTimer,
             this,
             &UGame_Over_Widget::UpdateDisplayedScore,
-            0.02f,
+            0.03f,
             true // Loop the timer
         );
     }
-
-
 
 }
