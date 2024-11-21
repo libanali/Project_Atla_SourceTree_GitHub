@@ -4,14 +4,60 @@
 #include "Game_Over_Widget.h"
 #include "Components/TextBlock.h"
 #include "TimerManager.h"
+#include "Components/BackgroundBlur.h"
 #include "Ren_Low_Poly_Character.h"
 #include "Kismet/GameplayStatics.h"
+
+
 
 
 void UGame_Over_Widget::NativeConstruct()
 {
 
 	CurrentDisplayedScore = 0;
+
+    // Set the blur strength to 0 initially
+    if (BackgroundBlur)
+    {
+        BackgroundBlur->SetBlurStrength(CurrentBlurStrength);
+    }
+
+    // Start the blur intensity animation
+    StartBlurEffect();
+
+}
+
+
+void UGame_Over_Widget::StartBlurEffect()
+{
+    // Start a timer that will call UpdateBlurEffect every 0.03 seconds
+    GetWorld()->GetTimerManager().SetTimer(
+        BlurAnimationTimer,
+        this,
+        &UGame_Over_Widget::UpdateBlurEffect,
+        0.03f,   // Update every 0.03 seconds
+        true     // Loop the timer
+    );
+}
+
+
+void UGame_Over_Widget::UpdateBlurEffect()
+{
+
+    // Calculate the smooth increment of blur strength using Lerp
+    if (BackgroundBlur && CurrentBlurStrength < MaxBlurStrength)
+    {
+        // Interpolate between 0 and MaxBlurStrength over time
+        CurrentBlurStrength = FMath::Lerp(CurrentBlurStrength, MaxBlurStrength, 0.1f); // 0.1f is the lerp factor
+
+        // Apply the new blur strength
+        BackgroundBlur->SetBlurStrength(CurrentBlurStrength);
+    }
+    else
+    {
+        // Stop the timer once we reach the max blur strength
+        GetWorld()->GetTimerManager().ClearTimer(BlurAnimationTimer);
+    }
 
 }
 
@@ -28,7 +74,7 @@ void UGame_Over_Widget::SetUpGameOverUI(int32 FinalScore, int32 HighScore)
     }
 
     // Directly set CurrentDisplayedScore to TargetScore to display the final score immediately
-    CurrentDisplayedScore = TargetScore;
+   // CurrentDisplayedScore = TargetScore;
 
     // Update the UI to show the final score
     if (FinalScoreText)
@@ -36,6 +82,8 @@ void UGame_Over_Widget::SetUpGameOverUI(int32 FinalScore, int32 HighScore)
         FinalScoreText->SetText(FText::FromString(FString::Printf(TEXT("Final Score: %d"), CurrentDisplayedScore)));
     }
 }
+
+
 
 void UGame_Over_Widget::UpdateDisplayedScore()
 {
@@ -87,5 +135,6 @@ void UGame_Over_Widget::StartScoreAnimation()
             true // Loop the timer
         );
     }
+
 
 }

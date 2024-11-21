@@ -30,6 +30,11 @@ public:
 
 
 
+
+    void StartBlurEffect();
+
+    void UpdateBlurEffect();
+
     // Final score to display
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
         int32 TargetScore;
@@ -51,10 +56,40 @@ private:
     UPROPERTY(meta = (BindWidget))
         class UTextBlock* HighScoreText;
 
+    UPROPERTY(meta = (BindWidget))
+        class UTextBlock* GameOverText;
+
+    UPROPERTY(Transient, meta = (BindWidgetAnim))
+        UWidgetAnimation* GameOverTextAnimation;
+
+    UPROPERTY(Transient, meta = (BindWidgetAnim))
+        UWidgetAnimation* ScoreFadeInAnimation;
+
+    // Background blur widget
+    UPROPERTY(meta = (BindWidget))
+       class UBackgroundBlur* BackgroundBlur;
  
+    // Current blur strength (starts at 0)
+    float CurrentBlurStrength = 0.0f;
+
+    // Maximum blur strength
+    float MaxBlurStrength = 10.0f;
+
+    // Duration of the blur effect (in seconds)
+    float BlurDuration = 1.5f;
 
     // Timer handle for updating the score display
     FTimerHandle ScoreUpdateTimer;
 
+    // Timer handle for updating blur effect
+    FTimerHandle BlurAnimationTimer;
+
+
+    bool bIsGameOverTextAnimationComplete = false;
+    bool bIsScoreFadeInComplete = false;
+    bool bIsBlurAnimationComplete = false;
+
+    float GameOverTextAnimationDuration = 1.0f;
+    float ScoreFadeInDuration = 1.0f;
 
 };
