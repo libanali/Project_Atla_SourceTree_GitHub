@@ -9,12 +9,17 @@
 /**
  * 
  */
+
+class AResults_camera;
+
 UCLASS()
 class PROJECT_ATLA_API UGame_Over_Widget : public UUserWidget
 {
 	GENERATED_BODY()
 	
 public:
+
+
     // Function to set up the UI with the final score and high score
     UFUNCTION(BlueprintCallable, Category = "UI")
         void SetUpGameOverUI(int32 FinalScore, int32 HighScore);
@@ -23,17 +28,33 @@ public:
     UFUNCTION()
         void UpdateDisplayedScore();
 
-
-
-
+    UFUNCTION(BlueprintCallable)
     void StartScoreAnimation();
-
-
-
 
     void StartBlurEffect();
 
     void UpdateBlurEffect();
+
+    void OnGameOverTextAnimationComplete();
+
+    void PlayGameOverAnimation();
+
+    void StartCameraFade();
+
+    void SwitchToNewCamera();
+
+    // Background blur widget
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UBackgroundBlur* BackgroundBlur;
+    // UI elements
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UTextBlock* FinalScoreText;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UTextBlock* HighScoreText;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UTextBlock* Game_Over_Text;
 
     // Final score to display
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -43,34 +64,28 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
         int32 CurrentDisplayedScore;
 
+    // Current blur strength (starts at 0)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+        float CurrentBlurStrength = 0.0f;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+        AResults_camera* Results_Camera;
+
 protected:
     // Override NativeConstruct to initialize the widget
     virtual void NativeConstruct() override;
 
 
-private:
-    // UI elements
-    UPROPERTY(meta = (BindWidget))
-        class UTextBlock* FinalScoreText;
-
-    UPROPERTY(meta = (BindWidget))
-        class UTextBlock* HighScoreText;
-
-    UPROPERTY(meta = (BindWidget))
-        class UTextBlock* GameOverText;
-
-    UPROPERTY(Transient, meta = (BindWidgetAnim))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
         UWidgetAnimation* GameOverTextAnimation;
 
-    UPROPERTY(Transient, meta = (BindWidgetAnim))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
         UWidgetAnimation* ScoreFadeInAnimation;
 
-    // Background blur widget
-    UPROPERTY(meta = (BindWidget))
-       class UBackgroundBlur* BackgroundBlur;
- 
-    // Current blur strength (starts at 0)
-    float CurrentBlurStrength = 0.0f;
+
+private:
+
+
 
     // Maximum blur strength
     float MaxBlurStrength = 10.0f;
@@ -83,6 +98,11 @@ private:
 
     // Timer handle for updating blur effect
     FTimerHandle BlurAnimationTimer;
+
+    FTimerHandle AnimationTimerHandle; // Handle for managing the animation timer
+
+    FTimerHandle CameraFadeTimer;
+
 
 
     bool bIsGameOverTextAnimationComplete = false;

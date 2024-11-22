@@ -64,7 +64,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 
 	//Score
-	PlayerScore = 0;
+	PlayerScore = 80;
 	bDoublePoints = false;
 
 	//High score
@@ -275,6 +275,8 @@ void ARen_Low_Poly_Character::UpdateHighScore(int32 NewScore)
 }
 
 
+
+
 void ARen_Low_Poly_Character::DisplayGameOverUI()
 {
 	// Check if the GameOverWidgetInstance already exists, if not create it
@@ -295,7 +297,7 @@ void ARen_Low_Poly_Character::DisplayGameOverUI()
 		GameOverWidgetInstance->SetUpGameOverUI(FinalScore, HighScore);
 
 		// Trigger the score animation
-		GameOverWidgetInstance->StartScoreAnimation();
+		//GameOverWidgetInstance->StartScoreAnimation();
 
 		// Add the widget to the viewport if it's not already there
 		if (!GameOverWidgetInstance->IsInViewport())
@@ -442,6 +444,17 @@ void ARen_Low_Poly_Character::Death()
 
 	// Debug message for testing (optional)
 	GEngine->AddOnScreenDebugMessage(1, 2.0f, FColor::Black, TEXT("Player has died"));
+
+}
+
+
+
+
+
+void ARen_Low_Poly_Character::RecoverHealth()
+{
+
+	HealthStruct.CurrentHealth = HealthStruct.MaxHealth;
 
 }
 
@@ -993,7 +1006,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	HealthStruct.CurrentHealth = HealthStruct.MaxHealth;
 	AbilityStruct.InitializeAbilityPoints();
 
-	TechniqueStruct.CurrentGauge = 70.0f;
+	//TechniqueStruct.CurrentGauge = 100.0f;
 	TechniqueStruct.MaxGauge = 100.0f;
 	TechniqueStruct.TechniquePoints = 5;
 	TechniqueStruct.MaxTechniquePoints = 7;

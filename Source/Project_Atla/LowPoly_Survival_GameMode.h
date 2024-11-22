@@ -56,7 +56,11 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Zones")
         TArray<AActor*> SpawnZones;
 
+    UPROPERTY(BlueprintReadWrite, Category = "Spawning")
+        bool bStopSpawning;
 
+    UFUNCTION(BlueprintCallable)
+       void StopSpawningAndDestroyEnemies();
 
 
 private:

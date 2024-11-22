@@ -124,7 +124,6 @@ public:
 	UPROPERTY()
 		class UGame_Over_Widget* GameOverWidgetInstance;
 
-	
 	//High score
 
 
@@ -136,6 +135,9 @@ public:
 	//Health
 	UFUNCTION(BlueprintCallable)
 		void Death();
+
+	UFUNCTION(BlueprintCallable)
+		void RecoverHealth();
 	//Health
 
 

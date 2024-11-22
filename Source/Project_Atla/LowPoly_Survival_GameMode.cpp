@@ -29,8 +29,11 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
     DelayDecreasePerRound = 0.1f;
     bIsSpawningEnemies = false;
     bIsPowerUpSpawned = false;
+    bStopSpawning = false;
 
 }
+
+
 
 void ALowPoly_Survival_GameMode::UpdateEnemyNumbers()
 {
@@ -61,6 +64,29 @@ void ALowPoly_Survival_GameMode::UpdateEnemyNumbers()
             }
         }
     }
+}
+
+
+void ALowPoly_Survival_GameMode::StopSpawningAndDestroyEnemies()
+{
+
+    // Set the flag to stop further spawning
+    bStopSpawning = true;
+
+    // Destroy all spawned enemies
+    for (AEnemy_Poly* Enemy : SpawnedEnemies)
+    {
+        if (Enemy && !Enemy->IsPendingKillPending())
+        {
+            Enemy->Destroy();
+        }
+    }
+
+    SpawnedEnemies.Empty();
+
+    UE_LOG(LogTemp, Warning, TEXT("All enemies destroyed, and spawning stopped."));
+
+
 }
 
 
@@ -103,6 +129,14 @@ void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 
 void ALowPoly_Survival_GameMode::SpawnEnemies()
 {  
+
+    // Early return if spawning is disabled
+    if (bStopSpawning)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Spawning is disabled. Aborting SpawnEnemies."));
+        return;
+    }
+
     // Early return if EnemyClass is not set
     if (EnemyClass == nullptr) return;
 
