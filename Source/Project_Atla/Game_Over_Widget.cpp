@@ -10,6 +10,7 @@
 #include "Animation/WidgetAnimation.h"
 #include "Results_camera.h"
 #include "LowPoly_Survival_GameMode.h"
+#include "Components/Image.h"
 
 
 
@@ -30,9 +31,6 @@ void UGame_Over_Widget::NativeConstruct()
 
     // Start the blur intensity animation
     StartBlurEffect();
-
-
-    Cast<ALowPoly_Survival_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
 
 }
@@ -165,14 +163,32 @@ void UGame_Over_Widget::SwitchToResultsCamera()
 
         PlayerController->SetViewTargetWithBlend(
             Results_Camera,  // Camera to switch to
-            1.0f,            // Blend duration
+            0.0f,            // Blend duration
             EViewTargetBlendFunction::VTBlend_Cubic
         );
 
         // Fade back from black
         PlayerController->ClientSetCameraFade(false, FColor::Black, FVector2D(1.0f, 0.0f), 1.0f, true, true);
 
-        SurvivalGameMode->StopSpawningAndDestroyEnemies();
+        ALowPoly_Survival_GameMode* SurvivalGameMode = Cast<ALowPoly_Survival_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+
+        if (SurvivalGameMode)
+
+        {
+            SurvivalGameMode->StopSpawningAndDestroyEnemies();
+        }
+
+
+        ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+        if (Ren)
+
+        {
+
+            Ren->SpawnPlayerCharacterForRender();
+
+        }
+
 
         // Start score fade-in animation
         GetWorld()->GetTimerManager().SetTimer(
@@ -182,6 +198,30 @@ void UGame_Over_Widget::SwitchToResultsCamera()
             1.0f,
             false
         );
+
+
+        // Start score fade-in animation
+        GetWorld()->GetTimerManager().SetTimer(
+            RenderImageFadeInAnimationTimerHandle,
+            this,
+            &UGame_Over_Widget::PlayRenderImageFadeInAnimation,
+            1.0f,
+            false
+        );
+
+
+
+        // Start score fade-in animation
+        GetWorld()->GetTimerManager().SetTimer(
+            ResultsTitleFadeInAnimationTimerHandle,
+            this,
+            &UGame_Over_Widget::PlayResultsTitleFadeInAnimation,
+            1.0f,
+            false
+        );
+
+
+
     }
     else
     {
@@ -224,6 +264,67 @@ void UGame_Over_Widget::PlayScoresFadeInAnimation()
     {
         UE_LOG(LogTemp, Error, TEXT("ScoreFadeInAnimation is null."));
     }
+
+}
+
+
+
+void UGame_Over_Widget::PlayResultsTitleFadeInAnimation()
+{
+
+
+    UE_LOG(LogTemp, Log, TEXT("Playing results title fade-in animation."));
+
+    if (Results_Title_Animation)
+    {
+        PlayAnimation(Results_Title_Animation);
+
+        if (Results_Title_Text)
+        {
+            Results_Title_Text->SetVisibility(ESlateVisibility::Visible);
+            
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("results title text is null."));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("results animation is null."));
+    }
+
+
+
+}
+
+
+
+void UGame_Over_Widget::PlayRenderImageFadeInAnimation()
+{
+
+
+    UE_LOG(LogTemp, Log, TEXT("Playing PlayRenderImage fade-in animation."));
+
+    if (Render_Image_Animation)
+    {
+        PlayAnimation(Render_Image_Animation);
+
+        if (Render_Image)
+        {
+            Render_Image->SetVisibility(ESlateVisibility::Visible);
+
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("Render Image is null."));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("PlayRenderImage fade-in animation is null."));
+    }
+
 
 }
 

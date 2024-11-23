@@ -109,6 +109,9 @@ public:
 		bool bIsGreaterThanHighScore;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
+		bool bRenderTarget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
 		UAnimMontage* VictoryAnim;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
@@ -119,6 +122,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
 		AActor* Results_Camera;
+
+	UFUNCTION(BlueprintCallable)
+		void SpawnPlayerCharacterForRender();
 
 	void UpdateHighScore(int32 NewScore);
 

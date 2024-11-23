@@ -64,12 +64,13 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 
 	//Score
-	PlayerScore = 80;
+	PlayerScore = 400;
 	bDoublePoints = false;
 
 	//High score
 	SwordHighScore = 0;
 	StaffHighScore = 0;
+	bRenderTarget = false;
 
 	//Lock-On
 	bIsSoftLockEnabled = false;
@@ -250,6 +251,27 @@ void ARen_Low_Poly_Character::IncreaseStats(float AdditionalHealth, float Additi
 
 
 
+void ARen_Low_Poly_Character::SpawnPlayerCharacterForRender()
+{
+	bRenderTarget = true;
+
+	if (bRenderTarget && bIsDead)
+
+	{
+
+		FVector RenderSpawnLocation = FVector(-3249.0, 570.0, 207.0);
+
+		SetActorLocation(RenderSpawnLocation);
+
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, TEXT("Character Spawned to new location"));
+
+	}
+
+
+}
+
+
+
 void ARen_Low_Poly_Character::UpdateHighScore(int32 NewScore)
 {
 	// Check which weapon type the player is using and compare the score
@@ -364,6 +386,7 @@ void ARen_Low_Poly_Character::Score_Reaction_Anim()
 		}
 		else
 		{
+
 			UE_LOG(LogTemp, Warning, TEXT("Try Harder..."));
 			bIsGreaterThanHighScore = false;
 		}

@@ -45,6 +45,10 @@ public:
 
     void PlayScoresFadeInAnimation();
 
+    void PlayResultsTitleFadeInAnimation();
+
+    void PlayRenderImageFadeInAnimation();
+
     // Background blur widget
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UBackgroundBlur* BackgroundBlur;
@@ -57,6 +61,12 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UTextBlock* Game_Over_Text;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UTextBlock* Results_Title_Text;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UImage* Render_Image;
 
     // Final score to display
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -73,8 +83,6 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
         AActor* Results_Camera;
 
-    UPROPERTY()
-        class ALowPoly_Survival_GameMode* SurvivalGameMode;
 
 protected:
     // Override NativeConstruct to initialize the widget
@@ -86,6 +94,12 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
         UWidgetAnimation* ScoreFadeInAnimation;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
+        UWidgetAnimation* Results_Title_Animation;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
+        UWidgetAnimation* Render_Image_Animation;
 
 
 private:
@@ -104,7 +118,13 @@ private:
     // Timer handle for updating blur effect
     FTimerHandle BlurAnimationTimer;
 
-    FTimerHandle AnimationTimerHandle; // Handle for managing the animation timer
+    FTimerHandle AnimationTimerHandle;
+
+    FTimerHandle RenderImageFadeInAnimationTimerHandle;
+
+    FTimerHandle ResultsTitleFadeInAnimationTimerHandle;
+
+
 
     FTimerHandle CameraFadeTimer;
 
