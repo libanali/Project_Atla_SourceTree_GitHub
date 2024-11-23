@@ -298,7 +298,20 @@ void ARen_Low_Poly_Character::DisplayGameOverUI()
 
 		// Trigger the score animation
 		//GameOverWidgetInstance->StartScoreAnimation();
+		if (Results_Camera)
+		{
 
+			GameOverWidgetInstance->Results_Camera = Results_Camera;
+
+		}
+
+		else
+
+		{
+
+			UE_LOG(LogTemp, Error, TEXT("Results_Camera reference is null!"));
+
+		}
 		// Add the widget to the viewport if it's not already there
 		if (!GameOverWidgetInstance->IsInViewport())
 		{
@@ -359,6 +372,26 @@ void ARen_Low_Poly_Character::Score_Reaction_Anim()
 	{
 		UE_LOG(LogTemp, Error, TEXT("GameOverWidgetInstance is null!"));
 	}
+
+}
+
+void ARen_Low_Poly_Character::FindResultsCamera()
+{
+
+	TArray<AActor*> TaggedActors;
+
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("results_camera"), TaggedActors);
+
+	if (TaggedActors.Num() > 0)
+	{
+		Results_Camera = TaggedActors[0]; // Get the first actor with the tag
+		UE_LOG(LogTemp, Log, TEXT("Results Camera found: %s"), *Results_Camera->GetName());
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("No actor found with the tag 'results_camera'!"));
+	}
+
 
 }
 
@@ -813,7 +846,7 @@ void ARen_Low_Poly_Character::TakeDamage(float DamageAmount)
 
 	}
 
-
+	
 
 }
 
@@ -1002,6 +1035,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	LoadHighScore();
 
+	FindResultsCamera();
+
 	HealthStruct.InitializeHealth();
 	HealthStruct.CurrentHealth = HealthStruct.MaxHealth;
 	AbilityStruct.InitializeAbilityPoints();
@@ -1028,9 +1063,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 	{
 		// Initialize Sword techniques
 		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("A simple attack technique."), true, StormStrikeFlurryAnimMontage, 1.6f, 1 });
-		Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("A simple attack technique."), false, VoltageBreakerAnimMontage, 1.3f, 1 });
-		Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("A simple attack technique."), false, TempestBarrageAnimMontage, 1.7f, 1 });
-		Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("A simple attack technique."), false, StaticRushAnimMontage, 1.9f, 1 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("A simple attack technique."), true, VoltageBreakerAnimMontage, 1.3f, 1 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("A simple attack technique."), true, TempestBarrageAnimMontage, 1.7f, 1 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("A simple attack technique."), true, StaticRushAnimMontage, 1.9f, 1 });
 	}
 
 

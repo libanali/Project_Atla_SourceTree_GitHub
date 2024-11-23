@@ -41,7 +41,9 @@ public:
 
     void StartCameraFade();
 
-    void SwitchToNewCamera();
+    void SwitchToResultsCamera();
+
+    void PlayScoresFadeInAnimation();
 
     // Background blur widget
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
@@ -69,7 +71,10 @@ public:
         float CurrentBlurStrength = 0.0f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-        AResults_camera* Results_Camera;
+        AActor* Results_Camera;
+
+    UPROPERTY()
+        class ALowPoly_Survival_GameMode* SurvivalGameMode;
 
 protected:
     // Override NativeConstruct to initialize the widget

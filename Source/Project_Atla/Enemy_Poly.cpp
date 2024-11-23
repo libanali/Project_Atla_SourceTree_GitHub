@@ -29,10 +29,11 @@ AEnemy_Poly::AEnemy_Poly()
 
 	AttackMultiplier = 1.5f;
 
-	BaseAttack = 800.0f;
+	BaseAttack = 9000.0f;
 
 
 }
+
 
 bool AEnemy_Poly::EnemyIsDead() const
 {

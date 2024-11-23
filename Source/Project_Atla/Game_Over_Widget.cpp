@@ -9,6 +9,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Animation/WidgetAnimation.h"
 #include "Results_camera.h"
+#include "LowPoly_Survival_GameMode.h"
 
 
 
@@ -31,6 +32,9 @@ void UGame_Over_Widget::NativeConstruct()
     StartBlurEffect();
 
 
+    Cast<ALowPoly_Survival_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+
+
 }
 
 
@@ -38,44 +42,46 @@ void UGame_Over_Widget::NativeConstruct()
 
 void UGame_Over_Widget::StartBlurEffect()
 {
-    // Start a timer that will call UpdateBlurEffect every 0.03 seconds
-    GetWorld()->GetTimerManager().SetTimer(
-        BlurAnimationTimer,
-        this,
-        &UGame_Over_Widget::UpdateBlurEffect,
-        0.08f,   // Update every 0.03 seconds
-        true ,
-        4.0f// Loop the timer
-    );
+    if (GetWorld())
+    {
+        GetWorld()->GetTimerManager().SetTimer(
+            BlurAnimationTimer,
+            this,
+            &UGame_Over_Widget::UpdateBlurEffect,
+            0.08f, // Timer interval
+            true,
+            3.5f// Loop the timer
+        );
+
+        UE_LOG(LogTemp, Log, TEXT("Started blur effect timer."));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("World context is null in StartBlurEffect."));
+    }
 }
 
 
 void UGame_Over_Widget::UpdateBlurEffect()
 {
-    if (BackgroundBlur && CurrentBlurStrength < MaxBlurStrength)
+    if (BackgroundBlur)
     {
         CurrentBlurStrength += (MaxBlurStrength / BlurDuration) * 0.08f;
+
+        if (CurrentBlurStrength >= MaxBlurStrength)
+        {
+            CurrentBlurStrength = MaxBlurStrength;
+            GetWorld()->GetTimerManager().ClearTimer(BlurAnimationTimer);
+
+            UE_LOG(LogTemp, Log, TEXT("Blur effect completed."));
+            PlayGameOverAnimation(); // Proceed to the next step
+        }
+
         BackgroundBlur->SetBlurStrength(CurrentBlurStrength);
     }
     else
     {
-        // Ensure the blur animation has stopped
-        GetWorld()->GetTimerManager().ClearTimer(BlurAnimationTimer);
-
-        // Log debug message to confirm the timer has ended
-        UE_LOG(LogTemp, Log, TEXT("Blur Effect Complete."));
-
-        // Check and play the animations
-        if (GameOverTextAnimation)
-        {
-            UE_LOG(LogTemp, Log, TEXT("Playing GameOverTextAnimation."));
-            PlayAnimation(GameOverTextAnimation);
-            Game_Over_Text->SetVisibility(ESlateVisibility::Visible);
-        }
-        else
-        {
-            UE_LOG(LogTemp, Error, TEXT("GameOverTextAnimation is null."));
-        }
+        UE_LOG(LogTemp, Error, TEXT("BackgroundBlur is null in UpdateBlurEffect."));
     }
 
 }
@@ -85,10 +91,10 @@ void UGame_Over_Widget::UpdateBlurEffect()
 
 void UGame_Over_Widget::OnGameOverTextAnimationComplete()
 {
-   
+
+    UE_LOG(LogTemp, Log, TEXT("GameOverTextAnimation completed."));
+
     StartCameraFade();
-
-
 
 }
 
@@ -98,66 +104,130 @@ void UGame_Over_Widget::PlayGameOverAnimation()
 {
     if (GameOverTextAnimation)
     {
-        // Log when the animation is about to play
-        UE_LOG(LogTemp, Log, TEXT("Playing GameOverTextAnimation"));
-
-        // Play the animation
-        PlayAnimation(GameOverTextAnimation);
-
-        // Get the duration of the animation to set the timer
         float AnimationDuration = GameOverTextAnimation->GetEndTime();
-        UE_LOG(LogTemp, Log, TEXT("GameOverTextAnimation Duration: %f"), AnimationDuration);
+        UE_LOG(LogTemp, Log, TEXT("Playing GameOverTextAnimation. Duration: %f"), AnimationDuration);
 
+        PlayAnimation(GameOverTextAnimation);
+        Game_Over_Text->SetVisibility(ESlateVisibility::Visible);
 
+        // Set timer for the next step
         GetWorld()->GetTimerManager().SetTimer(
             AnimationTimerHandle,
             this,
             &UGame_Over_Widget::OnGameOverTextAnimationComplete,
             AnimationDuration,
-            false // Only trigger once
-
+            false
         );
     }
-    
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("GameOverTextAnimation is null."));
+    }
 
 }
+
+
 
 void UGame_Over_Widget::StartCameraFade()
 {
 
-    UE_LOG(LogTemp, Log, TEXT("Starting Camera Fade..."));
-
-    APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+    APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
     if (PlayerController)
     {
-        // Start the fade with a black color and fade in over 1 second
-        PlayerController->ClientSetCameraFade(true, FColor::Black, FVector2D(0.0f, 1.0f), 1.0f, true, false);
+        UE_LOG(LogTemp, Log, TEXT("Starting camera fade to black."));
+        PlayerController->ClientSetCameraFade(true, FColor::Black, FVector2D(0.0f, 1.0f), 1.0f, true, true);
+
+        // Transition to the results camera after fade
+        GetWorld()->GetTimerManager().SetTimer(
+            AnimationTimerHandle,
+            this,
+            &UGame_Over_Widget::SwitchToResultsCamera,
+            1.0f, // Match fade duration
+            false,
+            3.0f
+        );
     }
     else
     {
-        UE_LOG(LogTemp, Error, TEXT("Player Controller is null!"));
+        UE_LOG(LogTemp, Error, TEXT("PlayerController is null in StartCameraFade."));
     }
-
-
 }
 
-void UGame_Over_Widget::SwitchToNewCamera()
+
+
+void UGame_Over_Widget::SwitchToResultsCamera()
 {
-
-
 
     APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
     if (PlayerController && Results_Camera)
     {
-        PlayerController->SetViewTargetWithBlend(Results_Camera, 1.0f); // Blend time of 1 second
+        UE_LOG(LogTemp, Log, TEXT("Switching to Results Camera."));
+
+        PlayerController->SetViewTargetWithBlend(
+            Results_Camera,  // Camera to switch to
+            1.0f,            // Blend duration
+            EViewTargetBlendFunction::VTBlend_Cubic
+        );
+
+        // Fade back from black
+        PlayerController->ClientSetCameraFade(false, FColor::Black, FVector2D(1.0f, 0.0f), 1.0f, true, true);
+
+        SurvivalGameMode->StopSpawningAndDestroyEnemies();
+
+        // Start score fade-in animation
+        GetWorld()->GetTimerManager().SetTimer(
+            AnimationTimerHandle,
+            this,
+            &UGame_Over_Widget::PlayScoresFadeInAnimation,
+            1.0f,
+            false
+        );
+    }
+    else
+    {
+        if (!PlayerController)
+        {
+            UE_LOG(LogTemp, Error, TEXT("PlayerController is null in SwitchToResultsCamera."));
+        }
+
+        if (!Results_Camera)
+        {
+            UE_LOG(LogTemp, Error, TEXT("Results_Camera is null in SwitchToResultsCamera."));
+        }
     }
 
-    // Proceed to scores fade-in animation
-    StartScoreAnimation();
+}
 
 
+
+void UGame_Over_Widget::PlayScoresFadeInAnimation()
+{
+
+    UE_LOG(LogTemp, Log, TEXT("Playing scores fade-in animation."));
+
+    if (ScoreFadeInAnimation)
+    {
+        PlayAnimation(ScoreFadeInAnimation);
+
+        if (FinalScoreText && HighScoreText)
+        {
+            FinalScoreText->SetVisibility(ESlateVisibility::Visible);
+            HighScoreText->SetVisibility(ESlateVisibility::Visible);
+            StartScoreAnimation();
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("FinalScoreText or HighScoreText is null."));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("ScoreFadeInAnimation is null."));
+    }
 
 }
+
+
 
 
 

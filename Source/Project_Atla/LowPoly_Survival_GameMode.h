@@ -60,7 +60,7 @@ public:
         bool bStopSpawning;
 
     UFUNCTION(BlueprintCallable)
-       void StopSpawningAndDestroyEnemies();
+        void StopSpawningAndDestroyEnemies();
 
 
 private:

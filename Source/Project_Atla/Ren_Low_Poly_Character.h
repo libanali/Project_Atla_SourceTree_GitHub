@@ -31,7 +31,7 @@ enum class EWeaponType : uint8
 
 
 class AEnemy_Poly;
-
+class AResults_camera;
 
 UCLASS()
 class PROJECT_ATLA_API ARen_Low_Poly_Character : public ACharacter
@@ -111,19 +111,22 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
 		UAnimMontage* VictoryAnim;
 
-	// Function to update high score based on weapon type
-	void UpdateHighScore(int32 NewScore);
-
-	void DisplayGameOverUI();
-
-	void Score_Reaction_Anim();
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		TSubclassOf<UUserWidget> GameOverWidgetClass;
 
 	UPROPERTY()
 		class UGame_Over_Widget* GameOverWidgetInstance;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
+		AActor* Results_Camera;
+
+	void UpdateHighScore(int32 NewScore);
+
+	void DisplayGameOverUI();
+
+	void Score_Reaction_Anim();
+
+	void FindResultsCamera();
 	//High score
 
 
