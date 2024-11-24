@@ -49,6 +49,12 @@ public:
 
     void PlayRenderImageFadeInAnimation();
 
+    void PlayButtonsFadeInAnimation();
+
+    void SetInputModeToUI();
+
+
+
     // Background blur widget
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UBackgroundBlur* BackgroundBlur;
@@ -67,6 +73,12 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UImage* Render_Image;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UButton* Retry_Button;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UButton* MainMenu_Button;
 
     // Final score to display
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -101,6 +113,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
         UWidgetAnimation* Render_Image_Animation;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
+        UWidgetAnimation* Buttons_Animation;
+
 
 private:
 
@@ -124,7 +139,7 @@ private:
 
     FTimerHandle ResultsTitleFadeInAnimationTimerHandle;
 
-
+    FTimerHandle ButtonsAnimationTimerHandle;
 
     FTimerHandle CameraFadeTimer;
 

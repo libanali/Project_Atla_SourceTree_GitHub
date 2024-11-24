@@ -272,6 +272,9 @@ void ARen_Low_Poly_Character::SpawnPlayerCharacterForRender()
 
 
 
+
+
+
 void ARen_Low_Poly_Character::UpdateHighScore(int32 NewScore)
 {
 	// Check which weapon type the player is using and compare the score
@@ -498,8 +501,7 @@ void ARen_Low_Poly_Character::Death()
 	// Display Game Over UI only once
 	DisplayGameOverUI();
 
-	// Debug message for testing (optional)
-	GEngine->AddOnScreenDebugMessage(1, 2.0f, FColor::Black, TEXT("Player has died"));
+	RemoveGameplayUI();
 
 }
 

@@ -126,6 +126,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SpawnPlayerCharacterForRender();
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void RemoveGameplayUI();
+
 	void UpdateHighScore(int32 NewScore);
 
 	void DisplayGameOverUI();

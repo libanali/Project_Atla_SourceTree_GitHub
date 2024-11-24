@@ -11,6 +11,7 @@
 #include "Results_camera.h"
 #include "LowPoly_Survival_GameMode.h"
 #include "Components/Image.h"
+#include "Components/Button.h"
 
 
 
@@ -32,6 +33,11 @@ void UGame_Over_Widget::NativeConstruct()
     // Start the blur intensity animation
     StartBlurEffect();
 
+
+
+   
+
+    
 
 }
 
@@ -330,6 +336,61 @@ void UGame_Over_Widget::PlayRenderImageFadeInAnimation()
 
 
 
+void UGame_Over_Widget::PlayButtonsFadeInAnimation()
+{
+
+
+    UE_LOG(LogTemp, Log, TEXT("Playing PlayRenderImage fade-in animation."));
+
+    if (Buttons_Animation)
+    {
+        PlayAnimation(Buttons_Animation);
+
+        if (MainMenu_Button && Retry_Button)
+        {
+            MainMenu_Button->SetVisibility(ESlateVisibility::Visible);
+            Retry_Button->SetVisibility(ESlateVisibility::Visible);
+
+
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("Buttons is null."));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Buttons fade-in animation is null."));
+    }
+
+
+
+}
+
+
+
+void UGame_Over_Widget::SetInputModeToUI()
+{
+
+    APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+    if (PlayerController)
+    {
+        FInputModeUIOnly InputMode;
+        InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+
+        PlayerController->SetInputMode(InputMode);
+        PlayerController->bShowMouseCursor = true;
+    }
+
+
+}
+
+
+
+
+
+
 
 
 
@@ -368,6 +429,8 @@ void UGame_Over_Widget::UpdateDisplayedScore()
 
         // Stop the timer when the final score is reached
         GetWorld()->GetTimerManager().ClearTimer(ScoreUpdateTimer);
+
+        PlayButtonsFadeInAnimation();
 
         ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
