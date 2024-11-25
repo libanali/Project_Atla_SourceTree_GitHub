@@ -1,0 +1,9 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "Weapon_Proficiency_Struct.h"
+
+
+FWeapon_Proficiency_Struct::FWeapon_Proficiency_Struct()
+{
+}

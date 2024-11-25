@@ -17,6 +17,7 @@
 #include "Character_Attributes.h"
 #include "Blueprint/UserWidget.h"
 #include "Technique_Struct.h"
+#include "Weapon_Proficiency_Struct.h"
 #include "Command_Menu_Widget.h"
 #include "Enemy_Detection_Arrow.h"
 #include "Ren_Low_Poly_Character.generated.h"
@@ -353,17 +354,23 @@ public:
 
 
 	//Level
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
-		int32 CharacterLevel;
+	// Weapon proficiency for sword
+	UPROPERTY(BlueprintReadWrite, Category = "Weapon Proficiency")
+		FWeapon_Proficiency_Struct SwordProficiency;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
-		int32 ExperiencePoints;
+	// Weapon proficiency for staff
+	UPROPERTY(BlueprintReadWrite, Category = "Weapon Proficiency")
+		FWeapon_Proficiency_Struct StaffProficiency;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
-		TArray<int32> ExperienceRequired;
+	// The current weapon the player is using (this will be tied to your existing enum)
+	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
+		EWeaponType CurrentWeapon;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
-		UDataTable* CharacterAttributesTable;
+	// Function to add EXP to the current weapon (called when an enemy is defeated)
+	void AddWeaponEXP(float ExpAmount);
+
+	// Function to check if the current weapon needs to level up
+	void CheckLevelUp();
 	//Level
 
 

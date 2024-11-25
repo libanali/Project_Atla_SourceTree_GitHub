@@ -72,6 +72,12 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	StaffHighScore = 0;
 	bRenderTarget = false;
 
+	//Weapon Proficiency
+	// Set default values for weapon proficiency
+	SwordProficiency = FWeapon_Proficiency_Struct();
+	StaffProficiency = FWeapon_Proficiency_Struct();
+
+
 	//Lock-On
 	bIsSoftLockEnabled = false;
 	SoftLockRange = 2300.0f;
@@ -937,6 +943,26 @@ void ARen_Low_Poly_Character::CalculateElementalAttack()
 {
 
 	TotalElementalAttack = BaseElementalAttack * ElementalMultiplier;
+
+}
+
+
+
+void ARen_Low_Poly_Character::AddWeaponEXP(float ExpAmount)
+{
+
+
+}
+
+
+
+void ARen_Low_Poly_Character::CheckLevelUp()
+{
+
+
+
+
+
 
 }
 
