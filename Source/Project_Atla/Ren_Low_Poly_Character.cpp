@@ -436,6 +436,7 @@ void ARen_Low_Poly_Character::SaveHighScore()
 		// Set the high score data (Sword and Staff scores)
 		SaveGameInstance->SwordHighScore = SwordHighScore;
 		SaveGameInstance->StaffHighScore = StaffHighScore;
+		SaveGameInstance->SavedWeaponProficiencyMap = WeaponProficiencyMap;
 
 		UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Player Save Slot"), 0);
 	}
@@ -455,9 +456,21 @@ void ARen_Low_Poly_Character::LoadHighScore()
 
 		SwordHighScore = LoadGameInstance->SwordHighScore;
 		StaffHighScore = LoadGameInstance->StaffHighScore;
+		WeaponProficiencyMap = LoadGameInstance->SavedWeaponProficiencyMap;
 
 		UE_LOG(LogTemp, Warning, TEXT("Loaded Sword High Score: %d"), SwordHighScore);
 		UE_LOG(LogTemp, Warning, TEXT("Loaded Staff High Score: %d"), StaffHighScore);
+
+		// Debug log for testing
+		for (const TPair<EWeaponType, FWeapon_Proficiency_Struct>& Pair : WeaponProficiencyMap)
+		{
+			const EWeaponType TheWeaponType = Pair.Key;
+			const FWeapon_Proficiency_Struct& Proficiency = Pair.Value;
+			UE_LOG(LogTemp, Log, TEXT("Loaded %s: Level %d, EXP %.2f"),
+				*UEnum::GetValueAsString(TheWeaponType),
+				Proficiency.WeaponLevel,
+				Proficiency.CurrentEXP);
+		}
 
 	}
 
@@ -469,23 +482,61 @@ void ARen_Low_Poly_Character::LoadHighScore()
 		StaffHighScore = 0;
 
 		UE_LOG(LogTemp, Warning, TEXT("No saved data found. Resetting high scores."));
-
+		UE_LOG(LogTemp, Warning, TEXT("No save game found, using default proficiency values."));
 
 	}
 
 }
 
+
 void ARen_Low_Poly_Character::SavePlayerProgress()
 {
 
-	
+	// Create or access the save game instance
+	UPlayer_Save_Game* SaveGameInstance = Cast<UPlayer_Save_Game>(UGameplayStatics::CreateSaveGameObject(UPlayer_Save_Game::StaticClass()));
+	if (SaveGameInstance)
+	{
+		// Save the current WeaponProficiencyMap
+		SaveGameInstance->SavedWeaponProficiencyMap = WeaponProficiencyMap;
+
+		// Save to disk
+		if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Player Save Slot"), 0))
+		{
+			UE_LOG(LogTemp, Log, TEXT("Weapon proficiency saved successfully."));
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Failed to save weapon proficiency."));
+		}
+	}
 
 }
 
 void ARen_Low_Poly_Character::LoadPlayerProgress()
 {
 
-	
+	// Try to load the save game instance
+	UPlayer_Save_Game* LoadGameInstance = Cast<UPlayer_Save_Game>(UGameplayStatics::LoadGameFromSlot(TEXT("Player Save Slot"), 0));
+	if (LoadGameInstance)
+	{
+		// Restore the WeaponProficiencyMap
+		WeaponProficiencyMap = LoadGameInstance->SavedWeaponProficiencyMap;
+
+		// Debug log for testing
+		for (const TPair<EWeaponType, FWeapon_Proficiency_Struct>& Pair : WeaponProficiencyMap)
+		{
+			const EWeaponType TheWeaponType = Pair.Key;
+			const FWeapon_Proficiency_Struct& Proficiency = Pair.Value;
+			UE_LOG(LogTemp, Warning, TEXT("Loaded %s: Level %d, EXP %.2f"),
+				*UEnum::GetValueAsString(TheWeaponType),
+				Proficiency.WeaponLevel,
+				Proficiency.CurrentEXP);
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No save game found, using default proficiency values."));
+	}
 
 }
 
@@ -513,6 +564,7 @@ void ARen_Low_Poly_Character::Death()
 
 	// Perform any additional death-related tasks, such as saving scores and showing the UI
 	SaveHighScore();
+	SavePlayerProgress();
 
 	// Display Game Over UI only once
 	DisplayGameOverUI();
@@ -987,6 +1039,7 @@ void ARen_Low_Poly_Character::AddWeaponEXP(float ExpAmount)
 
 
 
+
 void ARen_Low_Poly_Character::CheckWeaponLevelUp(EWeaponType Weapon)
 {
 
@@ -1155,6 +1208,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	LoadHighScore();
 
+	LoadPlayerProgress();
+
 	FindResultsCamera();
 
 	HealthStruct.InitializeHealth();
@@ -1303,7 +1358,24 @@ void ARen_Low_Poly_Character::BeginPlay()
 	InputComponent->BindAction("Open Commands Menu", IE_Pressed, this, &ARen_Low_Poly_Character::ToggleCommandMenu);
 	InputComponent->BindAction("Roll Dodge or Back", IE_Pressed, this, &ARen_Low_Poly_Character::HandleBackInput);
 
-	
+	if (WeaponProficiencyMap.Contains(EWeaponType::Sword))
+	{
+		FWeapon_Proficiency_Struct& SwordProficiency = WeaponProficiencyMap[EWeaponType::Sword];
+
+		// Log weapon stats
+		UE_LOG(LogTemp, Log, TEXT("Sword Weapon Stats:"));
+		UE_LOG(LogTemp, Log, TEXT("Level: %d"), SwordProficiency.WeaponLevel);
+		UE_LOG(LogTemp, Log, TEXT("Current EXP: %.2f"), SwordProficiency.CurrentEXP);
+		UE_LOG(LogTemp, Log, TEXT("EXP To Next Level: %.2f"), SwordProficiency.EXPToNextLevel);
+		UE_LOG(LogTemp, Log, TEXT("Attack Power Boost: %.2f"), SwordProficiency.AttackPowerBoost);
+		UE_LOG(LogTemp, Log, TEXT("Defense Boost: %.2f"), SwordProficiency.DefenseBoost);
+		UE_LOG(LogTemp, Log, TEXT("Elemental Power Boost: %.2f"), SwordProficiency.ElementalPowerBoost);
+		UE_LOG(LogTemp, Log, TEXT("Max Health Boost: %.2f"), SwordProficiency.MaxHealthBoost);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Sword proficiency not found!"));
+	}
 	
 }
 
