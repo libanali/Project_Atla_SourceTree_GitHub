@@ -24,6 +24,7 @@ public:
         int32 StaffHighScore;
 
 
+
     // Constructor to initialize defaults (optional)
     UPlayer_Save_Game()
         : SwordHighScore(0), StaffHighScore(0) {}

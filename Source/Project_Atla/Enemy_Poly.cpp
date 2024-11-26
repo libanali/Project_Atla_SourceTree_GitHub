@@ -108,6 +108,8 @@ void AEnemy_Poly::Death()
 		{
 			PlayerCharacter->AddPoints(PointsEarned);
 			PlayerCharacter->UpdateHighScore(PointsEarned);
+			// Award EXP to the player's currently equipped weapon
+			PlayerCharacter->AddWeaponEXP(EXP_Gained);
 
 			// Remove the arrow widget for this enemy
 			if (PlayerCharacter->EnemyArrowMap.Contains(this))
@@ -120,6 +122,10 @@ void AEnemy_Poly::Death()
 				}
 				PlayerCharacter->EnemyArrowMap.Remove(this);  // Remove from map
 			}
+
+
+			
+
 		}
 
 		// Additional code for removing the enemy from lists, handling AI, etc.

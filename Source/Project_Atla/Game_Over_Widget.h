@@ -55,6 +55,9 @@ public:
 
 
 
+
+
+
     // Background blur widget
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UBackgroundBlur* BackgroundBlur;
@@ -79,6 +82,7 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UButton* MainMenu_Button;
+
 
     // Final score to display
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -143,6 +147,11 @@ private:
 
     FTimerHandle CameraFadeTimer;
 
+    FTimerHandle ExpGainTimerHandle;
+
+    FTimerHandle ExpBarUpdateTimer;
+
+    FTimerHandle RewardNotificationTimer;
 
 
     bool bIsGameOverTextAnimationComplete = false;

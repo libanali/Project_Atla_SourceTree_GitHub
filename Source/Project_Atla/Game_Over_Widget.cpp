@@ -6,13 +6,15 @@
 #include "TimerManager.h"
 #include "Components/BackgroundBlur.h"
 #include "Ren_Low_Poly_Character.h"
+#include "Player_Save_Game.h"
 #include "Kismet/GameplayStatics.h"
 #include "Animation/WidgetAnimation.h"
 #include "Results_camera.h"
 #include "LowPoly_Survival_GameMode.h"
 #include "Components/Image.h"
 #include "Components/Button.h"
-
+#include "Components/ProgressBar.h"
+#include "Components/VerticalBox.h"
 
 
 
@@ -35,9 +37,7 @@ void UGame_Over_Widget::NativeConstruct()
 
 
 
-   
-
-    
+  
 
 }
 
@@ -385,6 +385,7 @@ void UGame_Over_Widget::SetInputModeToUI()
 
 
 }
+
 
 
 

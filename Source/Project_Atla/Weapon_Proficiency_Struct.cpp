@@ -3,7 +3,3 @@
 
 #include "Weapon_Proficiency_Struct.h"
 
-
-FWeapon_Proficiency_Struct::FWeapon_Proficiency_Struct()
-{
-}

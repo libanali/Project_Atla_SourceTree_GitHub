@@ -122,6 +122,8 @@ public:
 		FScore_Struct Enemy_Score;  // Enemy-specific score data
 	//Score system
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Properties")
+		int32 EXP_Gained;
 
 protected:
 	// Called when the game starts or when spawned

@@ -72,10 +72,6 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	StaffHighScore = 0;
 	bRenderTarget = false;
 
-	//Weapon Proficiency
-	// Set default values for weapon proficiency
-	SwordProficiency = FWeapon_Proficiency_Struct();
-	StaffProficiency = FWeapon_Proficiency_Struct();
 
 
 	//Lock-On
@@ -476,6 +472,20 @@ void ARen_Low_Poly_Character::LoadHighScore()
 
 
 	}
+
+}
+
+void ARen_Low_Poly_Character::SavePlayerProgress()
+{
+
+	
+
+}
+
+void ARen_Low_Poly_Character::LoadPlayerProgress()
+{
+
+	
 
 }
 
@@ -952,18 +962,77 @@ void ARen_Low_Poly_Character::AddWeaponEXP(float ExpAmount)
 {
 
 
+	// Check if the currently equipped weapon exists in the proficiency map
+	if (WeaponProficiencyMap.Contains(WeaponType))
+	{
+		FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[WeaponType];
+
+		// Add EXP to the current weapon
+		Proficiency.CurrentEXP += ExpAmount;
+
+		UE_LOG(LogTemp, Warning, TEXT("EXP after adding: %.2f"), Proficiency.CurrentEXP);
+
+
+		// Check for level-up
+		CheckWeaponLevelUp(WeaponType);
+	}
+
+	else
+	{
+		// Log a warning if WeaponType is missing from the map
+		UE_LOG(LogTemp, Error, TEXT("WeaponProficiencyMap does not contain the current WeaponType!"));
+	}
+
 }
 
 
 
-void ARen_Low_Poly_Character::CheckLevelUp()
+void ARen_Low_Poly_Character::CheckWeaponLevelUp(EWeaponType Weapon)
 {
 
+	if (WeaponProficiencyMap.Contains(Weapon))
+	{
+		FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[Weapon];
+
+		// Check if the current EXP exceeds the threshold
+		while (Proficiency.CurrentEXP >= Proficiency.EXPToNextLevel && Proficiency.WeaponLevel < 20)
+		{
+			// Deduct EXP required for the level-up
+			Proficiency.CurrentEXP -= Proficiency.EXPToNextLevel;
+
+			// Increase the weapon's level
+			Proficiency.WeaponLevel++;
+
+			// Dynamically increase EXP required for the next level
+			Proficiency.EXPToNextLevel *= 1.25f;  // Example multiplier for scaling
+
+			if (WeaponLevelToTechniqueMap.Contains(WeaponType))
+			{
+				FWeaponTechniqueMap& TechniqueMap = WeaponLevelToTechniqueMap[WeaponType];
+
+				if (TechniqueMap.LevelToTechnique.Contains(Proficiency.WeaponLevel))
+				{
+					FString TechniqueToUnlock = TechniqueMap.LevelToTechnique[Proficiency.WeaponLevel];
+					UnlockTechnique(TechniqueToUnlock);
+
+					UE_LOG(LogTemp, Log, TEXT("Unlocked technique: %s"), *TechniqueToUnlock);
+				}
 
 
+				// Apply stat boosts (fixed values per level)
+				Proficiency.AttackPowerBoost += 4.f;   // Example value
+				Proficiency.DefenseBoost += 2.f;      // Example value
+				Proficiency.ElementalPowerBoost += 3.f; // Example value
+				Proficiency.MaxHealthBoost += 10.f;   // Example value
+
+				// Debug log for testing
+				UE_LOG(LogTemp, Warning, TEXT("Weapon leveled up! Level: %d, Next EXP Threshold: %.2f"),
+					Proficiency.WeaponLevel, Proficiency.EXPToNextLevel);
+			}
+		}
 
 
-
+	}
 }
 
 
@@ -1110,13 +1179,39 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	UpdateStatsBasedOnWeapon();
 
+
+	// Initialize proficiency for Sword
+	WeaponProficiencyMap.Add(EWeaponType::Sword, FWeapon_Proficiency_Struct());
+
+	// Initialize proficiency for Staff
+	WeaponProficiencyMap.Add(EWeaponType::Staff, FWeapon_Proficiency_Struct());
+
+
+	// Create and populate Sword techniques
+	FWeaponTechniqueMap SwordTechniquesForMap;
+	SwordTechniquesForMap.LevelToTechnique.Add(2, TEXT("Voltage Breaker"));
+	SwordTechniquesForMap.LevelToTechnique.Add(3, TEXT("Tempest Barrage"));
+	SwordTechniquesForMap.LevelToTechnique.Add(4, TEXT("Static Rush"));
+
+	// Add Sword techniques to the main map
+	WeaponLevelToTechniqueMap.Add(EWeaponType::Sword, SwordTechniquesForMap);
+
+	// Create and populate Staff techniques
+	FWeaponTechniqueMap StaffTechniquesForMap;
+	StaffTechniquesForMap.LevelToTechnique.Add(2, TEXT("Inferno Rain"));
+
+
+	// Add Staff techniques to the main map
+	WeaponLevelToTechniqueMap.Add(EWeaponType::Staff, StaffTechniquesForMap);
+
+
 	if (WeaponType == EWeaponType::Sword)
 	{
 		// Initialize Sword techniques
 		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("A simple attack technique."), true, StormStrikeFlurryAnimMontage, 1.6f, 1 });
-		Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("A simple attack technique."), true, VoltageBreakerAnimMontage, 1.3f, 1 });
-		Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("A simple attack technique."), true, TempestBarrageAnimMontage, 1.7f, 1 });
-		Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("A simple attack technique."), true, StaticRushAnimMontage, 1.9f, 1 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("A simple attack technique."), false, VoltageBreakerAnimMontage, 1.3f, 1 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("A simple attack technique."), false, TempestBarrageAnimMontage, 1.7f, 1 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("A simple attack technique."), false, StaticRushAnimMontage, 1.9f, 1 });
 	}
 
 

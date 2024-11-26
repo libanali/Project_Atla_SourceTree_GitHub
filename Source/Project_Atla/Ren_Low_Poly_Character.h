@@ -30,6 +30,14 @@ enum class EWeaponType : uint8
 	Staff UMETA(DisplayName = "Staff")
 };
 
+USTRUCT(BlueprintType)
+struct FWeaponTechniqueMap
+{
+	GENERATED_BODY()
+
+		UPROPERTY()
+		TMap<int32, FString> LevelToTechnique;
+};
 
 class AEnemy_Poly;
 class AResults_camera;
@@ -143,6 +151,9 @@ public:
 	//Save Data
 	void SaveHighScore();
 	void LoadHighScore();
+
+	void SavePlayerProgress();
+	void LoadPlayerProgress();
 	//Save Data
 
 	//Health
@@ -354,23 +365,22 @@ public:
 
 
 	//Level
-	// Weapon proficiency for sword
-	UPROPERTY(BlueprintReadWrite, Category = "Weapon Proficiency")
-		FWeapon_Proficiency_Struct SwordProficiency;
+	// Map to store proficiency for each weapon type
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
+		TMap<EWeaponType, FWeapon_Proficiency_Struct> WeaponProficiencyMap;
 
-	// Weapon proficiency for staff
-	UPROPERTY(BlueprintReadWrite, Category = "Weapon Proficiency")
-		FWeapon_Proficiency_Struct StaffProficiency;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
+		FWeapon_Proficiency_Struct Weapon_Proficiency_Struct;
 
-	// The current weapon the player is using (this will be tied to your existing enum)
-	UPROPERTY(BlueprintReadWrite, Category = "Weapon")
-		EWeaponType CurrentWeapon;
+	UPROPERTY()
+		TMap<EWeaponType, FWeaponTechniqueMap> WeaponLevelToTechniqueMap;
 
 	// Function to add EXP to the current weapon (called when an enemy is defeated)
+	UFUNCTION(BlueprintCallable)
 	void AddWeaponEXP(float ExpAmount);
 
 	// Function to check if the current weapon needs to level up
-	void CheckLevelUp();
+	void CheckWeaponLevelUp(EWeaponType Weapon);
 	//Level
 
 
