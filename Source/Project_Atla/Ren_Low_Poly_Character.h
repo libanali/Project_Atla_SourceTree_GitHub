@@ -23,12 +23,16 @@
 #include "Ren_Low_Poly_Character.generated.h"
 
 
+
+
 UENUM(BlueprintType)
 enum class EWeaponType : uint8
 {
 	Sword UMETA(DisplayName = "Sword"),
 	Staff UMETA(DisplayName = "Staff")
 };
+
+
 
 USTRUCT(BlueprintType)
 struct FWeaponTechniqueMap
@@ -39,8 +43,13 @@ struct FWeaponTechniqueMap
 		TMap<int32, FString> LevelToTechnique;
 };
 
+
+
+
 class AEnemy_Poly;
 class AResults_camera;
+
+
 
 UCLASS()
 class PROJECT_ATLA_API ARen_Low_Poly_Character : public ACharacter
@@ -135,8 +144,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SpawnPlayerCharacterForRender();
 
-	UFUNCTION(BlueprintImplementableEvent)
-		void RemoveGameplayUI();
 
 	void UpdateHighScore(int32 NewScore);
 
@@ -364,7 +371,7 @@ public:
 
 
 
-	//Level
+	//Level & Weapon Proficiency
 	// Map to store proficiency for each weapon type
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
 		TMap<EWeaponType, FWeapon_Proficiency_Struct> WeaponProficiencyMap;
@@ -375,14 +382,23 @@ public:
 	UPROPERTY()
 		TMap<EWeaponType, FWeaponTechniqueMap> WeaponLevelToTechniqueMap;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Technique System")
+		TArray<FString> QueuedUnlockTechniques;
+
+	void CheckForTechniqueUnlock(EWeaponType Weapon, int32 WeaponLevel);
+
+	void UnlockQueuedTechniques();
+
+
 	// Function to add EXP to the current weapon (called when an enemy is defeated)
 	UFUNCTION(BlueprintCallable)
 	void AddWeaponEXP(float ExpAmount);
 
 	// Function to check if the current weapon needs to level up
 	void CheckWeaponLevelUp(EWeaponType Weapon);
-	//Level
+	//Level & Weapon Proficiency
 
+	FTechnique_Struct* FindTechniqueByName(const FString& TechniqueName);
 
 
 	//Command
@@ -479,5 +495,7 @@ protected:
 		UCameraComponent* Camera;
 	//Character Components
 
-	
+
+
+
 };

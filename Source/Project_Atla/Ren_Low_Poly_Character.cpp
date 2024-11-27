@@ -107,6 +107,11 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	bIsInventoryOpen = false;
 	bIsTechniquesOpen = false;
 	bIsInventoryEmpty = true;
+
+
+	//Weapon Proficiency
+	QueuedUnlockTechniques = TArray<FString>();
+
 }
 
 
@@ -562,7 +567,6 @@ void ARen_Low_Poly_Character::Death()
 	// Display Game Over UI only once
 	DisplayGameOverUI();
 
-	RemoveGameplayUI();
 
 }
 
@@ -1003,6 +1007,92 @@ void ARen_Low_Poly_Character::CalculateElementalAttack()
 
 
 
+
+
+
+void ARen_Low_Poly_Character::CheckForTechniqueUnlock(EWeaponType Weapon, int32 WeaponLevel)
+{
+
+
+	// Ensure the WeaponProficiencyMap is valid
+	if (!WeaponProficiencyMap.Contains(WeaponType))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Weapon type %d not found in proficiency map!"), static_cast<int32>(WeaponType));
+		return;
+	}
+
+	// Check the global technique map for this weapon type
+	if (WeaponLevelToTechniqueMap.Contains(WeaponType))
+	{
+		FWeaponTechniqueMap& TechniqueMap = WeaponLevelToTechniqueMap[WeaponType];
+
+		// Look for a technique associated with the given level
+		if (TechniqueMap.LevelToTechnique.Contains(WeaponLevel))
+		{
+			FString TechniqueName = TechniqueMap.LevelToTechnique[WeaponLevel];
+
+			// Queue the technique for unlocking if not already unlocked
+			if (!QueuedUnlockTechniques.Contains(TechniqueName))
+			{
+				QueuedUnlockTechniques.Add(TechniqueName);
+				UE_LOG(LogTemp, Log, TEXT("Technique '%s' queued for unlock."), *TechniqueName);
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No technique map found for weapon type %d!"), static_cast<int32>(WeaponType));
+	}
+
+
+
+
+}
+
+void ARen_Low_Poly_Character::UnlockQueuedTechniques()
+{
+
+
+	for (const FString& TechniqueName : QueuedUnlockTechniques)
+	{
+		FTechnique_Struct* TechniqueToUnlock = FindTechniqueByName(TechniqueName);
+
+		if (TechniqueToUnlock)
+		{
+			TechniqueToUnlock->bIsUnlocked = true;
+			UE_LOG(LogTemp, Log, TEXT("Technique '%s' has been unlocked!"), *TechniqueName);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Technique '%s' not found in Techniques array!"), *TechniqueName);
+		}
+	}
+
+	// Clear the queue after unlocking
+	QueuedUnlockTechniques.Empty();
+
+}
+
+
+
+FTechnique_Struct* ARen_Low_Poly_Character::FindTechniqueByName(const FString& TechniqueName)
+{
+
+	for (FTechnique_Struct& Technique : Techniques)
+	{
+		if (Technique.TechniqueName == TechniqueName)
+		{
+			return &Technique;
+		}
+	}
+
+	return nullptr;
+}
+
+
+
+
+
 void ARen_Low_Poly_Character::AddWeaponEXP(float ExpAmount)
 {
 
@@ -1059,9 +1149,13 @@ void ARen_Low_Poly_Character::CheckWeaponLevelUp(EWeaponType Weapon)
 				if (TechniqueMap.LevelToTechnique.Contains(Proficiency.WeaponLevel))
 				{
 					FString TechniqueToUnlock = TechniqueMap.LevelToTechnique[Proficiency.WeaponLevel];
-					UnlockTechnique(TechniqueToUnlock);
+					//UnlockTechnique(TechniqueToUnlock);
+					FString TechniqueToQueue = TechniqueMap.LevelToTechnique[Proficiency.WeaponLevel];
+					QueuedUnlockTechniques.Add(TechniqueToQueue);  // Add technique to the queue
 
-					UE_LOG(LogTemp, Log, TEXT("Unlocked technique: %s"), *TechniqueToUnlock);
+					UE_LOG(LogTemp, Log, TEXT("Queued technique: %s for next run."), *TechniqueToQueue);
+
+					//UE_LOG(LogTemp, Log, TEXT("Unlocked technique: %s"), *TechniqueToUnlock);
 				}
 
 
@@ -1080,6 +1174,7 @@ void ARen_Low_Poly_Character::CheckWeaponLevelUp(EWeaponType Weapon)
 
 	}
 }
+
 
 
 
@@ -1202,6 +1297,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 	LoadHighScore();
 
 	LoadPlayerProgress();
+
+	UnlockQueuedTechniques();
+
 
 	FindResultsCamera();
 
