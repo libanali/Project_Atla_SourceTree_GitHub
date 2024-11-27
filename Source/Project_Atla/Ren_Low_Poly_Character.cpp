@@ -492,14 +492,11 @@ void ARen_Low_Poly_Character::LoadHighScore()
 void ARen_Low_Poly_Character::SavePlayerProgress()
 {
 
-	// Create or access the save game instance
 	UPlayer_Save_Game* SaveGameInstance = Cast<UPlayer_Save_Game>(UGameplayStatics::CreateSaveGameObject(UPlayer_Save_Game::StaticClass()));
 	if (SaveGameInstance)
 	{
-		// Save the current WeaponProficiencyMap
 		SaveGameInstance->SavedWeaponProficiencyMap = WeaponProficiencyMap;
 
-		// Save to disk
 		if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Player Save Slot"), 0))
 		{
 			UE_LOG(LogTemp, Log, TEXT("Weapon proficiency saved successfully."));
@@ -515,27 +512,23 @@ void ARen_Low_Poly_Character::SavePlayerProgress()
 void ARen_Low_Poly_Character::LoadPlayerProgress()
 {
 
-	// Try to load the save game instance
 	UPlayer_Save_Game* LoadGameInstance = Cast<UPlayer_Save_Game>(UGameplayStatics::LoadGameFromSlot(TEXT("Player Save Slot"), 0));
 	if (LoadGameInstance)
 	{
-		// Restore the WeaponProficiencyMap
 		WeaponProficiencyMap = LoadGameInstance->SavedWeaponProficiencyMap;
 
-		// Debug log for testing
+		UE_LOG(LogTemp, Log, TEXT("Successfully loaded weapon proficiency map."));
 		for (const TPair<EWeaponType, FWeapon_Proficiency_Struct>& Pair : WeaponProficiencyMap)
 		{
-			const EWeaponType TheWeaponType = Pair.Key;
-			const FWeapon_Proficiency_Struct& Proficiency = Pair.Value;
 			UE_LOG(LogTemp, Warning, TEXT("Loaded %s: Level %d, EXP %.2f"),
-				*UEnum::GetValueAsString(TheWeaponType),
-				Proficiency.WeaponLevel,
-				Proficiency.CurrentEXP);
+				*UEnum::GetValueAsString(Pair.Key),
+				Pair.Value.WeaponLevel,
+				Pair.Value.CurrentEXP);
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No save game found, using default proficiency values."));
+		UE_LOG(LogTemp, Warning, TEXT("No save game found. Initializing default values."));
 	}
 
 }
@@ -1234,12 +1227,16 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	UpdateStatsBasedOnWeapon();
 
+	// Ensure WeaponProficiencyMap has entries for all weapon types, even if not loaded
+	if (!WeaponProficiencyMap.Contains(EWeaponType::Sword))
+	{
+		WeaponProficiencyMap.Add(EWeaponType::Sword, FWeapon_Proficiency_Struct());
+	}
+	if (!WeaponProficiencyMap.Contains(EWeaponType::Staff))
+	{
+		WeaponProficiencyMap.Add(EWeaponType::Staff, FWeapon_Proficiency_Struct());
+	}
 
-	// Initialize proficiency for Sword
-	WeaponProficiencyMap.Add(EWeaponType::Sword, FWeapon_Proficiency_Struct());
-
-	// Initialize proficiency for Staff
-	WeaponProficiencyMap.Add(EWeaponType::Staff, FWeapon_Proficiency_Struct());
 
 
 	// Create and populate Sword techniques
