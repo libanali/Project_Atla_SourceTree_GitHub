@@ -1261,16 +1261,39 @@ void ARen_Low_Poly_Character::BeginPlay()
 	{
 		// Initialize Sword techniques
 		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("A simple attack technique."), true, StormStrikeFlurryAnimMontage, 1.6f, 1 });
-		Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("A simple attack technique."), false, VoltageBreakerAnimMontage, 1.3f, 1 });
-		Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("A simple attack technique."), false, TempestBarrageAnimMontage, 1.7f, 1 });
-		Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("A simple attack technique."), false, StaticRushAnimMontage, 1.9f, 1 });
-	}
 
+		// Check WeaponProficiencyMap and unlock techniques based on proficiency level
+		if (WeaponProficiencyMap.Contains(EWeaponType::Sword))
+		{
+			int32 TheWeaponLevel = WeaponProficiencyMap[EWeaponType::Sword].WeaponLevel;
+
+			// Add sword techniques based on the level of proficiency (this should match your progression)
+			if (TheWeaponLevel >= 2)
+			{
+				Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("A simple attack technique."), true, VoltageBreakerAnimMontage, 1.3f, 1 });
+			}
+			if (TheWeaponLevel >= 3)
+			{
+				Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("A simple attack technique."), true, TempestBarrageAnimMontage, 1.7f, 1 });
+			}
+			if (TheWeaponLevel >= 4)
+			{
+				Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("A simple attack technique."), true, StaticRushAnimMontage, 1.9f, 1 });
+			}
+		}
+	}
 
 	if (WeaponType == EWeaponType::Staff)
 	{
 		// Initialize Staff techniques
-		Techniques.Add(FTechnique_Struct{ TEXT("Inferno Rain"), TEXT("A simple attack technique."), true, InfernoRainAnimMontage, 1.5f, 2});
+		Techniques.Add(FTechnique_Struct{ TEXT("Inferno Rain"), TEXT("A simple attack technique."), true, InfernoRainAnimMontage, 1.5f, 2 });
+
+		// Check WeaponProficiencyMap and unlock techniques based on proficiency level
+		if (WeaponProficiencyMap.Contains(EWeaponType::Staff))
+		{
+			int32 TheWeaponLevel = WeaponProficiencyMap[EWeaponType::Staff].WeaponLevel;
+
+		}
 	}
 
 
