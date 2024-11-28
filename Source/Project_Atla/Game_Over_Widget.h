@@ -113,9 +113,6 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UTextBlock* NotificationText;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-        class UVerticalBox* NotificationContainer;
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
         FWeapon_Proficiency_Struct WeaponProficiency;
 
@@ -199,6 +196,8 @@ private:
     FTimerHandle RewardNotificationTimer;
 
     FTimerHandle EXPBarUpdateTimer;
+
+    FTimerHandle NotificationHideTimer;
 
 
     bool bIsGameOverTextAnimationComplete = false;

@@ -388,37 +388,76 @@ void UGame_Over_Widget::SetInputModeToUI()
 
 }
 
+
+
 void UGame_Over_Widget::StartEXPBarFill(float AddedEXP)
 {
+    if (AddedEXP <= 0.0f)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Invalid AddedEXP value: %.2f"), AddedEXP);
+        return;
+    }
+
     RemainingEXPToAdd = AddedEXP;
 
-    // Ensure the progress bar starts at the correct percentage
-    float InitialPercent = WeaponProficiency.CurrentEXP / WeaponProficiency.EXPToNextLevel;
-    EXPProgressBar->SetPercent(InitialPercent);
-    EXPProgressBar->SetVisibility(ESlateVisibility::Visible);
+    // Ensure progress bar starts at the correct value and becomes visible
+    if (EXPProgressBar)
+    {
+        float InitialPercent = WeaponProficiency.CurrentEXP / WeaponProficiency.EXPToNextLevel;
+        EXPProgressBar->SetPercent(InitialPercent);
+        EXPProgressBar->SetVisibility(ESlateVisibility::Visible);
 
-    // Start a timer to gradually update the bar
+        UE_LOG(LogTemp, Log, TEXT("Progress Bar initialized. Starting at: %.2f"), InitialPercent);
+    }
+
+    // Start the timer to update the progress bar gradually
     GetWorld()->GetTimerManager().SetTimer(EXPBarUpdateTimer, this, &UGame_Over_Widget::UpdateEXPBar, 0.01f, true);
-
-    
 }
+
+
 
 void UGame_Over_Widget::OnEXPBarFillComplete()
 {
-
     UE_LOG(LogTemp, Log, TEXT("EXP Bar fill complete!"));
 
     ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-    if (Ren)
-
+    if (!Ren)
     {
+        UE_LOG(LogTemp, Error, TEXT("Failed to cast to ARen_Low_Poly_Character."));
+        return;
+    }
 
+    // Check for queued techniques and display notifications
+    if (Ren->QueuedUnlockTechniques.Num() > 0)
+    {
+        // Copy the queue to avoid modifying it during iteration
+        TArray<FString> TempQueue = Ren->QueuedUnlockTechniques;
 
-        Ren->UnlockQueuedTechniques();
+        for (const FString& TechniqueName : TempQueue)
+        {
+            // Unlock the technique (assumes UnlockQueuedTechniques() processes all techniques)
+            Ren->UnlockQueuedTechniques();
 
+            // Show the notification for the unlocked technique
+            FString NotificationMessage = FString::Printf(TEXT("Unlocked Technique: %s"), *TechniqueName);
+            ShowNotification(NotificationMessage);
+
+            // Log for debugging purposes
+            UE_LOG(LogTemp, Log, TEXT("Notification shown: %s"), *NotificationMessage);
+        }
+
+        // Clear the original queue after processing
+        Ren->QueuedUnlockTechniques.Empty();
+    }
+    else
+    {
+        // Log if no techniques were queued (optional)
+        UE_LOG(LogTemp, Warning, TEXT("No techniques were queued for unlocking."));
     }
 
 }
+
+
 
 void UGame_Over_Widget::UpdateEXPUI()
 {
@@ -458,38 +497,20 @@ void UGame_Over_Widget::HandleLevelUp()
 
 void UGame_Over_Widget::ShowNotification(const FString& Message)
 {
-
-    // Check if we have a valid NotificationText UTextBlock and NotificationContainer
-    if (!NotificationText || !NotificationContainer) return;
-
-    // Set the text for the NotificationText widget
-    NotificationText->SetText(FText::FromString(Message));
-
-    // Add the NotificationText to the container (if it's not already added)
-    NotificationContainer->AddChildToVerticalBox(NotificationText);
-
-    // Enforce the maximum number of notifications in the container
-    if (NotificationContainer->GetChildrenCount() > MaxNotifications)
+    if (NotificationText)
     {
-        // Remove the oldest notification (first one) if the count exceeds MaxNotifications
-        NotificationContainer->RemoveChildAt(0);
+        NotificationText->SetText(FText::FromString(Message));
+        NotificationText->SetVisibility(ESlateVisibility::Visible);
+
+        // Hide the notification after 3 seconds
+        GetWorld()->GetTimerManager().SetTimer(NotificationHideTimer, this, &UGame_Over_Widget::ClearNotification, 3.0f, false);
+
+        UE_LOG(LogTemp, Log, TEXT("Notification shown: %s"), *Message);
     }
-
-    // Optionally, you can make the NotificationText visible
-    NotificationText->SetVisibility(ESlateVisibility::Visible);
-
-    // Schedule the notification to remove itself after 3 seconds
-    FTimerHandle RemoveTimer;
-    GetWorld()->GetTimerManager().SetTimer(RemoveTimer, [this]()
-        {
-            if (NotificationText)
-            {
-                // Remove the NotificationText from the container after 3 seconds
-                NotificationContainer->RemoveChild(NotificationText);
-                NotificationText->SetVisibility(ESlateVisibility::Hidden);  // Optionally hide it
-            }
-        }, 3.0f, false); // Duration of 3 seconds
-
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("NotificationText is not valid."));
+    }
 }
 
 
@@ -497,15 +518,11 @@ void UGame_Over_Widget::ShowNotification(const FString& Message)
 
 void UGame_Over_Widget::ClearNotification()
 {
-
-
-    if (NotificationContainer)
+    if (NotificationText)
     {
-        // Remove all child widgets from the container
-        NotificationContainer->ClearChildren();
+        NotificationText->SetVisibility(ESlateVisibility::Hidden);
+        UE_LOG(LogTemp, Log, TEXT("Notification cleared."));
     }
-
-
 }
 
 
@@ -515,37 +532,43 @@ void UGame_Over_Widget::ClearNotification()
 void UGame_Over_Widget::UpdateEXPBar()
 {
 
-    // Calculate how much progress to add
-    float ProgressToAdd = RemainingEXPToAdd * 0.01f; // Adjust this as necessary to make the bar fill in steps
+    if (RemainingEXPToAdd <= 0.0f)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("No remaining EXP to add."));
+        GetWorld()->GetTimerManager().ClearTimer(EXPBarUpdateTimer);
+        OnEXPBarFillComplete();
+        return;
+    }
 
-    // Increment current EXP
+    // Calculate the amount of progress to add per tick
+    float ProgressToAdd = FMath::Min(RemainingEXPToAdd * 0.01f, WeaponProficiency.EXPToNextLevel - WeaponProficiency.CurrentEXP);
     WeaponProficiency.CurrentEXP += ProgressToAdd;
+    RemainingEXPToAdd -= ProgressToAdd;
 
-    // Calculate the new percent
-    float NewPercent = WeaponProficiency.CurrentEXP / WeaponProficiency.EXPToNextLevel;
+    // Update the progress bar percentage
+    if (EXPProgressBar)
+    {
+        float NewPercent = WeaponProficiency.CurrentEXP / WeaponProficiency.EXPToNextLevel;
+        EXPProgressBar->SetPercent(NewPercent);
 
-    // Update the progress bar
-    EXPProgressBar->SetPercent(NewPercent);
+        UE_LOG(LogTemp, Log, TEXT("Progress Bar updated. Current percent: %.2f"), NewPercent);
+    }
 
-    // Stop the timer once the progress bar is filled
+    // If the EXP reaches or exceeds the next level threshold
     if (WeaponProficiency.CurrentEXP >= WeaponProficiency.EXPToNextLevel)
     {
-        // Make sure the progress bar is set to 100% at the end
-        EXPProgressBar->SetPercent(1.0f);
+        // Handle level-up logic
+        WeaponProficiency.CurrentEXP = 0.0f;
+        WeaponProficiency.WeaponLevel++;
+        WeaponProficiency.EXPToNextLevel *= 1.25f; // Example scaling for next level
 
-        // Call the method to handle things after the bar is filled
-        OnEXPBarFillComplete();
+        UE_LOG(LogTemp, Log, TEXT("Level up! New level: %d, Next EXP threshold: %.2f"), WeaponProficiency.WeaponLevel, WeaponProficiency.EXPToNextLevel);
 
-        // Stop the timer
-        GetWorld()->GetTimerManager().ClearTimer(EXPBarUpdateTimer);
+        // Update UI for new level
+        UpdateEXPUI();
     }
 
 }
-
-
-
-
-
 
 
 
