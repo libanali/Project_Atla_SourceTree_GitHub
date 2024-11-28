@@ -15,6 +15,8 @@
 #include "Components/Button.h"
 #include "Components/ProgressBar.h"
 #include "Components/VerticalBox.h"
+#include "Blueprint/WidgetTree.h"
+
 
 
 
@@ -386,6 +388,160 @@ void UGame_Over_Widget::SetInputModeToUI()
 
 }
 
+void UGame_Over_Widget::StartEXPBarFill(float AddedEXP)
+{
+    RemainingEXPToAdd = AddedEXP;
+
+    // Ensure the progress bar starts at the correct percentage
+    float InitialPercent = WeaponProficiency.CurrentEXP / WeaponProficiency.EXPToNextLevel;
+    EXPProgressBar->SetPercent(InitialPercent);
+    EXPProgressBar->SetVisibility(ESlateVisibility::Visible);
+
+    // Start a timer to gradually update the bar
+    GetWorld()->GetTimerManager().SetTimer(EXPBarUpdateTimer, this, &UGame_Over_Widget::UpdateEXPBar, 0.01f, true);
+
+    
+}
+
+void UGame_Over_Widget::OnEXPBarFillComplete()
+{
+
+    UE_LOG(LogTemp, Log, TEXT("EXP Bar fill complete!"));
+
+    ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+    if (Ren)
+
+    {
+
+
+        Ren->UnlockQueuedTechniques();
+
+    }
+
+}
+
+void UGame_Over_Widget::UpdateEXPUI()
+{
+
+
+    if (WeaponLevelText)
+    {
+        WeaponLevelText->SetText(FText::FromString(FString::Printf(TEXT("Level: %d"), WeaponProficiency.WeaponLevel)));
+        WeaponLevelText->SetVisibility(ESlateVisibility::Visible);
+    }
+
+    if (CurrentEXPText)
+    {
+        // Directly set the formatted text for CurrentEXP / EXPToNextLevel
+        CurrentEXPText->SetText(FText::FromString(FString::Printf(TEXT("%.0f / %.0f"), WeaponProficiency.CurrentEXP, WeaponProficiency.EXPToNextLevel)));
+        CurrentEXPText->SetVisibility(ESlateVisibility::Visible);
+    }
+
+   
+}
+
+
+
+
+void UGame_Over_Widget::HandleLevelUp()
+{
+
+    WeaponProficiency.WeaponLevel++; // Increment level
+    WeaponProficiency.EXPToNextLevel *= 1.1f; // Example: Increase EXP requirement by 10%
+
+
+
+}
+
+
+
+
+void UGame_Over_Widget::ShowNotification(const FString& Message)
+{
+
+    // Check if we have a valid NotificationText UTextBlock and NotificationContainer
+    if (!NotificationText || !NotificationContainer) return;
+
+    // Set the text for the NotificationText widget
+    NotificationText->SetText(FText::FromString(Message));
+
+    // Add the NotificationText to the container (if it's not already added)
+    NotificationContainer->AddChildToVerticalBox(NotificationText);
+
+    // Enforce the maximum number of notifications in the container
+    if (NotificationContainer->GetChildrenCount() > MaxNotifications)
+    {
+        // Remove the oldest notification (first one) if the count exceeds MaxNotifications
+        NotificationContainer->RemoveChildAt(0);
+    }
+
+    // Optionally, you can make the NotificationText visible
+    NotificationText->SetVisibility(ESlateVisibility::Visible);
+
+    // Schedule the notification to remove itself after 3 seconds
+    FTimerHandle RemoveTimer;
+    GetWorld()->GetTimerManager().SetTimer(RemoveTimer, [this]()
+        {
+            if (NotificationText)
+            {
+                // Remove the NotificationText from the container after 3 seconds
+                NotificationContainer->RemoveChild(NotificationText);
+                NotificationText->SetVisibility(ESlateVisibility::Hidden);  // Optionally hide it
+            }
+        }, 3.0f, false); // Duration of 3 seconds
+
+}
+
+
+
+
+void UGame_Over_Widget::ClearNotification()
+{
+
+
+    if (NotificationContainer)
+    {
+        // Remove all child widgets from the container
+        NotificationContainer->ClearChildren();
+    }
+
+
+}
+
+
+
+
+
+void UGame_Over_Widget::UpdateEXPBar()
+{
+
+    // Calculate how much progress to add
+    float ProgressToAdd = RemainingEXPToAdd * 0.01f; // Adjust this as necessary to make the bar fill in steps
+
+    // Increment current EXP
+    WeaponProficiency.CurrentEXP += ProgressToAdd;
+
+    // Calculate the new percent
+    float NewPercent = WeaponProficiency.CurrentEXP / WeaponProficiency.EXPToNextLevel;
+
+    // Update the progress bar
+    EXPProgressBar->SetPercent(NewPercent);
+
+    // Stop the timer once the progress bar is filled
+    if (WeaponProficiency.CurrentEXP >= WeaponProficiency.EXPToNextLevel)
+    {
+        // Make sure the progress bar is set to 100% at the end
+        EXPProgressBar->SetPercent(1.0f);
+
+        // Call the method to handle things after the bar is filled
+        OnEXPBarFillComplete();
+
+        // Stop the timer
+        GetWorld()->GetTimerManager().ClearTimer(EXPBarUpdateTimer);
+    }
+
+}
+
 
 
 
@@ -440,6 +596,13 @@ void UGame_Over_Widget::UpdateDisplayedScore()
             Ren->Score_Reaction_Anim();
             // Now that the animation is complete, update the high score
             Ren->UpdateHighScore(TargetScore);  // Update high score here
+
+            UpdateEXPUI();
+
+            UpdateEXPBar();
+
+            StartEXPBarFill(RemainingEXPToAdd);
+
         }
     }
 

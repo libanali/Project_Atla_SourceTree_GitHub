@@ -64,7 +64,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 
 	//Score
-	PlayerScore = 400;
+	PlayerScore = 0;
 	bDoublePoints = false;
 
 	//High score

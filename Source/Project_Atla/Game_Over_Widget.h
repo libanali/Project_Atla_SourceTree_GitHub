@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Weapon_Proficiency_Struct.h"
 #include "Game_Over_Widget.generated.h"
 
 /**
@@ -53,6 +54,19 @@ public:
 
     void SetInputModeToUI();
 
+    void UpdateEXPBar();
+
+    void StartEXPBarFill(float AddedEXP);
+
+    void OnEXPBarFillComplete();
+
+    void UpdateEXPUI();
+
+    void HandleLevelUp();
+
+    void ShowNotification(const FString& Message);
+
+    void ClearNotification();
 
 
 
@@ -83,6 +97,30 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UButton* MainMenu_Button;
 
+    // Progress Bar for EXP
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+       class UProgressBar* EXPProgressBar;  // The progress bar for EXP
+
+    // Text for displaying current weapon level
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UTextBlock* WeaponLevelText;  // Text block to display current weapon level
+
+    // Text for displaying current EXP
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UTextBlock* CurrentEXPText;  // Text block to display current EXP
+  
+    // Text block for notifications (e.g., "Level Up!" or "EXP +50")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UTextBlock* NotificationText;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UVerticalBox* NotificationContainer;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
+        FWeapon_Proficiency_Struct WeaponProficiency;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Notifications")
+        int32 MaxNotifications = 5;
 
     // Final score to display
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -120,6 +158,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
         UWidgetAnimation* Buttons_Animation;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
+        UWidgetAnimation* NotificationAnimation;
+
 
 private:
 
@@ -130,6 +171,10 @@ private:
 
     // Duration of the blur effect (in seconds)
     float BlurDuration = 1.5f;
+
+    float RemainingEXPToAdd;
+
+    float FillSpeed;
 
     // Timer handle for updating the score display
     FTimerHandle ScoreUpdateTimer;
@@ -152,6 +197,8 @@ private:
     FTimerHandle ExpBarUpdateTimer;
 
     FTimerHandle RewardNotificationTimer;
+
+    FTimerHandle EXPBarUpdateTimer;
 
 
     bool bIsGameOverTextAnimationComplete = false;
