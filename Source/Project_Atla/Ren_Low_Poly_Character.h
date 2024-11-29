@@ -389,16 +389,22 @@ public:
 
 	void UnlockQueuedTechniques();
 
-
 	// Function to add EXP to the current weapon (called when an enemy is defeated)
 	UFUNCTION(BlueprintCallable)
 	void AddWeaponEXP(float ExpAmount);
 
 	// Function to check if the current weapon needs to level up
 	void CheckWeaponLevelUp(EWeaponType Weapon);
-	//Level & Weapon Proficiency
+
+	void QueueEXP(float ExpAmount);
+
+	void ApplyQueuedEXP();
 
 	FTechnique_Struct* FindTechniqueByName(const FString& TechniqueName);
+
+	TArray<float> QueuedEXP;
+	//Level & Weapon Proficiency
+
 
 
 	//Command

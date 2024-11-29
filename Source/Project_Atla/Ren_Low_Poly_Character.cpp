@@ -1188,6 +1188,41 @@ void ARen_Low_Poly_Character::CheckWeaponLevelUp(EWeaponType Weapon)
 	}
 }
 
+void ARen_Low_Poly_Character::QueueEXP(float ExpAmount)
+{
+
+	if (ExpAmount > 0)
+	{
+		QueuedEXP.Add(ExpAmount);
+		UE_LOG(LogTemp, Log, TEXT("Queued %.2f EXP for later"), ExpAmount);
+	}
+
+
+
+}
+
+
+
+void ARen_Low_Poly_Character::ApplyQueuedEXP()
+{
+
+
+
+	for (float ExpAmount : QueuedEXP)
+	{
+		AddWeaponEXP(ExpAmount); // This function already handles adding EXP and checking for level-ups
+	}
+
+	// After applying the EXP, clear the queue
+	QueuedEXP.Empty();
+
+	UE_LOG(LogTemp, Log, TEXT("Applied all queued EXP and cleared the queue."));
+
+
+
+
+}
+
 
 
 
@@ -1507,6 +1542,30 @@ void ARen_Low_Poly_Character::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Sword proficiency not found!"));
 	}
+
+
+
+	if (WeaponProficiencyMap.Contains(EWeaponType::Staff))
+	{
+		FWeapon_Proficiency_Struct& StaffProficiency = WeaponProficiencyMap[EWeaponType::Staff];
+
+		// Log weapon stats
+		UE_LOG(LogTemp, Log, TEXT("Staff Weapon Stats:"));
+		UE_LOG(LogTemp, Log, TEXT("Level: %d"), StaffProficiency.WeaponLevel);
+		UE_LOG(LogTemp, Log, TEXT("Current EXP: %.2f"), StaffProficiency.CurrentEXP);
+		UE_LOG(LogTemp, Log, TEXT("EXP To Next Level: %.2f"), StaffProficiency.EXPToNextLevel);
+		UE_LOG(LogTemp, Log, TEXT("Attack Power Boost: %.2f"), StaffProficiency.AttackPowerBoost);
+		UE_LOG(LogTemp, Log, TEXT("Defense Boost: %.2f"), StaffProficiency.DefenseBoost);
+		UE_LOG(LogTemp, Log, TEXT("Elemental Power Boost: %.2f"), StaffProficiency.ElementalPowerBoost);
+		UE_LOG(LogTemp, Log, TEXT("Max Health Boost: %.2f"), StaffProficiency.MaxHealthBoost);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Sword proficiency not found!"));
+	}
+
+
+
 	
 }
 

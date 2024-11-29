@@ -110,6 +110,7 @@ void AEnemy_Poly::Death()
 			PlayerCharacter->UpdateHighScore(PointsEarned);
 			// Award EXP to the player's currently equipped weapon
 			PlayerCharacter->AddWeaponEXP(EXP_Gained);
+			PlayerCharacter->QueueEXP(EXP_Gained);
 
 			// Remove the arrow widget for this enemy
 			if (PlayerCharacter->EnemyArrowMap.Contains(this))

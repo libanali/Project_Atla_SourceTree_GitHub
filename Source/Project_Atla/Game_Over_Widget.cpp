@@ -46,6 +46,7 @@ void UGame_Over_Widget::NativeConstruct()
     }
 
 
+
 }
 
 
@@ -403,20 +404,9 @@ void UGame_Over_Widget::StartEXPBarFill(float AddedEXP)
         return;
     }
 
-    RemainingEXPToAdd = AddedEXP;
+    UE_LOG(LogTemp, Log, TEXT("Starting to fill EXP bar with added EXP: %.2f"), AddedEXP);
 
-    // Ensure progress bar starts at the correct value and becomes visible
-    if (EXPProgressBar)
-    {
-        float InitialPercent = WeaponProficiency.CurrentEXP / WeaponProficiency.EXPToNextLevel;
-        EXPProgressBar->SetPercent(InitialPercent);
-        EXPProgressBar->SetVisibility(ESlateVisibility::Visible);
-
-        UE_LOG(LogTemp, Log, TEXT("Progress Bar initialized. Starting at: %.2f"), InitialPercent);
-    }
-
-    // Start the timer to update the progress bar gradually
-    GetWorld()->GetTimerManager().SetTimer(EXPBarUpdateTimer, this, &UGame_Over_Widget::UpdateEXPBar, 0.01f, true);
+    RemainingEXPToAdd = AddedEXP;  // Make sure this is initialized correctly.
 }
 
 
@@ -468,21 +458,81 @@ void UGame_Over_Widget::OnEXPBarFillComplete()
 void UGame_Over_Widget::UpdateEXPUI()
 {
 
+    // Get the player character
+    ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+    if (!Ren)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to cast to ARen_Low_Poly_Character."));
+        return;
+    }
 
+    // Determine the current weapon type
+    EWeaponType CurrentWeaponType = Ren->WeaponType; // Assume this exists in the character class
+    FWeapon_Proficiency_Struct* Proficiency = Ren->WeaponProficiencyMap.Find(CurrentWeaponType);
+
+    if (!Proficiency)
+    {
+        UE_LOG(LogTemp, Error, TEXT("WeaponProficiencyMap does not contain data for WeaponType: %d"), static_cast<int32>(CurrentWeaponType));
+        return;
+    }
+
+    // Update the Weapon Level Text
     if (WeaponLevelText)
     {
-        WeaponLevelText->SetText(FText::FromString(FString::Printf(TEXT("Level: %d"), WeaponProficiency.WeaponLevel)));
+        WeaponLevelText->SetText(FText::FromString(FString::Printf(TEXT("Level: %d"), Proficiency->WeaponLevel)));
         WeaponLevelText->SetVisibility(ESlateVisibility::Visible);
+
+        UE_LOG(LogTemp, Log, TEXT("Updated Weapon Level Text to: %d"), Proficiency->WeaponLevel);
     }
 
+    // Update the Current EXP / EXP to Next Level Text
     if (CurrentEXPText)
     {
-        // Directly set the formatted text for CurrentEXP / EXPToNextLevel
-        CurrentEXPText->SetText(FText::FromString(FString::Printf(TEXT("%.0f / %.0f"), WeaponProficiency.CurrentEXP, WeaponProficiency.EXPToNextLevel)));
+        CurrentEXPText->SetText(FText::FromString(FString::Printf(TEXT("%.0f / %.0f"), Proficiency->CurrentEXP, Proficiency->EXPToNextLevel)));
         CurrentEXPText->SetVisibility(ESlateVisibility::Visible);
+
+        UE_LOG(LogTemp, Log, TEXT("Updated Current EXP Text: %.0f / %.0f"), Proficiency->CurrentEXP, Proficiency->EXPToNextLevel);
     }
 
-   
+
+    if (EXPProgressBar)
+
+    {
+
+        EXPProgressBar->SetVisibility(ESlateVisibility::Visible);
+
+    }
+
+
+    // After applying the queued EXP, we can check for techniques or update other UI elements
+    if (Ren->QueuedUnlockTechniques.Num() > 0)
+    {
+        // Copy the queue to avoid modification during iteration
+        TArray<FString> TempQueue = Ren->QueuedUnlockTechniques;
+
+        // Loop through each technique in the queue
+        for (const FString& TechniqueName : TempQueue)
+        {
+            // Unlock the technique
+            Ren->UnlockQueuedTechniques();  // Assuming this method processes the queued techniques
+
+            // Show the notification for the unlocked technique
+            FString NotificationMessage = FString::Printf(TEXT("Unlocked Technique: %s"), *TechniqueName);
+            ShowNotification(NotificationMessage);  // Assuming ShowNotification handles UI updates for the message
+
+            // Log for debugging purposes
+            UE_LOG(LogTemp, Log, TEXT("Notification shown: %s"), *NotificationMessage);
+        }
+
+        // Clear the original queue after processing
+        Ren->QueuedUnlockTechniques.Empty();
+
+        UE_LOG(LogTemp, Log, TEXT("QueuedUnlockTechniques size after processing: %d"), Ren->QueuedUnlockTechniques.Num());
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("No techniques were queued for unlocking."));
+    }
 }
 
 
@@ -564,6 +614,21 @@ void UGame_Over_Widget::ClearNotification()
 
 void UGame_Over_Widget::UpdateEXPBar()
 {
+    ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+    if (!Ren)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Ren (PlayerCharacter) is invalid!"));
+        return;
+    }
+
+    EWeaponType CurrentWeaponType = Ren->WeaponType;
+    FWeapon_Proficiency_Struct* Proficiency = Ren->WeaponProficiencyMap.Find(CurrentWeaponType);
+
+    if (!Proficiency)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Proficiency for current weapon type is invalid!"));
+        return;
+    }
 
     if (RemainingEXPToAdd <= 0.0f)
     {
@@ -574,33 +639,29 @@ void UGame_Over_Widget::UpdateEXPBar()
     }
 
     // Calculate the amount of progress to add per tick
-    float ProgressToAdd = FMath::Min(RemainingEXPToAdd * 0.01f, WeaponProficiency.EXPToNextLevel - WeaponProficiency.CurrentEXP);
-    WeaponProficiency.CurrentEXP += ProgressToAdd;
+    float ProgressToAdd = FMath::Min(RemainingEXPToAdd, Proficiency->EXPToNextLevel - Proficiency->CurrentEXP);
+    Proficiency->CurrentEXP += ProgressToAdd;
     RemainingEXPToAdd -= ProgressToAdd;
 
     // Update the progress bar percentage
     if (EXPProgressBar)
     {
-        float NewPercent = WeaponProficiency.CurrentEXP / WeaponProficiency.EXPToNextLevel;
+        float NewPercent = Proficiency->CurrentEXP / Proficiency->EXPToNextLevel;
+        NewPercent = FMath::Clamp(NewPercent, 0.0f, 1.0f); // Ensure it's within valid range
         EXPProgressBar->SetPercent(NewPercent);
-
-        UE_LOG(LogTemp, Log, TEXT("Progress Bar updated. Current percent: %.2f"), NewPercent);
     }
 
-    // If the EXP reaches or exceeds the next level threshold
-    if (WeaponProficiency.CurrentEXP >= WeaponProficiency.EXPToNextLevel)
+    // Check for level up and handle accordingly
+    if (Proficiency->CurrentEXP >= Proficiency->EXPToNextLevel)
     {
-        // Handle level-up logic
-        WeaponProficiency.CurrentEXP = 0.0f;
-        WeaponProficiency.WeaponLevel++;
-        WeaponProficiency.EXPToNextLevel *= 1.25f; // Example scaling for next level
+        Proficiency->CurrentEXP = 0.0f;
+        Proficiency->WeaponLevel++;
+        Proficiency->EXPToNextLevel *= 1.25f; // Scale EXP threshold
+        UpdateEXPUI();  // Update UI to reflect the new level
 
-        UE_LOG(LogTemp, Log, TEXT("Level up! New level: %d, Next EXP threshold: %.2f"), WeaponProficiency.WeaponLevel, WeaponProficiency.EXPToNextLevel);
-
-        // Update UI for new level
-        UpdateEXPUI();
+        // Continue filling the bar with any remaining EXP
+        RemainingEXPToAdd = FMath::Max(0.0f, RemainingEXPToAdd);
     }
-
 }
 
 
