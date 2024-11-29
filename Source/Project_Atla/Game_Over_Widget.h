@@ -113,6 +113,10 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UTextBlock* NotificationText;
 
+    // Text block for notifications (e.g., "Level Up!" or "EXP +50")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UVerticalBox* NotificationBox;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
         FWeapon_Proficiency_Struct WeaponProficiency;
 
@@ -198,6 +202,8 @@ private:
     FTimerHandle EXPBarUpdateTimer;
 
     FTimerHandle NotificationHideTimer;
+
+    FTimerHandle NotificationClearTimer;
 
 
     bool bIsGameOverTextAnimationComplete = false;

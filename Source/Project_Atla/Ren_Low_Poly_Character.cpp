@@ -1053,23 +1053,36 @@ void ARen_Low_Poly_Character::UnlockQueuedTechniques()
 {
 
 
-	for (const FString& TechniqueName : QueuedUnlockTechniques)
+	// Check if there are any queued techniques to unlock
+	if (QueuedUnlockTechniques.Num() > 0)
 	{
-		FTechnique_Struct* TechniqueToUnlock = FindTechniqueByName(TechniqueName);
+		for (const FString& TechniqueName : QueuedUnlockTechniques)
+		{
+			// Find the technique by its name
+			FTechnique_Struct* TechniqueToUnlock = FindTechniqueByName(TechniqueName);
 
-		if (TechniqueToUnlock)
-		{
-			TechniqueToUnlock->bIsUnlocked = true;
-			UE_LOG(LogTemp, Log, TEXT("Technique '%s' has been unlocked!"), *TechniqueName);
+			// Check if the technique exists in the array
+			if (TechniqueToUnlock)
+			{
+				// Unlock the technique
+				TechniqueToUnlock->bIsUnlocked = true;
+				UE_LOG(LogTemp, Log, TEXT("Technique '%s' has been unlocked!"), *TechniqueName);
+			}
+			else
+			{
+				// Log if the technique wasn't found
+				UE_LOG(LogTemp, Warning, TEXT("Technique '%s' not found in Techniques array!"), *TechniqueName);
+			}
 		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Technique '%s' not found in Techniques array!"), *TechniqueName);
-		}
+
+		// Clear the queue after unlocking the techniques
+		QueuedUnlockTechniques.Empty();
 	}
-
-	// Clear the queue after unlocking
-	QueuedUnlockTechniques.Empty();
+	else
+	{
+		// Optional: Log if the queue is empty (for debugging purposes)
+		UE_LOG(LogTemp, Warning, TEXT("No techniques in the queue to unlock."));
+	}
 
 }
 
@@ -1140,7 +1153,7 @@ void ARen_Low_Poly_Character::CheckWeaponLevelUp(EWeaponType Weapon)
 			Proficiency.WeaponLevel++;
 
 			// Dynamically increase EXP required for the next level
-			Proficiency.EXPToNextLevel *= 1.25f;  // Example multiplier for scaling
+			Proficiency.EXPToNextLevel *= 3.25f;  // Example multiplier for scaling
 
 			if (WeaponLevelToTechniqueMap.Contains(WeaponType))
 			{

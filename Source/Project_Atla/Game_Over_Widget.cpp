@@ -39,7 +39,12 @@ void UGame_Over_Widget::NativeConstruct()
 
 
 
-  
+    if (!NotificationBox)
+    {
+        UE_LOG(LogTemp, Error, TEXT("NotificationBox is not set up in the widget!"));
+        return;
+    }
+
 
 }
 
@@ -430,12 +435,12 @@ void UGame_Over_Widget::OnEXPBarFillComplete()
     // Check for queued techniques and display notifications
     if (Ren->QueuedUnlockTechniques.Num() > 0)
     {
-        // Copy the queue to avoid modifying it during iteration
+        // Copy the queue to avoid modification during iteration
         TArray<FString> TempQueue = Ren->QueuedUnlockTechniques;
 
         for (const FString& TechniqueName : TempQueue)
         {
-            // Unlock the technique (assumes UnlockQueuedTechniques() processes all techniques)
+            // Unlock the technique
             Ren->UnlockQueuedTechniques();
 
             // Show the notification for the unlocked technique
@@ -448,10 +453,11 @@ void UGame_Over_Widget::OnEXPBarFillComplete()
 
         // Clear the original queue after processing
         Ren->QueuedUnlockTechniques.Empty();
+
+        UE_LOG(LogTemp, Log, TEXT("QueuedUnlockTechniques size after processing: %d"), Ren->QueuedUnlockTechniques.Num());
     }
     else
     {
-        // Log if no techniques were queued (optional)
         UE_LOG(LogTemp, Warning, TEXT("No techniques were queued for unlocking."));
     }
 
@@ -497,20 +503,38 @@ void UGame_Over_Widget::HandleLevelUp()
 
 void UGame_Over_Widget::ShowNotification(const FString& Message)
 {
-    if (NotificationText)
+    if (!NotificationBox)
     {
-        NotificationText->SetText(FText::FromString(Message));
-        NotificationText->SetVisibility(ESlateVisibility::Visible);
-
-        // Hide the notification after 3 seconds
-        GetWorld()->GetTimerManager().SetTimer(NotificationHideTimer, this, &UGame_Over_Widget::ClearNotification, 3.0f, false);
-
-        UE_LOG(LogTemp, Log, TEXT("Notification shown: %s"), *Message);
+        UE_LOG(LogTemp, Error, TEXT("NotificationBox is not set up in the widget!"));
+        return;
     }
-    else
+
+    // Create a new text widget for the notification
+    UTextBlock* TheNotificationText = NewObject<UTextBlock>(this);
+    if (!TheNotificationText)
     {
-        UE_LOG(LogTemp, Error, TEXT("NotificationText is not valid."));
+        UE_LOG(LogTemp, Error, TEXT("Failed to create notification text block."));
+        return;
     }
+
+    // Set the text, font, color, and justification
+    TheNotificationText->SetText(FText::FromString(Message));
+    TheNotificationText->SetColorAndOpacity(FSlateColor(FLinearColor::Yellow)); // Customize color
+    // Optionally, set font size if you want it to be large
+    // TheNotificationText->SetFont(FSlateFontInfo("Arial", 24)); // Adjust font and size as needed
+    // TheNotificationText->SetJustification(ETextJustify::Center); // Optional justification
+
+    // Add the text block to the vertical box
+    NotificationBox->AddChild(TheNotificationText);
+
+    // Make the vertical box visible if it's not already
+    NotificationBox->SetVisibility(ESlateVisibility::Visible);
+
+    // Log for debugging
+    UE_LOG(LogTemp, Log, TEXT("Added notification: %s"), *Message);
+
+    // Optionally, clear notifications after a delay
+    GetWorld()->GetTimerManager().SetTimer(NotificationClearTimer, this, &UGame_Over_Widget::ClearNotification, 3.0f, false);
 }
 
 
@@ -518,11 +542,20 @@ void UGame_Over_Widget::ShowNotification(const FString& Message)
 
 void UGame_Over_Widget::ClearNotification()
 {
-    if (NotificationText)
+    if (!NotificationBox)
     {
-        NotificationText->SetVisibility(ESlateVisibility::Hidden);
-        UE_LOG(LogTemp, Log, TEXT("Notification cleared."));
+        UE_LOG(LogTemp, Error, TEXT("NotificationBox is not set up in the widget!"));
+        return;
     }
+
+    // Clear all notifications
+    NotificationBox->ClearChildren();
+
+    // Hide the vertical box
+    NotificationBox->SetVisibility(ESlateVisibility::Collapsed);
+
+    // Log for debugging
+    UE_LOG(LogTemp, Log, TEXT("Cleared all notifications."));
 }
 
 
