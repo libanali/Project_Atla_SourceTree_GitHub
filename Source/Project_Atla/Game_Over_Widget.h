@@ -100,10 +100,6 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UButton* MainMenu_Button;
 
-    // Progress Bar for EXP
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-       class UProgressBar* EXPProgressBar;  // The progress bar for EXP
-
     // Text for displaying current weapon level
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UTextBlock* WeaponLevelText;  // Text block to display current weapon level
