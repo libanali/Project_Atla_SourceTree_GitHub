@@ -45,7 +45,7 @@ void UGame_Over_Widget::NativeConstruct()
         return;
     }
 
-    UpdateInterval = 0.05f; // Time between updates, 0.05 seconds (50 ms) is typically smooth for animations QueuedEXPIncrement = 10.0f;
+    UpdateInterval = 0.09f; // Time between updates, 0.05 seconds (50 ms) is typically smooth for animations QueuedEXPIncrement = 10.0f;
     QueuedEXPIncrement = 10.0f;
 }
 
@@ -501,10 +501,8 @@ void UGame_Over_Widget::UpdateEXPAnimation()
     if (QueuedEXP <= 0.0f) 
     
     { 
-        
-        
+     
      GetWorld()->GetTimerManager().ClearTimer(EXPUpdateTimerHandle); 
-    
      return; 
 
     }
@@ -533,10 +531,10 @@ void UGame_Over_Widget::UpdateEXPAnimation()
 
             EWeaponType CurrentWeaponType = Ren->WeaponType;
             Ren->CheckWeaponLevelUp(CurrentWeaponType);
+            Ren->ApplyQueuedLevelUp(CurrentWeaponType);
+
 
             FWeapon_Proficiency_Struct* Proficiency = Ren->WeaponProficiencyMap.Find(CurrentWeaponType);
-
-
             if (Proficiency)
 
             {
@@ -545,6 +543,10 @@ void UGame_Over_Widget::UpdateEXPAnimation()
                 EXPToNextLevel = Proficiency->EXPToNextLevel;
 
             }
+
+            Ren->SavePlayerProgress();
+
+            OnQueuedEXPAdded();
 
         }
 

@@ -1146,47 +1146,18 @@ void ARen_Low_Poly_Character::CheckWeaponLevelUp(EWeaponType Weapon)
 		// Check if the current EXP exceeds the threshold
 		while (Proficiency.CurrentEXP >= Proficiency.EXPToNextLevel && Proficiency.WeaponLevel < 20)
 		{
-			// Deduct EXP required for the level-up
+
 			Proficiency.CurrentEXP -= Proficiency.EXPToNextLevel;
 
-			// Increase the weapon's level
-			Proficiency.WeaponLevel++;
+			bQueuedLevelUp = true;
 
-			// Dynamically increase EXP required for the next level
-			Proficiency.EXPToNextLevel *= 3.25f;  // Example multiplier for scaling
-
-			if (WeaponLevelToTechniqueMap.Contains(WeaponType))
-			{
-				FWeaponTechniqueMap& TechniqueMap = WeaponLevelToTechniqueMap[WeaponType];
-
-				if (TechniqueMap.LevelToTechnique.Contains(Proficiency.WeaponLevel))
-				{
-					FString TechniqueToUnlock = TechniqueMap.LevelToTechnique[Proficiency.WeaponLevel];
-					//UnlockTechnique(TechniqueToUnlock);
-					FString TechniqueToQueue = TechniqueMap.LevelToTechnique[Proficiency.WeaponLevel];
-					QueuedUnlockTechniques.Add(TechniqueToQueue);  // Add technique to the queue
-
-					UE_LOG(LogTemp, Log, TEXT("Queued technique: %s for next run."), *TechniqueToQueue);
-
-					//UE_LOG(LogTemp, Log, TEXT("Unlocked technique: %s"), *TechniqueToUnlock);
-				}
-
-
-				// Apply stat boosts (fixed values per level)
-				Proficiency.AttackPowerBoost += 4.f;   // Example value
-				Proficiency.DefenseBoost += 2.f;      // Example value
-				Proficiency.ElementalPowerBoost += 3.f; // Example value
-				Proficiency.MaxHealthBoost += 10.f;   // Example value
-
-				// Debug log for testing
-				UE_LOG(LogTemp, Warning, TEXT("Weapon leveled up! Level: %d, Next EXP Threshold: %.2f"),
-					Proficiency.WeaponLevel, Proficiency.EXPToNextLevel);
-			}
+			break;
 		}
-
 
 	}
 }
+
+
 
 void ARen_Low_Poly_Character::QueueEXP(float ExpAmount)
 {
@@ -1222,6 +1193,79 @@ void ARen_Low_Poly_Character::ApplyQueuedEXP()
 
 
 }
+
+void ARen_Low_Poly_Character::ApplyQueuedLevelUp(EWeaponType Weapon)
+{
+
+	if (bQueuedLevelUp && WeaponProficiencyMap.Contains(Weapon))
+
+	{
+
+		FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[Weapon];
+
+		Proficiency.WeaponLevel++;
+		Proficiency.EXPToNextLevel *= 2.25f;
+		bQueuedLevelUp = false;
+
+
+		if (WeaponLevelToTechniqueMap.Contains(Weapon))
+
+		{
+
+			FWeaponTechniqueMap& TechniqueMap = WeaponLevelToTechniqueMap[Weapon];
+
+			if (TechniqueMap.LevelToTechnique.Contains(Proficiency.WeaponLevel))
+
+			{
+
+				FString TechniqueToUnlock = TechniqueMap.LevelToTechnique[Proficiency.WeaponLevel];
+
+				QueuedUnlockTechniques.Add(TechniqueToUnlock);
+
+				UE_LOG(LogTemp, Log, TEXT("Queued technique: %s for next run."), *TechniqueToUnlock);
+			}
+
+
+			Proficiency.AttackPowerBoost += 4.f;
+			Proficiency.DefenseBoost += 2.f;
+			Proficiency.ElementalPowerBoost += 3.f;
+			Proficiency.MaxHealthBoost += 10.f;
+
+
+			UE_LOG(LogTemp, Warning, TEXT("Weapon leveled up! Level: %d, Next EXP Threshold: %.2f"), Proficiency.WeaponLevel, Proficiency.EXPToNextLevel);
+
+			for (const FString& TechniqueName : QueuedUnlockTechniques)
+			{
+
+				UnlockTechnique(TechniqueName);
+				UE_LOG(LogTemp, Log, TEXT("Unlocked technique: %s"), *TechniqueName);
+
+				APlayerController* PC = Cast<APlayerController>(GetController());
+
+				if (PC)
+
+				{
+					if (GameOverWidgetInstance)
+
+					{
+
+						FString NotificationMessage = FString::Printf(TEXT("Unlocked Technique: %s"), *TechniqueName);
+						GameOverWidgetInstance->ShowNotification(NotificationMessage);
+
+					}
+
+
+				}
+			}
+
+			QueuedUnlockTechniques.Empty();
+		}
+
+	}
+
+}
+
+
 
 float ARen_Low_Poly_Character::GetQueuedEXP() const
 {

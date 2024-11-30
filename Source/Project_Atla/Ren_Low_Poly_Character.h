@@ -385,6 +385,9 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Technique System")
 		TArray<FString> QueuedUnlockTechniques;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Technique System")
+		bool bQueuedLevelUp;
+
 	void CheckForTechniqueUnlock(EWeaponType Weapon, int32 WeaponLevel);
 
 	void UnlockQueuedTechniques();
@@ -400,7 +403,11 @@ public:
 
 	void ApplyQueuedEXP();
 
+	void ApplyQueuedLevelUp(EWeaponType Weapon);
+
 	float GetQueuedEXP() const;
+
+
 
 	FTechnique_Struct* FindTechniqueByName(const FString& TechniqueName);
 
@@ -488,8 +495,8 @@ public:
 	void CheckAndDisplayArrow(AActor* Enemy, UEnemy_Detection_Arrow* ArrowWidget);
 
 	TMap<AEnemy_Poly*, UEnemy_Detection_Arrow*> EnemyArrowMap;
-
 	//Enemy Arrow UI
+
 
 protected:
 	// Called when the game starts or when spawned
