@@ -1223,6 +1223,19 @@ void ARen_Low_Poly_Character::ApplyQueuedEXP()
 
 }
 
+float ARen_Low_Poly_Character::GetQueuedEXP() const
+{
+	float TotalQueuedEXP = 0.0f; 
+	
+	for (float ExpAmount : QueuedEXP) 
+	
+	{ 
+		TotalQueuedEXP += ExpAmount;
+	} 
+	
+	return TotalQueuedEXP;
+}
+
 
 
 

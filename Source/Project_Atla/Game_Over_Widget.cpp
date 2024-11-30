@@ -45,8 +45,8 @@ void UGame_Over_Widget::NativeConstruct()
         return;
     }
 
-
-
+    UpdateInterval = 0.05f; // Time between updates, 0.05 seconds (50 ms) is typically smooth for animations QueuedEXPIncrement = 10.0f;
+    QueuedEXPIncrement = 10.0f;
 }
 
 
@@ -396,157 +396,10 @@ void UGame_Over_Widget::SetInputModeToUI()
 
 
 
-void UGame_Over_Widget::StartEXPBarFill(float AddedEXP)
-{
-    if (AddedEXP <= 0.0f)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Invalid AddedEXP value: %.2f"), AddedEXP);
-        return;
-    }
-
-    UE_LOG(LogTemp, Log, TEXT("Starting to fill EXP bar with added EXP: %.2f"), AddedEXP);
-
-    RemainingEXPToAdd = AddedEXP;  // Make sure this is initialized correctly.
-}
-
-
-
-void UGame_Over_Widget::OnEXPBarFillComplete()
-{
-    UE_LOG(LogTemp, Log, TEXT("EXP Bar fill complete!"));
-
-    ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-    if (!Ren)
-    {
-        UE_LOG(LogTemp, Error, TEXT("Failed to cast to ARen_Low_Poly_Character."));
-        return;
-    }
-
-    // Check for queued techniques and display notifications
-    if (Ren->QueuedUnlockTechniques.Num() > 0)
-    {
-        // Copy the queue to avoid modification during iteration
-        TArray<FString> TempQueue = Ren->QueuedUnlockTechniques;
-
-        for (const FString& TechniqueName : TempQueue)
-        {
-            // Unlock the technique
-            Ren->UnlockQueuedTechniques();
-
-            // Show the notification for the unlocked technique
-            FString NotificationMessage = FString::Printf(TEXT("Unlocked Technique: %s"), *TechniqueName);
-            ShowNotification(NotificationMessage);
-
-            // Log for debugging purposes
-            UE_LOG(LogTemp, Log, TEXT("Notification shown: %s"), *NotificationMessage);
-        }
-
-        // Clear the original queue after processing
-        Ren->QueuedUnlockTechniques.Empty();
-
-        UE_LOG(LogTemp, Log, TEXT("QueuedUnlockTechniques size after processing: %d"), Ren->QueuedUnlockTechniques.Num());
-    }
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("No techniques were queued for unlocking."));
-    }
-
-}
-
-
-
-void UGame_Over_Widget::UpdateEXPUI()
-{
-
-    // Get the player character
-    ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-    if (!Ren)
-    {
-        UE_LOG(LogTemp, Error, TEXT("Failed to cast to ARen_Low_Poly_Character."));
-        return;
-    }
-
-    // Determine the current weapon type
-    EWeaponType CurrentWeaponType = Ren->WeaponType; // Assume this exists in the character class
-    FWeapon_Proficiency_Struct* Proficiency = Ren->WeaponProficiencyMap.Find(CurrentWeaponType);
-
-    if (!Proficiency)
-    {
-        UE_LOG(LogTemp, Error, TEXT("WeaponProficiencyMap does not contain data for WeaponType: %d"), static_cast<int32>(CurrentWeaponType));
-        return;
-    }
-
-    // Update the Weapon Level Text
-    if (WeaponLevelText)
-    {
-        WeaponLevelText->SetText(FText::FromString(FString::Printf(TEXT("Level: %d"), Proficiency->WeaponLevel)));
-        WeaponLevelText->SetVisibility(ESlateVisibility::Visible);
-
-        UE_LOG(LogTemp, Log, TEXT("Updated Weapon Level Text to: %d"), Proficiency->WeaponLevel);
-    }
-
-    // Update the Current EXP / EXP to Next Level Text
-    if (CurrentEXPText)
-    {
-        CurrentEXPText->SetText(FText::FromString(FString::Printf(TEXT("%.0f / %.0f"), Proficiency->CurrentEXP, Proficiency->EXPToNextLevel)));
-        CurrentEXPText->SetVisibility(ESlateVisibility::Visible);
-
-        UE_LOG(LogTemp, Log, TEXT("Updated Current EXP Text: %.0f / %.0f"), Proficiency->CurrentEXP, Proficiency->EXPToNextLevel);
-    }
-
-
-    if (EXPProgressBar)
-
-    {
-
-        EXPProgressBar->SetVisibility(ESlateVisibility::Visible);
-
-    }
-
-
-    // After applying the queued EXP, we can check for techniques or update other UI elements
-    if (Ren->QueuedUnlockTechniques.Num() > 0)
-    {
-        // Copy the queue to avoid modification during iteration
-        TArray<FString> TempQueue = Ren->QueuedUnlockTechniques;
-
-        // Loop through each technique in the queue
-        for (const FString& TechniqueName : TempQueue)
-        {
-            // Unlock the technique
-            Ren->UnlockQueuedTechniques();  // Assuming this method processes the queued techniques
-
-            // Show the notification for the unlocked technique
-            FString NotificationMessage = FString::Printf(TEXT("Unlocked Technique: %s"), *TechniqueName);
-            ShowNotification(NotificationMessage);  // Assuming ShowNotification handles UI updates for the message
-
-            // Log for debugging purposes
-            UE_LOG(LogTemp, Log, TEXT("Notification shown: %s"), *NotificationMessage);
-        }
-
-        // Clear the original queue after processing
-        Ren->QueuedUnlockTechniques.Empty();
-
-        UE_LOG(LogTemp, Log, TEXT("QueuedUnlockTechniques size after processing: %d"), Ren->QueuedUnlockTechniques.Num());
-    }
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("No techniques were queued for unlocking."));
-    }
-}
 
 
 
 
-void UGame_Over_Widget::HandleLevelUp()
-{
-
-    WeaponProficiency.WeaponLevel++; // Increment level
-    WeaponProficiency.EXPToNextLevel *= 1.1f; // Example: Increase EXP requirement by 10%
-
-
-
-}
 
 
 
@@ -585,6 +438,7 @@ void UGame_Over_Widget::ShowNotification(const FString& Message)
 
     // Optionally, clear notifications after a delay
     GetWorld()->GetTimerManager().SetTimer(NotificationClearTimer, this, &UGame_Over_Widget::ClearNotification, 3.0f, false);
+
 }
 
 
@@ -612,57 +466,200 @@ void UGame_Over_Widget::ClearNotification()
 
 
 
-void UGame_Over_Widget::UpdateEXPBar()
+void UGame_Over_Widget::StartEXPTransferAnimation()
 {
-    ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-    if (!Ren)
-    {
-        UE_LOG(LogTemp, Error, TEXT("Ren (PlayerCharacter) is invalid!"));
-        return;
-    }
+
+
+    ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)); 
+    
+    if (!Ren) return;
 
     EWeaponType CurrentWeaponType = Ren->WeaponType;
-    FWeapon_Proficiency_Struct* Proficiency = Ren->WeaponProficiencyMap.Find(CurrentWeaponType);
 
-    if (!Proficiency)
-    {
-        UE_LOG(LogTemp, Error, TEXT("Proficiency for current weapon type is invalid!"));
-        return;
-    }
+    FWeapon_Proficiency_Struct* Proficiency = Ren->WeaponProficiencyMap.Find(CurrentWeaponType); 
+    
+    if (!Proficiency) return;
 
-    if (RemainingEXPToAdd <= 0.0f)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("No remaining EXP to add."));
-        GetWorld()->GetTimerManager().ClearTimer(EXPBarUpdateTimer);
-        OnEXPBarFillComplete();
-        return;
-    }
+    CurrentEXP = Proficiency->CurrentEXP; 
+    
+    QueuedEXP = Ren->GetQueuedEXP();
+    
+    EXPToNextLevel = Proficiency->EXPToNextLevel;
 
-    // Calculate the amount of progress to add per tick
-    float ProgressToAdd = FMath::Min(RemainingEXPToAdd, Proficiency->EXPToNextLevel - Proficiency->CurrentEXP);
-    Proficiency->CurrentEXP += ProgressToAdd;
-    RemainingEXPToAdd -= ProgressToAdd;
-
-    // Update the progress bar percentage
-    if (EXPProgressBar)
-    {
-        float NewPercent = Proficiency->CurrentEXP / Proficiency->EXPToNextLevel;
-        NewPercent = FMath::Clamp(NewPercent, 0.0f, 1.0f); // Ensure it's within valid range
-        EXPProgressBar->SetPercent(NewPercent);
-    }
-
-    // Check for level up and handle accordingly
-    if (Proficiency->CurrentEXP >= Proficiency->EXPToNextLevel)
-    {
-        Proficiency->CurrentEXP = 0.0f;
-        Proficiency->WeaponLevel++;
-        Proficiency->EXPToNextLevel *= 1.25f; // Scale EXP threshold
-        UpdateEXPUI();  // Update UI to reflect the new level
-
-        // Continue filling the bar with any remaining EXP
-        RemainingEXPToAdd = FMath::Max(0.0f, RemainingEXPToAdd);
-    }
+    GetWorld()->GetTimerManager().SetTimer(EXPUpdateTimerHandle, this, &UGame_Over_Widget::UpdateEXPAnimation, UpdateInterval, true);
 }
+
+
+
+
+
+
+void UGame_Over_Widget::UpdateEXPAnimation()
+{
+
+
+    if (QueuedEXP <= 0.0f) 
+    
+    { 
+        
+        
+     GetWorld()->GetTimerManager().ClearTimer(EXPUpdateTimerHandle); 
+    
+     return; 
+
+    }
+
+
+
+    float AmountToAdd = FMath::Min(QueuedEXPIncrement, QueuedEXP); 
+    CurrentEXP += AmountToAdd; 
+    QueuedEXP -= AmountToAdd; 
+    EXPToNextLevel -= AmountToAdd;
+
+
+
+
+    if (EXPToNextLevel <= 0.0f)
+
+    {
+
+        float ExcessEXP = -EXPToNextLevel;
+
+        ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+        if (Ren)
+
+        {
+
+            EWeaponType CurrentWeaponType = Ren->WeaponType;
+            Ren->CheckWeaponLevelUp(CurrentWeaponType);
+
+            FWeapon_Proficiency_Struct* Proficiency = Ren->WeaponProficiencyMap.Find(CurrentWeaponType);
+
+
+            if (Proficiency)
+
+            {
+
+                Proficiency->CurrentEXP += ExcessEXP;
+                EXPToNextLevel = Proficiency->EXPToNextLevel;
+
+            }
+
+        }
+
+    }
+
+
+
+
+    if (CurrentEXPText) 
+    
+    { 
+        CurrentEXPText->SetText(FText::FromString(FString::Printf(TEXT("Current EXP: %.0f"), CurrentEXP)));
+        CurrentEXPText->SetVisibility(ESlateVisibility::Visible);
+    }
+
+    if (QueuedEXPText)
+
+    {
+        QueuedEXPText->SetText(FText::FromString(FString::Printf(TEXT("EXP Earned: %.0f"), QueuedEXP)));
+        QueuedEXPText->SetVisibility(ESlateVisibility::Visible);
+    }
+
+    if (EXPToNextLevelText)
+
+    {
+        EXPToNextLevelText->SetText(FText::FromString(FString::Printf(TEXT("EXPToNextLevel: %.0f"), EXPToNextLevel)));
+        EXPToNextLevelText->SetVisibility(ESlateVisibility::Visible);
+    }
+
+
+}
+
+
+
+
+void UGame_Over_Widget::OnQueuedEXPAdded()
+{
+
+   ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+   if (!Ren) 
+   
+   { UE_LOG(LogTemp, Error, TEXT("Failed to cast to ARen_Low_Poly_Character."));
+   
+   return; 
+   
+   }
+
+
+   EWeaponType CurrentWeaponType = Ren->WeaponType;
+
+   FWeapon_Proficiency_Struct* Proficiency = Ren->WeaponProficiencyMap.Find(CurrentWeaponType);
+
+   if (!Proficiency)
+
+   {
+
+       UE_LOG(LogTemp, Error, TEXT("WeaponProficiencyMap does not contain data for WeaponType: %d"), static_cast<int32>(CurrentWeaponType));
+       return;
+
+   }
+
+
+   if (WeaponLevelText)
+   {
+       
+   WeaponLevelText->SetText(FText::FromString(FString::Printf(TEXT("Level: %d"), Proficiency->WeaponLevel))); 
+   WeaponLevelText->SetVisibility(ESlateVisibility::Visible); 
+
+   } 
+   
+   if (CurrentEXPText) 
+   
+   { 
+       
+       CurrentEXPText->SetText(FText::FromString(FString::Printf(TEXT("%.0f / %.0f"), Proficiency->CurrentEXP, Proficiency->EXPToNextLevel)));
+        CurrentEXPText->SetVisibility(ESlateVisibility::Visible);
+   
+   } 
+   
+  
+
+
+   if (Ren->QueuedUnlockTechniques.Num() > 0)
+
+   {
+
+       TArray<FString> TempQueue = Ren->QueuedUnlockTechniques;
+
+       for (const FString& TechniqueName : TempQueue)
+
+       {
+
+           Ren->UnlockQueuedTechniques();
+           FString NotificationMessage = FString::Printf(TEXT("Unlocked Technique: %s"), *TechniqueName);
+           ShowNotification(NotificationMessage);
+       }
+
+       Ren->QueuedUnlockTechniques.Empty();
+
+   }
+
+   StartEXPTransferAnimation();
+
+
+}
+
+
+
+
+
+
+
+
+
 
 
 
@@ -714,11 +711,9 @@ void UGame_Over_Widget::UpdateDisplayedScore()
             // Now that the animation is complete, update the high score
             Ren->UpdateHighScore(TargetScore);  // Update high score here
 
-            UpdateEXPUI();
+            OnQueuedEXPAdded();
 
-            UpdateEXPBar();
-
-            StartEXPBarFill(RemainingEXPToAdd);
+            UpdateEXPAnimation();
 
         }
     }

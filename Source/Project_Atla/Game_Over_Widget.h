@@ -54,20 +54,23 @@ public:
 
     void SetInputModeToUI();
 
-    void UpdateEXPBar();
+   // void UpdateEXPBar();
 
-    void StartEXPBarFill(float AddedEXP);
+   // void StartEXPBarFill(float AddedEXP);
 
-    void OnEXPBarFillComplete();
+   // void OnEXPBarFillComplete();
 
-    void UpdateEXPUI();
-
-    void HandleLevelUp();
+ //   void UpdateEXPUI();
 
     void ShowNotification(const FString& Message);
 
     void ClearNotification();
 
+    void StartEXPTransferAnimation();
+
+    void UpdateEXPAnimation();
+
+    void OnQueuedEXPAdded();
 
 
 
@@ -108,6 +111,14 @@ public:
     // Text for displaying current EXP
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UTextBlock* CurrentEXPText;  // Text block to display current EXP
+
+    // Text for displaying current EXP
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UTextBlock* QueuedEXPText;  // Text block to display current EXP
+
+    // Text for displaying current EXP
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UTextBlock* EXPToNextLevelText;  // Text block to display current EXP
   
     // Text block for notifications (e.g., "Level Up!" or "EXP +50")
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
@@ -205,6 +216,10 @@ private:
 
     FTimerHandle NotificationClearTimer;
 
+    FTimerHandle EXPUpdateTimerHandle;
+
+
+
 
     bool bIsGameOverTextAnimationComplete = false;
     bool bIsScoreFadeInComplete = false;
@@ -213,4 +228,13 @@ private:
     float GameOverTextAnimationDuration = 1.0f;
     float ScoreFadeInDuration = 1.0f;
 
+
+    float CurrentEXP;
+    float QueuedEXP;
+    float EXPToNextLevel;
+
+
+    float UpdateInterval;
+
+    float QueuedEXPIncrement;
 };

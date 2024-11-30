@@ -400,6 +400,8 @@ public:
 
 	void ApplyQueuedEXP();
 
+	float GetQueuedEXP() const;
+
 	FTechnique_Struct* FindTechniqueByName(const FString& TechniqueName);
 
 	TArray<float> QueuedEXP;
