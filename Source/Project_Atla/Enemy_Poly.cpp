@@ -95,6 +95,9 @@ void AEnemy_Poly::Death()
 
 	bIsDead = true;
 
+	// Log enemy death for debugging purposes
+	UE_LOG(LogTemp, Warning, TEXT("Enemy %s has died"), *GetName());
+
 	// Get reference to the game mode to handle enemy removal and score calculation
 	ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
 	if (GameMode)
@@ -112,7 +115,7 @@ void AEnemy_Poly::Death()
 			PlayerCharacter->AddWeaponEXP(EXP_Gained);
 			PlayerCharacter->QueueEXP(EXP_Gained);
 
-			// Remove the arrow widget for this enemy
+			// Remove the arrow widget for this enemy (check and cleanup)
 			if (PlayerCharacter->EnemyArrowMap.Contains(this))
 			{
 				UEnemy_Detection_Arrow* ArrowWidget = PlayerCharacter->EnemyArrowMap[this];
@@ -121,23 +124,25 @@ void AEnemy_Poly::Death()
 					ArrowWidget->RemoveFromViewport();  // Remove from screen
 					ArrowWidget = nullptr;
 				}
-				PlayerCharacter->EnemyArrowMap.Remove(this);  // Remove from map
+				PlayerCharacter->EnemyArrowMap.Remove(this);  // Remove from the map
 			}
-
-
-			
-
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("ArrowWidget not found for this enemy!"));
+			}
 		}
 
-		// Additional code for removing the enemy from lists, handling AI, etc.
+		// Remove enemy from any game mode lists
 		GameMode->SpawnedEnemies.Remove(this);
 
+		// Handle the AI controller and its removal from active enemies
 		AEnemy_AIController* AIController = Cast<AEnemy_AIController>(GetController());
 		if (AIController)
 		{
 			GameMode->ActiveEnemies.Remove(AIController);
 		}
 
+		// Ensure the game mode attack cycle is reset if this enemy was attacking
 		if (GameMode->CurrentAttacker == AIController)
 		{
 			GameMode->ResetAttackCycle();
@@ -145,7 +150,7 @@ void AEnemy_Poly::Death()
 		}
 	}
 
-	// Destroy the enemy after all necessary actions
+	// Finally, destroy the enemy and attempt item drop if applicable
 	Destroy(true);
 	AttemptItemDrop();
 }

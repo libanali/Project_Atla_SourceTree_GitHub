@@ -221,6 +221,9 @@ private:
     bool bIsScoreFadeInComplete = false;
     bool bIsBlurAnimationComplete = false;
 
+    bool bIsExpTransferInProgress = false;
+
+
     float GameOverTextAnimationDuration = 1.0f;
     float ScoreFadeInDuration = 1.0f;
 

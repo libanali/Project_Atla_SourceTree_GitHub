@@ -1288,18 +1288,36 @@ float ARen_Low_Poly_Character::GetQueuedEXP() const
 void ARen_Low_Poly_Character::UpdateEnemyArrows()
 {
 
-
 	// Loop through the enemies in the map and update the arrow widgets
-	for (const TPair<AEnemy_Poly*, UEnemy_Detection_Arrow*>& EnemyArrowPair : EnemyArrowMap)
+	for (auto It = EnemyArrowMap.CreateIterator(); It; ++It)
 	{
-		AEnemy_Poly* Enemy = EnemyArrowPair.Key;
-		UEnemy_Detection_Arrow* ArrowWidget = EnemyArrowPair.Value;
+		AEnemy_Poly* Enemy = It.Key();
+		UEnemy_Detection_Arrow* ArrowWidget = It.Value();
 
-		if (Enemy && ArrowWidget)
+		if (!Enemy)
 		{
-			// Call the function to check the position and update the arrow widget
-			CheckAndDisplayArrow(Enemy, ArrowWidget);
+			UE_LOG(LogTemp, Warning, TEXT("Enemy is null in EnemyArrowMap! Removing entry."));
+			It.RemoveCurrent();  // Remove the entry from the map if the enemy is null
+			continue;  // Skip to the next iteration
 		}
+
+		if (!ArrowWidget)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("ArrowWidget is null for enemy %s! Removing entry."), *Enemy->GetName());
+			It.RemoveCurrent();  // Remove the entry from the map if the arrow widget is null
+			continue;  // Skip to the next iteration
+		}
+
+		// Ensure the enemy is not marked for destruction (pending kill)
+		if (Enemy->IsPendingKillPending())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Enemy %s is pending kill, removing entry from map."), *Enemy->GetName());
+			It.RemoveCurrent();  // Remove the entry from the map if the enemy is pending kill
+			continue;  // Skip to the next iteration
+		}
+
+		// Call the function to check the position and update the arrow widget
+		CheckAndDisplayArrow(Enemy, ArrowWidget);
 	}
 
 }
@@ -1308,12 +1326,26 @@ void ARen_Low_Poly_Character::UpdateEnemyArrows()
 
 void ARen_Low_Poly_Character::CheckAndDisplayArrow(AActor* Enemy, UEnemy_Detection_Arrow* ArrowWidget)
 {
+	// Check if ArrowWidget is valid
+	if (!ArrowWidget)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("ArrowWidget is null!"));
+		return;
+	}
+
+	// Check if Enemy is valid
+	if (!Enemy)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Enemy is null!"));
+		return;
+	}
 
 	// Safely cast the enemy to AEnemy_Poly to access its properties
 	AEnemy_Poly* EnemyPoly = Cast<AEnemy_Poly>(Enemy);
 	if (!EnemyPoly)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Enemy is not of type AEnemy_Poly!"));
+		// Log the class name of the enemy to identify why the cast failed
+		UE_LOG(LogTemp, Warning, TEXT("Enemy is not of type AEnemy_Poly! Actual class: %s"), *Enemy->GetClass()->GetName());
 		return;
 	}
 
@@ -1957,7 +1989,15 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 
 	StopFillingGauge();
 
-	UpdateEnemyArrows();
+	// Call UpdateEnemyArrows only if the EnemyArrowMap is valid and not empty
+	if (EnemyArrowMap.Num() > 0)
+	{
+		UpdateEnemyArrows();
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("EnemyArrowMap is empty! No arrows to update."));
+	}
 
 }
 
