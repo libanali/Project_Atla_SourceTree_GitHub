@@ -131,6 +131,8 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UVerticalBox* NotificationBox;
 
+  
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
         FWeapon_Proficiency_Struct WeaponProficiency;
 
