@@ -112,6 +112,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		float CalculatedElementalDamage;
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void RemoveGameplayUI();
 	//Combat
 
 
@@ -152,6 +155,7 @@ public:
 	void Score_Reaction_Anim();
 
 	void FindResultsCamera();
+
 	//High score
 
 
@@ -407,8 +411,6 @@ public:
 
 	float GetQueuedEXP() const;
 
-
-
 	FTechnique_Struct* FindTechniqueByName(const FString& TechniqueName);
 
 	TArray<float> QueuedEXP;
@@ -480,6 +482,8 @@ public:
 	//Scoring system
 
 
+
+
 	//Enemy Arrow UI
 	UPROPERTY()
 		TArray<UEnemy_Detection_Arrow*> EnemyArrowWidgets;
@@ -496,6 +500,7 @@ public:
 
 	TMap<AEnemy_Poly*, UEnemy_Detection_Arrow*> EnemyArrowMap;
 	//Enemy Arrow UI
+
 
 
 protected:

@@ -72,8 +72,15 @@ public:
 
     void OnQueuedEXPAdded();
 
+    void SkipScoreAnimation();
+
+    void SkipEXPTransferAnimation();
+
+   // void OnCompleteEXPAnimation();
 
 
+// Handle key press for skipping animation
+    virtual FReply NativeOnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent) override;
 
     // Background blur widget
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))

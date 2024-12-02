@@ -328,6 +328,8 @@ void ARen_Low_Poly_Character::DisplayGameOverUI()
 		// Set up the widget with final score and high score
 		GameOverWidgetInstance->SetUpGameOverUI(FinalScore, HighScore);
 
+
+
 		// Trigger the score animation
 		//GameOverWidgetInstance->StartScoreAnimation();
 		if (Results_Camera)
@@ -556,6 +558,7 @@ void ARen_Low_Poly_Character::Death()
 	if (PlayerController)
 	{
 		DisableInput(PlayerController);
+
 	}
 
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
@@ -564,6 +567,7 @@ void ARen_Low_Poly_Character::Death()
 	SaveHighScore();
 	SavePlayerProgress();
 
+	RemoveGameplayUI();
 	// Display Game Over UI only once
 	DisplayGameOverUI();
 
@@ -1426,6 +1430,7 @@ void ARen_Low_Poly_Character::CheckAndDisplayArrow(AActor* Enemy, UEnemy_Detecti
 
 
 
+
 // Called when the game starts or when spawned
 void ARen_Low_Poly_Character::BeginPlay()
 {
@@ -1996,7 +2001,7 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("EnemyArrowMap is empty! No arrows to update."));
+		//UE_LOG(LogTemp, Warning, TEXT("EnemyArrowMap is empty! No arrows to update."));
 	}
 
 }

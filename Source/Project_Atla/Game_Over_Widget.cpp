@@ -26,6 +26,10 @@ void UGame_Over_Widget::NativeConstruct()
     Super::NativeConstruct();
 
 
+    
+
+    SetIsFocusable(true);
+
 	CurrentDisplayedScore = 0;
 
     // Set the blur strength to 0 initially
@@ -45,8 +49,38 @@ void UGame_Over_Widget::NativeConstruct()
         return;
     }
 
-    UpdateInterval = 0.09f; // Time between updates, 0.05 seconds (50 ms) is typically smooth for animations QueuedEXPIncrement = 10.0f;
+    UpdateInterval = 0.03f; // Time between updates, 0.05 seconds (50 ms) is typically smooth for animations QueuedEXPIncrement = 10.0f;
     QueuedEXPIncrement = 10.0f;
+  
+
+
+
+    // Get the player controller
+    APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+    if (PlayerController)
+    {
+        // Set input mode to UI-only
+        FInputModeUIOnly InputMode;
+        InputMode.SetWidgetToFocus(TakeWidget()); // Focus this widget
+        InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+        PlayerController->SetInputMode(InputMode);
+
+        // Show the mouse cursor for UI interaction
+        PlayerController->bShowMouseCursor = true;
+
+        UE_LOG(LogTemp, Warning, TEXT("Input mode set to Game Over UI in NativeConstruct"));
+    }
+
+    else
+
+    {
+
+        UE_LOG(LogTemp, Error, TEXT("Failed to get PlayerController in NativeConstruct!"));
+
+    }
+
+
+   
 }
 
 
@@ -358,8 +392,7 @@ void UGame_Over_Widget::PlayButtonsFadeInAnimation()
         {
             MainMenu_Button->SetVisibility(ESlateVisibility::Visible);
             Retry_Button->SetVisibility(ESlateVisibility::Visible);
-
-
+            Retry_Button->SetKeyboardFocus();
         }
         else
         {
@@ -423,9 +456,7 @@ void UGame_Over_Widget::ShowNotification(const FString& Message)
     // Set the text, font, color, and justification
     TheNotificationText->SetText(FText::FromString(Message));
     TheNotificationText->SetColorAndOpacity(FSlateColor(FLinearColor::Yellow)); // Customize color
-    // Optionally, set font size if you want it to be large
-    // TheNotificationText->SetFont(FSlateFontInfo("Arial", 24)); // Adjust font and size as needed
-    // TheNotificationText->SetJustification(ETextJustify::Center); // Optional justification
+  
 
     // Add the text block to the vertical box
     NotificationBox->AddChild(TheNotificationText);
@@ -437,7 +468,7 @@ void UGame_Over_Widget::ShowNotification(const FString& Message)
     UE_LOG(LogTemp, Log, TEXT("Added notification: %s"), *Message);
 
     // Optionally, clear notifications after a delay
-    GetWorld()->GetTimerManager().SetTimer(NotificationClearTimer, this, &UGame_Over_Widget::ClearNotification, 3.0f, false);
+    GetWorld()->GetTimerManager().SetTimer(NotificationClearTimer, this, &UGame_Over_Widget::ClearNotification, 6.0f, false);
 
 }
 
@@ -507,6 +538,10 @@ void UGame_Over_Widget::UpdateEXPAnimation()
         // Reset the flag
         bIsExpTransferInProgress = false;
 
+        UE_LOG(LogTemp, Warning, TEXT("EXP animation finished"));
+
+        PlayButtonsFadeInAnimation();
+
         // Optionally, hide or update any UI elements here
         return;
     }
@@ -548,6 +583,7 @@ void UGame_Over_Widget::UpdateEXPAnimation()
             OnQueuedEXPAdded();
         }
     }
+
 
     // Update the UI with the new values
     if (CurrentEXPText)
@@ -618,6 +654,10 @@ void UGame_Over_Widget::OnQueuedEXPAdded()
         Ren->QueuedUnlockTechniques.Empty();
     }
 
+
+
+
+
     // Start the EXP transfer animation (if not already started)
     StartEXPTransferAnimation();
 
@@ -627,7 +667,98 @@ void UGame_Over_Widget::OnQueuedEXPAdded()
 
 
 
+void UGame_Over_Widget::SkipScoreAnimation()
+{
 
+    // Check if FinalScoreText and HighScoreText are both valid and visible
+    if (FinalScoreText && FinalScoreText->IsVisible() && HighScoreText && HighScoreText->IsVisible())
+    {
+        // Immediately set the displayed score to the target score
+        CurrentDisplayedScore = TargetScore;
+
+        // Clear the timer (stop any ongoing updates)
+        GetWorld()->GetTimerManager().ClearTimer(ScoreUpdateTimer);
+
+        // Update the score display immediately
+        if (FinalScoreText)
+        {
+            FinalScoreText->SetText(FText::FromString(FString::Printf(TEXT("Final Score: %d"), CurrentDisplayedScore)));
+        }
+
+        // Log for debugging
+        UE_LOG(LogTemp, Log, TEXT("Score animation skipped"));
+
+        // Trigger the character's score reaction animation and high score update
+        ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+        if (Ren)
+        {
+            Ren->Score_Reaction_Anim();
+            Ren->UpdateHighScore(TargetScore);  // Update high score here
+            if (HighScoreText)
+            {
+                HighScoreText->SetText(FText::FromString(FString::Printf(TEXT("High Score: %d"), TargetScore)));
+            }
+
+            OnQueuedEXPAdded();
+            UpdateEXPAnimation();
+        }
+    }
+    else
+    {
+        // Log if trying to skip when the texts are not visible
+        UE_LOG(LogTemp, Warning, TEXT("Cannot skip animation, texts are not visible"));
+    }
+
+}
+
+
+
+void UGame_Over_Widget::SkipEXPTransferAnimation()
+{
+
+    if (WeaponLevelText && WeaponLevelText->IsVisible() && CurrentEXPText && CurrentEXPText->IsVisible() && QueuedEXPText && QueuedEXPText->IsVisible() && EXPToNextLevelText && EXPToNextLevelText->IsVisible())
+
+    {
+
+
+        bIsExpTransferInProgress = false;
+        UE_LOG(LogTemp, Warning, TEXT("Skipped EXP transfer animaiton"));
+
+
+    }
+
+    else
+
+
+    {
+
+        UE_LOG(LogTemp, Warning, TEXT("Cannot skip animation, exp texts are not visible"));
+
+    }
+
+
+
+
+}
+
+
+
+FReply UGame_Over_Widget::NativeOnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent)
+{
+
+     // If the Gamepad_Bottom FaceButton is pressed, we handle both skip actions
+    if (InKeyEvent.GetKey() == EKeys::Gamepad_FaceButton_Bottom) 
+    {
+        // Skip Score Animation if possible
+        SkipScoreAnimation();
+
+        return FReply::Handled(); // Indicate the key press has been handled
+    }
+
+    // If not the correct key, continue with normal behavior
+    return FReply::Unhandled();
+}
 
 
 
@@ -672,7 +803,7 @@ void UGame_Over_Widget::UpdateDisplayedScore()
         // Stop the timer when the final score is reached
         GetWorld()->GetTimerManager().ClearTimer(ScoreUpdateTimer);
 
-        PlayButtonsFadeInAnimation();
+       // PlayButtonsFadeInAnimation();
 
         ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
@@ -681,6 +812,8 @@ void UGame_Over_Widget::UpdateDisplayedScore()
             Ren->Score_Reaction_Anim();
             // Now that the animation is complete, update the high score
             Ren->UpdateHighScore(TargetScore);  // Update high score here
+
+            HighScoreText->SetText(FText::FromString(FString::Printf(TEXT("High Score: %d"), TargetScore)));
 
             OnQueuedEXPAdded();
 
