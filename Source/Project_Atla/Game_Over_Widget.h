@@ -80,6 +80,8 @@ public:
 
     void RemoveStatsUpgradeNotification();;
 
+    void CheckForLevelUpAndDisplayNotification();
+
 
 // Handle key press for skipping animation
     virtual FReply NativeOnKeyDown(const FGeometry& MyGeometry, const FKeyEvent& InKeyEvent) override;
@@ -223,11 +225,7 @@ private:
 
     FTimerHandle ExpGainTimerHandle;
 
-    FTimerHandle ExpBarUpdateTimer;
-
     FTimerHandle RewardNotificationTimer;
-
-    FTimerHandle EXPBarUpdateTimer;
 
     FTimerHandle NotificationHideTimer;
 
@@ -236,6 +234,8 @@ private:
     FTimerHandle EXPUpdateTimerHandle;
 
     FTimerHandle StatUpgradeNotificationTimerHandle;
+
+    FTimerHandle StatsUpgradeNotificationCheckTimerHandle;
 
 
 

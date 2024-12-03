@@ -50,7 +50,7 @@ void UGame_Over_Widget::NativeConstruct()
     }
 
     UpdateInterval = 0.03f; // Time between updates, 0.05 seconds (50 ms) is typically smooth for animations QueuedEXPIncrement = 10.0f;
-    QueuedEXPIncrement = 1000.0f;
+    QueuedEXPIncrement = 100.0f;
   
 
 
@@ -541,18 +541,19 @@ void UGame_Over_Widget::UpdateEXPAnimation()
 
         UE_LOG(LogTemp, Warning, TEXT("EXP animation finished"));
 
-        PlayButtonsFadeInAnimation();
+       // PlayButtonsFadeInAnimation();
 
         ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
         if (Ren)
+
         {
 
             Ren->GenerateStatUpgradeMessages();
-            UE_LOG(LogTemp, Warning, TEXT("Stats upgrade messages displayed!"))
+
         }
 
-        // Optionally, hide or update any UI elements here
-        return;
+      //  return;
     }
 
     // Calculate the amount to add to current EXP
@@ -560,6 +561,7 @@ void UGame_Over_Widget::UpdateEXPAnimation()
     CurrentEXP += AmountToAdd;
     QueuedEXP -= AmountToAdd; // Reduce the queued EXP by the added amount
     EXPToNextLevel -= AmountToAdd; // Update the EXP to next level
+
 
     // If we reach or exceed the EXP to the next level, handle level-up
     if (EXPToNextLevel <= 0.0f)
@@ -754,27 +756,41 @@ void UGame_Over_Widget::SkipEXPTransferAnimation()
 
 void UGame_Over_Widget::ShowStatsUpgradeNotification(const TArray<FString>& Messages)
 {
+    // Check if there are any messages to display
+    if (Messages.Num() == 0)
+    {
+        // Ensure the border is hidden if no messages are passed
+        if (StatUpgradeNotificationBorder)
+        {
+            StatUpgradeNotificationBorder->SetVisibility(ESlateVisibility::Hidden);
+        }
+
+        PlayButtonsFadeInAnimation();
+
+
+        UE_LOG(LogTemp, Warning, TEXT("No stat upgrades to display!"));
+        return;
+    }
+
     // Combine all messages into one string with the desired format
-    FString CombinedMessage = FString();
+    FString CombinedMessage;
     for (const FString& Message : Messages)
     {
         CombinedMessage += Message + TEXT("\n");  // Append each message with a line break
     }
 
+    // Play animation if available
     if (StatsUpgrade_Animation)
-
     {
-
         PlayAnimation(StatsUpgrade_Animation, 1.0f);
-
     }
+
     // Display the combined message in the TextBlock
     if (StatUpgradeTextBlock)
     {
         StatUpgradeTextBlock->SetText(FText::FromString(CombinedMessage));
         StatUpgradeTextBlock->SetVisibility(ESlateVisibility::Visible);
-        UE_LOG(LogTemp, Warning, TEXT("Stats displayed!"))
-        PlayAnimation(StatsUpgrade_Animation, 1.0f);
+        UE_LOG(LogTemp, Warning, TEXT("Stats displayed!"));
     }
 
     // Show the notification border
@@ -783,11 +799,8 @@ void UGame_Over_Widget::ShowStatsUpgradeNotification(const TArray<FString>& Mess
         StatUpgradeNotificationBorder->SetVisibility(ESlateVisibility::Visible);
     }
 
-
     // Set a timer to remove the notification after 5 seconds
-    GetWorld()->GetTimerManager().SetTimer(StatUpgradeNotificationTimerHandle, this, &UGame_Over_Widget::RemoveStatsUpgradeNotification, 100.0f, false);
-
-    
+    GetWorld()->GetTimerManager().SetTimer(StatUpgradeNotificationTimerHandle, this, &UGame_Over_Widget::RemoveStatsUpgradeNotification, 5.0f, false);
 
 }
 
@@ -803,6 +816,19 @@ void UGame_Over_Widget::RemoveStatsUpgradeNotification()
         PlayAnimationReverse(StatsUpgrade_Animation, 1.0f);
 
     }
+
+    PlayButtonsFadeInAnimation();
+
+
+}
+
+
+
+
+
+void UGame_Over_Widget::CheckForLevelUpAndDisplayNotification()
+{
+
 
 
 }

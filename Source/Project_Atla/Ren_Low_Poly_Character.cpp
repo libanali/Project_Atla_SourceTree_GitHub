@@ -1123,35 +1123,33 @@ void ARen_Low_Poly_Character::GenerateStatUpgradeMessages()
 {
 	TArray<FString> StatMessages;
 
+
 	// Check and format the attack power change
-	if (BaseAttack > PreviousAttackPower)
+	if (BaseAttack > InitialAttack)
 	{
 		StatMessages.Add(FString::Printf(TEXT("Attack %d -> %d"), static_cast<int32>(InitialAttack), static_cast<int32>(BaseAttack)));
+
 	}
 
 	// Check and format the defense change
-	if (BaseDefence > PreviousDefense)
+	if (BaseDefence > InitialDefense)
 	{
 		StatMessages.Add(FString::Printf(TEXT("Defense %d -> %d"), static_cast<int32>(InitialDefense), static_cast<int32>(BaseDefence)));
 	}
 
 	// Check and format the elemental power change
-	if (BaseElementalAttack > PreviousElementalPower)
+	if (BaseElementalAttack > InitialElemental)
 	{
 		StatMessages.Add(FString::Printf(TEXT("Elemental %d -> %d"), static_cast<int32>(InitialElemental), static_cast<int32>(BaseElementalAttack)));
 	}
 
 	// Check and format the max health change
-	if (HealthStruct.MaxHealth > PreviousMaxHealth)
+	if (HealthStruct.MaxHealth > InitialMaxHealth)
 	{
 		StatMessages.Add(FString::Printf(TEXT("Health %d -> %d"), static_cast<int32>(InitialMaxHealth), static_cast<int32>(HealthStruct.MaxHealth)));
 	}
 
-	// Send these messages to your UI
-	if (GameOverWidgetInstance)
-	{
-		GameOverWidgetInstance->ShowStatsUpgradeNotification(StatMessages);
-	}
+	
 
 	// Update the previous stat values
 	PreviousAttackPower = BaseAttack;
@@ -1159,7 +1157,11 @@ void ARen_Low_Poly_Character::GenerateStatUpgradeMessages()
 	PreviousElementalPower = BaseElementalAttack;
 	PreviousMaxHealth = HealthStruct.MaxHealth;
 
-	
+	// Send these messages to your UI
+	if (GameOverWidgetInstance)
+	{
+		GameOverWidgetInstance->ShowStatsUpgradeNotification(StatMessages);
+	}
 }
 
 
@@ -2085,8 +2087,9 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 		//UE_LOG(LogTemp, Warning, TEXT("EnemyArrowMap is empty! No arrows to update."));
 	}
 
-	FString StatsText = FString::Printf(TEXT("Current Attack: %.2f\nCurrent Defense: %.2f\nMax Health: %.2f\nCurrent Health: %.2f\nCurrent Elemental Attack: .2%f"),
-		BaseAttack, BaseDefence, HealthStruct.MaxHealth, HealthStruct.CurrentHealth, BaseElementalAttack);
+
+	FString StatsText = FString::Printf(TEXT("Current Attack: %.2f\nCurrent Defense: %.2f\nMax Health: %.2f\nCurrent Health: %.2f"),
+		BaseAttack, BaseDefence, HealthStruct.MaxHealth, HealthStruct.CurrentHealth);
 
 	GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green, StatsText);
 
