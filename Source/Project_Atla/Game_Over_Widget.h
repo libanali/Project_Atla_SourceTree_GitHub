@@ -76,7 +76,9 @@ public:
 
     void SkipEXPTransferAnimation();
 
-   // void OnCompleteEXPAnimation();
+    void ShowStatsUpgradeNotification(const TArray<FString>& Messages);
+
+    void RemoveStatsUpgradeNotification();;
 
 
 // Handle key press for skipping animation
@@ -131,7 +133,16 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UVerticalBox* NotificationBox;
 
-  
+    // Text block to display the stats upgrade messages
+    UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+        UTextBlock* StatUpgradeTextBlock;
+
+    // Border image for the notification
+    UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+        UImage* StatUpgradeNotificationBorder;
+
+    UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Notifications")
+        TArray<FString> StatUpgradeMessages;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
         FWeapon_Proficiency_Struct WeaponProficiency;
@@ -178,7 +189,8 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
         UWidgetAnimation* NotificationAnimation;
 
-
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
+        UWidgetAnimation* StatsUpgrade_Animation;
 private:
 
 
@@ -223,6 +235,7 @@ private:
 
     FTimerHandle EXPUpdateTimerHandle;
 
+    FTimerHandle StatUpgradeNotificationTimerHandle;
 
 
 

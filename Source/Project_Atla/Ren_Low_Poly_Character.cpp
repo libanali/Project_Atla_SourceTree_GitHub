@@ -212,29 +212,31 @@ void ARen_Low_Poly_Character::InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy)
 
 }
 
+
+
+
 void ARen_Low_Poly_Character::UpdateStatsBasedOnWeapon()
 {
 
-	if (WeaponType == EWeaponType::Sword)
-
+	if (WeaponProficiencyMap.Contains(WeaponType))
 	{
+		const FWeapon_Proficiency_Struct& WeaponProficiency = WeaponProficiencyMap[WeaponType];
 
-		BaseAttack = 5.0f;
-		BaseDefence = 2.0f;
-		BaseElementalAttack = 4.0f;
-		HealthStruct.MaxHealth = 140.0f;
+		// Update stats based on proficiency data
+		BaseAttack += WeaponProficiency.AttackPowerBoost;
+		BaseDefence += WeaponProficiency.DefenseBoost;
+		BaseElementalAttack += WeaponProficiency.ElementalPowerBoost;
+		HealthStruct.MaxHealth += WeaponProficiency.MaxHealthBoost;
 
+		// Log the updated stats to ensure they are correctly updated
+		UE_LOG(LogTemp, Warning, TEXT("Updated Base Attack: %f"), BaseAttack);
+		UE_LOG(LogTemp, Warning, TEXT("Updated Base Defense: %f"), BaseDefence);
+		UE_LOG(LogTemp, Warning, TEXT("Updated Base Elemental Attack: %f"), BaseElementalAttack);
+		UE_LOG(LogTemp, Warning, TEXT("Updated Max Health: %f"), HealthStruct.MaxHealth);
 	}
-
-	else if (WeaponType == EWeaponType::Staff)
-
+	else
 	{
-
-		BaseAttack = 3.0f;
-		BaseDefence = 2.0f;
-		BaseElementalAttack = 4.0f;
-		HealthStruct.MaxHealth = 130.0f;
-
+		UE_LOG(LogTemp, Warning, TEXT("Weapon type not found in proficiency map"));
 	}
 
 
@@ -1110,6 +1112,51 @@ FTechnique_Struct* ARen_Low_Poly_Character::FindTechniqueByName(const FString& T
 
 
 
+void ARen_Low_Poly_Character::GenerateStatUpgradeMessages()
+{
+	TArray<FString> StatMessages;
+
+
+		// Check and format the attack power change
+		if (BaseAttack > PreviousAttackPower)
+		{
+			StatMessages.Add(FString::Printf(TEXT("Attack %d -> %d"), PreviousAttackPower, BaseAttack));
+		}
+
+		// Check and format the defense change
+		if (BaseDefence > PreviousDefense)
+		{
+			StatMessages.Add(FString::Printf(TEXT("Defence %d -> %d"), PreviousDefense, BaseDefence));
+		}
+
+		// Check and format the elemental power change
+		if (BaseElementalAttack > PreviousElementalPower)
+		{
+			StatMessages.Add(FString::Printf(TEXT("Elemental %d -> %d"), PreviousElementalPower, BaseElementalAttack));
+		}
+
+		// Check and format the max health change
+		if (HealthStruct.MaxHealth > PreviousMaxHealth)
+		{
+			StatMessages.Add(FString::Printf(TEXT("Health %d -> %d"), PreviousMaxHealth, HealthStruct.MaxHealth));
+		}
+
+		// Now send these messages to your UI
+		if (GameOverWidgetInstance)
+		{
+			GameOverWidgetInstance->ShowStatsUpgradeNotification(StatMessages);
+		}
+
+
+	
+
+	
+}
+
+
+
+
+
 void ARen_Low_Poly_Character::AddWeaponEXP(float ExpAmount)
 {
 
@@ -1234,6 +1281,11 @@ void ARen_Low_Poly_Character::ApplyQueuedLevelUp(EWeaponType Weapon)
 			Proficiency.DefenseBoost += 2.f;
 			Proficiency.ElementalPowerBoost += 3.f;
 			Proficiency.MaxHealthBoost += 10.f;
+
+			BaseAttack += Proficiency.AttackPowerBoost;
+			BaseDefence += Proficiency.DefenseBoost;
+			BaseElementalAttack += Proficiency.ElementalPowerBoost;
+			HealthStruct.MaxHealth += Proficiency.MaxHealthBoost;
 
 
 			UE_LOG(LogTemp, Warning, TEXT("Weapon leveled up! Level: %d, Next EXP Threshold: %.2f"), Proficiency.WeaponLevel, Proficiency.EXPToNextLevel);
@@ -1465,7 +1517,6 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	AbilityStruct.CurrentAbilityPoints = 0.0f;
 
-	UpdateStatsBasedOnWeapon();
 
 	// Ensure WeaponProficiencyMap has entries for all weapon types, even if not loaded
 	if (!WeaponProficiencyMap.Contains(EWeaponType::Sword))
@@ -1535,6 +1586,33 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 		}
 	}
+
+
+
+
+	// Initialize any stats if necessary
+	if (WeaponType == EWeaponType::Sword)
+	{
+		// Set initial values (or defaults) here if necessary
+		BaseAttack = 5.0f;
+		BaseDefence = 2.0f;
+		BaseElementalAttack = 4.0f;
+		HealthStruct.MaxHealth = 140.0f;
+	}
+	else if (WeaponType == EWeaponType::Staff)
+	{
+		BaseAttack = 3.0f;
+		BaseDefence = 2.0f;
+		BaseElementalAttack = 4.0f;
+		HealthStruct.MaxHealth = 130.0f;
+	}
+
+	// Then, update the stats based on the weapon proficiency
+	UpdateStatsBasedOnWeapon();
+
+
+
+
 
 
 
@@ -2003,6 +2081,13 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 	{
 		//UE_LOG(LogTemp, Warning, TEXT("EnemyArrowMap is empty! No arrows to update."));
 	}
+
+	// Assuming BaseAttack is the variable holding the character's attack stat
+	FString BaseAttackText = FString::Printf(TEXT("Current Base Attack: %f"), BaseAttack);
+
+	// Display the text on the screen for 5 seconds (you can adjust this time)
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, BaseAttackText);
+
 
 }
 

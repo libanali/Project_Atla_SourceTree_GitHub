@@ -155,7 +155,6 @@ public:
 	void Score_Reaction_Anim();
 
 	void FindResultsCamera();
-
 	//High score
 
 
@@ -166,14 +165,6 @@ public:
 	void SavePlayerProgress();
 	void LoadPlayerProgress();
 	//Save Data
-
-	//Health
-	UFUNCTION(BlueprintCallable)
-		void Death();
-
-	UFUNCTION(BlueprintCallable)
-		void RecoverHealth();
-	//Health
 
 
 
@@ -300,6 +291,12 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void IncreaseHealth(float HealAmount);
 
+	UFUNCTION(BlueprintCallable)
+		void Death();
+
+	UFUNCTION(BlueprintCallable)
+		void RecoverHealth();
+
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
 		float DamageReduction;
 
@@ -308,6 +305,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 		bool bIsHit;
+
+	float PreviousMaxHealth;
 	//Health
 
 
@@ -333,7 +332,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defence")
 		float AttackIncrease;
+
+	float PreviousAttackPower;
 	//Attack Stats
+
 
 
 
@@ -355,6 +357,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defence")
 		float DefenceIncrease;
+
+	float PreviousDefense;
 	//Defence Stats
 
 
@@ -371,7 +375,10 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Defence")
 		void CalculateElementalAttack();
+
+	float PreviousElementalPower;
 	//Elemental Stats
+
 
 
 
@@ -414,6 +421,10 @@ public:
 	FTechnique_Struct* FindTechniqueByName(const FString& TechniqueName);
 
 	TArray<float> QueuedEXP;
+
+
+
+	void GenerateStatUpgradeMessages();
 	//Level & Weapon Proficiency
 
 

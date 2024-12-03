@@ -456,6 +456,7 @@ void UGame_Over_Widget::ShowNotification(const FString& Message)
     // Set the text, font, color, and justification
     TheNotificationText->SetText(FText::FromString(Message));
     TheNotificationText->SetColorAndOpacity(FSlateColor(FLinearColor::Yellow)); // Customize color
+
   
 
     // Add the text block to the vertical box
@@ -541,6 +542,14 @@ void UGame_Over_Widget::UpdateEXPAnimation()
         UE_LOG(LogTemp, Warning, TEXT("EXP animation finished"));
 
         PlayButtonsFadeInAnimation();
+
+        ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+        if (Ren)
+        {
+
+            Ren->GenerateStatUpgradeMessages();
+            UE_LOG(LogTemp, Warning, TEXT("Stats upgrade messages displayed!"))
+        }
 
         // Optionally, hide or update any UI elements here
         return;
@@ -741,6 +750,60 @@ void UGame_Over_Widget::SkipEXPTransferAnimation()
 
 
 }
+
+
+void UGame_Over_Widget::ShowStatsUpgradeNotification(const TArray<FString>& Messages)
+{
+    // Combine all messages into one string with the desired format
+    FString CombinedMessage = FString();
+    for (const FString& Message : Messages)
+    {
+        CombinedMessage += Message + TEXT("\n");  // Append each message with a line break
+    }
+
+    PlayAnimation(StatsUpgrade_Animation, 1.0f);
+
+    // Display the combined message in the TextBlock
+    if (StatUpgradeTextBlock)
+    {
+        StatUpgradeTextBlock->SetText(FText::FromString(CombinedMessage));
+        StatUpgradeTextBlock->SetVisibility(ESlateVisibility::Visible);
+        UE_LOG(LogTemp, Warning, TEXT("Stats displayed!"))
+        PlayAnimation(StatsUpgrade_Animation, 1.0f);
+    }
+
+    // Show the notification border
+    if (StatUpgradeNotificationBorder)
+    {
+        StatUpgradeNotificationBorder->SetVisibility(ESlateVisibility::Visible);
+    }
+
+
+    // Set a timer to remove the notification after 5 seconds
+    GetWorld()->GetTimerManager().SetTimer(StatUpgradeNotificationTimerHandle, this, &UGame_Over_Widget::RemoveStatsUpgradeNotification, 15.0f, false);
+
+    
+
+}
+
+
+
+
+void UGame_Over_Widget::RemoveStatsUpgradeNotification()
+{
+
+    // Hide the notification border and text block
+    if (StatUpgradeNotificationBorder && StatUpgradeTextBlock)
+    {
+        PlayAnimationReverse(StatsUpgrade_Animation, 1.0f);
+
+    }
+
+
+}
+
+
+
 
 
 
