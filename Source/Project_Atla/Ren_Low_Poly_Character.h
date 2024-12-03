@@ -307,6 +307,7 @@ public:
 		bool bIsHit;
 
 	float PreviousMaxHealth;
+	float InitialMaxHealth;
 	//Health
 
 
@@ -334,6 +335,7 @@ public:
 		float AttackIncrease;
 
 	float PreviousAttackPower;
+	float InitialAttack;
 	//Attack Stats
 
 
@@ -359,6 +361,7 @@ public:
 		float DefenceIncrease;
 
 	float PreviousDefense;
+	float InitialDefense;
 	//Defence Stats
 
 
@@ -377,6 +380,7 @@ public:
 		void CalculateElementalAttack();
 
 	float PreviousElementalPower;
+	float InitialElemental;
 	//Elemental Stats
 
 

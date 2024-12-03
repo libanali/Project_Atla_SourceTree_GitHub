@@ -761,8 +761,13 @@ void UGame_Over_Widget::ShowStatsUpgradeNotification(const TArray<FString>& Mess
         CombinedMessage += Message + TEXT("\n");  // Append each message with a line break
     }
 
-    PlayAnimation(StatsUpgrade_Animation, 1.0f);
+    if (StatsUpgrade_Animation)
 
+    {
+
+        PlayAnimation(StatsUpgrade_Animation, 1.0f);
+
+    }
     // Display the combined message in the TextBlock
     if (StatUpgradeTextBlock)
     {
@@ -780,7 +785,7 @@ void UGame_Over_Widget::ShowStatsUpgradeNotification(const TArray<FString>& Mess
 
 
     // Set a timer to remove the notification after 5 seconds
-    GetWorld()->GetTimerManager().SetTimer(StatUpgradeNotificationTimerHandle, this, &UGame_Over_Widget::RemoveStatsUpgradeNotification, 15.0f, false);
+    GetWorld()->GetTimerManager().SetTimer(StatUpgradeNotificationTimerHandle, this, &UGame_Over_Widget::RemoveStatsUpgradeNotification, 100.0f, false);
 
     
 

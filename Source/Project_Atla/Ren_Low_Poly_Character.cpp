@@ -1126,25 +1126,25 @@ void ARen_Low_Poly_Character::GenerateStatUpgradeMessages()
 	// Check and format the attack power change
 	if (BaseAttack > PreviousAttackPower)
 	{
-		StatMessages.Add(FString::Printf(TEXT("Attack %d -> %d"), static_cast<int32>(PreviousAttackPower), static_cast<int32>(BaseAttack)));
+		StatMessages.Add(FString::Printf(TEXT("Attack %d -> %d"), static_cast<int32>(InitialAttack), static_cast<int32>(BaseAttack)));
 	}
 
 	// Check and format the defense change
 	if (BaseDefence > PreviousDefense)
 	{
-		StatMessages.Add(FString::Printf(TEXT("Defense %d -> %d"), static_cast<int32>(PreviousDefense), static_cast<int32>(BaseDefence)));
+		StatMessages.Add(FString::Printf(TEXT("Defense %d -> %d"), static_cast<int32>(InitialDefense), static_cast<int32>(BaseDefence)));
 	}
 
 	// Check and format the elemental power change
 	if (BaseElementalAttack > PreviousElementalPower)
 	{
-		StatMessages.Add(FString::Printf(TEXT("Elemental %d -> %d"), static_cast<int32>(PreviousElementalPower), static_cast<int32>(BaseElementalAttack)));
+		StatMessages.Add(FString::Printf(TEXT("Elemental %d -> %d"), static_cast<int32>(InitialElemental), static_cast<int32>(BaseElementalAttack)));
 	}
 
 	// Check and format the max health change
 	if (HealthStruct.MaxHealth > PreviousMaxHealth)
 	{
-		StatMessages.Add(FString::Printf(TEXT("Health %d -> %d"), static_cast<int32>(PreviousMaxHealth), static_cast<int32>(HealthStruct.MaxHealth)));
+		StatMessages.Add(FString::Printf(TEXT("Health %d -> %d"), static_cast<int32>(InitialMaxHealth), static_cast<int32>(HealthStruct.MaxHealth)));
 	}
 
 	// Send these messages to your UI
@@ -1260,6 +1260,14 @@ void ARen_Low_Poly_Character::ApplyQueuedLevelUp(EWeaponType Weapon)
 	{
 		FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[Weapon];
 
+
+		PreviousAttackPower = BaseAttack;
+		PreviousDefense = BaseDefence;
+		PreviousElementalPower = BaseElementalAttack;
+		PreviousMaxHealth = HealthStruct.MaxHealth;
+
+
+
 		// Increment weapon level and adjust thresholds
 		Proficiency.WeaponLevel++;
 		Proficiency.EXPToNextLevel *= 1.25f;
@@ -1270,6 +1278,8 @@ void ARen_Low_Poly_Character::ApplyQueuedLevelUp(EWeaponType Weapon)
 		Proficiency.DefenseBoost += 2.f;
 		Proficiency.ElementalPowerBoost += 3.f;
 		Proficiency.MaxHealthBoost += 10.f;
+
+
 
 		// Calculate total stats dynamically (base + boost) instead of modifying base stats directly
 		UpdateStatsBasedOnWeapon();
@@ -1479,7 +1489,6 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	UnlockQueuedTechniques();
 
-
 	FindResultsCamera();
 
 	HealthStruct.InitializeHealth();
@@ -1513,6 +1522,37 @@ void ARen_Low_Poly_Character::BeginPlay()
 		WeaponProficiencyMap.Add(EWeaponType::Staff, FWeapon_Proficiency_Struct());
 	}
 
+
+
+	// Initialize any stats if necessary
+	if (WeaponType == EWeaponType::Sword)
+	{
+		// Set initial values (or defaults) here if necessary
+		BaseAttack = 5.0f;
+		BaseDefence = 2.0f;
+		BaseElementalAttack = 4.0f;
+		HealthStruct.MaxHealth = 140.0f;
+	}
+	else if (WeaponType == EWeaponType::Staff)
+	{
+		BaseAttack = 3.0f;
+		BaseDefence = 2.0f;
+		BaseElementalAttack = 4.0f;
+		HealthStruct.MaxHealth = 130.0f;
+	}
+
+	// Then, update the stats based on the weapon proficiency
+	UpdateStatsBasedOnWeapon();
+
+
+	// Store initial stats
+	InitialAttack = BaseAttack;
+	InitialDefense = BaseDefence;
+	InitialElemental = BaseElementalAttack;
+	InitialMaxHealth = HealthStruct.MaxHealth;
+
+	UE_LOG(LogTemp, Log, TEXT("Initial Stats - Attack: %f, Defense: %f, Elemental: %f, MaxHealth: %f"),
+		InitialAttack, InitialDefense, InitialElemental, InitialMaxHealth);
 
 
 	// Create and populate Sword techniques
@@ -1572,28 +1612,6 @@ void ARen_Low_Poly_Character::BeginPlay()
 		}
 	}
 
-
-
-
-	// Initialize any stats if necessary
-	if (WeaponType == EWeaponType::Sword)
-	{
-		// Set initial values (or defaults) here if necessary
-		BaseAttack = 5.0f;
-		BaseDefence = 2.0f;
-		BaseElementalAttack = 4.0f;
-		HealthStruct.MaxHealth = 140.0f;
-	}
-	else if (WeaponType == EWeaponType::Staff)
-	{
-		BaseAttack = 3.0f;
-		BaseDefence = 2.0f;
-		BaseElementalAttack = 4.0f;
-		HealthStruct.MaxHealth = 130.0f;
-	}
-
-	// Then, update the stats based on the weapon proficiency
-	UpdateStatsBasedOnWeapon();
 
 
 
@@ -2067,8 +2085,8 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 		//UE_LOG(LogTemp, Warning, TEXT("EnemyArrowMap is empty! No arrows to update."));
 	}
 
-	FString StatsText = FString::Printf(TEXT("Current Attack: %.2f\nCurrent Defense: %.2f\nMax Health: %.2f\nCurrent Health: %.2f"),
-		BaseAttack, BaseDefence, HealthStruct.MaxHealth, HealthStruct.CurrentHealth);
+	FString StatsText = FString::Printf(TEXT("Current Attack: %.2f\nCurrent Defense: %.2f\nMax Health: %.2f\nCurrent Health: %.2f\nCurrent Elemental Attack: .2%f"),
+		BaseAttack, BaseDefence, HealthStruct.MaxHealth, HealthStruct.CurrentHealth, BaseElementalAttack);
 
 	GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green, StatsText);
 
