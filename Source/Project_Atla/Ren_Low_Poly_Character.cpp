@@ -218,27 +218,34 @@ void ARen_Low_Poly_Character::InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy)
 void ARen_Low_Poly_Character::UpdateStatsBasedOnWeapon()
 {
 
+	// Reset to base stats
+	if (WeaponType == EWeaponType::Sword)
+	{
+		BaseAttack = 5.0f;
+		BaseDefence = 2.0f;
+		BaseElementalAttack = 4.0f;
+		HealthStruct.MaxHealth = 140.0f;
+	}
+	else if (WeaponType == EWeaponType::Staff)
+	{
+		BaseAttack = 3.0f;
+		BaseDefence = 2.0f;
+		BaseElementalAttack = 4.0f;
+		HealthStruct.MaxHealth = 130.0f;
+	}
+
+	// Apply proficiency boosts
 	if (WeaponProficiencyMap.Contains(WeaponType))
 	{
-		const FWeapon_Proficiency_Struct& WeaponProficiency = WeaponProficiencyMap[WeaponType];
-
-		// Update stats based on proficiency data
-		BaseAttack += WeaponProficiency.AttackPowerBoost;
-		BaseDefence += WeaponProficiency.DefenseBoost;
-		BaseElementalAttack += WeaponProficiency.ElementalPowerBoost;
-		HealthStruct.MaxHealth += WeaponProficiency.MaxHealthBoost;
-
-		// Log the updated stats to ensure they are correctly updated
-		UE_LOG(LogTemp, Warning, TEXT("Updated Base Attack: %f"), BaseAttack);
-		UE_LOG(LogTemp, Warning, TEXT("Updated Base Defense: %f"), BaseDefence);
-		UE_LOG(LogTemp, Warning, TEXT("Updated Base Elemental Attack: %f"), BaseElementalAttack);
-		UE_LOG(LogTemp, Warning, TEXT("Updated Max Health: %f"), HealthStruct.MaxHealth);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Weapon type not found in proficiency map"));
+		const FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[WeaponType];
+		BaseAttack += Proficiency.AttackPowerBoost;
+		BaseDefence += Proficiency.DefenseBoost;
+		BaseElementalAttack += Proficiency.ElementalPowerBoost;
+		HealthStruct.MaxHealth += Proficiency.MaxHealthBoost;
 	}
 
+	UE_LOG(LogTemp, Warning, TEXT("Updated Stats - Attack: %f, Defense: %f, Elemental: %f, Max Health: %f"),
+		BaseAttack, BaseDefence, BaseElementalAttack, HealthStruct.MaxHealth);
 
 }
 
@@ -1249,76 +1256,52 @@ void ARen_Low_Poly_Character::ApplyQueuedEXP()
 
 void ARen_Low_Poly_Character::ApplyQueuedLevelUp(EWeaponType Weapon)
 {
-
 	if (bQueuedLevelUp && WeaponProficiencyMap.Contains(Weapon))
-
 	{
-
 		FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[Weapon];
 
+		// Increment weapon level and adjust thresholds
 		Proficiency.WeaponLevel++;
-		Proficiency.EXPToNextLevel *= 2.25f;
+		Proficiency.EXPToNextLevel *= 1.25f;
 		bQueuedLevelUp = false;
 
+		// Apply proficiency upgrades to the proficiency struct
+		Proficiency.AttackPowerBoost += 4.f;
+		Proficiency.DefenseBoost += 2.f;
+		Proficiency.ElementalPowerBoost += 3.f;
+		Proficiency.MaxHealthBoost += 10.f;
 
+		// Calculate total stats dynamically (base + boost) instead of modifying base stats directly
+		UpdateStatsBasedOnWeapon();
+
+		UE_LOG(LogTemp, Warning, TEXT("Weapon leveled up! Level: %d, Next EXP Threshold: %.2f"), Proficiency.WeaponLevel, Proficiency.EXPToNextLevel);
+
+		// Unlock techniques if applicable
 		if (WeaponLevelToTechniqueMap.Contains(Weapon))
-
 		{
-
 			FWeaponTechniqueMap& TechniqueMap = WeaponLevelToTechniqueMap[Weapon];
-
 			if (TechniqueMap.LevelToTechnique.Contains(Proficiency.WeaponLevel))
-
 			{
-
 				FString TechniqueToUnlock = TechniqueMap.LevelToTechnique[Proficiency.WeaponLevel];
-
 				QueuedUnlockTechniques.Add(TechniqueToUnlock);
-
 				UE_LOG(LogTemp, Log, TEXT("Queued technique: %s for next run."), *TechniqueToUnlock);
 			}
-
-
-			Proficiency.AttackPowerBoost += 4.f;
-			Proficiency.DefenseBoost += 2.f;
-			Proficiency.ElementalPowerBoost += 3.f;
-			Proficiency.MaxHealthBoost += 10.f;
-
-			BaseAttack += Proficiency.AttackPowerBoost;
-			BaseDefence += Proficiency.DefenseBoost;
-			BaseElementalAttack += Proficiency.ElementalPowerBoost;
-			HealthStruct.MaxHealth += Proficiency.MaxHealthBoost;
-
-
-			UE_LOG(LogTemp, Warning, TEXT("Weapon leveled up! Level: %d, Next EXP Threshold: %.2f"), Proficiency.WeaponLevel, Proficiency.EXPToNextLevel);
-
-			for (const FString& TechniqueName : QueuedUnlockTechniques)
-			{
-
-				UnlockTechnique(TechniqueName);
-				UE_LOG(LogTemp, Log, TEXT("Unlocked technique: %s"), *TechniqueName);
-
-				APlayerController* PC = Cast<APlayerController>(GetController());
-
-				if (PC)
-
-				{
-					if (GameOverWidgetInstance)
-
-					{
-
-						FString NotificationMessage = FString::Printf(TEXT("Unlocked Technique: %s"), *TechniqueName);
-						GameOverWidgetInstance->ShowNotification(NotificationMessage);
-
-					}
-
-
-				}
-			}
-
-			QueuedUnlockTechniques.Empty();
 		}
 
+		for (const FString& TechniqueName : QueuedUnlockTechniques)
+		{
+			UnlockTechnique(TechniqueName);
+			UE_LOG(LogTemp, Log, TEXT("Unlocked technique: %s"), *TechniqueName);
+
+			APlayerController* PC = Cast<APlayerController>(GetController());
+			if (PC && GameOverWidgetInstance)
+			{
+				FString NotificationMessage = FString::Printf(TEXT("Unlocked Technique: %s"), *TechniqueName);
+				GameOverWidgetInstance->ShowNotification(NotificationMessage);
+			}
+		}
+
+		QueuedUnlockTechniques.Empty();
 	}
 
 }
@@ -2084,11 +2067,10 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 		//UE_LOG(LogTemp, Warning, TEXT("EnemyArrowMap is empty! No arrows to update."));
 	}
 
-	// Assuming BaseAttack is the variable holding the character's attack stat
-	FString BaseAttackText = FString::Printf(TEXT("Current Base Attack: %f"), BaseAttack);
+	FString StatsText = FString::Printf(TEXT("Current Attack: %.2f\nCurrent Defense: %.2f\nMax Health: %.2f\nCurrent Health: %.2f"),
+		BaseAttack, BaseDefence, HealthStruct.MaxHealth, HealthStruct.CurrentHealth);
 
-	// Display the text on the screen for 5 seconds (you can adjust this time)
-	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, BaseAttackText);
+	GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green, StatsText);
 
 
 }

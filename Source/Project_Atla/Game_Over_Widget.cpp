@@ -50,7 +50,7 @@ void UGame_Over_Widget::NativeConstruct()
     }
 
     UpdateInterval = 0.03f; // Time between updates, 0.05 seconds (50 ms) is typically smooth for animations QueuedEXPIncrement = 10.0f;
-    QueuedEXPIncrement = 10.0f;
+    QueuedEXPIncrement = 1000.0f;
   
 
 

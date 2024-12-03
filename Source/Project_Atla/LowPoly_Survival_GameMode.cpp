@@ -146,6 +146,15 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
     // Mark that spawning is starting
     bIsSpawningEnemies = true;
 
+    ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+    if (Ren)
+
+    {
+
+        Ren->HealthStruct.CurrentHealth = Ren->HealthStruct.MaxHealth;
+
+    }
    
     // Determine the number of enemies to spawn for the current round
     int32 EnemiesToSpawn = 4 + (CurrentRound - 1) * AdditionalEnemiesPerRound;
