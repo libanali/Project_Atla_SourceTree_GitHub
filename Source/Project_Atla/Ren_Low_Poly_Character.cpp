@@ -1116,39 +1116,41 @@ void ARen_Low_Poly_Character::GenerateStatUpgradeMessages()
 {
 	TArray<FString> StatMessages;
 
+	// Check and format the attack power change
+	if (BaseAttack > PreviousAttackPower)
+	{
+		StatMessages.Add(FString::Printf(TEXT("Attack %d -> %d"), static_cast<int32>(PreviousAttackPower), static_cast<int32>(BaseAttack)));
+	}
 
-		// Check and format the attack power change
-		if (BaseAttack > PreviousAttackPower)
-		{
-			StatMessages.Add(FString::Printf(TEXT("Attack %d -> %d"), PreviousAttackPower, BaseAttack));
-		}
+	// Check and format the defense change
+	if (BaseDefence > PreviousDefense)
+	{
+		StatMessages.Add(FString::Printf(TEXT("Defense %d -> %d"), static_cast<int32>(PreviousDefense), static_cast<int32>(BaseDefence)));
+	}
 
-		// Check and format the defense change
-		if (BaseDefence > PreviousDefense)
-		{
-			StatMessages.Add(FString::Printf(TEXT("Defence %d -> %d"), PreviousDefense, BaseDefence));
-		}
+	// Check and format the elemental power change
+	if (BaseElementalAttack > PreviousElementalPower)
+	{
+		StatMessages.Add(FString::Printf(TEXT("Elemental %d -> %d"), static_cast<int32>(PreviousElementalPower), static_cast<int32>(BaseElementalAttack)));
+	}
 
-		// Check and format the elemental power change
-		if (BaseElementalAttack > PreviousElementalPower)
-		{
-			StatMessages.Add(FString::Printf(TEXT("Elemental %d -> %d"), PreviousElementalPower, BaseElementalAttack));
-		}
+	// Check and format the max health change
+	if (HealthStruct.MaxHealth > PreviousMaxHealth)
+	{
+		StatMessages.Add(FString::Printf(TEXT("Health %d -> %d"), static_cast<int32>(PreviousMaxHealth), static_cast<int32>(HealthStruct.MaxHealth)));
+	}
 
-		// Check and format the max health change
-		if (HealthStruct.MaxHealth > PreviousMaxHealth)
-		{
-			StatMessages.Add(FString::Printf(TEXT("Health %d -> %d"), PreviousMaxHealth, HealthStruct.MaxHealth));
-		}
+	// Send these messages to your UI
+	if (GameOverWidgetInstance)
+	{
+		GameOverWidgetInstance->ShowStatsUpgradeNotification(StatMessages);
+	}
 
-		// Now send these messages to your UI
-		if (GameOverWidgetInstance)
-		{
-			GameOverWidgetInstance->ShowStatsUpgradeNotification(StatMessages);
-		}
-
-
-	
+	// Update the previous stat values
+	PreviousAttackPower = BaseAttack;
+	PreviousDefense = BaseDefence;
+	PreviousElementalPower = BaseElementalAttack;
+	PreviousMaxHealth = HealthStruct.MaxHealth;
 
 	
 }
