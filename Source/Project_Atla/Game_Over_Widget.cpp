@@ -447,6 +447,7 @@ void UGame_Over_Widget::ShowNotification(const FString& Message)
 
     // Create a new text widget for the notification
     UTextBlock* TheNotificationText = NewObject<UTextBlock>(this);
+
     if (!TheNotificationText)
     {
         UE_LOG(LogTemp, Error, TEXT("Failed to create notification text block."));
@@ -455,9 +456,10 @@ void UGame_Over_Widget::ShowNotification(const FString& Message)
 
     // Set the text, font, color, and justification
     TheNotificationText->SetText(FText::FromString(Message));
-    TheNotificationText->SetColorAndOpacity(FSlateColor(FLinearColor::Yellow)); // Customize color
-
+    TheNotificationText->SetColorAndOpacity(FSlateColor(FLinearColor::Green)); // Customize color
   
+
+   
 
     // Add the text block to the vertical box
     NotificationBox->AddChild(TheNotificationText);
@@ -651,23 +653,17 @@ void UGame_Over_Widget::OnQueuedEXPAdded()
         CurrentEXPText->SetVisibility(ESlateVisibility::Visible);
     }
 
-    // Unlock techniques if any are queued
     if (Ren->QueuedUnlockTechniques.Num() > 0)
     {
         TArray<FString> TempQueue = Ren->QueuedUnlockTechniques;
         for (const FString& TechniqueName : TempQueue)
         {
             Ren->UnlockQueuedTechniques();
-            FString NotificationMessage = FString::Printf(TEXT("Unlocked Technique: %s"), *TechniqueName);
-            ShowNotification(NotificationMessage);
+            UnlockedTechniques.Add(TechniqueName); // Add the unlocked technique to the array
         }
 
         Ren->QueuedUnlockTechniques.Empty();
     }
-
-
-
-
 
     // Start the EXP transfer animation (if not already started)
     StartEXPTransferAnimation();
@@ -825,13 +821,6 @@ void UGame_Over_Widget::RemoveStatsUpgradeNotification()
 
 
 
-
-void UGame_Over_Widget::CheckForLevelUpAndDisplayNotification()
-{
-
-
-
-}
 
 
 

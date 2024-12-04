@@ -80,7 +80,6 @@ public:
 
     void RemoveStatsUpgradeNotification();;
 
-    void CheckForLevelUpAndDisplayNotification();
 
 
 // Handle key press for skipping animation
@@ -258,4 +257,8 @@ private:
     float UpdateInterval;
 
     float QueuedEXPIncrement;
+
+
+    TArray<FString> UnlockedTechniques;
+
 };
