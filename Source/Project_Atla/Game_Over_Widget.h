@@ -78,7 +78,11 @@ public:
 
     void ShowStatsUpgradeNotification(const TArray<FString>& Messages);
 
-    void RemoveStatsUpgradeNotification();;
+    void RemoveStatsUpgradeNotification();
+
+    void ShowCombinedNotification(const TArray<FString>& Messages);
+
+    void RemoveCombinedNotification();
 
 
 

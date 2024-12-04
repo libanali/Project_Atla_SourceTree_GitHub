@@ -1150,6 +1150,14 @@ void ARen_Low_Poly_Character::GenerateStatUpgradeMessages()
 	}
 
 	
+	for (const FString& TechniqueName : QueuedUnlockTechniques)
+
+	{
+
+		StatMessages.Add(FString::Printf(TEXT("Unlocked: %s"), *TechniqueName));
+
+	}
+
 
 	// Update the previous stat values
 	PreviousAttackPower = BaseAttack;
@@ -1160,7 +1168,7 @@ void ARen_Low_Poly_Character::GenerateStatUpgradeMessages()
 	// Send these messages to your UI
 	if (GameOverWidgetInstance)
 	{
-		GameOverWidgetInstance->ShowStatsUpgradeNotification(StatMessages);
+		GameOverWidgetInstance->ShowCombinedNotification(StatMessages);
 	}
 }
 
@@ -1256,37 +1264,39 @@ void ARen_Low_Poly_Character::ApplyQueuedEXP()
 
 }
 
+
+
 void ARen_Low_Poly_Character::ApplyQueuedLevelUp(EWeaponType Weapon)
 {
+	// Check if a level-up is queued and the weapon exists in the proficiency map
 	if (bQueuedLevelUp && WeaponProficiencyMap.Contains(Weapon))
 	{
+		// Retrieve the proficiency struct for the specified weapon
 		FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[Weapon];
 
-
+		// Store old stats
 		PreviousAttackPower = BaseAttack;
 		PreviousDefense = BaseDefence;
 		PreviousElementalPower = BaseElementalAttack;
 		PreviousMaxHealth = HealthStruct.MaxHealth;
 
-
-
-		// Increment weapon level and adjust thresholds
+		// Increment weapon level and adjust EXP threshold
 		Proficiency.WeaponLevel++;
 		Proficiency.EXPToNextLevel *= 1.25f;
 		bQueuedLevelUp = false;
 
-		// Apply proficiency upgrades to the proficiency struct
+		// Apply proficiency upgrades
 		Proficiency.AttackPowerBoost += 4.f;
 		Proficiency.DefenseBoost += 2.f;
 		Proficiency.ElementalPowerBoost += 3.f;
 		Proficiency.MaxHealthBoost += 10.f;
 
-
-
-		// Calculate total stats dynamically (base + boost) instead of modifying base stats directly
+		// Update total stats dynamically (base + boost)
 		UpdateStatsBasedOnWeapon();
 
-		UE_LOG(LogTemp, Warning, TEXT("Weapon leveled up! Level: %d, Next EXP Threshold: %.2f"), Proficiency.WeaponLevel, Proficiency.EXPToNextLevel);
+		// Log the level-up details
+		UE_LOG(LogTemp, Warning, TEXT("Weapon leveled up! Level: %d, Next EXP Threshold: %.2f"),
+			Proficiency.WeaponLevel, Proficiency.EXPToNextLevel);
 
 		// Unlock techniques if applicable
 		if (WeaponLevelToTechniqueMap.Contains(Weapon))
@@ -1296,24 +1306,11 @@ void ARen_Low_Poly_Character::ApplyQueuedLevelUp(EWeaponType Weapon)
 			{
 				FString TechniqueToUnlock = TechniqueMap.LevelToTechnique[Proficiency.WeaponLevel];
 				QueuedUnlockTechniques.Add(TechniqueToUnlock);
+
+				// Log the unlocked technique
 				UE_LOG(LogTemp, Log, TEXT("Queued technique: %s for next run."), *TechniqueToUnlock);
 			}
 		}
-
-		for (const FString& TechniqueName : QueuedUnlockTechniques)
-		{
-			UnlockTechnique(TechniqueName);
-			UE_LOG(LogTemp, Log, TEXT("Unlocked technique: %s"), *TechniqueName);
-
-			APlayerController* PC = Cast<APlayerController>(GetController());
-			if (PC && GameOverWidgetInstance)
-			{
-				FString NotificationMessage = FString::Printf(TEXT("Unlocked Technique: %s"), *TechniqueName);
-				GameOverWidgetInstance->ShowNotification(NotificationMessage);
-			}
-		}
-
-		QueuedUnlockTechniques.Empty();
 	}
 
 }
