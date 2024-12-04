@@ -1168,7 +1168,7 @@ void ARen_Low_Poly_Character::GenerateStatUpgradeMessages()
 	// Send these messages to your UI
 	if (GameOverWidgetInstance)
 	{
-		GameOverWidgetInstance->ShowCombinedNotification(StatMessages);
+		GameOverWidgetInstance->ShowStatsUpgradeNotification(StatMessages);
 	}
 }
 

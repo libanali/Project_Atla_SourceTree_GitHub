@@ -623,7 +623,7 @@ void UGame_Over_Widget::UpdateEXPAnimation()
 
 void UGame_Over_Widget::OnQueuedEXPAdded()
 {
-    // Get the player character and cast to ARen_Low_Poly_Character
+    // Get the player character and cast it to ARen_Low_Poly_Character
     ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
     if (!Ren)
     {
@@ -631,27 +631,26 @@ void UGame_Over_Widget::OnQueuedEXPAdded()
         return;
     }
 
-    // Get the current weapon type and its proficiency data
+    // Retrieve the current weapon type and its proficiency data
     EWeaponType CurrentWeaponType = Ren->WeaponType;
     FWeapon_Proficiency_Struct* Proficiency = Ren->WeaponProficiencyMap.Find(CurrentWeaponType);
     if (!Proficiency)
     {
-        UE_LOG(LogTemp, Error, TEXT("WeaponProficiencyMap does not contain data for WeaponType: %d"),
-            static_cast<int32>(CurrentWeaponType));
+        UE_LOG(LogTemp, Error, TEXT("WeaponProficiencyMap does not contain data for WeaponType: %d"), static_cast<int32>(CurrentWeaponType));
         return;
     }
 
-    // Update UI with the new proficiency data
+    // Update the Weapon Level UI text
     if (WeaponLevelText)
     {
         WeaponLevelText->SetText(FText::FromString(FString::Printf(TEXT("Level: %d"), Proficiency->WeaponLevel)));
         WeaponLevelText->SetVisibility(ESlateVisibility::Visible);
     }
 
+    // Update the Current EXP UI text
     if (CurrentEXPText)
     {
-        CurrentEXPText->SetText(FText::FromString(FString::Printf(TEXT("%.0f / %.0f"),
-            Proficiency->CurrentEXP, Proficiency->EXPToNextLevel)));
+        CurrentEXPText->SetText(FText::FromString(FString::Printf(TEXT("%.0f / %.0f"), Proficiency->CurrentEXP, Proficiency->EXPToNextLevel)));
         CurrentEXPText->SetVisibility(ESlateVisibility::Visible);
     }
 
@@ -662,8 +661,9 @@ void UGame_Over_Widget::OnQueuedEXPAdded()
 
         for (const FString& TechniqueName : TempQueue)
         {
-            Ren->UnlockQueuedTechniques();  // Unlock techniques here, but don't notify
+            Ren->UnlockQueuedTechniques(); // Unlock techniques
             UnlockedTechniques.Add(TechniqueName); // Collect the unlocked technique names
+            UE_LOG(LogTemp, Log, TEXT("Collected unlocked technique: %s"), *TechniqueName); // Debug log to verify techniques are collected
         }
 
         Ren->QueuedUnlockTechniques.Empty(); // Clear the queue after processing
@@ -754,38 +754,37 @@ void UGame_Over_Widget::SkipEXPTransferAnimation()
 }
 
 
-void UGame_Over_Widget::ShowStatsUpgradeNotification(const TArray<FString>& Messages)
+void UGame_Over_Widget::ShowStatsUpgradeNotification(const TArray<FString>& StatMessages)
 {
-    // Check if there are any messages to display
-    if (Messages.Num() == 0)
+    // Check if there are no stat messages to display
+    if (StatMessages.Num() == 0)
     {
-        // Ensure the border is hidden if no messages are passed
+        // Hide the notification border if no messages are passed
         if (StatUpgradeNotificationBorder)
         {
             StatUpgradeNotificationBorder->SetVisibility(ESlateVisibility::Hidden);
         }
 
+        // Play the fade-in animation for buttons
         PlayButtonsFadeInAnimation();
-
-
         UE_LOG(LogTemp, Warning, TEXT("No stat upgrades to display!"));
         return;
     }
 
-    // Combine all messages into one string with the desired format
-    FString CombinedMessage;
-    for (const FString& Message : Messages)
+    // Combine all stat messages into one string
+    FString CombinedMessage = "Attributes\n";
+    for (const FString& Message : StatMessages)
     {
-        CombinedMessage += Message + TEXT("\n");  // Append each message with a line break
+        CombinedMessage += Message + TEXT("\n");
     }
 
-    // Play animation if available
+    // Play the stats upgrade animation if available
     if (StatsUpgrade_Animation)
     {
         PlayAnimation(StatsUpgrade_Animation, 1.0f);
     }
 
-    // Display the combined message in the TextBlock
+    // Display the combined stat message in the text block
     if (StatUpgradeTextBlock)
     {
         StatUpgradeTextBlock->SetText(FText::FromString(CombinedMessage));
@@ -799,9 +798,14 @@ void UGame_Over_Widget::ShowStatsUpgradeNotification(const TArray<FString>& Mess
         StatUpgradeNotificationBorder->SetVisibility(ESlateVisibility::Visible);
     }
 
-    // Set a timer to remove the notification after 5 seconds
-    GetWorld()->GetTimerManager().SetTimer(StatUpgradeNotificationTimerHandle, this, &UGame_Over_Widget::RemoveStatsUpgradeNotification, 5.0f, false);
-
+    // Set a timer to remove the stats notification after 5 seconds
+    GetWorld()->GetTimerManager().SetTimer(
+        StatUpgradeNotificationTimerHandle,
+        this,
+        &UGame_Over_Widget::RemoveStatsUpgradeNotification,
+        5.0f,
+        false
+    );
 }
 
 
@@ -817,20 +821,38 @@ void UGame_Over_Widget::RemoveStatsUpgradeNotification()
 
     }
 
-    PlayButtonsFadeInAnimation();
+
+    if (UnlockedTechniques.Num() > 0)
+
+    {
+
+        ShowTechniqueNotification(UnlockedTechniques);
+
+    }
+
+    else
+
+    {
+
+
+        PlayButtonsFadeInAnimation();
+
+    }
+
 
 
 }
 
 
 
-void UGame_Over_Widget::ShowCombinedNotification(const TArray<FString>& Messages)
+void UGame_Over_Widget::ShowTechniqueNotification(const TArray<FString>& TechniqueMessages)
 {
 
 
-    if (Messages.Num() == 0)
+    // Check if there are no techniques to display
+    if (TechniqueMessages.Num() == 0)
     {
-        // Hide the notification border if no messages are passed
+        // Hide the notification border if no techniques are passed
         if (StatUpgradeNotificationBorder)
         {
             StatUpgradeNotificationBorder->SetVisibility(ESlateVisibility::Hidden);
@@ -838,27 +860,15 @@ void UGame_Over_Widget::ShowCombinedNotification(const TArray<FString>& Messages
 
         // Play the fade-in animation for buttons
         PlayButtonsFadeInAnimation();
-        UE_LOG(LogTemp, Warning, TEXT("No stat upgrades or techniques to display!"));
+        UE_LOG(LogTemp, Warning, TEXT("No techniques to display!"));
         return;
     }
 
-    // Combine all messages into one string with the desired format
-    FString CombinedMessage = "Attributes\n";
-
-    for (const FString& Message : Messages)
+    // Combine all technique messages into one string
+    FString CombinedMessage = "Techniques\n";
+    for (const FString& Technique : TechniqueMessages)
     {
-        CombinedMessage += Message + TEXT("\n");
-    }
-
-    // Add unlocked techniques to the combined message if they exist
-    if (UnlockedTechniques.Num() > 0)
-    {
-        CombinedMessage += "\nTechniques\n";
-
-        for (const FString& Technique : UnlockedTechniques)
-        {
-            CombinedMessage += FString::Printf(TEXT("Unlocked: %s\n"), *Technique);
-        }
+        CombinedMessage += FString::Printf(TEXT("Unlocked: %s\n"), *Technique);
     }
 
     // Play the stats upgrade animation if available
@@ -867,12 +877,12 @@ void UGame_Over_Widget::ShowCombinedNotification(const TArray<FString>& Messages
         PlayAnimation(StatsUpgrade_Animation, 1.0f);
     }
 
-    // Display the combined message in the text block
+    // Display the combined technique message in the text block
     if (StatUpgradeTextBlock)
     {
         StatUpgradeTextBlock->SetText(FText::FromString(CombinedMessage));
         StatUpgradeTextBlock->SetVisibility(ESlateVisibility::Visible);
-        UE_LOG(LogTemp, Warning, TEXT("Stats and techniques displayed!"));
+        UE_LOG(LogTemp, Warning, TEXT("Techniques displayed!"));
     }
 
     // Show the notification border
@@ -881,30 +891,32 @@ void UGame_Over_Widget::ShowCombinedNotification(const TArray<FString>& Messages
         StatUpgradeNotificationBorder->SetVisibility(ESlateVisibility::Visible);
     }
 
-    // Set a timer to remove the notification after 5 seconds
+    // Set a timer to remove the techniques notification after 5 seconds
     GetWorld()->GetTimerManager().SetTimer(
         StatUpgradeNotificationTimerHandle,
         this,
-        &UGame_Over_Widget::RemoveCombinedNotification,
+        &UGame_Over_Widget::RemoveTechniqueNotification,
         5.0f,
         false
     );
 
 
+
 }
 
-void UGame_Over_Widget::RemoveCombinedNotification()
+void UGame_Over_Widget::RemoveTechniqueNotification()
 {
 
 
-    // Hide the notification border and text block
+    // Reverse the stats upgrade animation and hide the notification
     if (StatUpgradeNotificationBorder && StatUpgradeTextBlock)
     {
         PlayAnimationReverse(StatsUpgrade_Animation, 1.0f);
     }
 
-    // Proceed to the next step (e.g., show buttons or return to menu)
+    // After techniques notification, proceed to the next step (e.g., show buttons or return to menu)
     PlayButtonsFadeInAnimation();
+
 
 
 

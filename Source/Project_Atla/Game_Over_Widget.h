@@ -76,13 +76,17 @@ public:
 
     void SkipEXPTransferAnimation();
 
-    void ShowStatsUpgradeNotification(const TArray<FString>& Messages);
+    void ShowStatsUpgradeNotification(const TArray<FString>& StatMessages);
 
     void RemoveStatsUpgradeNotification();
 
-    void ShowCombinedNotification(const TArray<FString>& Messages);
+   // void ShowCombinedNotification(const TArray<FString>& Messages);
 
-    void RemoveCombinedNotification();
+   // void RemoveCombinedNotification();
+
+    void ShowTechniqueNotification(const TArray<FString>& TechniqueMessages);
+
+    void RemoveTechniqueNotification();
 
 
 
