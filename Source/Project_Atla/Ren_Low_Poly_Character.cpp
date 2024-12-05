@@ -1305,17 +1305,21 @@ void ARen_Low_Poly_Character::ApplyQueuedLevelUp(EWeaponType Weapon)
 			FWeaponTechniqueMap& TechniqueMap = WeaponLevelToTechniqueMap[Weapon];
 			for (const auto& LevelTechniquePair : TechniqueMap.LevelToTechnique)
 			{
-				// Ensure only techniques for the current level-up are added
-				if (LevelTechniquePair.Key == Proficiency.WeaponLevel)
+				// Ensure all techniques up to the current level are added
+				if (LevelTechniquePair.Key <= Proficiency.WeaponLevel)
 				{
 					FString TechniqueToUnlock = LevelTechniquePair.Value;
-					QueuedUnlockTechniques.Add(TechniqueToUnlock);
-					UE_LOG(LogTemp, Log, TEXT("Queued technique: %s for next run."), *TechniqueToUnlock);
+					if (!QueuedUnlockTechniques.Contains(TechniqueToUnlock))
+					{
+						QueuedUnlockTechniques.Add(TechniqueToUnlock);
+						UE_LOG(LogTemp, Log, TEXT("Queued technique: %s for next run."), *TechniqueToUnlock);
+					}
 				}
 			}
 		}
 	}
 }
+
 
 
 
