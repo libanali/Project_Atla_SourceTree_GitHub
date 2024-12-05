@@ -1265,9 +1265,12 @@ void ARen_Low_Poly_Character::ApplyQueuedEXP()
 }
 
 
-
 void ARen_Low_Poly_Character::ApplyQueuedLevelUp(EWeaponType Weapon)
 {
+	// Clear queued techniques to ensure only current level-up techniques are added
+	QueuedUnlockTechniques.Empty();
+	UE_LOG(LogTemp, Log, TEXT("Cleared QueuedUnlockTechniques at start of ApplyQueuedLevelUp"));
+
 	// Check if a level-up is queued and the weapon exists in the proficiency map
 	if (bQueuedLevelUp && WeaponProficiencyMap.Contains(Weapon))
 	{
@@ -1295,25 +1298,30 @@ void ARen_Low_Poly_Character::ApplyQueuedLevelUp(EWeaponType Weapon)
 		UpdateStatsBasedOnWeapon();
 
 		// Log the level-up details
-		UE_LOG(LogTemp, Warning, TEXT("Weapon leveled up! Level: %d, Next EXP Threshold: %.2f"),
-			Proficiency.WeaponLevel, Proficiency.EXPToNextLevel);
+		UE_LOG(LogTemp, Warning, TEXT("Weapon leveled up! Level: %d, Next EXP Threshold: %.2f"), Proficiency.WeaponLevel, Proficiency.EXPToNextLevel);
 
 		// Unlock techniques if applicable
 		if (WeaponLevelToTechniqueMap.Contains(Weapon))
 		{
 			FWeaponTechniqueMap& TechniqueMap = WeaponLevelToTechniqueMap[Weapon];
-			if (TechniqueMap.LevelToTechnique.Contains(Proficiency.WeaponLevel))
+			for (const auto& LevelTechniquePair : TechniqueMap.LevelToTechnique)
 			{
-				FString TechniqueToUnlock = TechniqueMap.LevelToTechnique[Proficiency.WeaponLevel];
-				QueuedUnlockTechniques.Add(TechniqueToUnlock);
-
-				// Log the unlocked technique
-				UE_LOG(LogTemp, Log, TEXT("Queued technique: %s for next run."), *TechniqueToUnlock);
+				if (LevelTechniquePair.Key <= Proficiency.WeaponLevel)
+				{
+					FString TechniqueToUnlock = LevelTechniquePair.Value;
+					QueuedUnlockTechniques.Add(TechniqueToUnlock);
+					UE_LOG(LogTemp, Log, TEXT("Queued technique: %s for next run."), *TechniqueToUnlock);
+				}
 			}
 		}
 	}
-
 }
+
+
+
+
+
+
 
 
 
@@ -1575,7 +1583,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	if (WeaponType == EWeaponType::Sword)
 	{
 		// Initialize Sword techniques
-		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("A simple attack technique."), true, StormStrikeFlurryAnimMontage, 1.6f, 1 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("A simple attack technique."), true, StormStrikeFlurryAnimMontage, 1.6f, 1});
 
 		// Check WeaponProficiencyMap and unlock techniques based on proficiency level
 		if (WeaponProficiencyMap.Contains(EWeaponType::Sword))
@@ -1583,17 +1591,17 @@ void ARen_Low_Poly_Character::BeginPlay()
 			int32 TheWeaponLevel = WeaponProficiencyMap[EWeaponType::Sword].WeaponLevel;
 
 			// Add sword techniques based on the level of proficiency (this should match your progression)
-			if (TheWeaponLevel >= 2)
+			if (TheWeaponLevel >= 6)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("A simple attack technique."), true, VoltageBreakerAnimMontage, 1.3f, 1 });
+				Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("A simple attack technique."), true, VoltageBreakerAnimMontage, 1.3f, 1});
 			}
-			if (TheWeaponLevel >= 3)
+			if (TheWeaponLevel >= 16)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("A simple attack technique."), true, TempestBarrageAnimMontage, 1.7f, 1 });
+				Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("A simple attack technique."), true, TempestBarrageAnimMontage, 1.7f, 1});
 			}
-			if (TheWeaponLevel >= 4)
+			if (TheWeaponLevel >= 19)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("A simple attack technique."), true, StaticRushAnimMontage, 1.9f, 1 });
+				Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("A simple attack technique."), true, StaticRushAnimMontage, 1.9f, 1});
 			}
 		}
 	}
@@ -1601,7 +1609,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	if (WeaponType == EWeaponType::Staff)
 	{
 		// Initialize Staff techniques
-		Techniques.Add(FTechnique_Struct{ TEXT("Inferno Rain"), TEXT("A simple attack technique."), true, InfernoRainAnimMontage, 1.5f, 2 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Inferno Rain"), TEXT("A simple attack technique."), true, InfernoRainAnimMontage, 1.5f, 2});
 
 		// Check WeaponProficiencyMap and unlock techniques based on proficiency level
 		if (WeaponProficiencyMap.Contains(EWeaponType::Staff))
