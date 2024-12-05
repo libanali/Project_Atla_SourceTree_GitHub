@@ -767,7 +767,6 @@ void UGame_Over_Widget::ShowStatsUpgradeNotification(const TArray<FString>& Stat
 {
     UE_LOG(LogTemp, Log, TEXT("ShowStatsUpgradeNotification called"));
 
-    // If there are no stat messages to display
     if (StatMessages.Num() == 0)
     {
         if (StatUpgradeNotificationBorder)
@@ -775,7 +774,6 @@ void UGame_Over_Widget::ShowStatsUpgradeNotification(const TArray<FString>& Stat
             StatUpgradeNotificationBorder->SetVisibility(ESlateVisibility::Hidden);
         }
 
-        // Check if there are unlocked techniques to show
         if (UnlockedTechniques.Num() > 0)
         {
             ShowTechniqueNotification(UnlockedTechniques);
@@ -789,20 +787,17 @@ void UGame_Over_Widget::ShowStatsUpgradeNotification(const TArray<FString>& Stat
         return;
     }
 
-    // Combine all stat messages
     FString CombinedMessage = "Attributes\n";
     for (const FString& Message : StatMessages)
     {
         CombinedMessage += Message + TEXT("\n");
     }
 
-    // Play the stats upgrade animation
     if (StatsUpgrade_Animation)
     {
         PlayAnimation(StatsUpgrade_Animation, 1.0f);
     }
 
-    // Update the stat upgrade text block
     if (StatUpgradeTextBlock)
     {
         StatUpgradeTextBlock->SetText(FText::FromString(CombinedMessage));
@@ -810,13 +805,11 @@ void UGame_Over_Widget::ShowStatsUpgradeNotification(const TArray<FString>& Stat
         UE_LOG(LogTemp, Log, TEXT("Stats displayed"));
     }
 
-    // Show the notification border
     if (StatUpgradeNotificationBorder)
     {
         StatUpgradeNotificationBorder->SetVisibility(ESlateVisibility::Visible);
     }
 
-    // Set a timer to remove the notification
     GetWorld()->GetTimerManager().SetTimer(
         StatUpgradeNotificationTimerHandle,
         this,
@@ -831,17 +824,16 @@ void UGame_Over_Widget::ShowStatsUpgradeNotification(const TArray<FString>& Stat
 
 
 
+
 void UGame_Over_Widget::RemoveStatsUpgradeNotification()
 {
     UE_LOG(LogTemp, Log, TEXT("RemoveStatsUpgradeNotification called"));
 
-    // Reverse the stats upgrade animation
     if (StatUpgradeNotificationBorder && StatUpgradeTextBlock)
     {
         PlayAnimationReverse(StatsUpgrade_Animation, 1.0f);
     }
 
-    // Show techniques if available, otherwise play the fade-in animation for buttons
     if (UnlockedTechniques.Num() > 0)
     {
         ShowTechniqueNotification(UnlockedTechniques);
@@ -854,13 +846,10 @@ void UGame_Over_Widget::RemoveStatsUpgradeNotification()
 
 
 
-
-
 void UGame_Over_Widget::ShowTechniqueNotification(const TArray<FString>& TechniqueMessages)
 {
     UE_LOG(LogTemp, Log, TEXT("Entering ShowTechniqueNotification with %d techniques"), TechniqueMessages.Num());
 
-    // If there are no techniques to display
     if (TechniqueMessages.Num() == 0)
     {
         if (StatUpgradeNotificationBorder)
@@ -873,20 +862,17 @@ void UGame_Over_Widget::ShowTechniqueNotification(const TArray<FString>& Techniq
         return;
     }
 
-    // Combine all technique messages
     FString CombinedMessage = "Techniques\n";
     for (const FString& Technique : TechniqueMessages)
     {
         CombinedMessage += FString::Printf(TEXT("Unlocked: %s\n"), *Technique);
     }
 
-    // Play the stats upgrade animation
     if (StatsUpgrade_Animation)
     {
         PlayAnimation(StatsUpgrade_Animation, 1.0f);
     }
 
-    // Update the stat upgrade text block
     if (StatUpgradeTextBlock)
     {
         StatUpgradeTextBlock->SetText(FText::FromString(CombinedMessage));
@@ -894,13 +880,11 @@ void UGame_Over_Widget::ShowTechniqueNotification(const TArray<FString>& Techniq
         UE_LOG(LogTemp, Log, TEXT("Techniques displayed"));
     }
 
-    // Show the notification border
     if (StatUpgradeNotificationBorder)
     {
         StatUpgradeNotificationBorder->SetVisibility(ESlateVisibility::Visible);
     }
 
-    // Set a timer to remove the technique notification
     GetWorld()->GetTimerManager().SetTimer(
         StatUpgradeNotificationTimerHandle,
         this,
@@ -909,6 +893,7 @@ void UGame_Over_Widget::ShowTechniqueNotification(const TArray<FString>& Techniq
         false
     );
 }
+
 
 
 

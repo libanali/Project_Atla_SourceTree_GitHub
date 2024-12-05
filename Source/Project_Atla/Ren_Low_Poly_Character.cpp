@@ -1264,7 +1264,6 @@ void ARen_Low_Poly_Character::ApplyQueuedEXP()
 
 }
 
-
 void ARen_Low_Poly_Character::ApplyQueuedLevelUp(EWeaponType Weapon)
 {
 	// Clear queued techniques to ensure only current level-up techniques are added
@@ -1306,7 +1305,8 @@ void ARen_Low_Poly_Character::ApplyQueuedLevelUp(EWeaponType Weapon)
 			FWeaponTechniqueMap& TechniqueMap = WeaponLevelToTechniqueMap[Weapon];
 			for (const auto& LevelTechniquePair : TechniqueMap.LevelToTechnique)
 			{
-				if (LevelTechniquePair.Key <= Proficiency.WeaponLevel)
+				// Ensure only techniques for the current level-up are added
+				if (LevelTechniquePair.Key == Proficiency.WeaponLevel)
 				{
 					FString TechniqueToUnlock = LevelTechniquePair.Value;
 					QueuedUnlockTechniques.Add(TechniqueToUnlock);
@@ -1564,9 +1564,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	// Create and populate Sword techniques
 	FWeaponTechniqueMap SwordTechniquesForMap;
-	SwordTechniquesForMap.LevelToTechnique.Add(2, TEXT("Voltage Breaker"));
-	SwordTechniquesForMap.LevelToTechnique.Add(3, TEXT("Tempest Barrage"));
-	SwordTechniquesForMap.LevelToTechnique.Add(4, TEXT("Static Rush"));
+	SwordTechniquesForMap.LevelToTechnique.Add(6, TEXT("Voltage Breaker"));
+	SwordTechniquesForMap.LevelToTechnique.Add(16, TEXT("Tempest Barrage"));
+	SwordTechniquesForMap.LevelToTechnique.Add(19, TEXT("Static Rush"));
 
 	// Add Sword techniques to the main map
 	WeaponLevelToTechniqueMap.Add(EWeaponType::Sword, SwordTechniquesForMap);
