@@ -623,7 +623,12 @@ void ARen_Low_Poly_Character::IncreaseMana(float ManaAmount)
 void ARen_Low_Poly_Character::ControlMPFill()
 {
 
-	if (!bIsDead || ManaStruct.CurrentMana == ManaStruct.MaxMana)
+
+	bool bManaFull = ManaStruct.CurrentMana == ManaStruct.MaxMana;
+
+
+
+	if (!bIsDead && !bManaFull)
 
 	{
 
@@ -631,8 +636,9 @@ void ARen_Low_Poly_Character::ControlMPFill()
 
 		ManaStruct.CurrentMana += 5 * Delta;
 
-
+		ManaStruct.CurrentMana = FMath::Min(ManaStruct.CurrentMana, ManaStruct.MaxMana);
 	}
+
 
 }
 
