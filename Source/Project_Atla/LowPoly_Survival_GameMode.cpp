@@ -153,6 +153,7 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
     {
 
         Ren->HealthStruct.CurrentHealth = Ren->HealthStruct.MaxHealth;
+        Ren->ManaStruct.CurrentMana = Ren->ManaStruct.MaxMana;
 
     }
    

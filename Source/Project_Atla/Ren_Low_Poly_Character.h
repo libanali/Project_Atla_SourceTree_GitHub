@@ -12,6 +12,7 @@
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Health_Struct.h"
+#include "Mana_Struct.h"
 #include "Ability_Struct.h"
 #include "Engine/DataTable.h"
 #include "Character_Attributes.h"
@@ -214,7 +215,7 @@ public:
 		void CheckTechniquePointsMaximum();
 
 	UFUNCTION(BlueprintCallable)
-		void StopFillingGauge();
+		void ControlTechniqueGaugeFill();
 
 	UFUNCTION(BlueprintCallable)
 		void UseTechnique(int32 TechniqueIndex);
@@ -310,6 +311,22 @@ public:
 	float InitialMaxHealth;
 	//Health
 
+
+	//Mana
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mana")
+		FMana_Struct ManaStruct;
+
+	UFUNCTION(BlueprintCallable, Category = "Mana")
+		void DecreaseMana(float DecreaseAmount);
+
+	UFUNCTION(BlueprintCallable)
+		void IncreaseMana(float ManaAmount);
+
+	void ControlMPFill();
+
+	float PreviousMaxMana;
+	float InitialMaxMana;
+	//Mana
 
 
 	//Attack Stats

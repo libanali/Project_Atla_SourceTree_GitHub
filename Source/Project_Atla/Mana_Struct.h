@@ -31,6 +31,8 @@ public:
 
     void IncreaseMana(float ManaAmount);
 
+    void DecreaseMana(float DecreaseAmount);
+
 
 
 };

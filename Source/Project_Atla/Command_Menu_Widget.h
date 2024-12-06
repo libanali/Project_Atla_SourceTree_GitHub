@@ -34,6 +34,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UButton* TechniquesButton;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UButton* ElementalButton;
+
     UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
         class UImage* CommandMenuIcon;
 

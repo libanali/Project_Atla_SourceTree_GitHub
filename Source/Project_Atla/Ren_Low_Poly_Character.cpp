@@ -225,6 +225,7 @@ void ARen_Low_Poly_Character::UpdateStatsBasedOnWeapon()
 		BaseDefence = 2.0f;
 		BaseElementalAttack = 4.0f;
 		HealthStruct.MaxHealth = 140.0f;
+		ManaStruct.MaxMana = 60.0f;
 	}
 	else if (WeaponType == EWeaponType::Staff)
 	{
@@ -232,6 +233,7 @@ void ARen_Low_Poly_Character::UpdateStatsBasedOnWeapon()
 		BaseDefence = 2.0f;
 		BaseElementalAttack = 4.0f;
 		HealthStruct.MaxHealth = 130.0f;
+		ManaStruct.MaxMana = 95.0f;
 	}
 
 	// Apply proficiency boosts
@@ -242,6 +244,7 @@ void ARen_Low_Poly_Character::UpdateStatsBasedOnWeapon()
 		BaseDefence += Proficiency.DefenseBoost;
 		BaseElementalAttack += Proficiency.ElementalPowerBoost;
 		HealthStruct.MaxHealth += Proficiency.MaxHealthBoost;
+		ManaStruct.MaxMana += Proficiency.MaxManaBoost;
 	}
 
 	UE_LOG(LogTemp, Warning, TEXT("Updated Stats - Attack: %f, Defense: %f, Elemental: %f, Max Health: %f"),
@@ -599,6 +602,46 @@ void ARen_Low_Poly_Character::RecoverHealth()
 
 
 
+void ARen_Low_Poly_Character::DecreaseMana(float DecreaseAmount)
+{
+
+	ManaStruct.DecreaseMana(DecreaseAmount);
+
+}
+
+
+
+void ARen_Low_Poly_Character::IncreaseMana(float ManaAmount)
+{
+
+	ManaStruct.IncreaseMana(ManaAmount);
+
+}
+
+
+
+void ARen_Low_Poly_Character::ControlMPFill()
+{
+
+	if (!bIsDead || ManaStruct.CurrentMana == ManaStruct.MaxMana)
+
+	{
+
+		float Delta = GetWorld()->DeltaTimeSeconds;
+
+		ManaStruct.CurrentMana += 5 * Delta;
+
+
+	}
+
+}
+
+
+
+
+
+
+
 void ARen_Low_Poly_Character::InflictTechniqueDamageOnEnemy(AEnemy_Poly* Enemy, int32 TechniqueIndex)
 {
 
@@ -776,7 +819,7 @@ void ARen_Low_Poly_Character::CheckTechniquePointsMaximum()
 
 
 
-void ARen_Low_Poly_Character::StopFillingGauge()
+void ARen_Low_Poly_Character::ControlTechniqueGaugeFill()
 {
 	if (!bIsTechniquePointsMax)
 	{
@@ -1149,6 +1192,10 @@ void ARen_Low_Poly_Character::GenerateStatUpgradeMessages()
 		StatMessages.Add(FString::Printf(TEXT("Health %d -> %d"), static_cast<int32>(InitialMaxHealth), static_cast<int32>(HealthStruct.MaxHealth)));
 	}
 
+	if (ManaStruct.MaxMana > InitialMaxMana)
+	{
+		StatMessages.Add(FString::Printf(TEXT("Mana %d -> %d"), static_cast<int32>(InitialMaxMana), static_cast<int32>(ManaStruct.MaxMana)));
+	}
 	
 	for (const FString& TechniqueName : QueuedUnlockTechniques)
 
@@ -1164,6 +1211,7 @@ void ARen_Low_Poly_Character::GenerateStatUpgradeMessages()
 	PreviousDefense = BaseDefence;
 	PreviousElementalPower = BaseElementalAttack;
 	PreviousMaxHealth = HealthStruct.MaxHealth;
+	PreviousMaxMana = ManaStruct.MaxMana;
 
 	// Send these messages to your UI
 	if (GameOverWidgetInstance)
@@ -1281,6 +1329,7 @@ void ARen_Low_Poly_Character::ApplyQueuedLevelUp(EWeaponType Weapon)
 		PreviousDefense = BaseDefence;
 		PreviousElementalPower = BaseElementalAttack;
 		PreviousMaxHealth = HealthStruct.MaxHealth;
+		PreviousMaxMana = ManaStruct.MaxMana;
 
 		// Increment weapon level and adjust EXP threshold
 		Proficiency.WeaponLevel++;
@@ -1292,6 +1341,7 @@ void ARen_Low_Poly_Character::ApplyQueuedLevelUp(EWeaponType Weapon)
 		Proficiency.DefenseBoost += 2.f;
 		Proficiency.ElementalPowerBoost += 3.f;
 		Proficiency.MaxHealthBoost += 10.f;
+		Proficiency.MaxManaBoost += 15.f;
 
 		// Update total stats dynamically (base + boost)
 		UpdateStatsBasedOnWeapon();
@@ -1502,9 +1552,13 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	FindResultsCamera();
 
+	AbilityStruct.InitializeAbilityPoints();
+
 	HealthStruct.InitializeHealth();
 	HealthStruct.CurrentHealth = HealthStruct.MaxHealth;
-	AbilityStruct.InitializeAbilityPoints();
+
+	ManaStruct.InitializeMana();
+	ManaStruct.CurrentMana = ManaStruct.MaxMana;
 
 	//TechniqueStruct.CurrentGauge = 100.0f;
 	TechniqueStruct.MaxGauge = 100.0f;
@@ -1543,6 +1597,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 		BaseDefence = 2.0f;
 		BaseElementalAttack = 4.0f;
 		HealthStruct.MaxHealth = 140.0f;
+		ManaStruct.MaxMana = 60.0f;
 	}
 	else if (WeaponType == EWeaponType::Staff)
 	{
@@ -1550,6 +1605,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 		BaseDefence = 2.0f;
 		BaseElementalAttack = 4.0f;
 		HealthStruct.MaxHealth = 130.0f;
+		ManaStruct.MaxMana = 95.0f;
 	}
 
 	// Then, update the stats based on the weapon proficiency
@@ -1561,9 +1617,10 @@ void ARen_Low_Poly_Character::BeginPlay()
 	InitialDefense = BaseDefence;
 	InitialElemental = BaseElementalAttack;
 	InitialMaxHealth = HealthStruct.MaxHealth;
+	InitialMaxMana = ManaStruct.MaxMana;
 
-	UE_LOG(LogTemp, Log, TEXT("Initial Stats - Attack: %f, Defense: %f, Elemental: %f, MaxHealth: %f"),
-		InitialAttack, InitialDefense, InitialElemental, InitialMaxHealth);
+	UE_LOG(LogTemp, Log, TEXT("Initial Stats - Attack: %f, Defense: %f, Elemental: %f, MaxHealth: %f, MaxMana: %f"),
+		InitialAttack, InitialDefense, InitialElemental, InitialMaxHealth, InitialMaxMana);
 
 
 	// Create and populate Sword techniques
@@ -2084,7 +2141,9 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 
 	CheckTechniquePointsMaximum();
 
-	StopFillingGauge();
+	ControlTechniqueGaugeFill();
+
+	ControlMPFill();
 
 	// Call UpdateEnemyArrows only if the EnemyArrowMap is valid and not empty
 	if (EnemyArrowMap.Num() > 0)
@@ -2097,8 +2156,8 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 	}
 
 
-	FString StatsText = FString::Printf(TEXT("Current Attack: %.2f\nCurrent Defense: %.2f\nMax Health: %.2f\nCurrent Health: %.2f"),
-		BaseAttack, BaseDefence, HealthStruct.MaxHealth, HealthStruct.CurrentHealth);
+	FString StatsText = FString::Printf(TEXT("Current Attack: %.2f\nCurrent Defense: %.2f\nMax Health: %.2f\nCurrent Health: %.2f\nMax Mana: %f\nCurrent Mana: %f"),
+		BaseAttack, BaseDefence, HealthStruct.MaxHealth, HealthStruct.CurrentHealth, ManaStruct.MaxMana, ManaStruct.CurrentMana);
 
 	GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green, StatsText);
 

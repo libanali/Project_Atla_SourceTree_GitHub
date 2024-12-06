@@ -42,6 +42,10 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
         float MaxHealthBoost;
 
+    // Max health boost provided by this weapon
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
+        float MaxManaBoost;
+
     // Constructor to initialize default values
     FWeapon_Proficiency_Struct()
         : WeaponLevel(1),
@@ -50,7 +54,8 @@ public:
         AttackPowerBoost(0.f),
         DefenseBoost(0.f),
         ElementalPowerBoost(0.f),
-        MaxHealthBoost(0.f)
+        MaxHealthBoost(0.f),
+        MaxManaBoost(0.0f)
     {
     }
 
