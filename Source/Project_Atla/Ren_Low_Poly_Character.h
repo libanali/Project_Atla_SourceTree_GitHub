@@ -46,6 +46,15 @@ struct FWeaponTechniqueMap
 
 
 
+UENUM(BlueprintType)
+enum class EElementalAttackType : uint8
+{
+	Fire UMETA(DisplayName = "Fire"),
+	Ice UMETA(DisplayName = "Ice"),
+	Thunder UMETA(DisplayName = "Thunder")
+};
+
+
 
 class AEnemy_Poly;
 class AResults_camera;
@@ -384,17 +393,20 @@ public:
 
 
 	//Elemental Stats
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defence")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		float BaseElementalAttack;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defence")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		float ElementalMultiplier;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Defence")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		float TotalElementalAttack;
 
-	UFUNCTION(BlueprintCallable, Category = "Defence")
+	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void CalculateElementalAttack();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		EElementalAttackType ElementalType;
 
 	float PreviousElementalPower;
 	float InitialElemental;
