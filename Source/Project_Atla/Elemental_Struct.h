@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Ren_Low_Poly_Character.h"
+#include "Elemental_Attack_Type.h"  // Include the enum header
 #include "Elemental_Struct.generated.h"
 
 
@@ -15,25 +15,22 @@ struct PROJECT_ATLA_API FElemental_Struct
 
 public:
 
- 
     FElemental_Struct()
-        : ElementalName(TEXT("Unknown Element")), ElementType(EElementalAttackType::Fire),
+        : ElementalName(TEXT("Unknown Element")), ElementalType(EElementalAttackType::Fire),
         DamageMultiplier(1.0f), ManaCost(10.0f), ElementalLevel(1), bIsUnlocked(false) {}
 
     // Parameterized constructor
-    FElemental_Struct(FString Name, EElementType Type, float InDamageMultiplier, float InManaCost,
+    FElemental_Struct(FString Name, EElementalAttackType Type, float InDamageMultiplier, float InManaCost,
         int32 InElementalLevel, bool bUnlocked)
-        : ElementalName(Name), DamageMultiplier(InDamageMultiplier),
+        : ElementalName(Name), ElementalType(Type), DamageMultiplier(InDamageMultiplier),
         ManaCost(InManaCost), ElementalLevel(InElementalLevel), bIsUnlocked(bUnlocked) {}
 
     // Name of the elemental attack
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
         FString ElementalName;
 
-    // Element type (Fire, Ice, Thunder, etc.)
-    // Element type (Fire, Ice, Thunder, etc.)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
-        EElementalAttackType ElementType;
+        EElementalAttackType ElementalType;
 
     // The base damage multiplier for this elemental attack
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")

@@ -47,6 +47,8 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false;
 
+	StaffFireProjectile = CreateDefaultSubobject<USceneComponent>(TEXT("Staff Fire Projectile"));
+
 
 	//Ability
 	bCanUseAbility = false;
@@ -183,32 +185,37 @@ void ARen_Low_Poly_Character::InflictDamageOnEnemy(AEnemy_Poly* Enemy)
 
 }
 
-void ARen_Low_Poly_Character::InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy)
+void ARen_Low_Poly_Character::InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy, EElementalAttackType ElementType)
 {
 
-
 	if (Enemy)
-
 	{
-
+		// Default damage is the base elemental attack
 		float ElementalDamage = BaseElementalAttack;
 
-		CalculatedDamage = ElementalDamage * (1 - Enemy->DefencePercentage);
-
-		UWorld* World = GetWorld();
-
-		if (World)
-
+		// Find the elemental attack type in the ElementalAttacks array
+		for (const FElemental_Struct& ElementalAttack : ElementalAttacks)
 		{
-
-			float ActualDamageApplied = Enemy->ApplyDamage(CalculatedDamage, FHitResult(), GetController(), this);
-
+			if (ElementalAttack.ElementalType == ElementType)
+			{
+				ElementalDamage *= ElementalAttack.DamageMultiplier; // Apply damage multiplier
+				break;
+			}
 		}
 
+		// Calculate damage based on enemy defense
+		float TheCalculatedDamage = ElementalDamage * (1 - Enemy->DefencePercentage);
 
+		// Apply the calculated damage to the enemy
+		UWorld* World = GetWorld();
+		if (World)
+		{
+			float ActualDamageApplied = Enemy->ApplyDamage(TheCalculatedDamage, FHitResult(), GetController(), this);
+
+			// Optional: Add debug logging
+			UE_LOG(LogTemp, Log, TEXT("Inflicted %f %s damage to %s."), TheCalculatedDamage, *UEnum::GetValueAsString(ElementType), *Enemy->GetName());
+		}
 	}
-
-
 
 }
 
@@ -1070,6 +1077,55 @@ void ARen_Low_Poly_Character::CalculateElementalAttack()
 
 
 
+void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
+{
+
+
+	// Validate index within the array
+	if (ElementalIndex >= 0 && ElementalIndex < ElementalAttacks.Num())
+	{
+		FElemental_Struct& SelectedElementalAttack = ElementalAttacks[ElementalIndex];
+
+
+		// Check if the attack is unlocked and the character has enough mana
+		if (SelectedElementalAttack.bIsUnlocked && ManaStruct.CurrentMana >= SelectedElementalAttack.ManaCost)
+		{
+			// Deduct mana cost
+			ManaStruct.CurrentMana -= SelectedElementalAttack.ManaCost;
+
+			//FVector SpawnLocation = StaffFireProjectile->GetComponentLocation();
+			//FRotator SpawnRotation = StaffFireProjectile->GetComponentRotation();
+
+			UE_LOG(LogTemp, Log, TEXT("Casting Fire Attack!"));
+			if (FireProjectileClass)
+			{
+				//GetWorld()->SpawnActor<AActor>(ThunderProjectileClass, SpawnLocation, SpawnRotation);
+			}
+
+			// Log success
+			UE_LOG(LogTemp, Log, TEXT("Elemental Attack %s used, %.2f mana deducted."), *SelectedElementalAttack.ElementalName, SelectedElementalAttack.ManaCost);
+
+		}
+	
+	else
+	{
+		// Log failure due to insufficient mana or locked status
+			if (SelectedElementalAttack.ManaCost >= ManaStruct.CurrentMana)
+			{
+
+				UE_LOG(LogTemp, Warning, TEXT("Not enough mana to use Elemental Attack %s! Required: %.2f, Current: %.2f"),
+					*SelectedElementalAttack.ElementalName, SelectedElementalAttack.ManaCost, ManaStruct.CurrentMana);
+			}
+		}
+	}
+}
+	
+
+
+
+
+
+
 
 
 void ARen_Low_Poly_Character::CheckForTechniqueUnlock(EWeaponType Weapon, int32 WeaponLevel)
@@ -1558,6 +1614,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	FindResultsCamera();
 
+
+
 	AbilityStruct.InitializeAbilityPoints();
 
 	HealthStruct.InitializeHealth();
@@ -1651,6 +1709,10 @@ void ARen_Low_Poly_Character::BeginPlay()
 	{
 		// Initialize Sword techniques
 		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("A simple attack technique."), true, StormStrikeFlurryAnimMontage, 1.6f, 1});
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.4f, 10.0f, 1, true));
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 15.0f, 1, true));
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.9f, 15.0f, 1, true));
+
 
 		// Check WeaponProficiencyMap and unlock techniques based on proficiency level
 		if (WeaponProficiencyMap.Contains(EWeaponType::Sword))
@@ -1677,6 +1739,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 	{
 		// Initialize Staff techniques
 		Techniques.Add(FTechnique_Struct{ TEXT("Inferno Rain"), TEXT("A simple attack technique."), true, InfernoRainAnimMontage, 1.5f, 2});
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.8f, 10.0f, 1, true));
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.9f, 15.0f, 1, true));
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.6f, 15.0f, 1, true));
 
 		// Check WeaponProficiencyMap and unlock techniques based on proficiency level
 		if (WeaponProficiencyMap.Contains(EWeaponType::Staff))

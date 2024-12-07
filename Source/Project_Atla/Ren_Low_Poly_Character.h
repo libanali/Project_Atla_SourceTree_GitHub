@@ -8,12 +8,15 @@
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/StaticMeshComponent.h"
+#include "Components/SceneComponent.h"
 #include "Components/InputComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Health_Struct.h"
 #include "Mana_Struct.h"
 #include "Ability_Struct.h"
+#include "Elemental_Attack_Type.h"
+#include "Elemental_Struct.h"
 #include "Engine/DataTable.h"
 #include "Character_Attributes.h"
 #include "Blueprint/UserWidget.h"
@@ -45,14 +48,6 @@ struct FWeaponTechniqueMap
 };
 
 
-
-UENUM(BlueprintType)
-enum class EElementalAttackType : uint8
-{
-	Fire UMETA(DisplayName = "Fire"),
-	Ice UMETA(DisplayName = "Ice"),
-	Thunder UMETA(DisplayName = "Thunder")
-};
 
 
 
@@ -109,7 +104,7 @@ public:
 		void InflictDamageOnEnemy(AEnemy_Poly* Enemy);
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-		void InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy);
+		void InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy, EElementalAttackType ElementType);
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 		void UpdateStatsBasedOnWeapon();
@@ -402,11 +397,23 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		float TotalElementalAttack;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		TArray<FElemental_Struct> ElementalAttacks;
+
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void CalculateElementalAttack();
 
+	UFUNCTION(BlueprintCallable, Category = "Elemental")
+		void UseElementalAttack(int32 ElementalIndex);
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
-		EElementalAttackType ElementalType;
+		TSubclassOf<AActor> FireProjectileClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		TSubclassOf<AActor> IceProjectileClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		TSubclassOf<AActor> ThunderProjectileClass;
 
 	float PreviousElementalPower;
 	float InitialElemental;
@@ -557,6 +564,10 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera")
 		UCameraComponent* Camera;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Projectile")
+		USceneComponent* StaffFireProjectile;
+
 	//Character Components
 
 
