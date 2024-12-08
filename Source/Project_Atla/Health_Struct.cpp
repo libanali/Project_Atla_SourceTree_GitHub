@@ -20,6 +20,8 @@ void FHealth_Struct::InitializeHealth()
 
 void FHealth_Struct::TakeDamage(float DamageAmount)
 {
+	float delta = 
+
 
 	CurrentHealth = FMath::Max(CurrentHealth - DamageAmount, 0.0f);
 

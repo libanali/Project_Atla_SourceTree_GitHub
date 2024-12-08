@@ -94,7 +94,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 
 	//Defence
-	BaseDefence = 3.0f;
+	BaseDefence = 300.0f;
 	DefenceMultiplier = 2.0f;
 	DefenceIncrease = 2.0f;
 
@@ -1118,6 +1118,54 @@ void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 			}
 		}
 	}
+}
+
+
+
+
+void ARen_Low_Poly_Character::SpawnElementalProjectile(EElementalAttackType ElementalType)
+{
+
+	TSubclassOf<AActor> ProjectileClass;
+
+	switch (ElementalType)
+	{
+	case EElementalAttackType::Fire:
+		ProjectileClass = FireProjectileClass;
+		break;
+
+	case EElementalAttackType::Ice:
+		ProjectileClass = IceProjectileClass;
+		break;
+
+	case EElementalAttackType::Thunder:
+		ProjectileClass = ThunderProjectileClass;
+		break;
+
+		// Add more cases for additional elements here
+
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("Unknown Elemental Type!"));
+		return;
+	}
+
+
+	// Ensure we have a valid projectile class
+	if (ProjectileClass)
+	{
+		// Get the position and rotation from the "projectile point" socket
+		USkeletalMeshComponent* MeshComp = GetMesh();
+		if (MeshComp)
+		{
+			FVector SpawnLocation = MeshComp->GetSocketLocation(TEXT("Shoot_Elemental_Projectile"));
+			FRotator SpawnRotation = MeshComp->GetSocketRotation(TEXT("Shoot_Elemental_Projectile"));
+
+			// Spawn the projectile actor
+			GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnLocation, SpawnRotation);
+		}
+	}
+
+
 }
 	
 

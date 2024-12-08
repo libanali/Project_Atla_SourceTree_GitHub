@@ -387,6 +387,8 @@ public:
 
 
 
+
+
 	//Elemental Stats
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		float BaseElementalAttack;
@@ -400,12 +402,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		TArray<FElemental_Struct> ElementalAttacks;
 
-	UFUNCTION(BlueprintCallable, Category = "Elemental")
-		void CalculateElementalAttack();
-
-	UFUNCTION(BlueprintCallable, Category = "Elemental")
-		void UseElementalAttack(int32 ElementalIndex);
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		TSubclassOf<AActor> FireProjectileClass;
 
@@ -414,6 +410,17 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		TSubclassOf<AActor> ThunderProjectileClass;
+
+	UFUNCTION(BlueprintCallable, Category = "Elemental")
+		void CalculateElementalAttack();
+
+	UFUNCTION(BlueprintCallable, Category = "Elemental")
+		void UseElementalAttack(int32 ElementalIndex);
+
+	UFUNCTION(BlueprintCallable, Category = "Elemental")
+		void SpawnElementalProjectile(EElementalAttackType ElementalType);
+
+
 
 	float PreviousElementalPower;
 	float InitialElemental;
