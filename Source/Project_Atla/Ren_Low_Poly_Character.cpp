@@ -1103,7 +1103,7 @@ void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 			}
 
 			// Log success
-			UE_LOG(LogTemp, Log, TEXT("Elemental Attack %s used, %.2f mana deducted."), *SelectedElementalAttack.ElementalName, SelectedElementalAttack.ManaCost);
+			UE_LOG(LogTemp, Log, TEXT("Elemental Attack %s used, %.2f mana deducted."), *SelectedElementalAttack.ElementalAttackName, SelectedElementalAttack.ManaCost);
 
 		}
 	
@@ -1114,7 +1114,7 @@ void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 			{
 
 				UE_LOG(LogTemp, Warning, TEXT("Not enough mana to use Elemental Attack %s! Required: %.2f, Current: %.2f"),
-					*SelectedElementalAttack.ElementalName, SelectedElementalAttack.ManaCost, ManaStruct.CurrentMana);
+					*SelectedElementalAttack.ElementalAttackName, SelectedElementalAttack.ManaCost, ManaStruct.CurrentMana);
 			}
 		}
 	}
@@ -1757,9 +1757,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 	{
 		// Initialize Sword techniques
 		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("A simple attack technique."), true, StormStrikeFlurryAnimMontage, 1.6f, 1});
-		ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.4f, 10.0f, 1, true));
-		ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 15.0f, 1, true));
-		ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.9f, 15.0f, 1, true));
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.4f, 15.0f, 1, true, FireProjectileAnimation));
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 25.0f, 1, true, IceProjectileAnimation));
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.9f, 20.0f, 1, true, ThunderProjectileAnimation));
 
 
 		// Check WeaponProficiencyMap and unlock techniques based on proficiency level
@@ -1783,13 +1783,15 @@ void ARen_Low_Poly_Character::BeginPlay()
 		}
 	}
 
+
+
 	if (WeaponType == EWeaponType::Staff)
 	{
 		// Initialize Staff techniques
 		Techniques.Add(FTechnique_Struct{ TEXT("Inferno Rain"), TEXT("A simple attack technique."), true, InfernoRainAnimMontage, 1.5f, 2});
-		ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.8f, 10.0f, 1, true));
-		ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.9f, 15.0f, 1, true));
-		ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.6f, 15.0f, 1, true));
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.7f, 10.0f, 1, true, FireProjectileAnimation));
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.9f, 15.0f, 1, true, IceProjectileAnimation));
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.5f, 10.0f, 1, true, ThunderProjectileAnimation));
 
 		// Check WeaponProficiencyMap and unlock techniques based on proficiency level
 		if (WeaponProficiencyMap.Contains(EWeaponType::Staff))
@@ -1934,6 +1936,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 
 
+
+
 void ARen_Low_Poly_Character::SetItemsButtonFocus()
 {
 
@@ -1976,6 +1980,8 @@ void ARen_Low_Poly_Character::ToggleCommandMenu()
 			// Make sure buttons are visible
 			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Visible);
 			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Visible);
+			CommandMenuWidget->ElementalButton->SetVisibility(ESlateVisibility::Visible);
+
 
 			// Add slight delay before setting keyboard focus to ensure UI updates
 			GetWorldTimerManager().SetTimerForNextTick(this, &ARen_Low_Poly_Character::SetItemsButtonFocus);
@@ -2005,6 +2011,8 @@ void ARen_Low_Poly_Character::ToggleCommandMenu()
 			// Make sure buttons are visible when returning to command menu
 			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Visible);
 			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Visible);
+			CommandMenuWidget->ElementalButton->SetVisibility(ESlateVisibility::Visible);
+
 
 			
 			GetWorldTimerManager().SetTimerForNextTick(this, &ARen_Low_Poly_Character::SetItemsButtonFocus);
@@ -2012,6 +2020,7 @@ void ARen_Low_Poly_Character::ToggleCommandMenu()
 
 			bIsInventoryOpen = false;
 			bIsTechniquesOpen = false;
+			bIsElementalsOpen = false;
 			// Log for debugging
 			UE_LOG(LogTemp, Warning, TEXT("Returned to Command Menu from Inventory, index set to: %d"), CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex());
 		}
@@ -2029,6 +2038,8 @@ void ARen_Low_Poly_Character::UpdateVisibilityBasedOnIndex(int Index)
 		{
 			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Visible);
 			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Visible);
+			CommandMenuWidget->ElementalButton->SetVisibility(ESlateVisibility::Visible);
+
 
 			if (CommandMenuWidget->InventoryWidgetInstance && CommandMenuWidget->InventoryWidgetInstance->IsInViewport())
 			{
@@ -2043,6 +2054,8 @@ void ARen_Low_Poly_Character::UpdateVisibilityBasedOnIndex(int Index)
 		{
 			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Collapsed);
 			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Collapsed);
+			CommandMenuWidget->ElementalButton->SetVisibility(ESlateVisibility::Collapsed);
+
 
 			if (CommandMenuWidget->InventoryWidgetInstance && !CommandMenuWidget->InventoryWidgetInstance->IsInViewport())
 			{
@@ -2060,8 +2073,24 @@ void ARen_Low_Poly_Character::UpdateVisibilityBasedOnIndex(int Index)
 
 				CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Collapsed);
 				CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Collapsed);
+				CommandMenuWidget->ElementalButton->SetVisibility(ESlateVisibility::Collapsed);
+
 			}
 
+			else if (Index == 4)
+
+			{
+				// Set techniques widget visibility and other required elements
+				if (CommandMenuWidget->ElementalAttacksWidgetInstance && !CommandMenuWidget->ElementalAttacksWidgetInstance->IsInViewport())
+				{
+					CommandMenuWidget->ElementalAttacksWidgetInstance->AddToViewport();
+				}
+
+				CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Collapsed);
+				CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Collapsed);
+				CommandMenuWidget->ElementalButton->SetVisibility(ESlateVisibility::Collapsed);
+
+			}
 		}
 	}
 
@@ -2101,6 +2130,7 @@ void ARen_Low_Poly_Character::OpenInventory()
 		CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(2);
 		bIsInventoryOpen = true;
 		bIsTechniquesOpen = false;
+		bIsElementalsOpen = false;
 
 
 
@@ -2132,6 +2162,7 @@ void ARen_Low_Poly_Character::OpenTechniques()
 		// Update visibility specifically for techniques menu
 		UpdateVisibilityBasedOnIndex(3);
 		bIsInventoryOpen = false;
+		bIsElementalsOpen = false;
 		bIsTechniquesOpen = true;
 
 
@@ -2140,6 +2171,36 @@ void ARen_Low_Poly_Character::OpenTechniques()
 
 	SetInputModeForUI();
 	bIsInUIMode = true; // Track UI mode for techniques menu
+
+}
+
+
+
+
+void ARen_Low_Poly_Character::OpenElementalAttacks()
+{
+
+
+	if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher)
+	{
+		// Set the WidgetSwitcher to display the techniques menu (index 3)
+		CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(4);
+
+		// Update visibility specifically for techniques menu
+		UpdateVisibilityBasedOnIndex(4);
+		bIsInventoryOpen = false;
+		bIsTechniquesOpen = false;
+		bIsElementalsOpen = true;
+
+
+	}
+
+
+	SetInputModeForUI();
+	bIsInUIMode = true; // Track UI mode for techniques menu
+
+
+
 
 }
 
@@ -2179,6 +2240,13 @@ void ARen_Low_Poly_Character::HandleBackInput()
 		}
 
 		else if (CurrentIndex == 3)
+
+		{
+			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
+			bIsInUIMode = true;
+		}
+
+		else if (CurrentIndex == 4)
 
 		{
 			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);

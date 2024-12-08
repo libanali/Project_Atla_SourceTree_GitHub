@@ -400,6 +400,9 @@ public:
 		float TotalElementalAttack;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		FElemental_Struct ElementalStruct;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		TArray<FElemental_Struct> ElementalAttacks;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
@@ -410,6 +413,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		TSubclassOf<AActor> ThunderProjectileClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		UAnimMontage* FireProjectileAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		UAnimMontage* IceProjectileAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		UAnimMontage* ThunderProjectileAnimation;
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void CalculateElementalAttack();
@@ -502,6 +514,9 @@ public:
 		void OpenTechniques();
 
 	UFUNCTION()
+		void OpenElementalAttacks();
+
+	UFUNCTION()
 		void HandleBackInput();
 
 	UFUNCTION()
@@ -509,6 +524,10 @@ public:
 
 	UFUNCTION()
 		void SetInputModeForGameplay();
+
+	void EnableUIInputWithGameInput();
+
+	void UpdateVisibilityBasedOnIndex(int Index);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		bool bIsInUIMode;
@@ -521,9 +540,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		bool bIsTechniquesOpen = false;
 
-	void EnableUIInputWithGameInput();
-
-	void UpdateVisibilityBasedOnIndex(int Index);
+	// Track if the Techniques is open
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+		bool bIsElementalsOpen = false;
 	//Command
 
 

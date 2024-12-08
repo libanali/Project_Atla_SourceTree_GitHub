@@ -16,7 +16,8 @@ enum class ECommandMenuState : uint8
 {
     MainMenu UMETA(DisplayName = "Main Menu"),
     ItemsMenu UMETA(DisplayName = "Items Menu"),
-    TechniquesMenu UMETA(DisplayName = "Techniques Menu")
+    TechniquesMenu UMETA(DisplayName = "Techniques Menu"),
+    ElementalAttacks UMETA(DisplayName = "Elemental Attacks")
 };
 
 
@@ -55,6 +56,12 @@ public:
     UPROPERTY()
     UUserWidget* TechniquesWidgetInstance;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CommandMenu")
+        TSubclassOf<UUserWidget> ElementalAttacksWidgetClass;
+
+    UPROPERTY()
+        UUserWidget* ElementalAttacksWidgetInstance;
+
     // State variable for tracking the current menu
     ECommandMenuState CurrentMenuState;
 
@@ -69,6 +76,9 @@ public:
         void ShowTechniquesMenu();
 
     UFUNCTION()
+        void ShowElementalAttacksMenu();
+
+    UFUNCTION()
         void ReturnToMainMenu();
 
     // Handle back button navigation (Circle / B button)
@@ -81,6 +91,9 @@ public:
 
     UFUNCTION()
         void OnTechniquesButtonClicked();
+
+    UFUNCTION()
+        void OnElementalAttacksClicked();
 
 
     // Function to show or hide the command menu icon

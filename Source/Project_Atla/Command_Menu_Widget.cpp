@@ -25,6 +25,13 @@ void UCommand_Menu_Widget::NativeOnInitialized()
         TechniquesButton->OnClicked.AddDynamic(this, &UCommand_Menu_Widget::OnTechniquesButtonClicked);
     }
 
+    if(ElementalButton)
+    {
+    
+        ElementalButton->OnClicked.AddDynamic(this, &UCommand_Menu_Widget::OnElementalAttacksClicked);
+
+    }
+
 
     // Ensure the command image is visible at the start
     CommandMenuIcon->SetVisibility(ESlateVisibility::Visible); 
@@ -32,6 +39,7 @@ void UCommand_Menu_Widget::NativeOnInitialized()
     // Initially hide the buttons
     ItemsButton->SetVisibility(ESlateVisibility::Hidden);
     TechniquesButton->SetVisibility(ESlateVisibility::Hidden);
+    ElementalButton->SetVisibility(ESlateVisibility::Hidden);
 
     ItemsButton->SetKeyboardFocus();
 
@@ -59,6 +67,17 @@ void UCommand_Menu_Widget::NativeOnInitialized()
         }
     }
 
+
+    if (ElementalAttacksWidgetClass)
+    {
+        ElementalAttacksWidgetInstance = CreateWidget<UUserWidget>(GetWorld(), ElementalAttacksWidgetClass);
+        if (ElementalAttacksWidgetInstance)
+        {
+            ElementalAttacksWidgetInstance->AddToViewport();
+            ElementalAttacksWidgetInstance->SetVisibility(ESlateVisibility::Hidden); // Initially hidden
+        }
+    }
+
 }
 
 
@@ -70,6 +89,7 @@ void UCommand_Menu_Widget::ShowItemsMenu()
     ItemsButton->SetVisibility(ESlateVisibility::Hidden);
     TechniquesButton->SetVisibility(ESlateVisibility::Hidden);
     CommandMenuIcon->SetVisibility(ESlateVisibility::Hidden);
+    ElementalButton->SetVisibility(ESlateVisibility::Hidden);
 
 
 
@@ -80,9 +100,22 @@ void UCommand_Menu_Widget::ShowTechniquesMenu()
 
     ItemsButton->SetVisibility(ESlateVisibility::Hidden);
     TechniquesButton->SetVisibility(ESlateVisibility::Hidden);
+    ElementalButton->SetVisibility(ESlateVisibility::Hidden);
 
 
 }
+
+
+
+void UCommand_Menu_Widget::ShowElementalAttacksMenu()
+{
+
+    ItemsButton->SetVisibility(ESlateVisibility::Hidden);
+    TechniquesButton->SetVisibility(ESlateVisibility::Hidden);
+    ElementalButton->SetVisibility(ESlateVisibility::Hidden);
+}
+
+
 
 void UCommand_Menu_Widget::ReturnToMainMenu()
 {
@@ -134,6 +167,21 @@ void UCommand_Menu_Widget::OnTechniquesButtonClicked()
     {
         PlayerCharacter->OpenTechniques();
     }
+
+}
+
+void UCommand_Menu_Widget::OnElementalAttacksClicked()
+{
+
+
+
+    ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(GetOwningPlayerPawn());
+    if (PlayerCharacter)
+    {
+        PlayerCharacter->OpenElementalAttacks();
+    }
+
+
 
 }
 
