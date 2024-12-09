@@ -797,8 +797,11 @@ void ARen_Low_Poly_Character::CheckGaugeMaximum()
 	{
 
 		TechniqueStruct.TechniquePoints++;
-		TechniqueStruct.CurrentGauge = 0.0f;
 
+		if (TechniqueStruct.TechniquePoints < TechniqueStruct.MaxTechniquePoints)
+		{
+			TechniqueStruct.CurrentGauge = 0.0f;
+		}
 	}
 
 
@@ -816,7 +819,7 @@ void ARen_Low_Poly_Character::CheckTechniquePointsMaximum()
 		bIsTechniquePointsMax = true;
 		//TechniqueStruct.CurrentGauge = 99.0f;
 
-
+		TechniqueStruct.CurrentGauge = TechniqueStruct.MaxGauge;
 	}
 
 	else
@@ -848,7 +851,7 @@ void ARen_Low_Poly_Character::ControlTechniqueGaugeFill()
 		{
 			TechniqueStruct.TechniquePoints = TechniqueStruct.MaxTechniquePoints; // Clamp to max
 			bIsTechniquePointsMax = true; // Set max flag
-
+			TechniqueStruct.CurrentGauge = TechniqueStruct.MaxGauge; // Keep the gauge full
 		}
 
 	}
@@ -856,7 +859,6 @@ void ARen_Low_Poly_Character::ControlTechniqueGaugeFill()
 
 
 }
-
 
 
 
@@ -870,24 +872,33 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 		// Ensure weapon type matches and other conditions are met
 		if (SelectedTechnique.bIsUnlocked && TechniqueStruct.TechniquePoints >= SelectedTechnique.PointsRequired)
 		{
+			// Deduct the required points
+			TechniqueStruct.TechniquePoints -= SelectedTechnique.PointsRequired;
 
-			TechniqueStruct.TechniquePoints -= SelectedTechnique.PointsRequired; // Deduct required points
-
+			// Play the animation for the technique
 			PlayAnimMontage(SelectedTechnique.TechniqueAnimation);
-
-			
-
 
 			// Log success
 			UE_LOG(LogTemp, Log, TEXT("Technique %s used, %d points deducted."), *SelectedTechnique.TechniqueName, SelectedTechnique.PointsRequired);
+
+			// Only reset gauge if we still have technique points
+			if (TechniqueStruct.TechniquePoints < TechniqueStruct.MaxTechniquePoints)
+			{
+				TechniqueStruct.CurrentGauge = 0.0f; // Reset gauge only if technique points are not maxed out
+			}
+			else
+			{
+				TechniqueStruct.CurrentGauge = TechniqueStruct.MaxGauge; // Keep the gauge visually full
+			}
 		}
 		else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Technique is locked or insufficient technique points!"));
 		}
 	}
-
 }
+
+
 
 
 void ARen_Low_Poly_Character::UnlockTechnique(FString TechniqueID)
@@ -1092,6 +1103,7 @@ void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 		{
 			// Deduct mana cost
 			ManaStruct.CurrentMana -= SelectedElementalAttack.ManaCost;
+			PlayAnimMontage(SelectedElementalAttack.Elemental_Attack_Animation);
 
 			//FVector SpawnLocation = StaffFireProjectile->GetComponentLocation();
 			//FRotator SpawnRotation = StaffFireProjectile->GetComponentRotation();
@@ -1674,7 +1686,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	//TechniqueStruct.CurrentGauge = 100.0f;
 	TechniqueStruct.MaxGauge = 100.0f;
-	TechniqueStruct.TechniquePoints = 5;
+	TechniqueStruct.TechniquePoints = 6;
 	TechniqueStruct.MaxTechniquePoints = 7;
 
 	TArray<AActor*> OverlappingActors;
@@ -1756,7 +1768,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	if (WeaponType == EWeaponType::Sword)
 	{
 		// Initialize Sword techniques
-		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("A simple attack technique."), true, StormStrikeFlurryAnimMontage, 1.6f, 1});
+		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("A simple attack technique."), true, StormStrikeFlurryAnimMontage, 1.6f, 3});
 		ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.4f, 15.0f, 1, true, FireProjectileAnimation));
 		ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 25.0f, 1, true, IceProjectileAnimation));
 		ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.9f, 20.0f, 1, true, ThunderProjectileAnimation));
