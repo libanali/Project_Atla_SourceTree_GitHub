@@ -1998,6 +1998,8 @@ void ARen_Low_Poly_Character::ToggleCommandMenu()
 			// Add slight delay before setting keyboard focus to ensure UI updates
 			GetWorldTimerManager().SetTimerForNextTick(this, &ARen_Low_Poly_Character::SetItemsButtonFocus);
 
+			CommandMenuWidget->CheckInventoryAndSetFocus();
+
 			SetInputModeForUI();
 			bIsInUIMode = true;
 
@@ -2177,7 +2179,7 @@ void ARen_Low_Poly_Character::OpenTechniques()
 		bIsElementalsOpen = false;
 		bIsTechniquesOpen = true;
 
-
+		//LastFocusedButton = CommandMenuWidget->TechniquesButton;
 	}
 
 
@@ -2203,7 +2205,7 @@ void ARen_Low_Poly_Character::OpenElementalAttacks()
 		bIsInventoryOpen = false;
 		bIsTechniquesOpen = false;
 		bIsElementalsOpen = true;
-
+		//LastFocusedButton = CommandMenuWidget->ElementalButton;
 
 	}
 
@@ -2247,7 +2249,7 @@ void ARen_Low_Poly_Character::HandleBackInput()
 			bIsInUIMode = true; // Still in UI mode
 
 			GetWorldTimerManager().SetTimerForNextTick(this, &ARen_Low_Poly_Character::SetItemsButtonFocus);
-			
+			CommandMenuWidget->CheckInventoryAndSetFocus();
 
 		}
 
@@ -2256,6 +2258,7 @@ void ARen_Low_Poly_Character::HandleBackInput()
 		{
 			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
 			bIsInUIMode = true;
+			CommandMenuWidget->CheckInventoryAndSetFocus();
 		}
 
 		else if (CurrentIndex == 4)
@@ -2263,6 +2266,7 @@ void ARen_Low_Poly_Character::HandleBackInput()
 		{
 			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
 			bIsInUIMode = true;
+			CommandMenuWidget->CheckInventoryAndSetFocus();
 		}
 	}
 }

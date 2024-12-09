@@ -105,6 +105,8 @@ public:
     UFUNCTION()
         void OnElementalAttacksClicked();
 
+    UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
+        void CheckInventoryAndSetFocus();
 
 
     // Function to show or hide the command menu icon

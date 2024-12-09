@@ -543,6 +543,8 @@ public:
 	// Track if the Techniques is open
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		bool bIsElementalsOpen = false;
+
+	UButton* LastFocusedButton;
 	//Command
 
 
