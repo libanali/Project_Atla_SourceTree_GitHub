@@ -1104,15 +1104,7 @@ void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 			// Deduct mana cost
 			ManaStruct.CurrentMana -= SelectedElementalAttack.ManaCost;
 			PlayAnimMontage(SelectedElementalAttack.Elemental_Attack_Animation);
-
-			//FVector SpawnLocation = StaffFireProjectile->GetComponentLocation();
-			//FRotator SpawnRotation = StaffFireProjectile->GetComponentRotation();
-
-			UE_LOG(LogTemp, Log, TEXT("Casting Fire Attack!"));
-			if (FireProjectileClass)
-			{
-				//GetWorld()->SpawnActor<AActor>(ThunderProjectileClass, SpawnLocation, SpawnRotation);
-			}
+			SpawnElementalProjectile(SelectedElementalAttack.ElementalType);
 
 			// Log success
 			UE_LOG(LogTemp, Log, TEXT("Elemental Attack %s used, %.2f mana deducted."), *SelectedElementalAttack.ElementalAttackName, SelectedElementalAttack.ManaCost);
@@ -1139,6 +1131,8 @@ void ARen_Low_Poly_Character::SpawnElementalProjectile(EElementalAttackType Elem
 {
 
 	TSubclassOf<AActor> ProjectileClass;
+
+	//EElementalAttackType CurrentElement = ElementalType;
 
 	switch (ElementalType)
 	{
@@ -2179,7 +2173,7 @@ void ARen_Low_Poly_Character::OpenTechniques()
 		bIsElementalsOpen = false;
 		bIsTechniquesOpen = true;
 
-		//LastFocusedButton = CommandMenuWidget->TechniquesButton;
+		LastFocusedButton = CommandMenuWidget->TechniquesButton;
 	}
 
 
@@ -2205,7 +2199,7 @@ void ARen_Low_Poly_Character::OpenElementalAttacks()
 		bIsInventoryOpen = false;
 		bIsTechniquesOpen = false;
 		bIsElementalsOpen = true;
-		//LastFocusedButton = CommandMenuWidget->ElementalButton;
+		LastFocusedButton = CommandMenuWidget->ElementalButton;
 
 	}
 
@@ -2223,8 +2217,6 @@ void ARen_Low_Poly_Character::OpenElementalAttacks()
 
 
 
-
-
 void ARen_Low_Poly_Character::HandleBackInput()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Back button pressed!"));
@@ -2235,38 +2227,20 @@ void ARen_Low_Poly_Character::HandleBackInput()
 
 		if (CurrentIndex == 1) // If in command menu
 		{
-			// Return to command icon
 			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(0);
 			SetInputModeForGameplay();
 			bIsInUIMode = false; // Return to gameplay
 		}
-
-		else if (CurrentIndex == 2) // If in inventory
-
+		else if (CurrentIndex == 2 || CurrentIndex == 3 || CurrentIndex == 4) // If in inventory, techniques, or elementals
 		{
-			// Go back to the main command menu
 			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
 			bIsInUIMode = true; // Still in UI mode
 
-			GetWorldTimerManager().SetTimerForNextTick(this, &ARen_Low_Poly_Character::SetItemsButtonFocus);
-			CommandMenuWidget->CheckInventoryAndSetFocus();
-
-		}
-
-		else if (CurrentIndex == 3)
-
-		{
-			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
-			bIsInUIMode = true;
-			CommandMenuWidget->CheckInventoryAndSetFocus();
-		}
-
-		else if (CurrentIndex == 4)
-
-		{
-			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
-			bIsInUIMode = true;
-			CommandMenuWidget->CheckInventoryAndSetFocus();
+			// Restore focus to the last focused button
+			if (LastFocusedButton)
+			{
+				LastFocusedButton->SetKeyboardFocus();
+			}
 		}
 	}
 }
