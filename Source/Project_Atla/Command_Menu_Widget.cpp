@@ -78,6 +78,9 @@ void UCommand_Menu_Widget::NativeOnInitialized()
         }
     }
 
+
+
+
 }
 
 
@@ -184,6 +187,8 @@ void UCommand_Menu_Widget::OnElementalAttacksClicked()
 
 
 }
+
+
 
 
 

@@ -41,6 +41,15 @@ public:
     UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
         class UImage* CommandMenuIcon;
 
+    UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+        class UImage* CommandMenuBackgroundImage;
+
+    UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+        class UImage* CommandMenuBackgroundTitleImage;
+
+    UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+        class UTextBlock* CommandMenuTitleText;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         UWidgetSwitcher* WidgetSwitcher;
 
@@ -58,6 +67,8 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CommandMenu")
         TSubclassOf<UUserWidget> ElementalAttacksWidgetClass;
+
+
 
     UPROPERTY()
         UUserWidget* ElementalAttacksWidgetInstance;
@@ -85,7 +96,6 @@ public:
     UFUNCTION()
         void HandleBackNavigation();
 
-
     UFUNCTION()
         void OnItemsButtonClicked();
 
@@ -94,6 +104,7 @@ public:
 
     UFUNCTION()
         void OnElementalAttacksClicked();
+
 
 
     // Function to show or hide the command menu icon
