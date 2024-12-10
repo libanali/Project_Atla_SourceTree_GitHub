@@ -1201,6 +1201,9 @@ void ARen_Low_Poly_Character::SpawnElementalAOE(FVector SpawnLocation, FRotator 
 		return;
 	}
 
+
+	GetWorld()->SpawnActor<AActor>(AOEClass, SpawnLocation, SpawnRotation);
+
 }
 
 
@@ -1827,6 +1830,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 		ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.5f, 10.0f, 1, true, FireProjectileAnimation));
 		ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 15.0f, 1, true, IceProjectileAnimation));
 		ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.8f, 15.0f, 1, true, ThunderProjectileAnimation));
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Fire AOE"), EElementalAttackType::Fire, 1.4f, 30.0f, 2, true, FireAOEAnimation));
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Ice AOE"), EElementalAttackType::Ice, 1.4f, 30.0f, 2, true, IceAOEAnimation));
+
 
 		// Check WeaponProficiencyMap and unlock techniques based on proficiency level
 		if (WeaponProficiencyMap.Contains(EWeaponType::Sword))
