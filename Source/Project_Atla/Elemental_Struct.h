@@ -14,19 +14,40 @@ struct PROJECT_ATLA_API FElemental_Struct
     GENERATED_BODY()
 
 public:
-    // Default constructor
     FElemental_Struct()
-        : ElementalAttackName(TEXT("Unknown Element")), ElementalType(EElementalAttackType::Fire),
-        DamageMultiplier(1.0f), ManaCost(10.0f), ElementalLevel(1), bIsUnlocked(false), Elemental_Attack_Animation(nullptr) {}
+        : ElementalAttackName(TEXT("Unknown Element")),
+        ElementalType(EElementalAttackType::Fire),
+        DamageMultiplier(1.0f),
+        ManaCost(10.0f),
+        ElementalLevel(1),
+        bIsUnlocked(false),
+        CurrentEXP(0.0f),
+        EXPToNextLevel(100.0f),
+        Elemental_Attack_Animation(nullptr)
+    {}
 
-    // Parameterized constructor
-    FElemental_Struct(FString Name, EElementalAttackType Type, float InDamageMultiplier, float InManaCost,
-        int32 InElementalLevel, bool bUnlocked, UAnimMontage* InAnimationMontage)
-        : ElementalAttackName(Name), ElementalType(Type), DamageMultiplier(InDamageMultiplier),
-        ManaCost(InManaCost), ElementalLevel(InElementalLevel), bIsUnlocked(bUnlocked),
-        Elemental_Attack_Animation(InAnimationMontage) {}
+    FElemental_Struct(
+        FString Name,
+        EElementalAttackType Type,
+        float InDamageMultiplier,
+        float InManaCost,
+        int32 InElementalLevel,
+        bool bUnlocked,
+        UAnimMontage* InAnimationMontage,
+        float InEXP = 0.0f,
+        float InEXPToNextLevel = 100.0f
+    )
+        : ElementalAttackName(Name),
+        ElementalType(Type),
+        DamageMultiplier(InDamageMultiplier),
+        ManaCost(InManaCost),
+        ElementalLevel(InElementalLevel),
+        bIsUnlocked(bUnlocked),
+        CurrentEXP(InEXP),
+        EXPToNextLevel(InEXPToNextLevel),
+        Elemental_Attack_Animation(InAnimationMontage)
+    {}
 
-    // Name of the elemental attack
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
         FString ElementalAttackName;
 
@@ -36,23 +57,24 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Technique Animation")
         UAnimMontage* Elemental_Attack_Animation;
 
-    // The base damage multiplier for this elemental attack
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
         float DamageMultiplier;
 
-    // Mana cost for casting the attack
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
         float ManaCost;
 
-    // Current level of this elemental attack
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
         int32 ElementalLevel;
 
-    // Whether the elemental attack is unlocked or not
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental Proficiency")
+        float CurrentEXP;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental Proficiency")
+        float EXPToNextLevel;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
         bool bIsUnlocked;
 
-    // Description of the elemental attack (optional)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
         FString ElementDescription;
 };

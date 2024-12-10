@@ -403,6 +403,9 @@ public:
 		FElemental_Struct ElementalStruct;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		TMap<EElementalAttackType, FElemental_Struct> ElementalProficiencyMap;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		TArray<FElemental_Struct> ElementalAttacks;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
@@ -423,6 +426,26 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		UAnimMontage* ThunderProjectileAnimation;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		UAnimMontage* FireAOEAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		UAnimMontage* IceAOEAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		UAnimMontage* ThunderAOEAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		UAnimMontage* FireGroundAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		UAnimMontage* IceGroundAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		UAnimMontage* ThunderGroundAnimation;
+
+	EElementalAttackType CurrentElementalAttackType;
+
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void CalculateElementalAttack();
 
@@ -430,8 +453,32 @@ public:
 		void UseElementalAttack(int32 ElementalIndex);
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
-		void SpawnElementalProjectile(EElementalAttackType ElementalType);
+		void SpawnElementalProjectile();
 
+	void AddElementalAttacksBasedOnProficiency(EWeaponType WeaponType);
+
+	void GainElementalProficiency(EWeaponType WeaponType, EElementalAttackType ElementalType, float ExperienceGained);
+
+	// Get the experience threshold for leveling up
+	float GetExperienceThresholdForLevel(int32 Level) const;
+
+	// Unlock new elemental attacks based on proficiency level
+	void UnlockElementalAttacks(EWeaponType WeaponType, EElementalAttackType ElementalType, int32 NewLevel);
+
+	// Notify player of proficiency level up
+	void NotifyPlayerOfProficiencyLevelUp(EElementalAttackType ElementalType, int32 NewLevel);
+
+	// Queue to store experience points to be applied later
+	TArray<float> QueuedElementalEXP;
+
+	// Queue experience points for a specific weapon and elemental attack
+	void QueueElementalEXP(EWeaponType WeaponType, EElementalAttackType ElementalType, float ExpAmount);
+
+	// Apply all queued experience points
+	void ApplyQueuedElementalEXP(EWeaponType WeaponType);
+
+	// Get total queued experience points
+	float GetTotalQueuedEXP() const;
 
 
 	float PreviousElementalPower;
@@ -460,11 +507,13 @@ public:
 
 	void CheckForTechniqueUnlock(EWeaponType Weapon, int32 WeaponLevel);
 
-	void UnlockQueuedTechniques();
-
 	// Function to add EXP to the current weapon (called when an enemy is defeated)
 	UFUNCTION(BlueprintCallable)
-	void AddWeaponEXP(float ExpAmount);
+		void AddWeaponEXP(float ExpAmount);
+
+	void UnlockQueuedTechniques();
+
+	void GenerateStatUpgradeMessages();
 
 	// Function to check if the current weapon needs to level up
 	void CheckWeaponLevelUp(EWeaponType Weapon);
@@ -475,15 +524,13 @@ public:
 
 	void ApplyQueuedLevelUp(EWeaponType Weapon);
 
+
 	float GetQueuedEXP() const;
 
 	FTechnique_Struct* FindTechniqueByName(const FString& TechniqueName);
 
 	TArray<float> QueuedEXP;
-
-
-
-	void GenerateStatUpgradeMessages();
+	
 	//Level & Weapon Proficiency
 
 

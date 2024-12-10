@@ -54,13 +54,6 @@ public:
 
     void SetInputModeToUI();
 
-   // void UpdateEXPBar();
-
-   // void StartEXPBarFill(float AddedEXP);
-
-   // void OnEXPBarFillComplete();
-
- //   void UpdateEXPUI();
 
     void ShowNotification(const FString& Message);
 
@@ -80,13 +73,13 @@ public:
 
     void RemoveStatsUpgradeNotification();
 
-   // void ShowCombinedNotification(const TArray<FString>& Messages);
-
-   // void RemoveCombinedNotification();
-
     void ShowTechniqueNotification(const TArray<FString>& TechniqueMessages);
 
     void RemoveTechniqueNotification();
+
+
+    void UpdateElementalProgressBar(EElementalAttackType ElementalType, float CurrentElementalEXP, float EXPToNextLevel, float ElementalQueuedEXP);
+
 
 
 
@@ -173,6 +166,17 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
         AActor* Results_Camera;
+
+
+    // UPROPERTY declarations for elemental progress bars
+    UPROPERTY(meta = (BindWidget))
+        class UProgressBar* FireProgressBar;
+
+    UPROPERTY(meta = (BindWidget))
+        class UProgressBar* IceProgressBar;
+
+    UPROPERTY(meta = (BindWidget))
+        class UProgressBar* ThunderProgressBar;
 
 
 protected:

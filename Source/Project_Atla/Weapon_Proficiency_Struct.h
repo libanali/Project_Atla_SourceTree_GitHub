@@ -3,6 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Elemental_Struct.h"
+#include "Elemental_Attack_Type.h" 
 #include "Weapon_Proficiency_Struct.generated.h"
 
 /**
@@ -45,6 +47,9 @@ public:
     // Max health boost provided by this weapon
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
         float MaxManaBoost;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
+    TMap<EElementalAttackType, FElemental_Struct> ElementalProficiencyMap;
 
     // Constructor to initialize default values
     FWeapon_Proficiency_Struct()
