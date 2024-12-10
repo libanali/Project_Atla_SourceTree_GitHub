@@ -402,6 +402,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		FElemental_Struct ElementalStruct;
 
+	EElementalAttackType CurrentElementalAttackType;
+
 	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Elemental Proficiency")
 		//TMap<EWeaponType, TArray<FElemental_Struct>> ElementalProficiencyMap;
 
@@ -427,6 +429,15 @@ public:
 		UAnimMontage* ThunderProjectileAnimation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		TSubclassOf<AActor> FireAOEClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		TSubclassOf<AActor> IceAOEClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		TSubclassOf<AActor> ThunderAOEClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		UAnimMontage* FireAOEAnimation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
@@ -434,6 +445,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		UAnimMontage* ThunderAOEAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		TSubclassOf<AActor> FireGroundClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		TSubclassOf<AActor> IceGroundClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		TSubclassOf<AActor> ThunderGroundClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		UAnimMontage* FireGroundAnimation;
@@ -444,8 +464,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		UAnimMontage* ThunderGroundAnimation;
 
-	EElementalAttackType CurrentElementalAttackType;
-
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void CalculateElementalAttack();
 
@@ -455,6 +473,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void SpawnElementalProjectile();
 
+	UFUNCTION(BlueprintCallable, Category = "Elemental")
+		void SpawnElementalAOE();
+
+	UFUNCTION(BlueprintCallable, Category = "Elemental")
+		void SpawnElementalGround();
 
 	float PreviousElementalPower;
 	float InitialElemental;

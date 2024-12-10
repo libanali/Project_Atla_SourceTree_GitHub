@@ -1173,6 +1173,73 @@ void ARen_Low_Poly_Character::SpawnElementalProjectile()
 
 
 
+void ARen_Low_Poly_Character::SpawnElementalAOE()
+{
+
+
+	TSubclassOf<AActor> AOEClass;
+
+
+	switch (CurrentElementalAttackType)
+	{
+	case EElementalAttackType::Fire:
+		AOEClass = FireAOEClass;
+		break;
+
+	case EElementalAttackType::Ice:
+		AOEClass = IceAOEClass;
+		break;
+
+	case EElementalAttackType::Thunder:
+		AOEClass = ThunderAOEClass;
+		break;
+
+		// Add more cases for additional elements here
+
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("Unknown Elemental Type!"));
+		return;
+	}
+
+}
+
+
+
+
+void ARen_Low_Poly_Character::SpawnElementalGround()
+{
+
+
+	TSubclassOf<AActor> GroundClass;
+
+
+	switch (CurrentElementalAttackType)
+	{
+	case EElementalAttackType::Fire:
+		GroundClass = FireGroundClass;
+		break;
+
+	case EElementalAttackType::Ice:
+		GroundClass = IceGroundClass;
+		break;
+
+	case EElementalAttackType::Thunder:
+		GroundClass = ThunderGroundClass;
+		break;
+
+		// Add more cases for additional elements here
+
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("Unknown Elemental Type!"));
+		return;
+	}
+
+
+
+}
+
+
+
 
 
 void ARen_Low_Poly_Character::CheckForTechniqueUnlock(EWeaponType Weapon, int32 WeaponLevel)
