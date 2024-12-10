@@ -1173,7 +1173,7 @@ void ARen_Low_Poly_Character::SpawnElementalProjectile()
 
 
 
-void ARen_Low_Poly_Character::SpawnElementalAOE()
+void ARen_Low_Poly_Character::SpawnElementalAOE(FVector SpawnLocation, FRotator SpawnRotation)
 {
 
 

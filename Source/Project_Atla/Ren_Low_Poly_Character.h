@@ -474,7 +474,7 @@ public:
 		void SpawnElementalProjectile();
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
-		void SpawnElementalAOE();
+		void SpawnElementalAOE(FVector SpawnLocation, FRotator SpawnRotation);
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void SpawnElementalGround();
