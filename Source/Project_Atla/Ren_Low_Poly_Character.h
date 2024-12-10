@@ -402,8 +402,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		FElemental_Struct ElementalStruct;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
-		TMap<EElementalAttackType, FElemental_Struct> ElementalProficiencyMap;
+	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Elemental Proficiency")
+		//TMap<EWeaponType, TArray<FElemental_Struct>> ElementalProficiencyMap;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		TArray<FElemental_Struct> ElementalAttacks;
@@ -454,31 +454,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void SpawnElementalProjectile();
-
-	void AddElementalAttacksBasedOnProficiency(EWeaponType WeaponType);
-
-	void GainElementalProficiency(EWeaponType WeaponType, EElementalAttackType ElementalType, float ExperienceGained);
-
-	// Get the experience threshold for leveling up
-	float GetExperienceThresholdForLevel(int32 Level) const;
-
-	// Unlock new elemental attacks based on proficiency level
-	void UnlockElementalAttacks(EWeaponType WeaponType, EElementalAttackType ElementalType, int32 NewLevel);
-
-	// Notify player of proficiency level up
-	void NotifyPlayerOfProficiencyLevelUp(EElementalAttackType ElementalType, int32 NewLevel);
-
-	// Queue to store experience points to be applied later
-	TArray<float> QueuedElementalEXP;
-
-	// Queue experience points for a specific weapon and elemental attack
-	void QueueElementalEXP(EWeaponType WeaponType, EElementalAttackType ElementalType, float ExpAmount);
-
-	// Apply all queued experience points
-	void ApplyQueuedElementalEXP(EWeaponType WeaponType);
-
-	// Get total queued experience points
-	float GetTotalQueuedEXP() const;
 
 
 	float PreviousElementalPower;

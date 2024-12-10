@@ -51,6 +51,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
     TMap<EElementalAttackType, FElemental_Struct> ElementalProficiencyMap;
 
+
     // Constructor to initialize default values
     FWeapon_Proficiency_Struct()
         : WeaponLevel(1),

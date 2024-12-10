@@ -1105,13 +1105,7 @@ void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 			PlayAnimMontage(SelectedElementalAttack.Elemental_Attack_Animation);
 
 			// Get the elemental attack type
-			EElementalAttackType SelectedElementalType = SelectedElementalAttack.ElementalType;
-
-			// Queue experience for using the attack
-			QueueElementalEXP(WeaponType, SelectedElementalType, 10.0f); // Example experience value
-
-			// Apply all queued experience
-			ApplyQueuedElementalEXP(WeaponType);
+			CurrentElementalAttackType = SelectedElementalAttack.ElementalType;
 
 			// Log the attack usage
 			UE_LOG(LogTemp, Log, TEXT("Elemental Attack %s used, %.2f mana deducted."),
@@ -1176,226 +1170,6 @@ void ARen_Low_Poly_Character::SpawnElementalProjectile()
 
 
 }
-
-void ARen_Low_Poly_Character::AddElementalAttacksBasedOnProficiency(EWeaponType TheWeaponType)
-{
-
-	if (WeaponProficiencyMap.Contains(TheWeaponType))
-	{
-		FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[TheWeaponType];
-
-		for (auto& ElemProficiencyPair : Proficiency.ElementalProficiencyMap)
-		{
-			FElemental_Struct& ElementalProficiency = ElemProficiencyPair.Value;
-
-			// Add basic elemental attacks based on proficiency level
-			if (ElementalProficiency.ElementalLevel >= 1)
-			{
-				ElementalAttacks.Add(ElementalProficiency);
-			}
-
-			// Add AOE and Ground attacks based on proficiency levels
-			if (ElementalProficiency.ElementalLevel >= 2)
-			{
-				if (ElementalProficiency.ElementalType == EElementalAttackType::Fire)
-				{
-					ElementalAttacks.Add(FElemental_Struct(TEXT("Fire AOE"), EElementalAttackType::Fire, 1.5f, 20.0f, 2, true, FireAOEAnimation, ElementalProficiency.CurrentEXP, ElementalProficiency.EXPToNextLevel));
-				}
-				else if (ElementalProficiency.ElementalType == EElementalAttackType::Ice)
-				{
-					ElementalAttacks.Add(FElemental_Struct(TEXT("Ice AOE"), EElementalAttackType::Ice, 1.5f, 20.0f, 2, true, IceAOEAnimation, ElementalProficiency.CurrentEXP, ElementalProficiency.EXPToNextLevel));
-				}
-				else if (ElementalProficiency.ElementalType == EElementalAttackType::Thunder)
-				{
-					ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder AOE"), EElementalAttackType::Thunder, 1.5f, 20.0f, 2, true, ThunderAOEAnimation, ElementalProficiency.CurrentEXP, ElementalProficiency.EXPToNextLevel));
-				}
-			}
-
-			if (ElementalProficiency.ElementalLevel >= 3)
-			{
-				if (ElementalProficiency.ElementalType == EElementalAttackType::Fire)
-				{
-					ElementalAttacks.Add(FElemental_Struct(TEXT("Fire Ground"), EElementalAttackType::Fire, 2.0f, 30.0f, 3, true, FireGroundAnimation, ElementalProficiency.CurrentEXP, ElementalProficiency.EXPToNextLevel));
-				}
-				else if (ElementalProficiency.ElementalType == EElementalAttackType::Ice)
-				{
-					ElementalAttacks.Add(FElemental_Struct(TEXT("Ice Ground"), EElementalAttackType::Ice, 2.0f, 30.0f, 3, true, IceGroundAnimation, ElementalProficiency.CurrentEXP, ElementalProficiency.EXPToNextLevel));
-				}
-				else if (ElementalProficiency.ElementalType == EElementalAttackType::Thunder)
-				{
-					ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder Ground"), EElementalAttackType::Thunder, 2.0f, 30.0f, 3, true, ThunderGroundAnimation, ElementalProficiency.CurrentEXP, ElementalProficiency.EXPToNextLevel));
-				}
-			}
-		}
-	}
-
-
-
-
-}
-
-
-
-
-void ARen_Low_Poly_Character::GainElementalProficiency(EWeaponType TheWeaponType, EElementalAttackType ElementalType, float ExperienceGained)
-{
-	if (WeaponProficiencyMap.Contains(TheWeaponType))
-	{
-		FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[TheWeaponType];
-
-		if (Proficiency.ElementalProficiencyMap.Contains(ElementalType))
-		{
-			FElemental_Struct& ElementalProficiency = Proficiency.ElementalProficiencyMap[ElementalType];
-			ElementalProficiency.CurrentEXP += ExperienceGained;
-
-			// Check if the experience exceeds the threshold for level up
-			if (ElementalProficiency.CurrentEXP >= ElementalProficiency.EXPToNextLevel)
-			{
-				ElementalProficiency.CurrentEXP -= ElementalProficiency.EXPToNextLevel;
-				ElementalProficiency.ElementalLevel++;
-				ElementalProficiency.EXPToNextLevel = GetExperienceThresholdForLevel(ElementalProficiency.ElementalLevel);
-
-				UE_LOG(LogTemp, Log, TEXT("Elemental Proficiency Level Up: %s Level %d"), *UEnum::GetValueAsString(ElementalType), ElementalProficiency.ElementalLevel);
-
-				// Unlock new elemental attacks based on proficiency level
-				UnlockElementalAttacks(TheWeaponType, ElementalType, ElementalProficiency.ElementalLevel);
-
-				// Notify player of proficiency level up
-				NotifyPlayerOfProficiencyLevelUp(ElementalType, ElementalProficiency.ElementalLevel);
-			}
-		}
-	}
-
-}
-
-float ARen_Low_Poly_Character::GetExperienceThresholdForLevel(int32 Level) const
-{
-
-
-	return 100.0f * (Level + 1);
-}
-
-
-
-void ARen_Low_Poly_Character::UnlockElementalAttacks(EWeaponType TheWeaponType, EElementalAttackType ElementalType, int32 NewLevel)
-{
-
-	if (WeaponProficiencyMap.Contains(TheWeaponType))
-	{
-		FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[TheWeaponType];
-
-		if (Proficiency.ElementalProficiencyMap.Contains(ElementalType))
-		{
-			FElemental_Struct& ElementalProficiency = Proficiency.ElementalProficiencyMap[ElementalType];
-
-			if (NewLevel == 2)
-			{
-				if (ElementalType == EElementalAttackType::Fire)
-				{
-					ElementalAttacks.Add(FElemental_Struct(TEXT("Fire AOE"), EElementalAttackType::Fire, 1.5f, 20.0f, 2, true, FireAOEAnimation));
-				}
-				else if (ElementalType == EElementalAttackType::Ice)
-				{
-					ElementalAttacks.Add(FElemental_Struct(TEXT("Ice AOE"), EElementalAttackType::Ice, 1.5f, 20.0f, 2, true, IceAOEAnimation));
-				}
-				else if (ElementalType == EElementalAttackType::Thunder)
-				{
-					ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder AOE"), EElementalAttackType::Thunder, 1.5f, 20.0f, 2, true, ThunderAOEAnimation));
-				}
-			}
-			else if (NewLevel == 3)
-			{
-				if (ElementalType == EElementalAttackType::Fire)
-				{
-					ElementalAttacks.Add(FElemental_Struct(TEXT("Fire Ground"), EElementalAttackType::Fire, 2.0f, 30.0f, 3, true, FireGroundAnimation));
-				}
-				else if (ElementalType == EElementalAttackType::Ice)
-				{
-					ElementalAttacks.Add(FElemental_Struct(TEXT("Ice Ground"), EElementalAttackType::Ice, 2.0f, 30.0f, 3, true, IceGroundAnimation));
-				}
-				else if (ElementalType == EElementalAttackType::Thunder)
-				{
-					ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder Ground"), EElementalAttackType::Thunder, 2.0f, 30.0f, 3, true, ThunderGroundAnimation));
-				}
-			}
-		}
-	}
-
-
-
-
-
-}
-
-void ARen_Low_Poly_Character::NotifyPlayerOfProficiencyLevelUp(EElementalAttackType ElementalType, int32 NewLevel)
-{
-
-	UE_LOG(LogTemp, Log, TEXT("Proficiency Level Up: %s Level %d"), *UEnum::GetValueAsString(ElementalType), NewLevel);
-
-
-}
-
-
-
-
-
-void ARen_Low_Poly_Character::QueueElementalEXP(EWeaponType TheWeaponType, EElementalAttackType ElementalType, float ExpAmount)
-{
-
-
-	QueuedElementalEXP.Add(ExpAmount);
-	UE_LOG(LogTemp, Log, TEXT("Queued %.2f EXP for %s (%s)"), ExpAmount, *UEnum::GetValueAsString(TheWeaponType), *UEnum::GetValueAsString(ElementalType));
-
-
-
-}
-
-void ARen_Low_Poly_Character::ApplyQueuedElementalEXP(EWeaponType TheWeaponType)
-{
-
-	if (WeaponProficiencyMap.Contains(TheWeaponType))
-	{
-		FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[TheWeaponType];
-
-		for (auto& ElemProficiencyPair : Proficiency.ElementalProficiencyMap)
-		{
-			EElementalAttackType ElementalType = ElemProficiencyPair.Key;
-			FElemental_Struct& ElementalProficiency = ElemProficiencyPair.Value;
-
-			// Apply each queued experience to the elemental proficiency
-			for (float ExpAmount : QueuedElementalEXP)
-			{
-				GainElementalProficiency(TheWeaponType, ElementalType, ExpAmount);
-			}
-		}
-
-		// Clear the queue after applying the experience
-		QueuedElementalEXP.Empty();
-
-		UE_LOG(LogTemp, Log, TEXT("Applied all queued EXP for %s"), *UEnum::GetValueAsString(WeaponType));
-	}
-
-
-
-}
-
-float ARen_Low_Poly_Character::GetTotalQueuedEXP() const
-{
-
-	float TotalQueuedEXP = 0.0f;
-
-	// Sum all the experience points in the queue
-	for (float ExpAmount : QueuedElementalEXP)
-	{
-		TotalQueuedEXP += ExpAmount;
-	}
-
-	return TotalQueuedEXP;
-}
-
-
-
-
 
 
 
@@ -1973,30 +1747,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 	FWeaponTechniqueMap StaffTechniquesForMap;
 	StaffTechniquesForMap.LevelToTechnique.Add(2, TEXT("Inferno Rain"));
 
-
 	// Add Staff techniques to the main map
 	WeaponLevelToTechniqueMap.Add(EWeaponType::Staff, StaffTechniquesForMap);
 
-
-
-
-	// Initialize elemental proficiency for Sword
-	FWeapon_Proficiency_Struct& SwordElementalProficiency = WeaponProficiencyMap.FindOrAdd(EWeaponType::Sword);
-	SwordElementalProficiency.ElementalProficiencyMap.Add(EElementalAttackType::Fire,
-		FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.4f, 15.0f, 1, true, FireProjectileAnimation));
-	SwordElementalProficiency.ElementalProficiencyMap.Add(EElementalAttackType::Ice,
-		FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 25.0f, 1, true, IceProjectileAnimation));
-	SwordElementalProficiency.ElementalProficiencyMap.Add(EElementalAttackType::Thunder,
-		FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.9f, 20.0f, 1, true, ThunderProjectileAnimation));
-
-	// Initialize elemental proficiency for Staff
-	FWeapon_Proficiency_Struct& StaffElementalProficiency = WeaponProficiencyMap.FindOrAdd(EWeaponType::Staff);
-	StaffElementalProficiency.ElementalProficiencyMap.Add(EElementalAttackType::Fire,
-		FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.7f, 10.0f, 1, true, FireProjectileAnimation));
-	StaffElementalProficiency.ElementalProficiencyMap.Add(EElementalAttackType::Ice,
-		FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.9f, 15.0f, 1, true, IceProjectileAnimation));
-	StaffElementalProficiency.ElementalProficiencyMap.Add(EElementalAttackType::Thunder,
-		FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.5f, 10.0f, 1, true, ThunderProjectileAnimation));
 
 
 
@@ -2004,7 +1757,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 	{
 		// Initialize Sword techniques
 		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("A simple attack technique."), true, StormStrikeFlurryAnimMontage, 1.6f, 3});
-
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.5f, 10.0f, 1, true, FireProjectileAnimation));
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 15.0f, 1, true, IceProjectileAnimation));
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.8f, 15.0f, 1, true, ThunderProjectileAnimation));
 
 		// Check WeaponProficiencyMap and unlock techniques based on proficiency level
 		if (WeaponProficiencyMap.Contains(EWeaponType::Sword))

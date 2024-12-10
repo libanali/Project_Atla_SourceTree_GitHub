@@ -919,41 +919,6 @@ void UGame_Over_Widget::RemoveTechniqueNotification()
 
 }
 
-void UGame_Over_Widget::UpdateElementalProgressBar(EElementalAttackType ElementalType, float CurrentElementalEXP, float ElementalEXPToNextLevel, float ElementalQueuedEXP)
-{
-
-
-    // Calculate the current progress and target progress based on experience
-    float CurrentProgress = CurrentElementalEXP / ElementalEXPToNextLevel;
-    float TargetProgress = (CurrentElementalEXP + ElementalQueuedEXP) / ElementalEXPToNextLevel;
-
-    // Speed of progress bar animation
-    float InterpSpeed = 0.5f; // Adjust for desired speed
-
-    // Interpolate between current and target progress
-    float NewProgress = UKismetMathLibrary::FInterpTo(CurrentProgress, TargetProgress, GetWorld()->GetDeltaSeconds(), InterpSpeed);
-
-    // Clamp progress to ensure it stays within 0.0 to 1.0 range
-    float ClampedProgress = FMath::Clamp(NewProgress, 0.0f, 1.0f);
-
-    // Update the progress bar based on the elemental type
-    if (ElementalType == EElementalAttackType::Fire)
-    {
-        FireProgressBar->SetPercent(ClampedProgress);
-    }
-    else if (ElementalType == EElementalAttackType::Ice)
-    {
-        IceProgressBar->SetPercent(ClampedProgress);
-    }
-    else if (ElementalType == EElementalAttackType::Thunder)
-    {
-        ThunderProgressBar->SetPercent(ClampedProgress);
-    }
-
-}
-
-
-
 
 
 

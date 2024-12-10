@@ -35,7 +35,7 @@ public:
         bool bUnlocked,
         UAnimMontage* InAnimationMontage,
         float InEXP = 0.0f,
-        float InEXPToNextLevel = 100.0f
+        float InEXPToNextLevel = 2000.0f
     )
         : ElementalAttackName(Name),
         ElementalType(Type),

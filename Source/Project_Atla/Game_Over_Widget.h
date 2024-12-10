@@ -78,7 +78,6 @@ public:
     void RemoveTechniqueNotification();
 
 
-    void UpdateElementalProgressBar(EElementalAttackType ElementalType, float CurrentElementalEXP, float EXPToNextLevel, float ElementalQueuedEXP);
 
 
 
@@ -167,16 +166,6 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
         AActor* Results_Camera;
 
-
-    // UPROPERTY declarations for elemental progress bars
-    UPROPERTY(meta = (BindWidget))
-        class UProgressBar* FireProgressBar;
-
-    UPROPERTY(meta = (BindWidget))
-        class UProgressBar* IceProgressBar;
-
-    UPROPERTY(meta = (BindWidget))
-        class UProgressBar* ThunderProgressBar;
 
 
 protected:
