@@ -479,6 +479,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void SpawnElementalGround();
 
+	void UnlockNewElementalAttack(EElementalAttackType ElementalType, int32 NewLevel);
+
+	void GainElementalEXP(EElementalAttackType ElementType, int32 EXP);
+
+
+
 	float PreviousElementalPower;
 	float InitialElemental;
 	//Elemental Stats
