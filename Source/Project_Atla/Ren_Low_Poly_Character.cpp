@@ -1090,39 +1090,123 @@ void ARen_Low_Poly_Character::CalculateElementalAttack()
 
 void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 {
-	// Ensure the index is within bounds
-	if (ElementalIndex >= 0 && ElementalIndex < ElementalAttacks.Num())
+	// Ensure the weapon has elemental progression data
+	if (WeaponElementalMap.Contains(WeaponType))  // Check if the map contains the current weapon type
 	{
-		FElemental_Struct& SelectedElementalAttack = ElementalAttacks[ElementalIndex];
+		FWeaponElementalProgression& WeaponProgression = WeaponElementalMap[WeaponType];
 
-		// Check if the elemental attack is unlocked and if there's enough mana
-		if (SelectedElementalAttack.bIsUnlocked && ManaStruct.CurrentMana >= SelectedElementalAttack.ManaCost)
+		// Get the keys of the TMap and store them in an array
+		TArray<EElementalAttackType> ElementalKeys;
+		WeaponProgression.ElementalProgression.GetKeys(ElementalKeys);
+
+		// Ensure the index is valid
+		if (ElementalIndex >= 0 && ElementalIndex < ElementalKeys.Num())
 		{
-			// Deduct mana cost
-			ManaStruct.CurrentMana -= SelectedElementalAttack.ManaCost;
+			// Get the key for the specified index
+			EElementalAttackType SelectedKey = ElementalKeys[ElementalIndex];
 
-			// Play the elemental attack animation
-			PlayAnimMontage(SelectedElementalAttack.Elemental_Attack_Animation);
+			// Access the corresponding FElemental_Struct
+			FElemental_Struct& SelectedElementalAttack = WeaponProgression.ElementalProgression[SelectedKey];
 
-			// Get the elemental attack type
-			CurrentElementalAttackType = SelectedElementalAttack.ElementalType;
+			// Check if the elemental attack is unlocked and if there's enough mana
+			if (SelectedElementalAttack.bIsUnlocked && ManaStruct.CurrentMana >= SelectedElementalAttack.ManaCost)
+			{
+				// Deduct mana cost
+				ManaStruct.CurrentMana -= SelectedElementalAttack.ManaCost;
 
-			
+				// Play the elemental attack animation
+				PlayAnimMontage(SelectedElementalAttack.Elemental_Attack_Animation);
 
-			// Log the attack usage
-			UE_LOG(LogTemp, Warning, TEXT("Elemental Attack %s used, %.2f mana deducted."),
-				*SelectedElementalAttack.ElementalAttackName, SelectedElementalAttack.ManaCost);
+				// Set the current elemental attack type
+				CurrentElementalAttackType = SelectedElementalAttack.ElementalType;
+
+				GainElementalEXP(0, 10.0f);
+
+				// Log the attack usage
+				UE_LOG(LogTemp, Warning, TEXT("Elemental Attack %s used, %.2f mana deducted."),
+					*SelectedElementalAttack.ElementalAttackName, SelectedElementalAttack.ManaCost);
+			}
+			else
+			{
+				// Not enough mana
+				if (SelectedElementalAttack.ManaCost > ManaStruct.CurrentMana)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Not enough mana to use Elemental Attack %s! Required: %.2f, Current: %.2f"),
+						*SelectedElementalAttack.ElementalAttackName, SelectedElementalAttack.ManaCost, ManaStruct.CurrentMana);
+				}
+			}
 		}
 		else
 		{
-			// Not enough mana
-			if (SelectedElementalAttack.ManaCost > ManaStruct.CurrentMana)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("Not enough mana to use Elemental Attack %s! Required: %.2f, Current: %.2f"),
-					*SelectedElementalAttack.ElementalAttackName, SelectedElementalAttack.ManaCost, ManaStruct.CurrentMana);
-			}
+			// Invalid ElementalIndex (out of bounds)
+			UE_LOG(LogTemp, Warning, TEXT("Invalid ElementalIndex %d for weapon type %s."), ElementalIndex, *UEnum::GetValueAsString(WeaponType));
 		}
 	}
+	else
+	{
+		// No elemental progression available for this weapon type
+		UE_LOG(LogTemp, Warning, TEXT("No Elemental Progression found for WeaponType: %s"), *UEnum::GetValueAsString(WeaponType));
+	}
+
+}
+
+
+
+
+void ARen_Low_Poly_Character::GainElementalEXP(int32 ElementalIndex, float EXPToGain)
+{
+
+
+	// Ensure the weapon has elemental progression data
+	if (WeaponElementalMap.Contains(WeaponType))
+	{
+		FWeaponElementalProgression& WeaponProgression = WeaponElementalMap[WeaponType];
+
+		// Get the keys of the TMap and store them in an array
+		TArray<EElementalAttackType> ElementalKeys;
+		WeaponProgression.ElementalProgression.GetKeys(ElementalKeys);
+
+		// Ensure the index is valid
+		if (ElementalIndex >= 0 && ElementalIndex < ElementalKeys.Num())
+		{
+			// Get the key for the specified index
+			EElementalAttackType SelectedKey = ElementalKeys[ElementalIndex];
+
+			// Access the corresponding FElemental_Struct
+			FElemental_Struct& SelectedElementalAttack = WeaponProgression.ElementalProgression[SelectedKey];
+
+			// Add EXP
+			SelectedElementalAttack.CurrentEXP += EXPToGain;
+
+			UE_LOG(LogTemp, Warning, TEXT("Gained %.2f EXP for Elemental Attack: %s. Current EXP: %.2f"),
+				EXPToGain, *SelectedElementalAttack.ElementalAttackName, SelectedElementalAttack.CurrentEXP);
+
+			// Check if the elemental attack can level up
+			if (SelectedElementalAttack.CurrentEXP >= SelectedElementalAttack.EXPToNextLevel)
+			{
+				// Level up the attack
+				SelectedElementalAttack.CurrentEXP -= SelectedElementalAttack.EXPToNextLevel; // Reset excess EXP
+				SelectedElementalAttack.ElementalLevel++;
+				SelectedElementalAttack.EXPToNextLevel *= 1.5f; // Increase EXP required for next level (adjustable scaling)
+
+				// Apply level-up effects
+
+				UE_LOG(LogTemp, Warning, TEXT("Elemental Attack %s leveled up! New Level: %d, Mana Cost: %.2f"),
+					*SelectedElementalAttack.ElementalAttackName, SelectedElementalAttack.ElementalLevel, SelectedElementalAttack.ManaCost);
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Invalid ElementalIndex %d for weapon type %s."), ElementalIndex, *UEnum::GetValueAsString(WeaponType));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No Elemental Progression found for WeaponType: %s"), *UEnum::GetValueAsString(WeaponType));
+	}
+
+
+
 }
 
 
@@ -1820,12 +1904,41 @@ void ARen_Low_Poly_Character::BeginPlay()
 	// Add Sword techniques to the main map
 	WeaponLevelToTechniqueMap.Add(EWeaponType::Sword, SwordTechniquesForMap);
 
+
+
+
 	// Create and populate Staff techniques
 	FWeaponTechniqueMap StaffTechniquesForMap;
 	StaffTechniquesForMap.LevelToTechnique.Add(2, TEXT("Inferno Rain"));
 
 	// Add Staff techniques to the main map
 	WeaponLevelToTechniqueMap.Add(EWeaponType::Staff, StaffTechniquesForMap);
+
+
+
+
+
+
+	// Sword Elemental Progression
+	FWeaponElementalProgression SwordElemental;
+	SwordElemental.ElementalProgression.Add(EElementalAttackType::Fire, FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.0f, 10.0f, 1, true, FireProjectileAnimation));
+	SwordElemental.ElementalProgression.Add(EElementalAttackType::Ice, FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.0f, 10.0f, 1, true, IceProjectileAnimation));
+	SwordElemental.ElementalProgression.Add(EElementalAttackType::Thunder, FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.0f, 10.0f, 1, true, ThunderProjectileAnimation));
+
+	WeaponElementalMap.Add(EWeaponType::Sword, SwordElemental);
+
+
+
+	// Staff Elemental Progression
+	FWeaponElementalProgression StaffElemental;
+	StaffElemental.ElementalProgression.Add(EElementalAttackType::Fire, FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.0f, 10.0f, 1, true, FireProjectileAnimation));
+	StaffElemental.ElementalProgression.Add(EElementalAttackType::Ice, FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.0f, 10.0f, 1, true, IceProjectileAnimation));
+	StaffElemental.ElementalProgression.Add(EElementalAttackType::Thunder, FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.0f, 10.0f, 1, true, ThunderProjectileAnimation));
+
+	WeaponElementalMap.Add(EWeaponType::Staff, StaffElemental);
+
+
+
 
 
 
@@ -1861,6 +1974,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 				Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("A simple attack technique."), true, StaticRushAnimMontage, 1.9f, 1});
 			}
 		}
+
 	}
 
 

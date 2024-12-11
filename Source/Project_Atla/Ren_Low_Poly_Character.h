@@ -50,6 +50,16 @@ struct FWeaponTechniqueMap
 
 
 
+USTRUCT(BlueprintType)
+struct FWeaponElementalProgression
+{
+	GENERATED_BODY()
+
+		UPROPERTY()
+		TMap<EElementalAttackType, FElemental_Struct> ElementalProgression;
+};
+
+
 
 class AEnemy_Poly;
 class AResults_camera;
@@ -404,9 +414,6 @@ public:
 
 	EElementalAttackType CurrentElementalAttackType;
 
-	//UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Elemental Proficiency")
-		//TMap<EWeaponType, TArray<FElemental_Struct>> ElementalProficiencyMap;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		TArray<FElemental_Struct> ElementalAttacks;
 
@@ -464,11 +471,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		UAnimMontage* ThunderGroundAnimation;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		TMap<EWeaponType, FWeaponElementalProgression> WeaponElementalMap;
+
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void CalculateElementalAttack();
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void UseElementalAttack(int32 ElementalIndex);
+
+	UFUNCTION(BlueprintCallable, Category = "Elemental")
+		void GainElementalEXP(int32 ElementalIndex, float EXPToGain);
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void SpawnElementalProjectile();
@@ -478,9 +491,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void SpawnElementalGround();
-
-
-
 
 
 	float PreviousElementalPower;
