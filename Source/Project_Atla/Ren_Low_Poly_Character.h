@@ -479,13 +479,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void SpawnElementalGround();
 
-	UFUNCTION(BlueprintCallable)
-	void GainElementalEXP(EElementalAttackType ElementType, int32 EXP);
 
-
-	void UnlockNewElementalAttack(EElementalAttackType ElementalType, int32 NewLevel);
-
-	bool IsAttackAlreadyUnlocked(const FString& AttackName) const;
 
 
 
@@ -538,7 +532,6 @@ public:
 	FTechnique_Struct* FindTechniqueByName(const FString& TechniqueName);
 
 	TArray<float> QueuedEXP;
-	
 	//Level & Weapon Proficiency
 
 
