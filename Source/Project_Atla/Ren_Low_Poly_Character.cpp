@@ -1107,8 +1107,10 @@ void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 			// Get the elemental attack type
 			CurrentElementalAttackType = SelectedElementalAttack.ElementalType;
 
+			
+
 			// Log the attack usage
-			UE_LOG(LogTemp, Log, TEXT("Elemental Attack %s used, %.2f mana deducted."),
+			UE_LOG(LogTemp, Warning, TEXT("Elemental Attack %s used, %.2f mana deducted."),
 				*SelectedElementalAttack.ElementalAttackName, SelectedElementalAttack.ManaCost);
 		}
 		else
@@ -1244,6 +1246,9 @@ void ARen_Low_Poly_Character::SpawnElementalGround()
 
 
 
+
+
+
 void ARen_Low_Poly_Character::UnlockNewElementalAttack(EElementalAttackType ElementalType, int32 NewLevel)
 {
 
@@ -1254,18 +1259,27 @@ void ARen_Low_Poly_Character::UnlockNewElementalAttack(EElementalAttackType Elem
 		switch (ElementalType)
 		{
 		case EElementalAttackType::Fire:
-			ElementalAttacks.Add(FElemental_Struct(TEXT("Fire AOE"), EElementalAttackType::Fire, 2.0f, 20.0f, 2, true, FireAOEAnimation));
-			UE_LOG(LogTemp, Log, TEXT("Unlocked Fire AOE attack at Level 2!"));
+			if (!IsAttackAlreadyUnlocked(TEXT("Fire AOE")))
+			{
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire AOE"), EElementalAttackType::Fire, 2.0f, 20.0f, 2, true, FireAOEAnimation));
+				UE_LOG(LogTemp, Log, TEXT("Unlocked Fire AOE attack at Level 2!"));
+			}
 			break;
 
 		case EElementalAttackType::Ice:
-			ElementalAttacks.Add(FElemental_Struct(TEXT("Ice AOE"), EElementalAttackType::Ice, 2.2f, 25.0f, 2, true, IceAOEAnimation));
-			UE_LOG(LogTemp, Log, TEXT("Unlocked Ice AOE attack at Level 2!"));
+			if (!IsAttackAlreadyUnlocked(TEXT("Ice AOE")))
+			{
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Ice AOE"), EElementalAttackType::Ice, 2.2f, 25.0f, 2, true, IceAOEAnimation));
+				UE_LOG(LogTemp, Log, TEXT("Unlocked Ice AOE attack at Level 2!"));
+			}
 			break;
 
 		case EElementalAttackType::Thunder:
-			ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder AOE"), EElementalAttackType::Thunder, 2.5f, 30.0f, 2, true, ThunderAOEAnimation));
-			UE_LOG(LogTemp, Log, TEXT("Unlocked Thunder AOE attack at Level 2!"));
+			if (!IsAttackAlreadyUnlocked(TEXT("Thunder AOE")))
+			{
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder AOE"), EElementalAttackType::Thunder, 2.5f, 30.0f, 2, true, ThunderAOEAnimation));
+				UE_LOG(LogTemp, Log, TEXT("Unlocked Thunder AOE attack at Level 2!"));
+			}
 			break;
 
 		default:
@@ -1278,29 +1292,51 @@ void ARen_Low_Poly_Character::UnlockNewElementalAttack(EElementalAttackType Elem
 		switch (ElementalType)
 		{
 		case EElementalAttackType::Fire:
-			ElementalAttacks.Add(FElemental_Struct(TEXT("Fire Ground Attack"), EElementalAttackType::Fire, 2.8f, 40.0f, 3, true, FireGroundAnimation));
-			UE_LOG(LogTemp, Log, TEXT("Unlocked Fire Ground Attack at Level 3!"));
+			if (!IsAttackAlreadyUnlocked(TEXT("Fire Ground Attack")))
+			{
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire Ground Attack"), EElementalAttackType::Fire, 2.8f, 40.0f, 3, true, FireGroundAnimation));
+				UE_LOG(LogTemp, Log, TEXT("Unlocked Fire Ground Attack at Level 3!"));
+			}
 			break;
 
 		case EElementalAttackType::Ice:
-			ElementalAttacks.Add(FElemental_Struct(TEXT("Ice Ground Attack"), EElementalAttackType::Ice, 3.0f, 45.0f, 3, true, IceGroundAnimation));
-			UE_LOG(LogTemp, Log, TEXT("Unlocked Ice Ground Attack at Level 3!"));
+			if (!IsAttackAlreadyUnlocked(TEXT("Ice Ground Attack")))
+			{
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Ice Ground Attack"), EElementalAttackType::Ice, 3.0f, 45.0f, 3, true, IceGroundAnimation));
+				UE_LOG(LogTemp, Log, TEXT("Unlocked Ice Ground Attack at Level 3!"));
+			}
 			break;
 
 		case EElementalAttackType::Thunder:
-			ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder Ground Attack"), EElementalAttackType::Thunder, 3.2f, 50.0f, 3, true, ThunderGroundAnimation));
-			UE_LOG(LogTemp, Log, TEXT("Unlocked Thunder Ground Attack at Level 3!"));
+			if (!IsAttackAlreadyUnlocked(TEXT("Thunder Ground Attack")))
+			{
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder Ground Attack"), EElementalAttackType::Thunder, 3.2f, 50.0f, 3, true, ThunderGroundAnimation));
+				UE_LOG(LogTemp, Log, TEXT("Unlocked Thunder Ground Attack at Level 3!"));
+			}
 			break;
 
 		default:
-
 			break;
 		}
 	}
+}
 
 
 
-
+bool ARen_Low_Poly_Character::IsAttackAlreadyUnlocked(const FString& AttackName) const
+{
+	// Log the names of all unlocked attacks
+	for (const FElemental_Struct& Attack : ElementalAttacks)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Checking Attack: %s"), *Attack.ElementalAttackName);
+		if (Attack.ElementalAttackName == AttackName)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Attack already unlocked: %s"), *AttackName);
+			return true;  // Attack already exists
+		}
+	}
+	UE_LOG(LogTemp, Warning, TEXT("Attack NOT unlocked: %s"), *AttackName);
+	return false;  // Attack does not exist
 }
 
 
@@ -1309,11 +1345,15 @@ void ARen_Low_Poly_Character::UnlockNewElementalAttack(EElementalAttackType Elem
 void ARen_Low_Poly_Character::GainElementalEXP(EElementalAttackType ElementType, int32 EXP)
 {
 
-	for (FElemental_Struct& ElementalAttack : ElementalAttacks)
+	for (int32 i = 0; i < ElementalAttacks.Num(); ++i)
 	{
+		FElemental_Struct& ElementalAttack = ElementalAttacks[i];
+
 		if (ElementalAttack.ElementalType == ElementType)
 		{
 			ElementalAttack.CurrentEXP += EXP;
+
+			UE_LOG(LogTemp, Warning, TEXT(" Current Element: %s, Current EXP: %f"), *ElementalAttack.ElementalAttackName, ElementalAttack.CurrentEXP);
 
 			// Check if it's time to level up
 			if (ElementalAttack.CurrentEXP >= ElementalAttack.EXPToNextLevel)
@@ -1324,12 +1364,10 @@ void ARen_Low_Poly_Character::GainElementalEXP(EElementalAttackType ElementType,
 				ElementalAttack.EXPToNextLevel = FMath::FloorToInt(ElementalAttack.EXPToNextLevel * 1.5f);
 				UnlockNewElementalAttack(ElementalAttack.ElementalType, ElementalAttack.ElementalLevel);
 
-				UE_LOG(LogTemp, Log, TEXT("%s has leveled up to Level %d!"), *ElementalAttack.ElementalAttackName, ElementalAttack.ElementalLevel);
+				UE_LOG(LogTemp, Warning, TEXT("%s has leveled up to Level %d!, Current EXP: %f"), *ElementalAttack.ElementalAttackName, ElementalAttack.ElementalLevel, ElementalAttack.CurrentEXP);
 			}
 		}
 	}
-
-
 
 }
 
@@ -1375,6 +1413,8 @@ void ARen_Low_Poly_Character::CheckForTechniqueUnlock(EWeaponType Weapon, int32 
 
 
 }
+
+
 
 void ARen_Low_Poly_Character::UnlockQueuedTechniques()
 {

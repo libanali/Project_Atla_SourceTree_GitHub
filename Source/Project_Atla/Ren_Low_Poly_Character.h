@@ -479,9 +479,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void SpawnElementalGround();
 
+	UFUNCTION(BlueprintCallable)
+	void GainElementalEXP(EElementalAttackType ElementType, int32 EXP);
+
+
 	void UnlockNewElementalAttack(EElementalAttackType ElementalType, int32 NewLevel);
 
-	void GainElementalEXP(EElementalAttackType ElementType, int32 EXP);
+	bool IsAttackAlreadyUnlocked(const FString& AttackName) const;
 
 
 
