@@ -1914,30 +1914,37 @@ void ARen_Low_Poly_Character::BeginPlay()
 	// Add Staff techniques to the main map
 	WeaponLevelToTechniqueMap.Add(EWeaponType::Staff, StaffTechniquesForMap);
 
-
-
-
-
-
 	// Sword Elemental Progression
 	FWeaponElementalProgression SwordElemental;
-	SwordElemental.ElementalProgression.Add(EElementalAttackType::Fire, FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.0f, 10.0f, 1, true, FireProjectileAnimation));
-	SwordElemental.ElementalProgression.Add(EElementalAttackType::Ice, FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.0f, 10.0f, 1, true, IceProjectileAnimation));
-	SwordElemental.ElementalProgression.Add(EElementalAttackType::Thunder, FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.0f, 10.0f, 1, true, ThunderProjectileAnimation));
+	SwordElemental.ElementalProgression.Add(EElementalAttackType::Fire, FElemental_Struct(TEXT("Fire Level 1"), EElementalAttackType::Fire, 1, 1.0f, 10.0f, true, FireProjectileAnimation));
+	SwordElemental.ElementalProgression.Add(EElementalAttackType::Fire, FElemental_Struct(TEXT("Fire Level 2"), EElementalAttackType::Fire, 2, 1.5f, 20.0f, false, nullptr)); // Locked
+	SwordElemental.ElementalProgression.Add(EElementalAttackType::Fire, FElemental_Struct(TEXT("Fire Level 3"), EElementalAttackType::Fire, 3, 2.0f, 30.0f, false, nullptr)); // Locked
+
+	SwordElemental.ElementalProgression.Add(EElementalAttackType::Ice, FElemental_Struct(TEXT("Ice Level 1"), EElementalAttackType::Ice, 1, 1.0f, 10.0f, true, IceProjectileAnimation));
+	SwordElemental.ElementalProgression.Add(EElementalAttackType::Ice, FElemental_Struct(TEXT("Ice Level 2"), EElementalAttackType::Ice, 2, 1.5f, 20.0f, false, nullptr)); // Locked
+	SwordElemental.ElementalProgression.Add(EElementalAttackType::Ice, FElemental_Struct(TEXT("Ice Level 3"), EElementalAttackType::Ice, 3, 2.0f, 30.0f, false, nullptr)); // Locked
+
+	SwordElemental.ElementalProgression.Add(EElementalAttackType::Thunder, FElemental_Struct(TEXT("Thunder Level 1"), EElementalAttackType::Thunder, 1, 1.0f, 10.0f, true, ThunderProjectileAnimation));
+	SwordElemental.ElementalProgression.Add(EElementalAttackType::Thunder, FElemental_Struct(TEXT("Thunder Level 2"), EElementalAttackType::Thunder, 2, 1.5f, 20.0f, false, nullptr)); // Locked
+	SwordElemental.ElementalProgression.Add(EElementalAttackType::Thunder, FElemental_Struct(TEXT("Thunder Level 3"), EElementalAttackType::Thunder, 3, 2.0f, 30.0f, false, nullptr)); // Locked
 
 	WeaponElementalMap.Add(EWeaponType::Sword, SwordElemental);
 
-
-
 	// Staff Elemental Progression
 	FWeaponElementalProgression StaffElemental;
-	StaffElemental.ElementalProgression.Add(EElementalAttackType::Fire, FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.0f, 10.0f, 1, true, FireProjectileAnimation));
-	StaffElemental.ElementalProgression.Add(EElementalAttackType::Ice, FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.0f, 10.0f, 1, true, IceProjectileAnimation));
-	StaffElemental.ElementalProgression.Add(EElementalAttackType::Thunder, FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.0f, 10.0f, 1, true, ThunderProjectileAnimation));
+	StaffElemental.ElementalProgression.Add(EElementalAttackType::Fire, FElemental_Struct(TEXT("Fire Level 1"), EElementalAttackType::Fire, 1, 1.0f, 12.0f, true, FireProjectileAnimation));
+	StaffElemental.ElementalProgression.Add(EElementalAttackType::Fire, FElemental_Struct(TEXT("Fire Level 2"), EElementalAttackType::Fire, 2, 1.6f, 24.0f, false, nullptr)); // Locked
+	StaffElemental.ElementalProgression.Add(EElementalAttackType::Fire, FElemental_Struct(TEXT("Fire Level 3"), EElementalAttackType::Fire, 3, 2.2f, 36.0f, false, nullptr)); // Locked
+
+	StaffElemental.ElementalProgression.Add(EElementalAttackType::Ice, FElemental_Struct(TEXT("Ice Level 1"), EElementalAttackType::Ice, 1, 1.0f, 12.0f, true, IceProjectileAnimation));
+	StaffElemental.ElementalProgression.Add(EElementalAttackType::Ice, FElemental_Struct(TEXT("Ice Level 2"), EElementalAttackType::Ice, 2, 1.6f, 24.0f, false, nullptr)); // Locked
+	StaffElemental.ElementalProgression.Add(EElementalAttackType::Ice, FElemental_Struct(TEXT("Ice Level 3"), EElementalAttackType::Ice, 3, 2.2f, 36.0f, false, nullptr)); // Locked
+
+	StaffElemental.ElementalProgression.Add(EElementalAttackType::Thunder, FElemental_Struct(TEXT("Thunder Level 1"), EElementalAttackType::Thunder, 1, 1.0f, 12.0f, true, ThunderProjectileAnimation));
+	StaffElemental.ElementalProgression.Add(EElementalAttackType::Thunder, FElemental_Struct(TEXT("Thunder Level 2"), EElementalAttackType::Thunder, 2, 1.6f, 24.0f, false, nullptr)); // Locked
+	StaffElemental.ElementalProgression.Add(EElementalAttackType::Thunder, FElemental_Struct(TEXT("Thunder Level 3"), EElementalAttackType::Thunder, 3, 2.2f, 36.0f, false, nullptr)); // Locked
 
 	WeaponElementalMap.Add(EWeaponType::Staff, StaffElemental);
-
-
 
 
 
@@ -1947,12 +1954,36 @@ void ARen_Low_Poly_Character::BeginPlay()
 	{
 		// Initialize Sword techniques
 		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("A simple attack technique."), true, StormStrikeFlurryAnimMontage, 1.6f, 3});
-		ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.5f, 10.0f, 1, true, FireProjectileAnimation));
-		ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 15.0f, 1, true, IceProjectileAnimation));
-		ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.8f, 15.0f, 1, true, ThunderProjectileAnimation));
+		//ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.5f, 10.0f, 1, true, FireProjectileAnimation));
+		//ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 15.0f, 1, true, IceProjectileAnimation));
+		//ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.8f, 15.0f, 1, true, ThunderProjectileAnimation));
 		//ElementalAttacks.Add(FElemental_Struct(TEXT("Fire AOE"), EElementalAttackType::Fire, 2.4f, 30.0f, 2, true, FireAOEAnimation));
 		//ElementalAttacks.Add(FElemental_Struct(TEXT("Ice AOE"), EElementalAttackType::Ice, 2.4f, 30.0f, 2, true, IceAOEAnimation));
 		//ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder AOE"), EElementalAttackType::Thunder, 2.4f, 30.0f, 2, true, ThunderAOEAnimation));
+		ElementalAttacks.Empty(); // Clear any existing data
+
+		if (WeaponElementalMap.Contains(EWeaponType::Sword))
+		{
+			const FWeaponElementalProgression* SwordElementalMap = WeaponElementalMap.Find(EWeaponType::Sword);
+			if (SwordElementalMap)
+			{
+				for (const auto& Element : SwordElementalMap->ElementalProgression)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Adding Element: %s"), *Element.Value.ElementalAttackName);
+					ElementalAttacks.Add(Element.Value);
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("SwordElementalMap is NULL!"));
+			}
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("WeaponElementalMap does not contain Sword!"));
+		}
+
+
 
 
 		// Check WeaponProficiencyMap and unlock techniques based on proficiency level
