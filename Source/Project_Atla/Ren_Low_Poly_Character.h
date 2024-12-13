@@ -24,6 +24,7 @@
 #include "Weapon_Proficiency_Struct.h"
 #include "Command_Menu_Widget.h"
 #include "Enemy_Detection_Arrow.h"
+#include "ElementalEXPManager.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
 
@@ -55,8 +56,12 @@ struct FWeaponElementalProgression
 {
 	GENERATED_BODY()
 
-		UPROPERTY()
-		TMap<EElementalAttackType, FElemental_Struct> ElementalProgression;
+	//	UPROPERTY()
+	//	TMap<EElementalAttackType, FElemental_Struct> ElementalProgression;
+
+		 // Map Level to Elemental Attack Name
+		UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental Progression")
+		TMap<int32, FString> LevelToAttack;
 };
 
 
@@ -480,8 +485,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void UseElementalAttack(int32 ElementalIndex);
 
-	UFUNCTION(BlueprintCallable, Category = "Elemental")
-		void GainElementalEXP(int32 ElementalIndex, float EXPToGain);
+	//UFUNCTION(BlueprintCallable, Category = "Elemental")
+	//	void GainElementalEXP(int32 ElementalIndex, float EXPToGain);
+
+	void AddExperienceToElementalAttack(EElementalAttackType ElementType, float EXPAmount);
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental Attacks")
+		TMap<EElementalAttackType, FElemental_Struct> ElementalAttackMap;
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void SpawnElementalProjectile();
@@ -492,6 +502,13 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void SpawnElementalGround();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		UElementalEXPManager* ElementalEXPManager;
+
+	UFUNCTION(BlueprintCallable, Category = "Elemental")
+		void UnlockLevelOneElementalAttacks();
+
+	void InitialiseElementalAttacks();
 
 	float PreviousElementalPower;
 	float InitialElemental;

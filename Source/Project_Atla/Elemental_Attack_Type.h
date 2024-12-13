@@ -15,6 +15,14 @@ enum class EElementalAttackType : uint8
 {
     Fire      UMETA(DisplayName = "Fire"),        // Fire Element
     Ice       UMETA(DisplayName = "Ice"),         // Ice Element
-    Thunder   UMETA(DisplayName = "Thunder")
+    Thunder   UMETA(DisplayName = "Thunder"),
+
+  //  FireAOE   UMETA(DisplayName = "Fire AOE"),
+  //  IceAOE    UMETA(DisplayName = "Ice AOE"),
+   // ThunderAOE UMETA(DisplayName = "Thunder AOE"),
+
+  //  FireGround   UMETA(DisplayName = "Fire Ground"),
+  //  IceGround    UMETA(DisplayName = "Ice Ground"),
+  //  ThunderGround UMETA(DisplayName = "Thunder Ground"),
 
 };
