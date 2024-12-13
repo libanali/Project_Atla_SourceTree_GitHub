@@ -506,9 +506,12 @@ public:
 		UElementalEXPManager* ElementalEXPManager;
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
-		void UnlockLevelOneElementalAttacks();
+		void UnlockLevelTwoElementalAttacks();
 
 	void InitialiseElementalAttacks();
+
+
+
 
 	float PreviousElementalPower;
 	float InitialElemental;

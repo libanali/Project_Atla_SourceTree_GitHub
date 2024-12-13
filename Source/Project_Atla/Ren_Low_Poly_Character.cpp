@@ -1106,11 +1106,15 @@ void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 			CurrentElementalAttackType = SelectedElementalAttack.ElementalType;
 
 			// Gain experience for the elemental attack (e.g., 10 EXP for using the attack)
-			AddExperienceToElementalAttack(SelectedElementalAttack.ElementalType, 1000.0f);
+			//AddExperienceToElementalAttack(SelectedElementalAttack.ElementalType, 1000.0f);
 
 			// Log the successful use of the attack
 			UE_LOG(LogTemp, Warning, TEXT("Used Elemental Attack: %s, Gained EXP!"),
 				*SelectedElementalAttack.ElementalAttackName);
+
+
+	
+
 		}
 		else
 		{
@@ -1288,82 +1292,70 @@ void ARen_Low_Poly_Character::SpawnElementalGround()
 
 }
 
-void ARen_Low_Poly_Character::UnlockLevelOneElementalAttacks()
+void ARen_Low_Poly_Character::UnlockLevelTwoElementalAttacks()
 {
-
-	for (TPair<EElementalAttackType, FElemental_Struct>& ElementalPair : ElementalAttackMap)
+	for (FElemental_Struct& Attack : ElementalAttacks)
 	{
-		FElemental_Struct& ElementalAttack = ElementalPair.Value;
-
-		// Check if the attack is at level 1 and not already unlocked
-		if (ElementalAttack.ElementalLevel == 1 && !ElementalAttack.bIsUnlocked)
+		if (Attack.ElementalLevel == 2 && !Attack.bIsUnlocked)
 		{
-			ElementalAttack.bIsUnlocked = true;
+			Attack.bIsUnlocked = true;
 
-			// Log or notify for debugging
-			UE_LOG(LogTemp, Log, TEXT("Unlocked Level 1 Elemental Attack: %s"), *ElementalAttack.ElementalAttackName);
+			 //Debug message to confirm unlock
+			UE_LOG(LogTemp, Log, TEXT("Unlocked Level 2 Elemental Attack: %s"), *Attack.ElementalAttackName);
 		}
 	}
 
-
-
-
 }
+
+
 
 void ARen_Low_Poly_Character::InitialiseElementalAttacks()
 {
 
 
-	// Fire Attack
-	FElemental_Struct FireAttack(
-		TEXT("Fire"),                 // Name
-		EElementalAttackType::Fire,         // Type
-		1.2f,                               // DamageMultiplier
-		10.0f,                              // ManaCost
-		1,                                  // ElementalLevel
-		false,                              // bIsUnlocked
-		FireProjectileAnimation               // Animation Montage (defined in your assets)
-	);
+	ElementalAttacks.Empty(); // Clear existing attacks before adding new ones
 
-	// Ice Attack
-	FElemental_Struct IceAttack(
-		TEXT("Ice"),
-		EElementalAttackType::Ice,
-		1.1f,
-		12.0f,
-		1,
-		false,
-		IceProjectileAnimation
-	);
+	
 
 	// Thunder Attack
-	FElemental_Struct ThunderAttack(
-		TEXT("Thunder"),
-		EElementalAttackType::Thunder,
-		1.3f,
-		15.0f,
-		1,
-		false,
-		ThunderProjectileAnimation
-	);
-
-	// Populate the map with these attacks
-	ElementalAttackMap.Add(EElementalAttackType::Fire, FireAttack);
-	ElementalAttackMap.Add(EElementalAttackType::Ice, IceAttack);
-	ElementalAttackMap.Add(EElementalAttackType::Thunder, ThunderAttack);
-
-	// Add more attacks for higher levels as needed
-	ElementalAttackMap.Add(EElementalAttackType::Fire, FElemental_Struct(
+	ElementalAttacks.Add(FElemental_Struct(
 		TEXT("Fire AOE"),
 		EElementalAttackType::Fire,
-		1.5f,
-		20.0f,
+		1.3f,
+		15.0f,
 		2,
 		false,
 		FireAOEAnimation
 	));
 
 
+	ElementalAttacks.Add(FElemental_Struct(
+		TEXT("Ice AOE"),
+		EElementalAttackType::Ice,
+		1.3f,
+		15.0f,
+		2,
+		false,
+		IceAOEAnimation
+	));
+
+
+	ElementalAttacks.Add(FElemental_Struct(
+		TEXT("Thunder AOE"),
+		EElementalAttackType::Thunder,
+		1.3f,
+		15.0f,
+		2,
+		false,
+		ThunderAOEAnimation
+	));
+
+	// Populate the map with these attacks
+	//ElementalAttackMap.Add(EElementalAttackType::Fire, FireAttack);
+	//ElementalAttackMap.Add(EElementalAttackType::Ice, IceAttack);
+	//ElementalAttackMap.Add(EElementalAttackType::Thunder, ThunderAttack);
+
+	
 
 }
 
@@ -1867,11 +1859,10 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	FindResultsCamera();
 
-	//InitializeWeaponElementalMap();
 
 	InitialiseElementalAttacks();
 
-	UnlockLevelOneElementalAttacks();
+	//UnlockLevelTwoElementalAttacks();
 
 
 	AbilityStruct.InitializeAbilityPoints();
@@ -1969,9 +1960,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 	{
 		// Initialize Sword techniques
 		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("A simple attack technique."), true, StormStrikeFlurryAnimMontage, 1.6f, 3});
-	   // ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.5f, 10.0f, 1, true, FireProjectileAnimation));
-	//	ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 15.0f, 1, true, IceProjectileAnimation));
-		//ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.8f, 15.0f, 1, true, ThunderProjectileAnimation));
+	    ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.5f, 10.0f, 1, true, FireProjectileAnimation));
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 15.0f, 1, true, IceProjectileAnimation));
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.8f, 15.0f, 1, true, ThunderProjectileAnimation));
 		//ElementalAttacks.Add(FElemental_Struct(TEXT("Fire AOE"), EElementalAttackType::Fire, 2.4f, 30.0f, 2, false, FireAOEAnimation));
 		//ElementalAttacks.Add(FElemental_Struct(TEXT("Ice AOE"), EElementalAttackType::Ice, 2.4f, 30.0f, 2, false, IceAOEAnimation));
 		//ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder AOE"), EElementalAttackType::Thunder, 2.4f, 30.0f, 2, false, ThunderAOEAnimation));
@@ -2560,6 +2551,9 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 		BaseAttack, BaseDefence, HealthStruct.MaxHealth, HealthStruct.CurrentHealth, ManaStruct.MaxMana, ManaStruct.CurrentMana);
 
 	GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green, StatsText);
+
+
+
 
 
 }
