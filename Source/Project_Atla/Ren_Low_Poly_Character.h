@@ -25,7 +25,6 @@
 #include "Weapon_Proficiency_Struct.h"
 #include "Command_Menu_Widget.h"
 #include "Enemy_Detection_Arrow.h"
-#include "ElementalEXPManager.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
 
@@ -506,6 +505,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Elemental Proficiency")
 		FWeaponElementalProficiencyMap WeaponElementalProficiency;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		UMaterial* FreezeOverlayMaterial;
+
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void SpawnElementalProjectile();
 
@@ -521,14 +523,17 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void CheckElementalLevelUp(EWeaponType TheWeaponType, EElementalAttackType ElementType);
 
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
-		UElementalEXPManager* ElementalEXPManager;
-
-
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void UnlockElementalAbilities(EWeaponType TheWeaponType, EElementalAttackType ElementType, int32 Level);
 
+	UFUNCTION(BlueprintCallable, Category = "Elemental")
+		void ApplyBurnEffect(AEnemy_Poly* Enemy, float Duration, float DamagePerSecond);
+
+	UFUNCTION(BlueprintCallable, Category = "Elemental")
+		void ApplyFreezeEffect(AEnemy_Poly* Enemy, float Duration);
+
+	UFUNCTION(BlueprintCallable, Category = "Elemental")
+		void ApplyStunEffect(AEnemy_Poly* Enemy, float Duration);
 
 	void InitialiseElementalAttacks();
 

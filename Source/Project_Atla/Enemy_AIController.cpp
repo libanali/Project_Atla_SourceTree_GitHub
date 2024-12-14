@@ -11,6 +11,7 @@
 #include "Enemy_Poly.h"
 #include "LowPoly_Survival_GameMode.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "BrainComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 
@@ -213,6 +214,40 @@ void AEnemy_AIController::ResetAttackCooldown()
     if (!bIsAttacking)  // Ensure it's not in attack mode
     {
         StrafeAroundPlayer();  // Resume movement, like strafing
+    }
+
+}
+
+void AEnemy_AIController::DisableAI()
+{
+
+    // Disable the movement and stop the AI from updating
+    AEnemy_Poly* Enemy = Cast<AEnemy_Poly>(GetPawn());
+    if (Enemy)
+    {
+        // Disable movement
+        Enemy->GetCharacterMovement()->DisableMovement();
+
+        // Optionally, disable rotation control
+        Enemy->GetCharacterMovement()->bOrientRotationToMovement = false;
+    }
+
+
+
+}
+
+void AEnemy_AIController::RestartAI()
+{
+
+    // Re-enable movement and rotation
+    AEnemy_Poly* Enemy = Cast<AEnemy_Poly>(GetPawn());
+    if (Enemy)
+    {
+        // Enable movement
+        Enemy->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+
+        // Enable rotation control again
+        Enemy->GetCharacterMovement()->bOrientRotationToMovement = true;
     }
 
 }

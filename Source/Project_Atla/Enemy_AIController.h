@@ -29,6 +29,8 @@ public:
     void StrafeAroundPlayer();
     void FacePlayer();
     void ResetAttackCooldown();
+    void DisableAI();
+    void RestartAI();
     float DistanceToPlayer;
     float AttackRange;
 

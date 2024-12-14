@@ -13,7 +13,7 @@ FMana_Struct::FMana_Struct()
 void FMana_Struct::InitializeMana()
 {
 
-	MaxMana = 70.0f;
+	//MaxMana = 70.0f;
 	CurrentMana = MaxMana;
 
 }

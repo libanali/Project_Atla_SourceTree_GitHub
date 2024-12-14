@@ -89,7 +89,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 	//Attack
 	BaseAttack = 3.0f;
-	AttackMultiplier = 2.0f; 
+	AttackMultiplier = 1.2f; 
 	AttackIncrease = 3.0f;
 
 
@@ -169,11 +169,11 @@ void ARen_Low_Poly_Character::InflictDamageOnEnemy(AEnemy_Poly* Enemy)
 	{
 
 		float AttackDamage = BaseAttack;
+		float EffectiveDefence = FMath::Clamp(Enemy->DefencePercentage / 100.0f, 0.0f, 1.0f);
+		CalculatedDamage = AttackDamage * (1 - EffectiveDefence);
 
-		CalculatedDamage = AttackDamage * (1 - Enemy->DefencePercentage);
 
 		UWorld* World = GetWorld();
-
 		if (World)
 
 		{
@@ -206,8 +206,9 @@ void ARen_Low_Poly_Character::InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy, 
 			}
 		}
 
-		// Calculate damage based on enemy defense
-		float TheCalculatedDamage = ElementalDamage * (1 - Enemy->DefencePercentage);
+
+		float EffectiveDefence = FMath::Clamp(Enemy->DefencePercentage / 100.0, 0.0f, 1.0f);
+		float TheCalculatedDamage = ElementalDamage * (1 - EffectiveDefence);
 
 		// Apply the calculated damage to the enemy
 		UWorld* World = GetWorld();
@@ -231,7 +232,7 @@ void ARen_Low_Poly_Character::UpdateStatsBasedOnWeapon()
 	// Reset to base stats
 	if (WeaponType == EWeaponType::Sword)
 	{
-		BaseAttack = 5.0f;
+		BaseAttack = 10.0f;
 		BaseDefence = 2.0f;
 		BaseElementalAttack = 4.0f;
 		HealthStruct.MaxHealth = 140.0f;
@@ -668,13 +669,14 @@ void ARen_Low_Poly_Character::InflictTechniqueDamageOnEnemy(AEnemy_Poly* Enemy, 
 		{
 			// Get the base damage and technique bonus
 			float BaseDamage = BaseAttack;
+			float EffectiveDefence = FMath::Clamp(Enemy->DefencePercentage / 100.0f, 0.0f, 1.0f);
 			float TechniqueDamageBonus = Techniques[TechniqueIndex].DamageBonus;
 
 			// Apply the technique's damage bonus
 			float FinalDamage = BaseDamage * TechniqueDamageBonus;
 
 			// Adjust for the enemy's defense
-			FinalDamage *= (1 - Enemy->DefencePercentage);
+			FinalDamage *= (1 - EffectiveDefence);
 
 			// Apply the damage to the enemy
 			UWorld* World = GetWorld();
@@ -1465,6 +1467,112 @@ void ARen_Low_Poly_Character::UnlockElementalAbilities(EWeaponType TheWeaponType
 
 
 
+
+void ARen_Low_Poly_Character::ApplyBurnEffect(AEnemy_Poly* Enemy, float Duration, float DamagePerSecond)
+{
+
+	if (!Enemy) return;
+
+	// Apply burn effect (damage over time)
+	float TotalTime = Duration;
+	FTimerHandle BurnTimerHandle;
+
+	// Lambda function to apply damage over time
+	FTimerDelegate BurnDelegate = FTimerDelegate::CreateLambda([&]()
+		{
+			if (TotalTime > 0.0f)
+			{
+				// Apply damage to enemy (we're assuming that the enemy has a method to take damage)
+				Enemy->ApplyDamage(DamagePerSecond, FHitResult(), GetController(), this);
+				TotalTime -= 1.0f;
+			}
+			else
+			{
+				// Effect ends after the duration
+				GetWorld()->GetTimerManager().ClearTimer(BurnTimerHandle);
+			}
+		});
+
+	// Set timer to apply damage every second
+	GetWorld()->GetTimerManager().SetTimer(BurnTimerHandle, BurnDelegate, 1.5f, true);
+
+
+
+}
+
+
+
+void ARen_Low_Poly_Character::ApplyFreezeEffect(AEnemy_Poly* Enemy, float Duration)
+{
+	if (!Enemy) return;
+
+	// Apply freeze effect (disable movement)
+	//Enemy->GetCharacterMovement()->DisableMovement();
+	Enemy->GetMesh()->SetOverlayMaterial(FreezeOverlayMaterial);
+
+	// Get the AI controller of the enemy
+	AEnemy_AIController* EnemyAIController = Cast<AEnemy_AIController>(Enemy->GetController());
+	if (EnemyAIController)
+	{
+		// Disable AI logic by stopping the movement and other AI behavior
+		EnemyAIController->DisableAI();
+
+		// Optionally, stop the rotation if you don't want the enemy to turn toward the player while frozen
+		Enemy->GetCharacterMovement()->bOrientRotationToMovement = false;
+
+		// Set a timer to re-enable movement and AI logic after the duration
+		FTimerHandle FreezeTimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(FreezeTimerHandle, [=]()
+			{
+				// Re-enable movement and AI behavior
+				Enemy->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+				EnemyAIController->RestartAI();
+
+				// Re-enable rotation if needed
+				//Enemy->GetCharacterMovement()->bOrientRotationToMovement = true;
+
+				// Remove the freeze overlay material
+				Enemy->GetMesh()->SetMaterial(0, Enemy->GetMesh()->GetMaterial(0));  // Reset to original material
+			}, Duration, false);
+	}
+}
+
+
+
+
+
+void ARen_Low_Poly_Character::ApplyStunEffect(AEnemy_Poly* Enemy, float Duration)
+{
+
+
+	if (!Enemy) return;
+
+	// Get the AI controller of the enemy
+	AEnemy_AIController* EnemyAIController = Cast<AEnemy_AIController>(Enemy->GetController());
+	if (EnemyAIController)
+	{
+		// Disable the AI
+		EnemyAIController->DisableAI();
+
+		// Set a timer to re-enable AI after the stun duration
+		FTimerHandle StunTimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(StunTimerHandle, [=]()
+			{
+				if (EnemyAIController)
+				{
+					EnemyAIController->RestartAI();
+				}
+			}, Duration, false);
+	}
+
+
+}
+
+
+
+
+
+
 void ARen_Low_Poly_Character::InitialiseElementalAttacks()
 {
 
@@ -2018,8 +2126,6 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	InitialiseElementalAttacks();
 
-	//UnlockLevelTwoElementalAttacks();
-
 
 	AbilityStruct.InitializeAbilityPoints();
 
@@ -2062,7 +2168,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	if (WeaponType == EWeaponType::Sword)
 	{
 		// Set initial values (or defaults) here if necessary
-		BaseAttack = 5.0f;
+		BaseAttack = 10.0f;
 		BaseDefence = 2.0f;
 		BaseElementalAttack = 4.0f;
 		HealthStruct.MaxHealth = 140.0f;

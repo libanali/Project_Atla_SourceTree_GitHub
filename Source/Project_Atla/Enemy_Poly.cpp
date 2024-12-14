@@ -16,10 +16,9 @@ AEnemy_Poly::AEnemy_Poly()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	MaxEnemyHealth = 100.0f;
 
 	Attacking = false;
-
-	//MaxEnemyHealth = 60.0f;
 
 	CurrentEnemyHealth = MaxEnemyHealth;
 
@@ -29,8 +28,9 @@ AEnemy_Poly::AEnemy_Poly()
 
 	AttackMultiplier = 1.5f;
 
-	BaseAttack = 100000.0f;
+	BaseAttack = 10000.0f;
 
+	
 
 }
 
@@ -68,9 +68,9 @@ void AEnemy_Poly::IncreaseEnemyHealth(float Amount, bool bSetInitialHealth)
 float AEnemy_Poly::ApplyDamage(float DamageAmount, const FHitResult& HitInfo, AController* EventInstigator, AActor* DamageCauser)
 {
 
-	float CalculatedDamage = DamageAmount * (1 - DefencePercentage);
+	//float CalculatedDamage = DamageAmount * (1 - DefencePercentage);
 
-	CurrentEnemyHealth -= CalculatedDamage;
+	CurrentEnemyHealth -= DamageAmount;
 
 	if (CurrentEnemyHealth <= 0)
 
@@ -81,7 +81,7 @@ float AEnemy_Poly::ApplyDamage(float DamageAmount, const FHitResult& HitInfo, AC
 	}
 
 
-	return CalculatedDamage;
+	return DamageAmount;
 }
 
 
@@ -198,7 +198,6 @@ void AEnemy_Poly::BeginPlay()
 {
 	Super::BeginPlay();
 
-	CurrentEnemyHealth = 100.0f;
 
 	// Register this enemy with the token manager
 	if (GetWorld())
@@ -219,6 +218,9 @@ void AEnemy_Poly::Tick(float DeltaTime)
 
 	//Death();
 	
+	//FString StatsText = FString::Printf(TEXT("Enemy Health: %f"));
+
+	//GEngine->AddOnScreenDebugMessage(3, 0.f, FColor::Purple, StatsText);
 
 }
 
