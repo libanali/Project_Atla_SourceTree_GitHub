@@ -499,11 +499,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void UseElementalAttack(int32 ElementalIndex);
-
-	//UFUNCTION(BlueprintCallable, Category = "Elemental")
-	//	void GainElementalEXP(int32 ElementalIndex, float EXPToGain);
-
-	void AddExperienceToElementalAttack(EElementalAttackType ElementType, float EXPAmount);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental Attacks")
 		TMap<EElementalAttackType, FElemental_Struct> ElementalAttackMap;

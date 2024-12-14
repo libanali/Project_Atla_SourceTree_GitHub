@@ -25,11 +25,11 @@ AEnemy_Poly::AEnemy_Poly()
 
 	bIsDead = false;
 
-	DefencePercentage = 300000000.0f;
+	DefencePercentage = 30.0f;
 
 	AttackMultiplier = 1.5f;
 
-	BaseAttack = 10000.0f;
+	BaseAttack = 100000.0f;
 
 
 }

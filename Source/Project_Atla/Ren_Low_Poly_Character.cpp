@@ -1148,52 +1148,6 @@ void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 
 
 
-
-
-
-
-void ARen_Low_Poly_Character::AddExperienceToElementalAttack(EElementalAttackType ElementType, float EXPAmount)
-{
-
-	// Loop through all elemental attacks in the ElementalAttacks array
-	for (int32 i = 0; i < ElementalAttacks.Num(); ++i)
-	{
-		FElemental_Struct& ElementalAttack = ElementalAttacks[i];
-
-		// If the ElementType matches the current attack's type
-		if (ElementalAttack.ElementalType == ElementType)
-		{
-			// Add the experience to the current attack
-			ElementalAttack.CurrentEXP += EXPAmount;
-
-			// Check if the experience exceeds the required amount to level up
-			if (ElementalAttack.CurrentEXP >= ElementalAttack.EXPToNextLevel)
-			{
-				// Level up the elemental attack
-				ElementalAttack.ElementalLevel += 1;
-
-				// Reset the current experience for the next level
-				ElementalAttack.CurrentEXP -= ElementalAttack.EXPToNextLevel;
-
-				// Increase the EXP needed for the next level (you can tweak this factor)
-				ElementalAttack.EXPToNextLevel *= 1.5f; // Scale by 1.5 for example
-			}
-
-			// Exit the loop once the correct elemental attack is found and updated
-			break;
-		}
-	}
-
-
-
-
-}
-
-
-
-
-
-
 void ARen_Low_Poly_Character::SpawnElementalProjectile()
 {
 
