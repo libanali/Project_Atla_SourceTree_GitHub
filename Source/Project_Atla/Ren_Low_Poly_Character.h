@@ -518,7 +518,7 @@ public:
 		void SpawnElementalAOE(FVector SpawnLocation, FRotator SpawnRotation);
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
-		void SpawnElementalGround();
+		void SpawnElementalGround(FVector SpawnLocation, FRotator SpawnRotation);
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void AddExperienceToElementalProfiency(EWeaponType TheWeaponType, EElementalAttackType ElementType, float EXPAmount);

@@ -1127,7 +1127,10 @@ void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 			// Log the successful use of the attack
 			UE_LOG(LogTemp, Warning, TEXT("Used Elemental Attack: %s, Gained EXP!"),
 				*SelectedElementalAttack.ElementalAttackName);
-	
+
+			// Log the successful use of the attack
+			UE_LOG(LogTemp, Warning, TEXT("Used Elemental Attack: %s, Mana Cost: %f"),
+				*SelectedElementalAttack.ElementalAttackName, SelectedElementalAttack.ManaCost);
 
 		}
 		else
@@ -1274,7 +1277,7 @@ void ARen_Low_Poly_Character::SpawnElementalAOE(FVector SpawnLocation, FRotator 
 
 
 
-void ARen_Low_Poly_Character::SpawnElementalGround()
+void ARen_Low_Poly_Character::SpawnElementalGround(FVector SpawnLocation, FRotator SpawnRotation)
 {
 
 
@@ -1302,6 +1305,7 @@ void ARen_Low_Poly_Character::SpawnElementalGround()
 		return;
 	}
 
+	GetWorld()->SpawnActor<AActor>(GroundClass, SpawnLocation, SpawnRotation);
 
 
 }
@@ -1448,7 +1452,7 @@ void ARen_Low_Poly_Character::UnlockElementalAbilities(EWeaponType TheWeaponType
 			{
 				// Unlock level 2 Fire attack for Sword
 
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire AOE"), EElementalAttackType::Fire, 1.7f, 10.0f, 2, true, FireAOEAnimation));
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire AOE"), EElementalAttackType::Fire, 1.7f, 15.0f, 2, true, FireAOEAnimation));
 
 				UE_LOG(LogTemp, Warning, TEXT("Leveled Up Fire, unlocked Fire AOE!"))
 
@@ -1457,7 +1461,7 @@ void ARen_Low_Poly_Character::UnlockElementalAbilities(EWeaponType TheWeaponType
 			{
 
 
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire Ground"), EElementalAttackType::Fire, 1.7f, 10.0f, 3, true, FireGroundAnimation));
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire Ground"), EElementalAttackType::Fire, 2.7f, 25.0f, 3, true, FireGroundAnimation));
 				UE_LOG(LogTemp, Warning, TEXT("Leveled Up Fire, unlocked Fire Ground!"))
 
 			}
