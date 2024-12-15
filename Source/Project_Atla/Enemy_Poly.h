@@ -113,9 +113,24 @@ public:
 	UPROPERTY()
 		AEnemy_Token_Manager* TokenManager;
 
-	bool bHasToken;
+	void StartStunVibration();
 
+	void StopStunVibration();
+
+	void ApplyStunVibrationEffect();
+
+
+
+
+	bool bHasToken;
 	bool bShouldFacePlayer;
+
+	bool bIsVibrating; // Flag to track if vibration is active
+	FVector OriginalLocation; // Original location of the mesh
+
+	float VibrationTimeElapsed; // Track vibration duration
+	float VibrationDuration; // Total time for vibration effect
+	float VibrationIntensity; // Intensity of vibration
 	//Combat
 
 

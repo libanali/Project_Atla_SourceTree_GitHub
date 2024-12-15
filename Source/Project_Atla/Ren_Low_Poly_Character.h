@@ -508,6 +508,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		UMaterialInstance* FreezeOverlayMaterial;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		UMaterialInstance* StunOverlayMaterial;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		UMaterialInstance* BurnOverlayMaterial;
+
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void SpawnElementalProjectile();
 
@@ -528,6 +534,22 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void ApplyBurnEffect(AEnemy_Poly* Enemy, float Duration, float DamagePerSecond);
+
+	// Timer function to apply burn damage
+	UFUNCTION()
+		void ApplyBurnDamageTick();
+
+	// Handle for the timer
+	FTimerHandle BurnTimerHandle;
+
+	// Store the remaining burn time
+	float RemainingBurnTime;
+
+	// Store the damage per second
+	float DamagePerSecond;
+
+	AEnemy_Poly* BurnedEnemy;
+
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void ApplyFreezeEffect(AEnemy_Poly* Enemy, float Duration);

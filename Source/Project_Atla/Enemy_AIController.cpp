@@ -223,6 +223,8 @@ void AEnemy_AIController::ResetAttackCooldown()
 
 }
 
+
+
 void AEnemy_AIController::DisableAI()
 {
 
@@ -233,13 +235,13 @@ void AEnemy_AIController::DisableAI()
         // Disable movement
         Enemy->GetCharacterMovement()->DisableMovement();
 
-        // Optionally, disable rotation control
-        Enemy->GetCharacterMovement()->bOrientRotationToMovement = false;
     }
 
 
 
 }
+
+
 
 void AEnemy_AIController::RestartAI()
 {
@@ -251,8 +253,6 @@ void AEnemy_AIController::RestartAI()
         // Enable movement
         Enemy->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 
-        // Enable rotation control again
-        Enemy->GetCharacterMovement()->bOrientRotationToMovement = true;
     }
 
 }

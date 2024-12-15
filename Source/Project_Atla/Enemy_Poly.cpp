@@ -30,7 +30,8 @@ AEnemy_Poly::AEnemy_Poly()
 
 	BaseAttack = 10000.0f;
 
-	
+	bIsVibrating = false; // Default no vibration
+	VibrationIntensity = 5.0f; // Default vibration intensity
 
 }
 
@@ -69,6 +70,13 @@ float AEnemy_Poly::ApplyDamage(float DamageAmount, const FHitResult& HitInfo, AC
 {
 
 	//float CalculatedDamage = DamageAmount * (1 - DefencePercentage);
+
+	// Check if the Enemy is valid
+	if (!this)
+	{
+		UE_LOG(LogTemp, Error, TEXT("AEnemy_Poly is invalid (this is null)"));
+		return 0.0f;
+	}
 
 	CurrentEnemyHealth -= DamageAmount;
 
@@ -190,6 +198,48 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 
 
 
+void AEnemy_Poly::StartStunVibration()
+{
+
+	// Store the original location
+	OriginalLocation = GetMesh()->GetRelativeLocation();
+
+	// Enable vibration and reset tracking variables
+	bIsVibrating = true;
+	VibrationTimeElapsed = 0.0f;
+	VibrationDuration = 5.0f; // Total duration of vibration (e.g., 1 second)
+
+}
+
+
+
+void AEnemy_Poly::StopStunVibration()
+{
+
+	// Disable vibration
+	bIsVibrating = false;
+
+	// Reset mesh location
+	GetMesh()->SetRelativeLocation(OriginalLocation);
+
+
+}
+
+
+
+void AEnemy_Poly::ApplyStunVibrationEffect()
+{
+
+
+	FVector RandomOffset = FVector(FMath::RandRange(-5.0f, 5.0f), FMath::RandRange(-5.0f, 5.0f), 0.0f);
+	GetMesh()->SetRelativeLocation(OriginalLocation + RandomOffset);
+
+
+
+}
+
+
+
 
 
 
@@ -219,12 +269,25 @@ void AEnemy_Poly::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	// If vibration is active
+	if (bIsVibrating)
+	{
+		VibrationTimeElapsed += DeltaTime;
 
-	//Death();
-	
-	//FString StatsText = FString::Printf(TEXT("Enemy Health: %f"));
+		// Apply random offset to the mesh
+		FVector RandomOffset = FVector(
+			FMath::RandRange(-VibrationIntensity, VibrationIntensity),
+			FMath::RandRange(-VibrationIntensity, VibrationIntensity),
+			0.0f);
 
-	//GEngine->AddOnScreenDebugMessage(3, 0.f, FColor::Purple, StatsText);
+		GetMesh()->SetRelativeLocation(OriginalLocation + RandomOffset);
+
+		// Stop vibration after the duration
+		if (VibrationTimeElapsed >= VibrationDuration)
+		{
+			StopStunVibration();
+		}
+	}
 
 }
 

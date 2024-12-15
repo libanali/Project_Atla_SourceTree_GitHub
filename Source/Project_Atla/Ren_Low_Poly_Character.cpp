@@ -188,6 +188,8 @@ void ARen_Low_Poly_Character::InflictDamageOnEnemy(AEnemy_Poly* Enemy)
 
 }
 
+
+
 void ARen_Low_Poly_Character::InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy, EElementalAttackType ElementType)
 {
 
@@ -1470,32 +1472,43 @@ void ARen_Low_Poly_Character::UnlockElementalAbilities(EWeaponType TheWeaponType
 
 void ARen_Low_Poly_Character::ApplyBurnEffect(AEnemy_Poly* Enemy, float Duration, float DamagePerSecond)
 {
-
 	if (!Enemy) return;
 
-	// Apply burn effect (damage over time)
-	float TotalTime = Duration;
-	FTimerHandle BurnTimerHandle;
+	// Set the overlay material for the burn effect
+	Enemy->GetMesh()->SetOverlayMaterial(BurnOverlayMaterial);
 
-	// Lambda function to apply damage over time
-	FTimerDelegate BurnDelegate = FTimerDelegate::CreateLambda([&]()
+	// Initialize timer values
+	RemainingBurnTime = Duration;
+	BurnedEnemy = Enemy;
+	this->DamagePerSecond = DamagePerSecond;
+
+	// Set a timer to repeatedly call the ApplyBurnDamageTick function every 1 second
+	GetWorld()->GetTimerManager().SetTimer(BurnTimerHandle, this, &ARen_Low_Poly_Character::ApplyBurnDamageTick, 1.0f, true);
+}
+
+
+
+
+void ARen_Low_Poly_Character::ApplyBurnDamageTick()
+{
+
+	if (BurnedEnemy && RemainingBurnTime > 0.0f)
+	{
+		// Apply damage to the enemy
+		BurnedEnemy->ApplyDamage(DamagePerSecond, FHitResult(), GetController(), this);
+
+		// Decrease the remaining time
+		RemainingBurnTime -= 1.0f;
+
+		// Optional: Display a debug message to show damage is being applied
+		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("Applying Burn Damage"));
+
+		// If the burn duration has ended, stop the timer
+		if (RemainingBurnTime <= 0.0f)
 		{
-			if (TotalTime > 0.0f)
-			{
-				// Apply damage to enemy (we're assuming that the enemy has a method to take damage)
-				Enemy->ApplyDamage(DamagePerSecond, FHitResult(), GetController(), this);
-				TotalTime -= 1.0f;
-			}
-			else
-			{
-				// Effect ends after the duration
-				GetWorld()->GetTimerManager().ClearTimer(BurnTimerHandle);
-			}
-		});
-
-	// Set timer to apply damage every second
-	GetWorld()->GetTimerManager().SetTimer(BurnTimerHandle, BurnDelegate, 1.5f, true);
-
+			GetWorld()->GetTimerManager().ClearTimer(BurnTimerHandle);
+		}
+	}
 
 
 }
@@ -1519,7 +1532,7 @@ void ARen_Low_Poly_Character::ApplyFreezeEffect(AEnemy_Poly* Enemy, float Durati
 		// Stop the enemy from facing the player
 		Enemy->bShouldFacePlayer = false;
 		EnemyAIController->SetFrozenState(true);
-
+		Enemy->GetMesh()->bPauseAnims = true;
 
 
 		// Set a timer to re-enable movement and AI logic after the duration
@@ -1537,6 +1550,7 @@ void ARen_Low_Poly_Character::ApplyFreezeEffect(AEnemy_Poly* Enemy, float Durati
 				}
 				// Re-enable facing the player
 				Enemy->bShouldFacePlayer = true;
+				Enemy->GetMesh()->bPauseAnims = false;
 
 				// Remove the freeze overlay material
 				Enemy->GetMesh()->SetMaterial(0, Enemy->GetMesh()->GetMaterial(0));  // Reset to original material
@@ -1554,12 +1568,16 @@ void ARen_Low_Poly_Character::ApplyStunEffect(AEnemy_Poly* Enemy, float Duration
 
 	if (!Enemy) return;
 
+	Enemy->GetMesh()->SetOverlayMaterial(StunOverlayMaterial);
+
+
 	// Get the AI controller of the enemy
 	AEnemy_AIController* EnemyAIController = Cast<AEnemy_AIController>(Enemy->GetController());
 	if (EnemyAIController)
 	{
 		// Disable the AI
 		EnemyAIController->DisableAI();
+		Enemy->bIsVibrating = true;
 
 		// Set a timer to re-enable AI after the stun duration
 		FTimerHandle StunTimerHandle;
@@ -1568,6 +1586,7 @@ void ARen_Low_Poly_Character::ApplyStunEffect(AEnemy_Poly* Enemy, float Duration
 				if (EnemyAIController)
 				{
 					EnemyAIController->RestartAI();
+					Enemy->bIsVibrating = false;
 				}
 			}, Duration, false);
 	}
