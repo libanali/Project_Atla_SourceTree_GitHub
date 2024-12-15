@@ -533,17 +533,14 @@ public:
 		void UnlockElementalAbilities(EWeaponType TheWeaponType, EElementalAttackType ElementType, int32 Level);
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
-		void ApplyBurnEffect(AEnemy_Poly* Enemy, float Duration, float DamagePerSecond);
+		void ApplyTheBurnEffect(AEnemy_Poly* Enemy, float Duration, float DamagePerSecond);
 
-	// Timer function to apply burn damage
-	UFUNCTION()
-		void ApplyBurnDamageTick();
 
 	// Handle for the timer
 	FTimerHandle BurnTimerHandle;
-
+	FTimerHandle BurnEndTimerHandle;
 	// Store the remaining burn time
-	float RemainingBurnTime;
+	float BurnDurationRemaining;
 
 	// Store the damage per second
 	float DamagePerSecond;

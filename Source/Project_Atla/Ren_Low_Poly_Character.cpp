@@ -1470,48 +1470,64 @@ void ARen_Low_Poly_Character::UnlockElementalAbilities(EWeaponType TheWeaponType
 
 
 
-void ARen_Low_Poly_Character::ApplyBurnEffect(AEnemy_Poly* Enemy, float Duration, float DamagePerSecond)
+void ARen_Low_Poly_Character::ApplyTheBurnEffect(AEnemy_Poly* Enemy, float Duration, float DamagePerSecondss)
 {
-	if (!Enemy) return;
-
-	// Set the overlay material for the burn effect
-	Enemy->GetMesh()->SetOverlayMaterial(BurnOverlayMaterial);
-
-	// Initialize timer values
-	RemainingBurnTime = Duration;
-	BurnedEnemy = Enemy;
-	this->DamagePerSecond = DamagePerSecond;
-
-	// Set a timer to repeatedly call the ApplyBurnDamageTick function every 1 second
-	GetWorld()->GetTimerManager().SetTimer(BurnTimerHandle, this, &ARen_Low_Poly_Character::ApplyBurnDamageTick, 1.0f, true);
-}
-
-
-
-
-void ARen_Low_Poly_Character::ApplyBurnDamageTick()
-{
-
-	if (BurnedEnemy && RemainingBurnTime > 0.0f)
+	if (!Enemy)
 	{
-		// Apply damage to the enemy
-		BurnedEnemy->ApplyDamage(DamagePerSecond, FHitResult(), GetController(), this);
-
-		// Decrease the remaining time
-		RemainingBurnTime -= 1.0f;
-
-		// Optional: Display a debug message to show damage is being applied
-		GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, TEXT("Applying Burn Damage"));
-
-		// If the burn duration has ended, stop the timer
-		if (RemainingBurnTime <= 0.0f)
-		{
-			GetWorld()->GetTimerManager().ClearTimer(BurnTimerHandle);
-		}
+		UE_LOG(LogTemp, Warning, TEXT("Burn effect failed: Enemy is null"));
+		return;
 	}
 
+	// Set the overlay material to visually indicate burn
+	Enemy->GetMesh()->SetOverlayMaterial(BurnOverlayMaterial);
 
+	// Set the burn duration
+	BurnDurationRemaining = Duration;
+
+	// Start a repeating timer that deals damage every 2 seconds
+	GetWorld()->GetTimerManager().SetTimer(
+		BurnTimerHandle,
+		[Enemy, DamagePerSecondss, this]()
+		{
+			if (!Enemy || !Enemy->IsValidLowLevel())
+			{
+				// Stop the timer if the enemy is no longer valid
+				UE_LOG(LogTemp, Warning, TEXT("Burn effect ended: Enemy is no longer valid."));
+				GetWorld()->GetTimerManager().ClearTimer(BurnTimerHandle);
+				return;
+			}
+
+			// Apply damage to the enemy
+			Enemy->ApplyDamage(DamagePerSecondss, FHitResult(), GetController(), this);
+
+			// Debug message to indicate damage is being applied
+			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Burn Damage: %f"), DamagePerSecondss));
+
+			// Reduce remaining duration
+			BurnDurationRemaining -= 2.0f;
+
+			if (BurnDurationRemaining <= 0.0f)
+			{
+				// Stop the timer when the burn duration ends
+				GetWorld()->GetTimerManager().ClearTimer(BurnTimerHandle);
+				UE_LOG(LogTemp, Log, TEXT("Burn effect ended for %s"), *Enemy->GetName());
+			}
+		},
+		2.0f, // Damage interval (every 2 seconds)
+			true  // Loop the timer
+			);
+
+	// Debug log
+	UE_LOG(LogTemp, Log, TEXT("Burn effect applied to %s for %f seconds at %f DPS"), *Enemy->GetName(), BurnDurationRemaining, DamagePerSecondss);
 }
+
+
+
+
+
+
+
+
 
 
 
