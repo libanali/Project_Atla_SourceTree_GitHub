@@ -174,23 +174,28 @@ void AEnemy_AIController::StrafeAroundPlayer()
 
 void AEnemy_AIController::FacePlayer()
 {
+    if (!TargetPlayer || !GetPawn()) return;
 
-    if (!TargetPlayer) return;
+    // Only rotate if the flag allows it
+    AEnemy_Poly* EnemyPawn = Cast<AEnemy_Poly>(GetPawn());
+    if (EnemyPawn && EnemyPawn->bShouldFacePlayer)
+    {
+        // Get the location of the enemy and the player
+        FVector EnemyLocation = EnemyPawn->GetActorLocation();
+        FVector PlayerLocation = TargetPlayer->GetActorLocation();
 
-    // Get the location of the enemy and the player
-    FVector EnemyLocation = GetPawn()->GetActorLocation();
-    FVector PlayerLocation = TargetPlayer->GetActorLocation();
+        // Calculate the direction to the player
+        FVector DirectionToPlayer = (PlayerLocation - EnemyLocation).GetSafeNormal();
 
-    // Calculate the direction to the player
-    FVector DirectionToPlayer = (PlayerLocation - EnemyLocation).GetSafeNormal();
+        // Get the desired rotation to face the player
+        FRotator DesiredRotation = FRotationMatrix::MakeFromX(DirectionToPlayer).Rotator();
 
-    // Get the desired rotation to face the player
-    FRotator DesiredRotation = FRotationMatrix::MakeFromX(DirectionToPlayer).Rotator();
-
-    // Set the pawn's rotation to smoothly face the player (optional: you can adjust this for smooth turning)
-    GetPawn()->SetActorRotation(FMath::RInterpTo(GetPawn()->GetActorRotation(), DesiredRotation, GetWorld()->GetDeltaSeconds(), 5.0f));
-
+        // Set the pawn's rotation to smoothly face the player (optional: you can adjust this for smooth turning)
+        EnemyPawn->SetActorRotation(FMath::RInterpTo(EnemyPawn->GetActorRotation(), DesiredRotation, GetWorld()->GetDeltaSeconds(), 5.0f));
+    }
 }
+
+
 
 void AEnemy_AIController::ResetAttackCooldown()
 {
@@ -308,6 +313,12 @@ int32 AEnemy_AIController::GetEnemyNumber() const
 void AEnemy_AIController::Tick(float deltaTime)
 {
     
+
+    // Skip all AI processing if frozen
+    if (bIsFrozen)
+        return;
+
+
     if (TargetPlayer)
     {
         UpdateBehaviour();  // Just focus on moving and attacking for now

@@ -506,7 +506,7 @@ public:
 		FWeaponElementalProficiencyMap WeaponElementalProficiency;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
-		UMaterial* FreezeOverlayMaterial;
+		UMaterialInstance* FreezeOverlayMaterial;
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void SpawnElementalProjectile();

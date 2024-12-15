@@ -206,6 +206,10 @@ void AEnemy_Poly::BeginPlay()
 		
 	}
 
+	bShouldFacePlayer = true;
+
+
+
 }
 
 

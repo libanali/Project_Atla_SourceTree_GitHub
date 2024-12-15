@@ -40,6 +40,12 @@ public:
     // Function to set the enemy's assigned number
     void SetEnemyNumber(int32 NewNumber);
 
+    void SetFrozenState(bool bFrozen) { bIsFrozen = bFrozen; }
+    bool IsFrozen() const { return bIsFrozen; }
+
+
+
+
 
     // Function to get the enemy's current assigned number
     int32 GetEnemyNumber() const;
@@ -49,6 +55,7 @@ public:
     bool bIsClosingIn;
     bool bIsInAttackRange;
     bool bIsPetrified;
+
     FTimerHandle PetrifiedEffectTimer;
 
  
@@ -59,6 +66,7 @@ private:
     float LastDecisionTime;  // Tracks the time of the last movement decision
     float DecisionInterval;  // The time interval between decisions
     bool bIsStrafing;        // Tracks if the AI is currently strafing
+    bool bIsFrozen = false;
 
 
 protected:

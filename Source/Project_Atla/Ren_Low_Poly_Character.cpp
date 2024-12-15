@@ -1516,20 +1516,27 @@ void ARen_Low_Poly_Character::ApplyFreezeEffect(AEnemy_Poly* Enemy, float Durati
 	{
 		// Disable AI logic by stopping the movement and other AI behavior
 		EnemyAIController->DisableAI();
+		// Stop the enemy from facing the player
+		Enemy->bShouldFacePlayer = false;
+		EnemyAIController->SetFrozenState(true);
 
-		// Optionally, stop the rotation if you don't want the enemy to turn toward the player while frozen
-		Enemy->GetCharacterMovement()->bOrientRotationToMovement = false;
+
 
 		// Set a timer to re-enable movement and AI logic after the duration
 		FTimerHandle FreezeTimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(FreezeTimerHandle, [=]()
 			{
 				// Re-enable movement and AI behavior
-				Enemy->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-				EnemyAIController->RestartAI();
+				//Enemy->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 
-				// Re-enable rotation if needed
-				//Enemy->GetCharacterMovement()->bOrientRotationToMovement = true;
+				if (EnemyAIController)
+				{
+					EnemyAIController->RestartAI();
+					EnemyAIController->SetFrozenState(false);
+
+				}
+				// Re-enable facing the player
+				Enemy->bShouldFacePlayer = true;
 
 				// Remove the freeze overlay material
 				Enemy->GetMesh()->SetMaterial(0, Enemy->GetMesh()->GetMaterial(0));  // Reset to original material

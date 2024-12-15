@@ -114,8 +114,13 @@ public:
 		AEnemy_Token_Manager* TokenManager;
 
 	bool bHasToken;
+
+	bool bShouldFacePlayer;
 	//Combat
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		UMaterialInterface* OriginalMaterial;
 
 	//Score system
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
