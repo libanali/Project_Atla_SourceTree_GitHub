@@ -19,6 +19,7 @@
 
 class ARen_Low_Poly_Character;
 class AEnemy_AIController;
+class UWidgetComponent;
 
 
 // Struct to hold item drop information
@@ -72,8 +73,15 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void IncreaseEnemyHealth(float Amount, bool bSetInitialHealth = false);
 
+	UFUNCTION(BlueprintCallable)
 	virtual float ApplyDamage(float DamageAmount, const FHitResult& HitInfo, AController* EventInstigator, AActor* DamageCauser);
-	  
+	 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+		UWidgetComponent* EnemyHealthBarWidgetComponent;
+
+	void UpdateHealthBar();
+
+
 	void Death();
 	//Health
 
@@ -144,6 +152,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Enemy Properties")
 		int32 EXP_Gained;
+
+
+
+	UFUNCTION(BlueprintCallable, Category = "Health")
+		float GetHealthPercentage() const;
 
 protected:
 	// Called when the game starts or when spawned

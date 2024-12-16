@@ -7,6 +7,9 @@
 #include "LowPoly_Survival_GameMode.h"
 #include "TimerManager.h"
 #include "Engine/World.h"
+#include "Enemy_Poly_HealthBar_Widget.h"
+#include "Components/WidgetComponent.h"
+
 
 
 
@@ -28,10 +31,17 @@ AEnemy_Poly::AEnemy_Poly()
 
 	AttackMultiplier = 1.5f;
 
-	BaseAttack = 10000.0f;
+	BaseAttack = 10.0f;
 
 	bIsVibrating = false; // Default no vibration
 	VibrationIntensity = 5.0f; // Default vibration intensity
+
+
+
+	// Initialize the Health Bar Widget Component
+	EnemyHealthBarWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("HealthBarWidgetComponent"));
+	EnemyHealthBarWidgetComponent->SetupAttachment(RootComponent);
+	EnemyHealthBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 
 }
 
@@ -77,6 +87,9 @@ float AEnemy_Poly::ApplyDamage(float DamageAmount, const FHitResult& HitInfo, AC
 		UE_LOG(LogTemp, Error, TEXT("AEnemy_Poly is invalid (this is null)"));
 		return 0.0f;
 	}
+
+	UpdateHealthBar();
+
 
 	CurrentEnemyHealth -= DamageAmount;
 
@@ -237,6 +250,51 @@ void AEnemy_Poly::ApplyStunVibrationEffect()
 
 
 }
+
+
+
+
+
+
+float AEnemy_Poly::GetHealthPercentage() const
+{
+
+
+	return (MaxEnemyHealth > 0) ? (CurrentEnemyHealth / MaxEnemyHealth) : 0.0f;
+
+}
+
+
+
+
+void AEnemy_Poly::UpdateHealthBar()
+{
+
+
+
+	if (EnemyHealthBarWidgetComponent)
+	{
+		// Get the widget instance
+		UUserWidget* WidgetInstance = EnemyHealthBarWidgetComponent->GetWidget();
+
+		if (WidgetInstance)
+		{
+			// Cast to your custom widget class
+			UEnemy_Poly_HealthBar_Widget* HealthBar = Cast<UEnemy_Poly_HealthBar_Widget>(WidgetInstance);
+			if (HealthBar)
+			{
+				// Update the health bar with the current health percentage
+				float HealthPercentage = (MaxEnemyHealth > 0) ? (CurrentEnemyHealth / MaxEnemyHealth) : 0.0f;
+				HealthBar->UpdateHealthBar(HealthPercentage);
+			}
+		}
+	}
+
+
+
+
+}
+
 
 
 
