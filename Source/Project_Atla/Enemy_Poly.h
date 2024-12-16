@@ -81,6 +81,7 @@ public:
 
 	void UpdateHealthBar();
 
+	FTimerHandle BurnTimerHandle;
 
 	void Death();
 	//Health

@@ -19,7 +19,7 @@ AEnemy_Poly::AEnemy_Poly()
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	MaxEnemyHealth = 100.0f;
+	//MaxEnemyHealth = 100.0f;
 
 	Attacking = false;
 

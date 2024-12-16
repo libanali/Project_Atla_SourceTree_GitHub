@@ -286,6 +286,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
 		UAnimMontage* InfernoRainAnimMontage;
 
+
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Techniques")
 		TArray<bool> TechniqueAvailability;
 	//Technique
