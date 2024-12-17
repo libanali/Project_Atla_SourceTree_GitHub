@@ -316,6 +316,11 @@ void AEnemy_Poly::BeginPlay()
 
 	bShouldFacePlayer = true;
 
+	BurnDurationRemaining = 0.0f;
+
+	bIsBurning = false;
+	bIsFrozen = false;
+	bIsStunned = false;
 
 
 }

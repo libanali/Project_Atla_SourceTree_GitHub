@@ -81,7 +81,16 @@ public:
 
 	void UpdateHealthBar();
 
+	
+
+	float BurnDurationRemaining;   // Remaining duration of the burn effect
+	bool bIsBurning;
+	bool bIsFrozen;
+	bool bIsStunned; // Tracks if the enemy is stunned
+
 	FTimerHandle BurnTimerHandle;
+	FTimerHandle FreezeTimerHandle;
+	FTimerHandle StunTimerHandle; // Timer handle for managing stun duration
 
 	void Death();
 	//Health

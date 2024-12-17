@@ -28,6 +28,8 @@ AEnemy_AIController::AEnemy_AIController()
     LastDecisionTime = 0.0f;
     DecisionInterval = 2.0f;  // AI makes a new decision every 2 seconds
     bIsStrafing = false;
+    bIsFrozen = false;
+    bIsStunned = false;
 
 }
 
@@ -316,6 +318,9 @@ void AEnemy_AIController::Tick(float deltaTime)
 
     // Skip all AI processing if frozen
     if (bIsFrozen)
+        return;
+
+    if (bIsStunned)
         return;
 
 

@@ -1410,7 +1410,7 @@ void ARen_Low_Poly_Character::UnlockElementalAbilities(EWeaponType TheWeaponType
 			{
 				// Unlock level 2 Fire attack for Sword
 
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire AOE"), EElementalAttackType::Fire, 1.7f, 15.0f, 2, true, FireAOEAnimation));
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 1.7f, 15.0f, 2, true, FireAOEAnimation));
 
 				UE_LOG(LogTemp, Warning, TEXT("Leveled Up Fire, unlocked Fire AOE!"))
 
@@ -1419,7 +1419,7 @@ void ARen_Low_Poly_Character::UnlockElementalAbilities(EWeaponType TheWeaponType
 			{
 
 
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire Ground"), EElementalAttackType::Fire, 2.7f, 25.0f, 3, true, FireGroundAnimation));
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 2.7f, 25.0f, 3, true, FireGroundAnimation));
 				UE_LOG(LogTemp, Warning, TEXT("Leveled Up Fire, unlocked Fire Ground!"))
 
 			}
@@ -1429,7 +1429,7 @@ void ARen_Low_Poly_Character::UnlockElementalAbilities(EWeaponType TheWeaponType
 			if (Level == 2)
 			{
 
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Ice AOE"), EElementalAttackType::Ice, 1.7f, 10.0f, 3, true, IceAOEAnimation));
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 1.7f, 10.0f, 3, true, IceAOEAnimation));
 
 				//ElementalAttacks.Add(FElemental_Struct(TEXT("Ice AOE"), EElementalAttackType::Ice, 1.7f, 10.0f, 2, true, IceAOEAnimation));
 				UE_LOG(LogTemp, Warning, TEXT("Leveled Up Ice, unlocked Ice AOE!"))
@@ -1438,7 +1438,7 @@ void ARen_Low_Poly_Character::UnlockElementalAbilities(EWeaponType TheWeaponType
 			}
 			else if (Level == 3)
 			{
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Ice Ground"), EElementalAttackType::Ice, 1.7f, 10.0f, 3, true, IceGroundAnimation));
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 1.7f, 10.0f, 3, true, IceGroundAnimation));
 				UE_LOG(LogTemp, Warning, TEXT("Leveled Up Ice, unlocked Ice Ground!"))
 
 
@@ -1449,14 +1449,14 @@ void ARen_Low_Poly_Character::UnlockElementalAbilities(EWeaponType TheWeaponType
 			if (Level == 2)
 			{
 
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder AOE"), EElementalAttackType::Thunder, 1.7f, 10.0f, 3, true, ThunderAOEAnimation));
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 1.7f, 10.0f, 3, true, ThunderAOEAnimation));
 				UE_LOG(LogTemp, Warning, TEXT("Leveled Up thunder, unlocked Thunder AOE!"))
 
 
 			}
 			else if (Level == 3)
 			{
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire Ground"), EElementalAttackType::Thunder, 1.7f, 10.0f, 3, true, ThunderGroundAnimation));
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 1.7f, 10.0f, 3, true, ThunderGroundAnimation));
 				UE_LOG(LogTemp, Warning, TEXT("Leveled Up thunder, unlocked Thunder Ground!"))
 
 			}
@@ -1540,47 +1540,60 @@ void ARen_Low_Poly_Character::ApplyTheBurnEffect(AEnemy_Poly* Enemy, float Durat
 		return;
 	}
 
+	if (Enemy->bIsBurning)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s is already burning"), *Enemy->GetName());
+		return;
+	}
+
+	// Set the burn effect state
+	Enemy->bIsBurning = true;
+	Enemy->BurnDurationRemaining = Duration;
+
 	// Set the overlay material to visually indicate burn
-	Enemy->GetMesh()->SetOverlayMaterial(BurnOverlayMaterial);
+	if (BurnOverlayMaterial)
+	{
+		Enemy->GetMesh()->SetOverlayMaterial(BurnOverlayMaterial);
+	}
 
-	// Set the burn duration
-	BurnDurationRemaining = Duration;
-
-	// Start a repeating timer that deals damage every 2 seconds
+	// Start a repeating timer specific to this enemy
 	GetWorld()->GetTimerManager().SetTimer(
-		BurnTimerHandle,
+		Enemy->BurnTimerHandle,  // Use the enemy's unique timer handle
 		[Enemy, DamagePerSecondss, this]()
 		{
 			if (!Enemy || !Enemy->IsValidLowLevel())
 			{
 				// Stop the timer if the enemy is no longer valid
 				UE_LOG(LogTemp, Warning, TEXT("Burn effect ended: Enemy is no longer valid."));
-				GetWorld()->GetTimerManager().ClearTimer(BurnTimerHandle);
+				GetWorld()->GetTimerManager().ClearTimer(Enemy->BurnTimerHandle);
 				return;
 			}
 
-			// Apply damage to the enemy
+			// Apply damage
 			Enemy->ApplyDamage(DamagePerSecondss, FHitResult(), GetController(), this);
+			UE_LOG(LogTemp, Log, TEXT("Applying %f burn damage to %s"), DamagePerSecondss, *Enemy->GetName());
 
-			// Debug message to indicate damage is being applied
-			GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Red, FString::Printf(TEXT("Burn Damage: %f"), DamagePerSecondss));
+			// Reduce remaining duration correctly
+			Enemy->BurnDurationRemaining -= 2.0f;
 
-			// Reduce remaining duration
-			BurnDurationRemaining -= 2.0f;
-
-			if (BurnDurationRemaining <= 0.0f)
+			if (Enemy->BurnDurationRemaining <= 0.0f)
 			{
-				// Stop the timer when the burn duration ends
-				GetWorld()->GetTimerManager().ClearTimer(BurnTimerHandle);
+				// Stop the timer when the effect ends
+				GetWorld()->GetTimerManager().ClearTimer(Enemy->BurnTimerHandle);
+				Enemy->bIsBurning = false;
+
+				// Reset the overlay material
+				Enemy->GetMesh()->SetOverlayMaterial(nullptr);
+
 				UE_LOG(LogTemp, Log, TEXT("Burn effect ended for %s"), *Enemy->GetName());
 			}
 		},
-		2.0f, // Damage interval (every 2 seconds)
-			true  // Loop the timer
+		2.0f,  // Interval: Apply damage every 2 seconds
+			true   // Loop the timer
 			);
 
-	// Debug log
-	UE_LOG(LogTemp, Log, TEXT("Burn effect applied to %s for %f seconds at %f DPS"), *Enemy->GetName(), BurnDurationRemaining, DamagePerSecondss);
+	// Debug log for confirmation
+	UE_LOG(LogTemp, Log, TEXT("Burn effect applied to %s for %f seconds at %f DPS"), *Enemy->GetName(), Duration, DamagePerSecondss);
 }
 
 
@@ -1595,44 +1608,78 @@ void ARen_Low_Poly_Character::ApplyTheBurnEffect(AEnemy_Poly* Enemy, float Durat
 
 void ARen_Low_Poly_Character::ApplyFreezeEffect(AEnemy_Poly* Enemy, float Duration)
 {
-	if (!Enemy) return;
+	if (!Enemy)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Freeze effect failed: Enemy is null"));
+		return;
+	}
 
-	// Apply freeze effect (disable movement)
-	//Enemy->GetCharacterMovement()->DisableMovement();
-	Enemy->GetMesh()->SetOverlayMaterial(FreezeOverlayMaterial);
+	// Check if the enemy is already frozen
+	if (Enemy->bIsFrozen)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s is already frozen"), *Enemy->GetName());
+		return;
+	}
+
+	// Mark the enemy as frozen
+	Enemy->bIsFrozen = true;
+
+	// Set the freeze overlay material for visual feedback
+	if (FreezeOverlayMaterial)
+	{
+		Enemy->GetMesh()->SetOverlayMaterial(FreezeOverlayMaterial);
+	}
 
 	// Get the AI controller of the enemy
 	AEnemy_AIController* EnemyAIController = Cast<AEnemy_AIController>(Enemy->GetController());
 	if (EnemyAIController)
 	{
-		// Disable AI logic by stopping the movement and other AI behavior
+		// Disable AI logic
 		EnemyAIController->DisableAI();
-		// Stop the enemy from facing the player
+
+		// Stop the enemy from facing the player or performing actions
 		Enemy->bShouldFacePlayer = false;
 		EnemyAIController->SetFrozenState(true);
+
+		// Pause animations for a frozen effect
 		Enemy->GetMesh()->bPauseAnims = true;
 
-
-		// Set a timer to re-enable movement and AI logic after the duration
-		FTimerHandle FreezeTimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(FreezeTimerHandle, [=]()
+		// Set a timer to re-enable AI and clean up after the freeze duration
+		GetWorld()->GetTimerManager().SetTimer(
+			Enemy->FreezeTimerHandle,  // Use the enemy's freeze timer handle
+			[Enemy, EnemyAIController]()
 			{
-				// Re-enable movement and AI behavior
-				//Enemy->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-
-				if (EnemyAIController)
+				if (Enemy && EnemyAIController)
 				{
+					// Re-enable AI and reset state
 					EnemyAIController->RestartAI();
 					EnemyAIController->SetFrozenState(false);
 
-				}
-				// Re-enable facing the player
-				Enemy->bShouldFacePlayer = true;
-				Enemy->GetMesh()->bPauseAnims = false;
+					// Allow the enemy to face the player again
+					Enemy->bShouldFacePlayer = true;
 
-				// Remove the freeze overlay material
-				Enemy->GetMesh()->SetMaterial(0, Enemy->GetMesh()->GetMaterial(0));  // Reset to original material
-			}, Duration, false);
+					// Resume animations
+					Enemy->GetMesh()->bPauseAnims = false;
+
+					// Reset the overlay material to its original state
+					Enemy->GetMesh()->SetOverlayMaterial(nullptr);
+
+					// Clear frozen state
+					Enemy->bIsFrozen = false;
+
+					UE_LOG(LogTemp, Log, TEXT("Freeze effect ended for %s"), *Enemy->GetName());
+				}
+			},
+			Duration,  // Freeze duration
+				false  // Do not loop
+				);
+
+		// Debug log
+		UE_LOG(LogTemp, Log, TEXT("Freeze effect applied to %s for %f seconds"), *Enemy->GetName(), Duration);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to get AI Controller for %s"), *Enemy->GetName());
 	}
 }
 
@@ -1643,11 +1690,27 @@ void ARen_Low_Poly_Character::ApplyFreezeEffect(AEnemy_Poly* Enemy, float Durati
 void ARen_Low_Poly_Character::ApplyStunEffect(AEnemy_Poly* Enemy, float Duration)
 {
 
+	if (!Enemy)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Stun effect failed: Enemy is null"));
+		return;
+	}
 
-	if (!Enemy) return;
+	// Check if the enemy is already stunned
+	if (Enemy->bIsStunned)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s is already stunned"), *Enemy->GetName());
+		return;
+	}
 
-	Enemy->GetMesh()->SetOverlayMaterial(StunOverlayMaterial);
+	// Mark enemy as stunned
+	Enemy->bIsStunned = true;
 
+	// Set the overlay material to visually indicate stun
+	if (StunOverlayMaterial)
+	{
+		Enemy->GetMesh()->SetOverlayMaterial(StunOverlayMaterial);
+	}
 
 	// Get the AI controller of the enemy
 	AEnemy_AIController* EnemyAIController = Cast<AEnemy_AIController>(Enemy->GetController());
@@ -1655,20 +1718,40 @@ void ARen_Low_Poly_Character::ApplyStunEffect(AEnemy_Poly* Enemy, float Duration
 	{
 		// Disable the AI
 		EnemyAIController->DisableAI();
-		Enemy->bIsVibrating = true;
+		EnemyAIController->bIsStunned = true;
 
-		// Set a timer to re-enable AI after the stun duration
-		FTimerHandle StunTimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(StunTimerHandle, [=]()
+		// Set a timer to re-enable AI and clean up after the stun duration
+		GetWorld()->GetTimerManager().SetTimer(
+			Enemy->StunTimerHandle,  // Use the enemy's timer handle
+			[Enemy, EnemyAIController]()
 			{
-				if (EnemyAIController)
+				if (Enemy && EnemyAIController)
 				{
+					// Re-enable AI
 					EnemyAIController->RestartAI();
-					Enemy->bIsVibrating = false;
-				}
-			}, Duration, false);
-	}
 
+					// Reset overlay material
+					Enemy->GetMesh()->SetOverlayMaterial(nullptr);
+
+					// Clear stun state
+					Enemy->bIsStunned = false;
+					EnemyAIController->bIsStunned = false;
+
+
+					UE_LOG(LogTemp, Log, TEXT("Stun effect ended for %s"), *Enemy->GetName());
+				}
+			},
+			Duration,  // Stun duration
+				false  // Do not loop
+				);
+
+		// Debug log
+		UE_LOG(LogTemp, Log, TEXT("Stun effect applied to %s for %f seconds"), *Enemy->GetName(), Duration);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to get AI Controller for %s"), *Enemy->GetName());
+	}
 
 }
 

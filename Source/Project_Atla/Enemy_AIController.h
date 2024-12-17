@@ -44,7 +44,8 @@ public:
     bool IsFrozen() const { return bIsFrozen; }
 
 
-
+    bool bIsFrozen;
+    bool bIsStunned;
 
 
     // Function to get the enemy's current assigned number
@@ -66,7 +67,7 @@ private:
     float LastDecisionTime;  // Tracks the time of the last movement decision
     float DecisionInterval;  // The time interval between decisions
     bool bIsStrafing;        // Tracks if the AI is currently strafing
-    bool bIsFrozen = false;
+  
 
 
 protected:
