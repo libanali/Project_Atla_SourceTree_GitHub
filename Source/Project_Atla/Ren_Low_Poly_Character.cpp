@@ -2452,7 +2452,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 	{
 		// Initialize Staff techniques
 		Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("A simple attack technique."), true, MeteorStrikeAnimMontage, 3.5f, 2});
-//		Techniques.Add(FTechnique_Struct{ TEXT("Stone Rush"), TEXT("A simple attack technique."), true, StoneRushAnimMontage, 2.9f, 2});
+		Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("A simple attack technique."), true, FrostRainAnimMontage, 3.1f, 2});
+		Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("A simple attack technique."), true, FeudFangAnimMontage, 3.7f, 2 });
+
 
 
 		ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.7f, 10.0f, 1, true, FireProjectileAnimation));
@@ -2474,7 +2476,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 			}
 			if (StaffWeaponLevel >= 16)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("A simple attack technique."), true, TempestBarrageAnimMontage, 1.7f, 1 });
+				//Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("A simple attack technique."), true, TempestBarrageAnimMontage, 1.7f, 1 });
 			}
 			if (StaffWeaponLevel >= 19)
 			{

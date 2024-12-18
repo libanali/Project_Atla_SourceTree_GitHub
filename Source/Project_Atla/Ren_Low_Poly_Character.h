@@ -289,6 +289,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
 		UAnimMontage* StoneRushAnimMontage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
+		UAnimMontage* FrostRainAnimMontage;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
+		UAnimMontage* FeudFangAnimMontage;
 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Techniques")
