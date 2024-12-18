@@ -211,46 +211,6 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 
 
 
-void AEnemy_Poly::StartStunVibration()
-{
-
-	// Store the original location
-	OriginalLocation = GetMesh()->GetRelativeLocation();
-
-	// Enable vibration and reset tracking variables
-	bIsVibrating = true;
-	VibrationTimeElapsed = 0.0f;
-	VibrationDuration = 5.0f; // Total duration of vibration (e.g., 1 second)
-
-}
-
-
-
-void AEnemy_Poly::StopStunVibration()
-{
-
-	// Disable vibration
-	bIsVibrating = false;
-
-	// Reset mesh location
-	GetMesh()->SetRelativeLocation(OriginalLocation);
-
-
-}
-
-
-
-void AEnemy_Poly::ApplyStunVibrationEffect()
-{
-
-
-	FVector RandomOffset = FVector(FMath::RandRange(-5.0f, 5.0f), FMath::RandRange(-5.0f, 5.0f), 0.0f);
-	GetMesh()->SetRelativeLocation(OriginalLocation + RandomOffset);
-
-
-
-}
-
 
 
 
@@ -332,25 +292,7 @@ void AEnemy_Poly::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// If vibration is active
-	if (bIsVibrating)
-	{
-		VibrationTimeElapsed += DeltaTime;
-
-		// Apply random offset to the mesh
-		FVector RandomOffset = FVector(
-			FMath::RandRange(-VibrationIntensity, VibrationIntensity),
-			FMath::RandRange(-VibrationIntensity, VibrationIntensity),
-			0.0f);
-
-		GetMesh()->SetRelativeLocation(OriginalLocation + RandomOffset);
-
-		// Stop vibration after the duration
-		if (VibrationTimeElapsed >= VibrationDuration)
-		{
-			StopStunVibration();
-		}
-	}
+	
 
 }
 

@@ -242,9 +242,9 @@ void ARen_Low_Poly_Character::UpdateStatsBasedOnWeapon()
 	}
 	else if (WeaponType == EWeaponType::Staff)
 	{
-		BaseAttack = 3.0f;
+		BaseAttack = 7.0f;
 		BaseDefence = 2.0f;
-		BaseElementalAttack = 4.0f;
+		BaseElementalAttack = 10.0f;
 		HealthStruct.MaxHealth = 130.0f;
 		ManaStruct.MaxMana = 95.0f;
 	}
@@ -2409,6 +2409,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	{
 		// Initialize Sword techniques
 		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("A simple attack technique."), true, StormStrikeFlurryAnimMontage, 1.6f, 3});
+
 	    ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.5f, 10.0f, 1, true, FireProjectileAnimation));
 		ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 20.0f, 1, true, IceProjectileAnimation));
 		ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.8f, 20.0f, 1, true, ThunderProjectileAnimation));
@@ -2427,33 +2428,29 @@ void ARen_Low_Poly_Character::BeginPlay()
 			// Add sword techniques based on the level of proficiency (this should match your progression)
 			if (SwordWeaponLevel >= 6)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("A simple attack technique."), true, VoltageBreakerAnimMontage, 1.3f, 1});
+				Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("A simple attack technique."), true, VoltageBreakerAnimMontage, 1.3f, 1 });
 			}
 			if (SwordWeaponLevel >= 16)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("A simple attack technique."), true, TempestBarrageAnimMontage, 1.7f, 1});
+				Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("A simple attack technique."), true, TempestBarrageAnimMontage, 1.7f, 1 });
 			}
 			if (SwordWeaponLevel >= 19)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("A simple attack technique."), true, StaticRushAnimMontage, 1.9f, 1});
+				Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("A simple attack technique."), true, StaticRushAnimMontage, 1.9f, 1 });
 			}
 		}
-
-
-
-
-
-
 
 
 	}
 
 
 
+
+
 	if (WeaponType == EWeaponType::Staff)
 	{
 		// Initialize Staff techniques
-		Techniques.Add(FTechnique_Struct{ TEXT("Inferno Rain"), TEXT("A simple attack technique."), true, InfernoRainAnimMontage, 1.5f, 2});
+		Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("A simple attack technique."), true, MeteorStrikeAnimMontage, 3.5f, 2});
 
 		ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.7f, 10.0f, 1, true, FireProjectileAnimation));
 		ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.9f, 15.0f, 1, true, IceProjectileAnimation));

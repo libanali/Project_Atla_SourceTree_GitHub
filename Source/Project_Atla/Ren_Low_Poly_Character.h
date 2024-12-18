@@ -284,7 +284,7 @@ public:
 		UAnimMontage* StaticRushAnimMontage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
-		UAnimMontage* InfernoRainAnimMontage;
+		UAnimMontage* MeteorStrikeAnimMontage;
 
 
 

@@ -64,8 +64,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 		float MaxEnemyHealth;
 
-	UFUNCTION(BlueprintCallable, Category = "Health")
-		bool EnemyIsDead() const;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
+		UWidgetComponent* EnemyHealthBarWidgetComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+		UMaterialInstance* HitOverlayMaterial;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 		bool bIsDead;
@@ -76,8 +80,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual float ApplyDamage(float DamageAmount, const FHitResult& HitInfo, AController* EventInstigator, AActor* DamageCauser);
 	 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "UI")
-		UWidgetComponent* EnemyHealthBarWidgetComponent;
+
+	UFUNCTION(BlueprintCallable, Category = "Health")
+		bool EnemyIsDead() const;
+
 
 	void UpdateHealthBar();
 
@@ -131,11 +137,7 @@ public:
 	UPROPERTY()
 		AEnemy_Token_Manager* TokenManager;
 
-	void StartStunVibration();
 
-	void StopStunVibration();
-
-	void ApplyStunVibrationEffect();
 
 
 
