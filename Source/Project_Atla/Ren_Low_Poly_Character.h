@@ -286,6 +286,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
 		UAnimMontage* MeteorStrikeAnimMontage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Techniques")
+		UAnimMontage* StoneRushAnimMontage;
+
 
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Techniques")
@@ -429,6 +432,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		float TotalElementalAttack;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		bool bCastingLightningRay;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		FElemental_Struct ElementalStruct;

@@ -102,6 +102,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	//Elemental
 	BaseElementalAttack = 4.0f;
 	ElementalMultiplier = 2.0f;
+	bCastingLightningRay = false;
 
 
 	//Command
@@ -1473,7 +1474,7 @@ void ARen_Low_Poly_Character::UnlockElementalAbilities(EWeaponType TheWeaponType
 			{
 				// Unlock level 2 Fire attack for Sword
 
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire AOE"), EElementalAttackType::Fire, 1.7f, 15.0f, 2, true, FireAOEAnimation));
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 1.7f, 15.0f, 2, true, FireAOEAnimation));
 
 				UE_LOG(LogTemp, Warning, TEXT("Leveled Up Fire, unlocked Fire AOE!"))
 
@@ -1482,7 +1483,7 @@ void ARen_Low_Poly_Character::UnlockElementalAbilities(EWeaponType TheWeaponType
 			{
 
 
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire Ground"), EElementalAttackType::Fire, 2.7f, 25.0f, 3, true, FireGroundAnimation));
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 2.7f, 25.0f, 3, true, FireGroundAnimation));
 				UE_LOG(LogTemp, Warning, TEXT("Leveled Up Fire, unlocked Fire Ground!"))
 
 			}
@@ -1492,7 +1493,7 @@ void ARen_Low_Poly_Character::UnlockElementalAbilities(EWeaponType TheWeaponType
 			if (Level == 2)
 			{
 
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Ice AOE"), EElementalAttackType::Ice, 1.7f, 10.0f, 3, true, IceAOEAnimation));
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 1.7f, 10.0f, 3, true, IceAOEAnimation));
 
 				//ElementalAttacks.Add(FElemental_Struct(TEXT("Ice AOE"), EElementalAttackType::Ice, 1.7f, 10.0f, 2, true, IceAOEAnimation));
 				UE_LOG(LogTemp, Warning, TEXT("Leveled Up Ice, unlocked Ice AOE!"))
@@ -1501,7 +1502,7 @@ void ARen_Low_Poly_Character::UnlockElementalAbilities(EWeaponType TheWeaponType
 			}
 			else if (Level == 3)
 			{
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Ice Ground"), EElementalAttackType::Ice, 1.7f, 10.0f, 3, true, IceGroundAnimation));
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 1.7f, 10.0f, 3, true, IceGroundAnimation));
 				UE_LOG(LogTemp, Warning, TEXT("Leveled Up Ice, unlocked Ice Ground!"))
 
 
@@ -1512,14 +1513,14 @@ void ARen_Low_Poly_Character::UnlockElementalAbilities(EWeaponType TheWeaponType
 			if (Level == 2)
 			{
 
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder AOE"), EElementalAttackType::Thunder, 1.7f, 10.0f, 3, true, ThunderAOEAnimation));
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 1.7f, 10.0f, 3, true, ThunderAOEAnimation));
 				UE_LOG(LogTemp, Warning, TEXT("Leveled Up thunder, unlocked Thunder AOE!"))
 
 
 			}
 			else if (Level == 3)
 			{
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire Ground"), EElementalAttackType::Thunder, 1.7f, 10.0f, 3, true, ThunderGroundAnimation));
+				ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 1.7f, 10.0f, 3, true, ThunderGroundAnimation));
 				UE_LOG(LogTemp, Warning, TEXT("Leveled Up thunder, unlocked Thunder Ground!"))
 
 			}
@@ -2388,7 +2389,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	// Create and populate Sword techniques
 	FWeaponTechniqueMap SwordTechniquesForMap;
 	SwordTechniquesForMap.LevelToTechnique.Add(6, TEXT("Voltage Breaker"));
-	SwordTechniquesForMap.LevelToTechnique.Add(16, TEXT("Tempest Barrage"));
+	SwordTechniquesForMap.LevelToTechnique.Add(10, TEXT("Tempest Barrage"));
 	SwordTechniquesForMap.LevelToTechnique.Add(19, TEXT("Static Rush"));
 
 	// Add Sword techniques to the main map
@@ -2398,7 +2399,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	// Create and populate Staff techniques
 	FWeaponTechniqueMap StaffTechniquesForMap;
-	StaffTechniquesForMap.LevelToTechnique.Add(4, TEXT("Inferno Rain"));
+	StaffTechniquesForMap.LevelToTechnique.Add(4, TEXT("Stone Rush"));
 
 	// Add Staff techniques to the main map
 	WeaponLevelToTechniqueMap.Add(EWeaponType::Staff, StaffTechniquesForMap);
@@ -2426,15 +2427,15 @@ void ARen_Low_Poly_Character::BeginPlay()
 			int32 SwordWeaponLevel = WeaponProficiencyMap[EWeaponType::Sword].WeaponLevel;
 
 			// Add sword techniques based on the level of proficiency (this should match your progression)
-			if (SwordWeaponLevel >= 6)
+			if (SwordWeaponLevel == 6)
 			{
 				Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("A simple attack technique."), true, VoltageBreakerAnimMontage, 1.3f, 1 });
 			}
-			if (SwordWeaponLevel >= 16)
+			if (SwordWeaponLevel == 10)
 			{
 				Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("A simple attack technique."), true, TempestBarrageAnimMontage, 1.7f, 1 });
 			}
-			if (SwordWeaponLevel >= 19)
+			if (SwordWeaponLevel == 19)
 			{
 				Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("A simple attack technique."), true, StaticRushAnimMontage, 1.9f, 1 });
 			}
@@ -2451,6 +2452,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 	{
 		// Initialize Staff techniques
 		Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("A simple attack technique."), true, MeteorStrikeAnimMontage, 3.5f, 2});
+//		Techniques.Add(FTechnique_Struct{ TEXT("Stone Rush"), TEXT("A simple attack technique."), true, StoneRushAnimMontage, 2.9f, 2});
+
 
 		ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.7f, 10.0f, 1, true, FireProjectileAnimation));
 		ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.9f, 15.0f, 1, true, IceProjectileAnimation));
@@ -2465,13 +2468,13 @@ void ARen_Low_Poly_Character::BeginPlay()
 			int32 StaffWeaponLevel = WeaponProficiencyMap[EWeaponType::Staff].WeaponLevel;
 
 			// Add sword techniques based on the level of proficiency (this should match your progression)
-			if (StaffWeaponLevel >= 6)
+			if (StaffWeaponLevel >= 4)
 			{
-				//Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("A simple attack technique."), true, VoltageBreakerAnimMontage, 1.3f, 1 });
+				Techniques.Add(FTechnique_Struct{ TEXT("Stone Rush"), TEXT("A simple attack technique."), true, StoneRushAnimMontage, 2.9f, 2 });
 			}
 			if (StaffWeaponLevel >= 16)
 			{
-				//Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("A simple attack technique."), true, TempestBarrageAnimMontage, 1.7f, 1 });
+				Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("A simple attack technique."), true, TempestBarrageAnimMontage, 1.7f, 1 });
 			}
 			if (StaffWeaponLevel >= 19)
 			{
