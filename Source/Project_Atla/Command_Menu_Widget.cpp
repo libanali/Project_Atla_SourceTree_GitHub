@@ -4,6 +4,7 @@
 #include "Command_Menu_Widget.h"
 #include "Components/Button.h"
 #include "Components/Image.h"
+#include "Components/TextBlock.h"
 #include "Ren_Low_Poly_Character.h"
 
 
@@ -18,17 +19,21 @@ void UCommand_Menu_Widget::NativeOnInitialized()
     if (ItemsButton)
     {
         ItemsButton->OnClicked.AddDynamic(this, &UCommand_Menu_Widget::OnItemsButtonClicked);
+        ItemsButton->OnHovered.AddDynamic(this, &UCommand_Menu_Widget::OnItemsHovered);
     }
 
     if (TechniquesButton)
     {
         TechniquesButton->OnClicked.AddDynamic(this, &UCommand_Menu_Widget::OnTechniquesButtonClicked);
+        TechniquesButton->OnHovered.AddDynamic(this, &UCommand_Menu_Widget::OnTechniquesHovered);
+
     }
 
     if(ElementalButton)
     {
     
         ElementalButton->OnClicked.AddDynamic(this, &UCommand_Menu_Widget::OnElementalAttacksClicked);
+        ElementalButton->OnHovered.AddDynamic(this, &UCommand_Menu_Widget::OnElementalHovered);
 
     }
 
@@ -185,6 +190,51 @@ void UCommand_Menu_Widget::OnElementalAttacksClicked()
     }
 
 
+
+}
+
+void UCommand_Menu_Widget::OnItemsHovered()
+{
+
+    if (ItemsButton && ItemsButton->IsHovered())
+
+    {
+
+        InformationText->SetText(FText::FromString(TEXT("Browse your collected items.")));
+
+    }
+
+
+}
+
+void UCommand_Menu_Widget::OnTechniquesHovered()
+{
+
+
+    if (TechniquesButton && TechniquesButton->IsHovered())
+
+    {
+
+        InformationText->SetText(FText::FromString(TEXT("Perform a powerful technique.")));
+
+    }
+
+
+
+
+}
+
+void UCommand_Menu_Widget::OnElementalHovered()
+{
+
+
+    if (ElementalButton && ElementalButton->IsHovered())
+
+    {
+
+        InformationText->SetText(FText::FromString(TEXT("Use elemental-Type attacks.")));
+
+    }
 
 }
 

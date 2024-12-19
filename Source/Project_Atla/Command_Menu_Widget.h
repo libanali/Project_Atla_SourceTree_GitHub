@@ -50,6 +50,9 @@ public:
     UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
         class UTextBlock* CommandMenuTitleText;
 
+    UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+        class UTextBlock* InformationText;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         UWidgetSwitcher* WidgetSwitcher;
 
@@ -104,6 +107,16 @@ public:
 
     UFUNCTION()
         void OnElementalAttacksClicked();
+
+    UFUNCTION()
+        void OnItemsHovered();
+
+    UFUNCTION()
+        void OnTechniquesHovered();
+
+    UFUNCTION()
+        void OnElementalHovered();
+
 
     UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
         void CheckInventoryAndSetFocus();
