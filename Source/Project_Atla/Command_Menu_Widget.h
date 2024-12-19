@@ -21,6 +21,14 @@ enum class ECommandMenuState : uint8
 };
 
 
+UENUM(BlueprintType)
+enum class EInputMode : uint8
+{
+    Gamepad UMETA(DisplayName = "Gamepad"),
+    Mouse UMETA(DisplayName = "Mouse")
+};
+
+
 
 UCLASS()
 class PROJECT_ATLA_API UCommand_Menu_Widget : public UUserWidget
@@ -71,16 +79,13 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "CommandMenu")
         TSubclassOf<UUserWidget> ElementalAttacksWidgetClass;
 
-
-
     UPROPERTY()
         UUserWidget* ElementalAttacksWidgetInstance;
 
     // State variable for tracking the current menu
     ECommandMenuState CurrentMenuState;
 
-    // Native Construct override to set initial bindings
-    virtual void NativeOnInitialized() override;
+    FString CurrentText;
 
     // Functions to handle the menu transitions
     UFUNCTION()
@@ -122,14 +127,24 @@ public:
         void CheckInventoryAndSetFocus();
 
 
+    UFUNCTION(BlueprintCallable)
+        void UpdateInformationText(const FString& NewText);
+
+
     // Function to show or hide the command menu icon
     void SetCommandMenuIconVisibility(bool bIsVisible);
 
     void UpdateVisibilityBasedOnIndex(int CurrentIndex);
 
+    EInputMode CurrentInputMode;
+
+
+
+
 
     virtual void Tick(float DeltaTime);
 
+    virtual void NativeOnInitialized() override;
 
     virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
 };

@@ -5,6 +5,7 @@
 #include "Components/Button.h"
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
+#include "Framework/Application/SlateApplication.h"
 #include "Ren_Low_Poly_Character.h"
 
 
@@ -14,6 +15,33 @@ void UCommand_Menu_Widget::NativeOnInitialized()
 
     // Set initial state to Main Menu
     CurrentMenuState = ECommandMenuState::MainMenu;
+
+    CurrentText = "";
+    
+    if (FSlateApplication::Get().GetPlatformApplication()->IsGamepadAttached())
+    {
+        CurrentInputMode = EInputMode::Gamepad;
+        GEngine->AddOnScreenDebugMessage(2, 2.5f, FColor::Green, TEXT("Gamepad Connected!"));
+
+        APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+        if (PlayerController)
+        {
+            PlayerController->bShowMouseCursor = false;
+        }
+
+    }
+    else
+    {
+        CurrentInputMode = EInputMode::Mouse;
+        GEngine->AddOnScreenDebugMessage(2, 2.5f, FColor::Black, TEXT("No Gamepad Connected!"));
+
+        APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+        if (PlayerController)
+        {
+            PlayerController->bShowMouseCursor = true;
+        }
+    }
+
 
     // Bind button click events to transition methods
     if (ItemsButton)
@@ -196,11 +224,14 @@ void UCommand_Menu_Widget::OnElementalAttacksClicked()
 void UCommand_Menu_Widget::OnItemsHovered()
 {
 
-    if (ItemsButton)
+  /*  if (ItemsButton)
     {
         InformationText->SetText(FText::FromString(TEXT("Browse your collected items.")));
     }
 
+    */
+
+    UpdateInformationText("Browse your collected items.");
 
 }
 
@@ -208,12 +239,17 @@ void UCommand_Menu_Widget::OnItemsHovered()
 
 void UCommand_Menu_Widget::OnTechniquesHovered()
 {
-
+    /*
 
     if (TechniquesButton)
     {
         InformationText->SetText(FText::FromString(TEXT("Perform a powerful technique.")));
     }
+     */
+
+    UpdateInformationText("Perform a powerful technique.");
+
+
 
 }
 
@@ -221,14 +257,18 @@ void UCommand_Menu_Widget::OnTechniquesHovered()
 
 void UCommand_Menu_Widget::OnElementalHovered()
 {
-
+    /*
 
     if (ElementalButton)
     {
         InformationText->SetText(FText::FromString(TEXT("Use elemental-type attacks.")));
     }
+    */
 
 
+        UpdateInformationText("Use elemental-type attacks.");
+
+    
 }
 
 
@@ -287,6 +327,32 @@ void UCommand_Menu_Widget::UpdateVisibilityBasedOnIndex(int CurrentIndex)
 
 }
 
+
+
+
+
+void UCommand_Menu_Widget::UpdateInformationText(const FString& NewText)
+{
+
+
+    if (CurrentText != NewText) // Avoid redundant updates
+    {
+        CurrentText = NewText;
+        if (InformationText)
+        {
+            InformationText->SetText(FText::FromString(NewText));
+        }
+    }
+
+
+
+}
+
+
+
+
+
+
 void UCommand_Menu_Widget::Tick(float DeltaTime)
 {
 
@@ -294,26 +360,45 @@ void UCommand_Menu_Widget::Tick(float DeltaTime)
 
 }
 
+
+
 void UCommand_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 
     Super::NativeTick(MyGeometry, InDeltaTime);
 
-    // Check if ItemsButton has keyboard focus
-    if (ItemsButton && ItemsButton->HasKeyboardFocus())
+    if (CurrentInputMode == EInputMode::Gamepad)
     {
-        InformationText->SetText(FText::FromString(TEXT("Browse your collected items.")));
+        // Gamepad: Check for keyboard focus
+        if (ItemsButton && ItemsButton->HasKeyboardFocus())
+        {
+            UpdateInformationText("Browse your collected items.");
+        }
+        else if (TechniquesButton && TechniquesButton->HasKeyboardFocus())
+        {
+            UpdateInformationText("Perform a powerful technique.");
+        }
+        else if (ElementalButton && ElementalButton->HasKeyboardFocus())
+        {
+            UpdateInformationText("Use elemental-type attacks.");
+        }
     }
-    else if (TechniquesButton && TechniquesButton->HasKeyboardFocus())
+    else if (CurrentInputMode == EInputMode::Mouse)
     {
-        InformationText->SetText(FText::FromString(TEXT("Perform a powerful technique.")));
+        // Mouse: Check for hover
+        if (ItemsButton && ItemsButton->IsHovered())
+        {
+            UpdateInformationText("Browse your collected items.");
+        }
+        else if (TechniquesButton && TechniquesButton->IsHovered())
+        {
+            UpdateInformationText("Perform a powerful technique.");
+        }
+        else if (ElementalButton && ElementalButton->IsHovered())
+        {
+            UpdateInformationText("Use elemental-type attacks.");
+        }
     }
-    else if (ElementalButton && ElementalButton->HasKeyboardFocus())
-    {
-        InformationText->SetText(FText::FromString(TEXT("Use elemental-type attacks.")));
-    }
-
-
 }
 
 
