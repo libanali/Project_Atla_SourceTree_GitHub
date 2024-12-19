@@ -196,45 +196,38 @@ void UCommand_Menu_Widget::OnElementalAttacksClicked()
 void UCommand_Menu_Widget::OnItemsHovered()
 {
 
-    if (ItemsButton && ItemsButton->IsHovered())
-
+    if (ItemsButton)
     {
-
         InformationText->SetText(FText::FromString(TEXT("Browse your collected items.")));
-
     }
 
 
 }
+
+
 
 void UCommand_Menu_Widget::OnTechniquesHovered()
 {
 
 
-    if (TechniquesButton && TechniquesButton->IsHovered())
-
+    if (TechniquesButton)
     {
-
         InformationText->SetText(FText::FromString(TEXT("Perform a powerful technique.")));
-
     }
 
-
-
-
 }
+
+
 
 void UCommand_Menu_Widget::OnElementalHovered()
 {
 
 
-    if (ElementalButton && ElementalButton->IsHovered())
-
+    if (ElementalButton)
     {
-
-        InformationText->SetText(FText::FromString(TEXT("Use elemental-Type attacks.")));
-
+        InformationText->SetText(FText::FromString(TEXT("Use elemental-type attacks.")));
     }
+
 
 }
 
@@ -297,6 +290,28 @@ void UCommand_Menu_Widget::UpdateVisibilityBasedOnIndex(int CurrentIndex)
 void UCommand_Menu_Widget::Tick(float DeltaTime)
 {
 
+
+
+}
+
+void UCommand_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+
+    Super::NativeTick(MyGeometry, InDeltaTime);
+
+    // Check if ItemsButton has keyboard focus
+    if (ItemsButton && ItemsButton->HasKeyboardFocus())
+    {
+        InformationText->SetText(FText::FromString(TEXT("Browse your collected items.")));
+    }
+    else if (TechniquesButton && TechniquesButton->HasKeyboardFocus())
+    {
+        InformationText->SetText(FText::FromString(TEXT("Perform a powerful technique.")));
+    }
+    else if (ElementalButton && ElementalButton->HasKeyboardFocus())
+    {
+        InformationText->SetText(FText::FromString(TEXT("Use elemental-type attacks.")));
+    }
 
 
 }

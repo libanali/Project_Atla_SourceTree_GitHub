@@ -130,4 +130,6 @@ public:
 
     virtual void Tick(float DeltaTime);
 
+
+    virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
 };
