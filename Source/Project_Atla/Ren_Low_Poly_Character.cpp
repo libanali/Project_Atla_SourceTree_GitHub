@@ -2409,7 +2409,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	if (WeaponType == EWeaponType::Sword)
 	{
 		// Initialize Sword techniques
-		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("A simple attack technique."), true, StormStrikeFlurryAnimMontage, 1.6f, 3});
+		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("Furious multi-strike sword combo."), true, StormStrikeFlurryAnimMontage, 1.6f, 3});
 
 	    ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.5f, 10.0f, 1, true, FireProjectileAnimation));
 		ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 20.0f, 1, true, IceProjectileAnimation));
@@ -2427,17 +2427,17 @@ void ARen_Low_Poly_Character::BeginPlay()
 			int32 SwordWeaponLevel = WeaponProficiencyMap[EWeaponType::Sword].WeaponLevel;
 
 			// Add sword techniques based on the level of proficiency (this should match your progression)
-			if (SwordWeaponLevel == 6)
+			if (SwordWeaponLevel >= 6)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("A simple attack technique."), true, VoltageBreakerAnimMontage, 1.3f, 1 });
+				Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("Electrifying ground-slam force field."), true, VoltageBreakerAnimMontage, 1.3f, 1 });
 			}
-			if (SwordWeaponLevel == 10)
+			if (SwordWeaponLevel >= 10)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("A simple attack technique."), true, TempestBarrageAnimMontage, 1.7f, 1 });
+				Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Rapid flurry of strikes."), true, TempestBarrageAnimMontage, 1.7f, 1 });
 			}
-			if (SwordWeaponLevel == 19)
+			if (SwordWeaponLevel >= 19)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("A simple attack technique."), true, StaticRushAnimMontage, 1.9f, 1 });
+				Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("Lightning-infused sword combo."), true, StaticRushAnimMontage, 1.9f, 1 });
 			}
 		}
 
@@ -2451,9 +2451,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 	if (WeaponType == EWeaponType::Staff)
 	{
 		// Initialize Staff techniques
-		Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("A simple attack technique."), true, MeteorStrikeAnimMontage, 3.5f, 2});
-		Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("A simple attack technique."), true, FrostRainAnimMontage, 3.1f, 2});
-		Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("A simple attack technique."), true, FeudFangAnimMontage, 3.7f, 2 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("Fiery meteor devastates nearby enemies."), true, MeteorStrikeAnimMontage, 3.5f, 2});
+		Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), true, FrostRainAnimMontage, 3.1f, 2});
+		Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), true, FeudFangAnimMontage, 3.7f, 2 });
 
 
 
@@ -2472,15 +2472,15 @@ void ARen_Low_Poly_Character::BeginPlay()
 			// Add sword techniques based on the level of proficiency (this should match your progression)
 			if (StaffWeaponLevel >= 4)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Stone Rush"), TEXT("A simple attack technique."), true, StoneRushAnimMontage, 2.9f, 2 });
+				Techniques.Add(FTechnique_Struct{ TEXT("Stone Rush"), TEXT("Dark earth rises with force."), true, StoneRushAnimMontage, 2.9f, 2 });
 			}
 			if (StaffWeaponLevel >= 16)
 			{
-				//Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("A simple attack technique."), true, TempestBarrageAnimMontage, 1.7f, 1 });
+				Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), true, FrostRainAnimMontage, 1.7f, 1 });
 			}
 			if (StaffWeaponLevel >= 19)
 			{
-				//Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("A simple attack technique."), true, StaticRushAnimMontage, 1.9f, 1 });
+				Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), true, FeudFangAnimMontage, 1.9f, 1 });
 			}
 		}
 	}
