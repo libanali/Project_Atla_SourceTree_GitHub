@@ -2452,8 +2452,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 	{
 		// Initialize Staff techniques
 		Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("Fiery meteor devastates nearby enemies."), true, MeteorStrikeAnimMontage, 3.5f, 2});
-		Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), true, FrostRainAnimMontage, 3.1f, 2});
-		Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), true, FeudFangAnimMontage, 3.7f, 2 });
+		//Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), true, FrostRainAnimMontage, 3.1f, 2});
+	//	Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), true, FeudFangAnimMontage, 3.7f, 2 });
 
 
 
@@ -2472,15 +2472,15 @@ void ARen_Low_Poly_Character::BeginPlay()
 			// Add sword techniques based on the level of proficiency (this should match your progression)
 			if (StaffWeaponLevel >= 4)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Stone Rush"), TEXT("Dark earth rises with force."), true, StoneRushAnimMontage, 2.9f, 2 });
+				Techniques.Add(FTechnique_Struct{ TEXT("Stone Rush"), TEXT("Dark earth rises with force."), true, StoneRushAnimMontage, 2.9f, 3});
 			}
 			if (StaffWeaponLevel >= 16)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), true, FrostRainAnimMontage, 1.7f, 1 });
+				Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), true, FrostRainAnimMontage, 1.7f, 3});
 			}
 			if (StaffWeaponLevel >= 19)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), true, FeudFangAnimMontage, 1.9f, 1 });
+				Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), true, FeudFangAnimMontage, 1.9f, 3});
 			}
 		}
 	}
@@ -2659,6 +2659,8 @@ void ARen_Low_Poly_Character::ToggleCommandMenu()
 		if (CurrentIndex == 0)
 		{
 			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
+			CommandMenuWidget->PlayAnimationReverse(CommandMenuWidget->CommandMenuIcon_FadeAnim);
+			CommandMenuWidget->PlayAnimation(CommandMenuWidget->CommandMenu_FadeAnim);
 			UpdateVisibilityBasedOnIndex(1);  // Update visibility right after switching to index 1
 
 			// Make sure buttons are visible
@@ -2906,6 +2908,8 @@ void ARen_Low_Poly_Character::HandleBackInput()
 		if (CurrentIndex == 1) // If in command menu
 		{
 			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(0);
+			CommandMenuWidget->PlayAnimation(CommandMenuWidget->CommandMenuIcon_FadeAnim);
+			CommandMenuWidget->PlayAnimationReverse(CommandMenuWidget->CommandMenu_FadeAnim);
 			SetInputModeForGameplay();
 			bIsInUIMode = false; // Return to gameplay
 		}

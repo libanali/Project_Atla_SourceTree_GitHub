@@ -13,6 +13,8 @@
 void UCommand_Menu_Widget::NativeOnInitialized()
 {
 
+    PlayAnimation(CommandMenuIcon_FadeAnim);
+
     // Set initial state to Main Menu
     CurrentMenuState = ECommandMenuState::MainMenu;
 
@@ -112,6 +114,7 @@ void UCommand_Menu_Widget::NativeOnInitialized()
     }
 
 
+    
 
 
 }
@@ -195,6 +198,8 @@ void UCommand_Menu_Widget::OnItemsButtonClicked()
 
 }
 
+
+
 void UCommand_Menu_Widget::OnTechniquesButtonClicked()
 {
 
@@ -205,6 +210,8 @@ void UCommand_Menu_Widget::OnTechniquesButtonClicked()
     }
 
 }
+
+
 
 void UCommand_Menu_Widget::OnElementalAttacksClicked()
 {
@@ -220,6 +227,8 @@ void UCommand_Menu_Widget::OnElementalAttacksClicked()
 
 
 }
+
+
 
 void UCommand_Menu_Widget::OnItemsHovered()
 {
@@ -367,6 +376,9 @@ void UCommand_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDelta
 
     Super::NativeTick(MyGeometry, InDeltaTime);
 
+
+
+
     if (CurrentInputMode == EInputMode::Gamepad)
     {
         // Gamepad: Check for keyboard focus
@@ -399,6 +411,7 @@ void UCommand_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDelta
             UpdateInformationText("Use elemental-type attacks.");
         }
     }
+
 }
 
 

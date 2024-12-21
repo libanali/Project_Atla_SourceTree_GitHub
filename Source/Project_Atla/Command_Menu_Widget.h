@@ -82,6 +82,12 @@ public:
     UPROPERTY()
         UUserWidget* ElementalAttacksWidgetInstance;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
+        UWidgetAnimation* CommandMenuIcon_FadeAnim;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
+        UWidgetAnimation* CommandMenu_FadeAnim;
+
     // State variable for tracking the current menu
     ECommandMenuState CurrentMenuState;
 
@@ -136,6 +142,7 @@ public:
 
     void UpdateVisibilityBasedOnIndex(int CurrentIndex);
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
     EInputMode CurrentInputMode;
 
 
