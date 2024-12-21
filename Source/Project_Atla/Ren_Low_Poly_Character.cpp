@@ -83,6 +83,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	HeightTargetingOffest = 10.0f;
 
 
+
 	//Health
 	bIsDead = false;
 
@@ -648,7 +649,7 @@ void ARen_Low_Poly_Character::ControlMPFill()
 
 		float Delta = GetWorld()->DeltaTimeSeconds;
 
-		ManaStruct.CurrentMana += 5 * Delta;
+		ManaStruct.CurrentMana += 2.3f * Delta;
 
 		ManaStruct.CurrentMana = FMath::Min(ManaStruct.CurrentMana, ManaStruct.MaxMana);
 	}
