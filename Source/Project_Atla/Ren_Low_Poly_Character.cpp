@@ -112,6 +112,9 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	bIsTechniquesOpen = false;
 	bIsInventoryEmpty = true;
 
+	//Special Power-Up
+	bSpecialPowerUpActive = false;
+
 
 	//Weapon Proficiency
 	QueuedUnlockTechniques = TArray<FString>();
@@ -419,7 +422,7 @@ void ARen_Low_Poly_Character::Score_Reaction_Anim()
 	{
 		if (GameOverWidgetInstance->CurrentDisplayedScore > HighScore)
 		{
-			PlayAnimMontage(VictoryAnim, 1.0f); // Cheer animation
+			//PlayAnimMontage(VictoryAnim, 1.0f); // Cheer animation
 			UE_LOG(LogTemp, Warning, TEXT("New High Score!"));
 			bIsGreaterThanHighScore = true;
 		}

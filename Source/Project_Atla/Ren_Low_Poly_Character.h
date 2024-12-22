@@ -166,8 +166,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
 		bool bRenderTarget;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
-		UAnimMontage* VictoryAnim;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
+		//UAnimMontage* VictoryAnim;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		TSubclassOf<UUserWidget> GameOverWidgetClass;
@@ -691,6 +691,14 @@ public:
 	UButton* LastFocusedButton;
 	//Command
 
+
+	//Special Power-Up
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Special Power-Up")
+		bool bSpecialPowerUpActive;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Special Power-Up")
+		UAnimMontage* SpecialPowerUpAnimation;
+	//Special Power-Up
 
 
 	//Scoring system
