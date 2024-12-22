@@ -11,9 +11,6 @@
 UENUM(BlueprintType)
 enum class ETreasureChestType : uint8
 {
-	AttackBoost UMETA(DisplayName = "Attack Boost"),
-	DefenseBoost UMETA(DisplayName = "Defense Boost"),
-	UnlockTechnique UMETA(DisplayName = "Unlock Technique"),
 	RareItems UMETA(DisplayName = "Rare Items"),
 	AddPoints UMETA(DisplayName = "Add Points")
 };

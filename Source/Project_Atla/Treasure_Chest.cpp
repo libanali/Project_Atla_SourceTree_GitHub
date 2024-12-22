@@ -45,16 +45,12 @@ void ATreasure_Chest::HandleChestReward(ARen_Low_Poly_Character* Ren)
 	switch(ChestType)
 	{
 
-	case ETreasureChestType::AttackBoost:
-		Ren->IncreaseAttack(Ren->AttackIncrease);
+	case ETreasureChestType::AddPoints:
+		//Ren->IncreaseAttack(Ren->AttackIncrease);
 		break;
 
-	case ETreasureChestType::DefenseBoost:
-		Ren->IncreaseDefence(Ren->DefenceIncrease);
-		break;
-
-	case ETreasureChestType::UnlockTechnique:
-		Ren->UnlockTechnique(TechniqueName);
+	case ETreasureChestType::RareItems:
+		//Ren->UnlockTechnique(TechniqueName);
 		break;
 
 	default:

@@ -57,7 +57,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 
 	//Technique
-	GaugeIncreaseRate = 35.7f;
+	GaugeIncreaseRate = 10.7f;
 	CanIncreaseTechniqueBarRate = false;
 	bIsTechniquePointsMax = false;
 
@@ -437,6 +437,8 @@ void ARen_Low_Poly_Character::Score_Reaction_Anim()
 
 }
 
+
+
 void ARen_Low_Poly_Character::FindResultsCamera()
 {
 
@@ -456,6 +458,20 @@ void ARen_Low_Poly_Character::FindResultsCamera()
 
 
 }
+
+
+
+
+void ARen_Low_Poly_Character::IncreaseAll()
+{
+
+	HealthStruct.CurrentHealth = HealthStruct.MaxHealth;
+	ManaStruct.CurrentMana = ManaStruct.MaxMana;
+	TechniqueStruct.TechniquePoints = TechniqueStruct.MaxTechniquePoints;
+
+}
+
+
 
 
 
@@ -616,16 +632,6 @@ void ARen_Low_Poly_Character::RecoverHealth()
 
 
 
-
-void ARen_Low_Poly_Character::DecreaseMana(float DecreaseAmount)
-{
-
-	ManaStruct.DecreaseMana(DecreaseAmount);
-
-}
-
-
-
 void ARen_Low_Poly_Character::IncreaseMana(float ManaAmount)
 {
 
@@ -649,7 +655,7 @@ void ARen_Low_Poly_Character::ControlMPFill()
 
 		float Delta = GetWorld()->DeltaTimeSeconds;
 
-		ManaStruct.CurrentMana += 2.3f * Delta;
+		ManaStruct.CurrentMana += 1.3f * Delta;
 
 		ManaStruct.CurrentMana = FMath::Min(ManaStruct.CurrentMana, ManaStruct.MaxMana);
 	}
@@ -2326,7 +2332,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	//TechniqueStruct.CurrentGauge = 100.0f;
 	TechniqueStruct.MaxGauge = 100.0f;
-	TechniqueStruct.TechniquePoints = 6;
+	TechniqueStruct.TechniquePoints = 1;
 	TechniqueStruct.MaxTechniquePoints = 7;
 
 	TArray<AActor*> OverlappingActors;
@@ -2452,13 +2458,13 @@ void ARen_Low_Poly_Character::BeginPlay()
 	if (WeaponType == EWeaponType::Staff)
 	{
 		// Initialize Staff techniques
-		Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("Fiery meteor devastates nearby enemies."), true, MeteorStrikeAnimMontage, 3.5f, 2});
+		Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("Fiery meteor devastates nearby enemies."), true, MeteorStrikeAnimMontage, 3.5f, 5});
 		//Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), true, FrostRainAnimMontage, 3.1f, 2});
 	//	Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), true, FeudFangAnimMontage, 3.7f, 2 });
 
 
 
-		ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.7f, 10.0f, 1, true, FireProjectileAnimation));
+		ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.7f, 65.0f, 1, true, FireProjectileAnimation));
 		ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.9f, 15.0f, 1, true, IceProjectileAnimation));
 		ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.5f, 10.0f, 1, true, ThunderProjectileAnimation));
 
@@ -2919,10 +2925,26 @@ void ARen_Low_Poly_Character::HandleBackInput()
 			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
 			bIsInUIMode = true; // Still in UI mode
 
-			// Restore focus to the last focused button
-			if (LastFocusedButton)
+			// Explicitly restore focus to the correct button based on the last menu
+			if (CurrentIndex == 2 && CommandMenuWidget->ItemsButton) // Coming from Inventory
+			{
+				CommandMenuWidget->ItemsButton->SetKeyboardFocus();
+				UE_LOG(LogTemp, Warning, TEXT("Focus restored to Items Button."));
+			}
+			else if (CurrentIndex == 3 && CommandMenuWidget->TechniquesButton) // Coming from Techniques
+			{
+				CommandMenuWidget->TechniquesButton->SetKeyboardFocus();
+				UE_LOG(LogTemp, Warning, TEXT("Focus restored to Techniques Button."));
+			}
+			else if (CurrentIndex == 4 && CommandMenuWidget->ElementalButton) // Coming from Elementals
+			{
+				CommandMenuWidget->ElementalButton->SetKeyboardFocus();
+				UE_LOG(LogTemp, Warning, TEXT("Focus restored to Elemental Button."));
+			}
+			else if (LastFocusedButton) // Fallback to last focused button
 			{
 				LastFocusedButton->SetKeyboardFocus();
+				UE_LOG(LogTemp, Warning, TEXT("Fallback: Focus restored to LastFocusedButton."));
 			}
 		}
 	}

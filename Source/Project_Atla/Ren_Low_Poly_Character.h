@@ -181,7 +181,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void SpawnPlayerCharacterForRender();
 
-
 	void UpdateHighScore(int32 NewScore);
 
 	void DisplayGameOverUI();
@@ -190,6 +189,16 @@ public:
 
 	void FindResultsCamera();
 	//High score
+
+
+
+	//Item effects
+	UFUNCTION(BlueprintCallable)
+		void IncreaseAll();
+
+	//Item effects
+
+
 
 
 	//Save Data
@@ -359,8 +368,6 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mana")
 		FMana_Struct ManaStruct;
 
-	UFUNCTION(BlueprintCallable, Category = "Mana")
-		void DecreaseMana(float DecreaseAmount);
 
 	UFUNCTION(BlueprintCallable)
 		void IncreaseMana(float ManaAmount);
