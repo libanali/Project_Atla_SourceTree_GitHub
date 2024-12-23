@@ -10,6 +10,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/SceneComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/ChildActorComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Health_Struct.h"
@@ -37,6 +38,17 @@ enum class EWeaponType : uint8
 	Staff UMETA(DisplayName = "Staff")
 };
 
+
+UENUM(BlueprintType)
+enum class ESpecialPowerUp : uint8
+{
+	Berserk      UMETA(DisplayName = "Berserk"),
+	Invulnerability UMETA(DisplayName = "Invulnerability"),
+	TimeStop     UMETA(DisplayName = "Time Stop"),
+	DoublePoints UMETA(DisplayName = "Double Points"),
+
+	Max UMETA(Hidden)
+};
 
 
 USTRUCT(BlueprintType)
@@ -585,6 +597,42 @@ public:
 
 
 
+	//Power-Up system
+	UPROPERTY(BlueprintReadWrite, Category = "Power-Ups")
+		ESpecialPowerUp CurrentPowerUp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power-Ups")
+		UAnimMontage* PowerUpAnim;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power-Ups")
+		UChildActorComponent* PowerUpCamera;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Power-Ups")
+		bool bPowerUpActive;
+
+	// Function to apply the selected power-up
+	UFUNCTION(BlueprintCallable, Category = "Power-Ups")
+		void ApplyPowerUp(ESpecialPowerUp PowerUp);
+
+	UFUNCTION(BlueprintCallable, Category = "Power-Ups")
+		void ResetAttackPower();
+
+	UFUNCTION(BlueprintCallable, Category = "Power-Ups")
+		void NullifyInvulnerability();
+
+	UFUNCTION(BlueprintCallable, Category = "Power-Ups")
+		void CancelTimeStop();
+
+	UFUNCTION(BlueprintCallable, Category = "Power-Ups")
+		void CancelDoublePoints();
+
+	FTimerHandle ResetAttackTimer;
+	FTimerHandle InvulnerabilityTimer;
+	FTimerHandle TimeStopTimer;
+	FTimerHandle DoublePointsTimer;
+	//Power-Up system
+
+
 
 	//Level & Weapon Proficiency
 	// Map to store proficiency for each weapon type
@@ -692,13 +740,6 @@ public:
 	//Command
 
 
-	//Special Power-Up
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Special Power-Up")
-		bool bSpecialPowerUpActive;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Special Power-Up")
-		UAnimMontage* SpecialPowerUpAnimation;
-	//Special Power-Up
 
 
 	//Scoring system
@@ -711,6 +752,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scoring")
 		bool bDoublePoints;
 	//Scoring system
+
+
 
 
 
@@ -747,7 +790,6 @@ protected:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Projectile")
 		USceneComponent* StaffFireProjectile;
-
 	//Character Components
 
 

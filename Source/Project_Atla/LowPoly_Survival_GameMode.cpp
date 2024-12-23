@@ -31,6 +31,8 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
     bIsPowerUpSpawned = false;
     bStopSpawning = false;
 
+
+
 }
 
 
@@ -239,6 +241,9 @@ void ALowPoly_Survival_GameMode::StartNextRound()
 
     bIsPowerUpSpawned = false;
 
+    NextSpawnRound = FMath::RandRange(1, 1);
+
+
 }
 
 
@@ -263,9 +268,125 @@ void ALowPoly_Survival_GameMode::CheckForNextRound()
 
         // Move to the next round
         CurrentRound++;
+
+        // Check if it's time to activate a power-up
+        if (CurrentRound % NextSpawnRound == 0)
+        {
+
+
+            //add set view target with blend function here and then add a delay to call the playpowerupanim() using a settimer.
+            ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+            APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+            if (PlayerCharacter && PlayerController)
+
+            {
+
+                PlayerController->SetViewTargetWithBlend(PlayerCharacter->PowerUpCamera->GetChildActor(), 0.6f, EViewTargetBlendFunction::VTBlend_Linear, 0.0, false);
+
+            }
+
+
+            GetWorld()->GetTimerManager().SetTimer(PowerUpAnimTimer, this, &ALowPoly_Survival_GameMode::PlayPowerUpAnim, 1.0f, false);
+
+
+
+        }
+
+
         StartNextRound();
     }
 }
+
+
+
+
+void ALowPoly_Survival_GameMode::ActivateRandomPowerUp()
+{
+
+
+    // Ensure the power-up hasn't been spawned yet in the current round
+    if (bIsPowerUpSpawned) return;
+
+    // Set the power-up as spawned
+    bIsPowerUpSpawned = true;
+
+    // Randomly pick a power-up from the enum
+    ESpecialPowerUp RandomPowerUp = static_cast<ESpecialPowerUp>(FMath::RandRange(0, static_cast<int32>(ESpecialPowerUp::Max) - 1));
+
+    // Log the power-up activation for debugging
+    UE_LOG(LogTemp, Warning, TEXT("Activating Power-Up: %s"), *UEnum::GetValueAsString(RandomPowerUp));
+
+    // Apply the power-up to the player character
+    ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(this, 0));
+    if (PlayerCharacter)
+    {
+        PlayerCharacter->ApplyPowerUp(RandomPowerUp); // Call the existing ApplyPowerUp method in the character class
+    }
+
+
+}
+
+
+
+
+void ALowPoly_Survival_GameMode::PlayPowerUpAnim()
+{
+
+
+    ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+    if (PlayerCharacter)
+    {
+        if (PlayerCharacter->PowerUpAnim) // Ensure the animation montage is valid
+        {
+            PlayerCharacter->PlayAnimMontage(PlayerCharacter->PowerUpAnim); // Play the animation
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("PowerUpAnimMontage is not set on PlayerCharacter!"));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Failed to cast to ARen_Low_Poly_Character."));
+    }
+
+
+    GetWorld()->GetTimerManager().SetTimer(PowerUpAnimTimer, this, &ALowPoly_Survival_GameMode::ReturnCamera, 3.0f, false);
+
+
+}
+
+
+
+
+
+void ALowPoly_Survival_GameMode::ReturnCamera()
+{
+
+
+
+    //add set view target with blend function here and then add a delay to call the playpowerupanim() using a settimer.
+    ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+    APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+    if (PlayerCharacter && PlayerController)
+
+    {
+
+        PlayerController->SetViewTargetWithBlend(PlayerCharacter, 0.6f, EViewTargetBlendFunction::VTBlend_Linear, 0.0f, false);
+
+    }
+
+
+
+}
+
+
+
+
+
+
 
 
 
@@ -297,6 +418,7 @@ TSubclassOf<AEnemy_Poly> ALowPoly_Survival_GameMode::GetEnemyClassForCurrentRoun
             return BP_Wolf;
         case 2:
             return BP_RockTroll;
+
         default:
             return BP_Spider;
         }
@@ -305,6 +427,8 @@ TSubclassOf<AEnemy_Poly> ALowPoly_Survival_GameMode::GetEnemyClassForCurrentRoun
     // Default to spawning spiders if something goes wrong
     return BP_Spider;
 }
+
+
 
 void ALowPoly_Survival_GameMode::OnEnemyDestroyed()
 {

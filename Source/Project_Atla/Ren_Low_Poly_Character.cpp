@@ -47,8 +47,16 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 	Camera->bUsePawnControlRotation = false;
 
+	//Staff Projectile Point
 	StaffFireProjectile = CreateDefaultSubobject<USceneComponent>(TEXT("Staff Fire Projectile"));
 
+	//Camera child actor
+	PowerUpCamera = CreateDefaultSubobject<UChildActorComponent>(TEXT("Power Up Camera"));
+	PowerUpCamera->SetupAttachment(GetMesh());
+	PowerUpCamera->SetupAttachment(GetMesh(), TEXT("spine_01")); // Use "HeadSocket" if your mesh has one
+
+	PowerUpCamera->SetRelativeLocation(FVector(0.f, 50.f, 150.f)); // Position above the character's head
+	PowerUpCamera->SetRelativeRotation(FRotator(-10.f, 0.f, 0.f)); // Tilt slightly down if needed
 
 	//Ability
 	bCanUseAbility = false;
@@ -113,7 +121,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	bIsInventoryEmpty = true;
 
 	//Special Power-Up
-	bSpecialPowerUpActive = false;
+	bPowerUpActive = false;
 
 
 	//Weapon Proficiency
@@ -247,7 +255,7 @@ void ARen_Low_Poly_Character::UpdateStatsBasedOnWeapon()
 	}
 	else if (WeaponType == EWeaponType::Staff)
 	{
-		BaseAttack = 7.0f;
+		BaseAttack = 77.0f;
 		BaseDefence = 2.0f;
 		BaseElementalAttack = 10.0f;
 		HealthStruct.MaxHealth = 130.0f;
@@ -1818,6 +1826,155 @@ void ARen_Low_Poly_Character::InitialiseElementalAttacks()
 	//ElementalAttackMap.Add(EElementalAttackType::Thunder, ThunderAttack);
 
 	
+
+}
+
+
+
+
+void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
+{
+
+	CurrentPowerUp = PowerUp; // Set the current power-up
+
+	switch (PowerUp)
+
+	{
+	case ESpecialPowerUp::Berserk:
+		UE_LOG(LogTemp, Warning, TEXT("Berserk Activated: Increased Attack Damage!"));
+
+		BaseAttack *= 2.0f;
+		GetWorld()->GetTimerManager().SetTimer(ResetAttackTimer, this, &ARen_Low_Poly_Character::ResetAttackPower, 15.0f, false);
+
+		break;
+
+
+
+
+	case ESpecialPowerUp::Invulnerability:
+		UE_LOG(LogTemp, Warning, TEXT("Invulnerability Activated: Cannot Take Damage!"));
+
+		GetMesh()->SetGenerateOverlapEvents(false);
+		GetWorld()->GetTimerManager().SetTimer(InvulnerabilityTimer, this, &ARen_Low_Poly_Character::NullifyInvulnerability, 15.0f, false);
+
+		break;
+
+
+
+
+	case ESpecialPowerUp::TimeStop:
+		UE_LOG(LogTemp, Warning, TEXT("Time Stop Activated: Slowing Down Enemies!"));
+		{
+			TArray<AActor*> Enemies;
+			UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemy_Poly::StaticClass(), Enemies);
+
+			for (AActor* Enemy : Enemies)
+
+			{
+
+				if (Enemy)
+
+				{
+
+					Enemy->CustomTimeDilation = 0.0f; // Slow down enemy time
+
+
+				}
+
+			}
+
+
+			GetWorld()->GetTimerManager().SetTimer(TimeStopTimer, this, &ARen_Low_Poly_Character::CancelTimeStop, 15.0f, false);
+
+
+			break;
+
+		}
+
+
+
+	case ESpecialPowerUp::DoublePoints:
+		UE_LOG(LogTemp, Warning, TEXT("Double Points Activated: Score Multiplier!"));
+
+
+
+		bDoublePoints = true;
+
+		GetWorld()->GetTimerManager().SetTimer(InvulnerabilityTimer, this, &ARen_Low_Poly_Character::CancelDoublePoints, 20.0f, false);
+
+
+		break;
+
+
+
+
+
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("No Power-Up Activated."));
+		break;
+	}
+
+
+
+
+}
+
+
+
+
+void ARen_Low_Poly_Character::ResetAttackPower()
+{
+
+
+	BaseAttack = InitialAttack;
+
+	UE_LOG(LogTemp, Warning, TEXT("Berserk Ended: Attack Power Reset to Initial Value (%f)."), InitialAttack);
+
+
+}
+
+void ARen_Low_Poly_Character::NullifyInvulnerability()
+{
+
+	
+	GetMesh()->SetGenerateOverlapEvents(true);
+
+
+}
+
+
+
+void ARen_Low_Poly_Character::CancelTimeStop()
+{
+
+	TArray<AActor*> Enemies;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemy_Poly::StaticClass(), Enemies);
+
+	for (AActor* Enemy : Enemies)
+
+	{
+
+		if (Enemy)
+
+		{
+
+			Enemy->CustomTimeDilation = 1.0f; // Slow down enemy time
+
+
+		}
+
+	}
+
+}
+
+
+
+void ARen_Low_Poly_Character::CancelDoublePoints()
+{
+
+
+	bDoublePoints = false;
+
 
 }
 

@@ -107,6 +107,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Round")
     int32 CurrentRound;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Round")
+        int32 NextSpawnRound;
+
     // Base health for enemies
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
         float BaseEnemyHealth;
@@ -152,6 +155,18 @@ protected:
 
     UFUNCTION()
         void OnEnemyDestroyed();
+
+    UFUNCTION(BlueprintCallable)
+        void ActivateRandomPowerUp();
+
+    UFUNCTION(BlueprintCallable)
+        void PlayPowerUpAnim();
+    
+    UFUNCTION(BlueprintCallable)
+        void ReturnCamera();
+
+    FTimerHandle PowerUpAnimTimer;
+    FTimerHandle ReturnCameraTimer;
 
     FVector GetRandomPointNearPlayer();
 
