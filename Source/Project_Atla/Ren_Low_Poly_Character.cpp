@@ -247,7 +247,7 @@ void ARen_Low_Poly_Character::UpdateStatsBasedOnWeapon()
 	// Reset to base stats
 	if (WeaponType == EWeaponType::Sword)
 	{
-		BaseAttack = 10.0f;
+		BaseAttack = 3.0f;
 		BaseDefence = 2.0f;
 		BaseElementalAttack = 4.0f;
 		HealthStruct.MaxHealth = 140.0f;
@@ -255,7 +255,7 @@ void ARen_Low_Poly_Character::UpdateStatsBasedOnWeapon()
 	}
 	else if (WeaponType == EWeaponType::Staff)
 	{
-		BaseAttack = 77.0f;
+		BaseAttack = 20.0f;
 		BaseDefence = 2.0f;
 		BaseElementalAttack = 10.0f;
 		HealthStruct.MaxHealth = 130.0f;

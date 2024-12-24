@@ -30,6 +30,7 @@ AEnemy_AIController::AEnemy_AIController()
     bIsStrafing = false;
     bIsFrozen = false;
     bIsStunned = false;
+    bIsAIStopped = false;
 
 }
 
@@ -42,6 +43,7 @@ void AEnemy_AIController::BeginPlay()
     // Get the player character as the target
     TargetPlayer = GetWorld()->GetFirstPlayerController()->GetPawn();
     EnemyNumber = 0;
+
 
 }
 
@@ -227,6 +229,35 @@ void AEnemy_AIController::ResetAttackCooldown()
 
 
 
+
+void AEnemy_AIController::UpdateHitState()
+{
+
+    AEnemy_Poly* Enemy = Cast<AEnemy_Poly>(GetPawn());
+    if (!Enemy) return;
+
+    // Check if the hit state has changed
+    if (Enemy->bEnemyIsHit)
+    {
+        
+            // Disable AI if the enemy is hit
+            DisableAI();
+            GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Enemy is not moving after hit!"));
+    }
+
+     else
+
+    {
+            // Restart AI if the enemy is no longer hit
+            RestartAI();
+            GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("Enemy is moving after hit!"));
+    }
+    
+}
+
+
+
+
 void AEnemy_AIController::DisableAI()
 {
 
@@ -236,12 +267,16 @@ void AEnemy_AIController::DisableAI()
     {
         // Disable movement
         Enemy->GetCharacterMovement()->DisableMovement();
+        bIsAIStopped = true;
 
     }
 
 
 
 }
+
+
+
 
 
 
@@ -254,10 +289,14 @@ void AEnemy_AIController::RestartAI()
     {
         // Enable movement
         Enemy->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+        bIsAIStopped = false;
 
     }
 
 }
+
+
+
 
 
 
@@ -291,7 +330,10 @@ void AEnemy_AIController::UpdateBehaviour()
         // Strafe if not attacking
         StrafeAroundPlayer();
     }
+
 }
+
+
 
 
 
@@ -314,22 +356,26 @@ int32 AEnemy_AIController::GetEnemyNumber() const
 
 void AEnemy_AIController::Tick(float deltaTime)
 {
-    
+   
 
-    // Skip all AI processing if frozen
-    if (bIsFrozen)
-        return;
-
-    if (bIsStunned)
-        return;
+        if (bIsFrozen || bIsStunned || bIsAIStopped)
+        {
+            return; // Skip processing if AI is frozen, stunned, or stopped
+        }
 
 
-    if (TargetPlayer)
-    {
-        UpdateBehaviour();  // Just focus on moving and attacking for now
 
-    }
+        //  UpdateHitState();
+
+
+
+        if (TargetPlayer)
+        {
+            UpdateBehaviour();  // Just focus on moving and attacking for now
+
+        }
         // Ensure the enemy is always facing the player
         FacePlayer();
-    
+
+        
 }

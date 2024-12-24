@@ -8,6 +8,7 @@
 
 
 class AEnemy_Token_Manager;
+class AEnemy_Poly;
 /**
  * 
  */
@@ -29,6 +30,7 @@ public:
     void StrafeAroundPlayer();
     void FacePlayer();
     void ResetAttackCooldown();
+    void UpdateHitState();
     void DisableAI();
     void RestartAI();
     float DistanceToPlayer;
@@ -46,6 +48,11 @@ public:
 
     bool bIsFrozen;
     bool bIsStunned;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    bool bIsAIStopped;
+
+   AEnemy_Poly* TheEnemy;
 
 
     // Function to get the enemy's current assigned number

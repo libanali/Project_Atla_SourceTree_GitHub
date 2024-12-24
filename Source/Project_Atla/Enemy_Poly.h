@@ -57,6 +57,7 @@ public:
 		TArray<FItemDrop> PossibleItemDrops;
 
 
+
 	//Health
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 		float CurrentEnemyHealth;
@@ -70,6 +71,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 		UMaterialInstance* HitOverlayMaterial;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+		bool bEnemyIsHit;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+		UAnimMontage* HurtAnimation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 		bool bIsDead;
@@ -84,9 +90,12 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Health")
 		bool EnemyIsDead() const;
 
+	UFUNCTION()
+		void ResetHurtState();
+
 
 	void UpdateHealthBar();
-
+	void Death();
 	
 
 	float BurnDurationRemaining;   // Remaining duration of the burn effect
@@ -97,8 +106,6 @@ public:
 	FTimerHandle BurnTimerHandle;
 	FTimerHandle FreezeTimerHandle;
 	FTimerHandle StunTimerHandle; // Timer handle for managing stun duration
-
-	void Death();
 	//Health
 
 

@@ -25,6 +25,8 @@ AEnemy_Poly::AEnemy_Poly()
 
 	CurrentEnemyHealth = MaxEnemyHealth;
 
+	bEnemyIsHit = false;
+
 	bIsDead = false;
 
 	DefencePercentage = 10.0f;
@@ -49,6 +51,10 @@ AEnemy_Poly::AEnemy_Poly()
 bool AEnemy_Poly::EnemyIsDead() const
 {
 	return false;
+}
+
+void AEnemy_Poly::ResetHurtState()
+{
 }
 
 
@@ -89,6 +95,14 @@ float AEnemy_Poly::ApplyDamage(float DamageAmount, const FHitResult& HitInfo, AC
 	}
 
 	UpdateHealthBar();
+
+	bEnemyIsHit = true;
+
+
+
+	PlayAnimMontage(HurtAnimation, 1.0f);
+
+
 
 
 	CurrentEnemyHealth -= DamageAmount;
@@ -229,7 +243,6 @@ float AEnemy_Poly::GetHealthPercentage() const
 
 void AEnemy_Poly::UpdateHealthBar()
 {
-
 
 
 	if (EnemyHealthBarWidgetComponent)
