@@ -10,6 +10,8 @@
 #include "Command_Menu_Widget.h"
 #include "Components/Button.h"
 #include "Components/Widget.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
 #include "Technique_Struct.h"
 #include "Enemy_Detection_Arrow.h"
 #include "Player_Save_Game.h"
@@ -1844,7 +1846,10 @@ void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
 		UE_LOG(LogTemp, Warning, TEXT("Berserk Activated: Increased Attack Damage!"));
 
 		BaseAttack *= 2.0f;
+		
 		GetWorld()->GetTimerManager().SetTimer(ResetAttackTimer, this, &ARen_Low_Poly_Character::ResetAttackPower, 15.0f, false);
+
+		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("Ability used!"));
 
 		break;
 
@@ -1856,6 +1861,7 @@ void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
 
 		GetMesh()->SetGenerateOverlapEvents(false);
 		GetWorld()->GetTimerManager().SetTimer(InvulnerabilityTimer, this, &ARen_Low_Poly_Character::NullifyInvulnerability, 15.0f, false);
+		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("Ability used!"));
 
 		break;
 
@@ -1864,6 +1870,8 @@ void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
 
 	case ESpecialPowerUp::TimeStop:
 		UE_LOG(LogTemp, Warning, TEXT("Time Stop Activated: Slowing Down Enemies!"));
+		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("Ability used!"));
+
 		{
 			TArray<AActor*> Enemies;
 			UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemy_Poly::StaticClass(), Enemies);
@@ -1884,7 +1892,7 @@ void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
 			}
 
 
-			GetWorld()->GetTimerManager().SetTimer(TimeStopTimer, this, &ARen_Low_Poly_Character::CancelTimeStop, 15.0f, false);
+			GetWorld()->GetTimerManager().SetTimer(TimeStopTimer, this, &ARen_Low_Poly_Character::CancelTimeStop, 20.0f, false);
 
 
 			break;
@@ -1895,6 +1903,7 @@ void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
 
 	case ESpecialPowerUp::DoublePoints:
 		UE_LOG(LogTemp, Warning, TEXT("Double Points Activated: Score Multiplier!"));
+		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("Ability used!"));
 
 
 

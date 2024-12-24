@@ -186,7 +186,7 @@ void AEnemy_Poly::Death()
 	}
 
 	// Finally, destroy the enemy and attempt item drop if applicable
-	Destroy(true);
+	Destroy(true); //delay this when you implement the death animation
 	AttemptItemDrop();
 }
 

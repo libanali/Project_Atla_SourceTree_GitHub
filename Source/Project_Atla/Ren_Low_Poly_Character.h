@@ -567,6 +567,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void ApplyTheBurnEffect(AEnemy_Poly* Enemy, float Duration, float DamagePerSecond);
 
+	
 
 	// Handle for the timer
 	FTimerHandle BurnTimerHandle;
