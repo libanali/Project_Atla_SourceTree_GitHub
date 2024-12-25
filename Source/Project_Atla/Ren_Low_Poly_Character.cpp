@@ -53,7 +53,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	//Camera child actor
 	PowerUpCamera = CreateDefaultSubobject<UChildActorComponent>(TEXT("Power Up Camera"));
 	PowerUpCamera->SetupAttachment(GetMesh());
-	PowerUpCamera->SetupAttachment(GetMesh(), TEXT("spine_01")); // Use "HeadSocket" if your mesh has one
+	//PowerUpCamera->SetupAttachment(GetMesh(), TEXT("spine_01")); // Use "HeadSocket" if your mesh has one
 
 	PowerUpCamera->SetRelativeLocation(FVector(0.f, 50.f, 150.f)); // Position above the character's head
 	PowerUpCamera->SetRelativeRotation(FRotator(-10.f, 0.f, 0.f)); // Tilt slightly down if needed
@@ -1843,9 +1843,9 @@ void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
 	case ESpecialPowerUp::Berserk:
 		UE_LOG(LogTemp, Warning, TEXT("Berserk Activated: Increased Attack Damage!"));
 
-		BaseAttack *= 2.0f;
+		BaseAttack *= 15.0f;
 		
-		GetWorld()->GetTimerManager().SetTimer(ResetAttackTimer, this, &ARen_Low_Poly_Character::ResetAttackPower, 15.0f, false);
+		GetWorld()->GetTimerManager().SetTimer(ResetAttackTimer, this, &ARen_Low_Poly_Character::ResetAttackPower, 35.0f, false);
 
 		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("BERSERK!"));
 
@@ -1858,7 +1858,7 @@ void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
 		UE_LOG(LogTemp, Warning, TEXT("Invulnerability Activated: Cannot Take Damage!"));
 
 		GetMesh()->SetGenerateOverlapEvents(false);
-		GetWorld()->GetTimerManager().SetTimer(InvulnerabilityTimer, this, &ARen_Low_Poly_Character::NullifyInvulnerability, 15.0f, false);
+		GetWorld()->GetTimerManager().SetTimer(InvulnerabilityTimer, this, &ARen_Low_Poly_Character::NullifyInvulnerability, 35.0f, false);
 		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("INVULNERABLE!"));
 
 		break;
@@ -1874,7 +1874,7 @@ void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
 			
 			
 			GetWorld()->GetTimerManager().SetTimer(RegenHealthTimer, this, &ARen_Low_Poly_Character::RegenHealth, 3.0f, true); // Trigger every 3 seconds
-			GetWorld()->GetTimerManager().SetTimer(RegenHealthDurationTimer, this, &ARen_Low_Poly_Character::CancelHealthRegen, 15.0f, false); // Stop after 15 seconds
+			GetWorld()->GetTimerManager().SetTimer(RegenHealthDurationTimer, this, &ARen_Low_Poly_Character::CancelHealthRegen, 35.0f, false); // Stop after 15 seconds
 
 			break;
 
@@ -1892,7 +1892,7 @@ void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
 
 		bDoublePoints = true;
 
-		GetWorld()->GetTimerManager().SetTimer(InvulnerabilityTimer, this, &ARen_Low_Poly_Character::CancelDoublePoints, 20.0f, false);
+		GetWorld()->GetTimerManager().SetTimer(InvulnerabilityTimer, this, &ARen_Low_Poly_Character::CancelDoublePoints, 30.0f, false);
 
 		break;
 

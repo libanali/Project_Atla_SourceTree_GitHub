@@ -10,7 +10,6 @@
 #include "GameFramework/Actor.h"
 #include "Engine/TriggerVolume.h"
 #include "Components/BoxComponent.h"  // Include BoxComponent header
-
 #include "LowPoly_Survival_GameMode.generated.h"
 
 /**
@@ -154,6 +153,8 @@ protected:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
         bool bIsPowerUpSpawned;
+
+
 
     UFUNCTION()
         void OnEnemyDestroyed();

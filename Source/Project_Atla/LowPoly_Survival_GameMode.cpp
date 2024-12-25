@@ -324,8 +324,12 @@ void ALowPoly_Survival_GameMode::ActivateRandomPowerUp()
     // Set the power-up as spawned
     bIsPowerUpSpawned = true;
 
+
     // Randomly pick a power-up from the enum
     ESpecialPowerUp RandomPowerUp = static_cast<ESpecialPowerUp>(FMath::RandRange(0, static_cast<int32>(ESpecialPowerUp::Max) - 1));
+
+
+
 
     // Log the power-up activation for debugging
     UE_LOG(LogTemp, Warning, TEXT("Activating Power-Up: %s"), *UEnum::GetValueAsString(RandomPowerUp));
