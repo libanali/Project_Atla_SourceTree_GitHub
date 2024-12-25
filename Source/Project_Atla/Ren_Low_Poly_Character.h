@@ -44,7 +44,7 @@ enum class ESpecialPowerUp : uint8
 {
 	Berserk      UMETA(DisplayName = "Berserk"),
 	Invulnerability UMETA(DisplayName = "Invulnerability"),
-	TimeStop     UMETA(DisplayName = "Time Stop"),
+	HealthRegen     UMETA(DisplayName = "Health Regen"),
 	DoublePoints UMETA(DisplayName = "Double Points"),
 
 	Max UMETA(Hidden)
@@ -615,6 +615,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Power-Ups")
 		void ApplyPowerUp(ESpecialPowerUp PowerUp);
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Power-Ups")
+		void ActivatePowerUpVFX();
+
 	UFUNCTION(BlueprintCallable, Category = "Power-Ups")
 		void ResetAttackPower();
 
@@ -622,14 +625,21 @@ public:
 		void NullifyInvulnerability();
 
 	UFUNCTION(BlueprintCallable, Category = "Power-Ups")
-		void CancelTimeStop();
+		void RegenHealth();
+
+	UFUNCTION(BlueprintCallable, Category = "Power-Ups")
+		void CancelHealthRegen();
 
 	UFUNCTION(BlueprintCallable, Category = "Power-Ups")
 		void CancelDoublePoints();
 
+	UFUNCTION(BlueprintCallable, Category = "Power-Ups")
+		void DecreaseHealth(int amount);
+
 	FTimerHandle ResetAttackTimer;
 	FTimerHandle InvulnerabilityTimer;
-	FTimerHandle TimeStopTimer;
+	FTimerHandle RegenHealthTimer;
+	FTimerHandle RegenHealthDurationTimer;
 	FTimerHandle DoublePointsTimer;
 	//Power-Up system
 

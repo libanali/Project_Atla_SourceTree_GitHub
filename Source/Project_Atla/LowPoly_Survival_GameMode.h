@@ -81,6 +81,8 @@ protected:
     // Check if all enemies are destroyed
     void CheckForNextRound();
 
+    void CheckIfCanPowerUp();
+
     // Timer handle to manage spawning rounds
     FTimerHandle SpawnTimerHandle;
 
@@ -167,6 +169,7 @@ protected:
 
     FTimerHandle PowerUpAnimTimer;
     FTimerHandle ReturnCameraTimer;
+    FTimerHandle CheckPowerUp;
 
     FVector GetRandomPointNearPlayer();
 

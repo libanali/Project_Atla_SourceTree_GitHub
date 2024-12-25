@@ -10,8 +10,6 @@
 #include "Command_Menu_Widget.h"
 #include "Components/Button.h"
 #include "Components/Widget.h"
-#include "NiagaraFunctionLibrary.h"
-#include "NiagaraComponent.h"
 #include "Technique_Struct.h"
 #include "Enemy_Detection_Arrow.h"
 #include "Player_Save_Game.h"
@@ -1215,7 +1213,7 @@ void ARen_Low_Poly_Character::SpawnElementalProjectile()
 		}
 	}
 
-
+	
 }
 
 
@@ -1849,7 +1847,7 @@ void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
 		
 		GetWorld()->GetTimerManager().SetTimer(ResetAttackTimer, this, &ARen_Low_Poly_Character::ResetAttackPower, 15.0f, false);
 
-		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("Ability used!"));
+		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("BERSERK!"));
 
 		break;
 
@@ -1861,39 +1859,22 @@ void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
 
 		GetMesh()->SetGenerateOverlapEvents(false);
 		GetWorld()->GetTimerManager().SetTimer(InvulnerabilityTimer, this, &ARen_Low_Poly_Character::NullifyInvulnerability, 15.0f, false);
-		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("Ability used!"));
+		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("INVULNERABLE!"));
 
 		break;
 
 
 
 
-	case ESpecialPowerUp::TimeStop:
-		UE_LOG(LogTemp, Warning, TEXT("Time Stop Activated: Slowing Down Enemies!"));
-		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("Ability used!"));
+	case ESpecialPowerUp::HealthRegen:
+		UE_LOG(LogTemp, Warning, TEXT("Health Regen Activated: Regenerating Health!"));
+		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("REGEN HEALTH"));
 
 		{
-			TArray<AActor*> Enemies;
-			UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemy_Poly::StaticClass(), Enemies);
-
-			for (AActor* Enemy : Enemies)
-
-			{
-
-				if (Enemy)
-
-				{
-
-					Enemy->CustomTimeDilation = 0.0f; // Slow down enemy time
-
-
-				}
-
-			}
-
-
-			GetWorld()->GetTimerManager().SetTimer(TimeStopTimer, this, &ARen_Low_Poly_Character::CancelTimeStop, 20.0f, false);
-
+			
+			
+			GetWorld()->GetTimerManager().SetTimer(RegenHealthTimer, this, &ARen_Low_Poly_Character::RegenHealth, 3.0f, true); // Trigger every 3 seconds
+			GetWorld()->GetTimerManager().SetTimer(RegenHealthDurationTimer, this, &ARen_Low_Poly_Character::CancelHealthRegen, 15.0f, false); // Stop after 15 seconds
 
 			break;
 
@@ -1902,15 +1883,16 @@ void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
 
 
 	case ESpecialPowerUp::DoublePoints:
+
+
 		UE_LOG(LogTemp, Warning, TEXT("Double Points Activated: Score Multiplier!"));
-		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("Ability used!"));
+		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("Double Points"));
 
 
 
 		bDoublePoints = true;
 
 		GetWorld()->GetTimerManager().SetTimer(InvulnerabilityTimer, this, &ARen_Low_Poly_Character::CancelDoublePoints, 20.0f, false);
-
 
 		break;
 
@@ -1924,8 +1906,6 @@ void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
 	}
 
 
-
-
 }
 
 
@@ -1936,43 +1916,48 @@ void ARen_Low_Poly_Character::ResetAttackPower()
 
 
 	BaseAttack = InitialAttack;
-
+	GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Red, TEXT("Berserk Finished"));
 	UE_LOG(LogTemp, Warning, TEXT("Berserk Ended: Attack Power Reset to Initial Value (%f)."), InitialAttack);
 
 
 }
+
 
 void ARen_Low_Poly_Character::NullifyInvulnerability()
 {
 
 	
 	GetMesh()->SetGenerateOverlapEvents(true);
+	GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Red, TEXT("Invulnerability Finished"));
 
 
 }
 
 
 
-void ARen_Low_Poly_Character::CancelTimeStop()
+void ARen_Low_Poly_Character::RegenHealth()
 {
 
-	TArray<AActor*> Enemies;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), AEnemy_Poly::StaticClass(), Enemies);
+	const float RegenHealth = HealthStruct.CurrentHealth * 0.05f; //add 5% of health to character
+	HealthStruct.CurrentHealth = FMath::Clamp(HealthStruct.CurrentHealth + RegenHealth, 0.0f, HealthStruct.MaxHealth);
 
-	for (AActor* Enemy : Enemies)
-
-	{
-
-		if (Enemy)
-
-		{
-
-			Enemy->CustomTimeDilation = 1.0f; // Slow down enemy time
+	UE_LOG(LogTemp, Warning, TEXT("Healing Aura: Health Regenerated to %f"), HealthStruct.CurrentHealth);
+	GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Red, FString::Printf(TEXT("Healing Aura: Health Regenerated to %f"), HealthStruct.CurrentHealth));
 
 
-		}
+}
 
-	}
+
+
+void ARen_Low_Poly_Character::CancelHealthRegen()
+{
+
+	GetWorld()->GetTimerManager().ClearTimer(RegenHealthTimer); // Stop periodic regeneration
+
+	UE_LOG(LogTemp, Warning, TEXT("Healing Aura Ended"));
+
+	GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Red, TEXT("Regen Finished"));
+
 
 }
 
@@ -1983,13 +1968,17 @@ void ARen_Low_Poly_Character::CancelDoublePoints()
 
 
 	bDoublePoints = false;
+	GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Red, TEXT("Double Points Finished"));
 
 
 }
 
+void ARen_Low_Poly_Character::DecreaseHealth(int amount)
+{
 
+	HealthStruct.CurrentHealth -= amount;
 
-
+}
 
 
 

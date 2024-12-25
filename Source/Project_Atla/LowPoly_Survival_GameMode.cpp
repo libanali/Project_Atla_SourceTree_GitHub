@@ -269,33 +269,46 @@ void ALowPoly_Survival_GameMode::CheckForNextRound()
         // Move to the next round
         CurrentRound++;
 
-        // Check if it's time to activate a power-up
-        if (CurrentRound % NextSpawnRound == 0)
+
+        GetWorld()->GetTimerManager().SetTimer(CheckPowerUp, this, &ALowPoly_Survival_GameMode::CheckIfCanPowerUp, 1.0f, false, 2.0f);
+
+
+
+        StartNextRound();
+    }
+}
+
+
+
+void ALowPoly_Survival_GameMode::CheckIfCanPowerUp()
+{
+
+
+    // Check if it's time to activate a power-up
+    if (CurrentRound % NextSpawnRound == 0)
+    {
+        ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+        APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+
+        if (PlayerCharacter && PlayerController)
+
         {
 
+            PlayerController->SetViewTargetWithBlend(PlayerCharacter->PowerUpCamera->GetChildActor(), 0.6f, EViewTargetBlendFunction::VTBlend_Linear, 0.0, false);
 
-            //add set view target with blend function here and then add a delay to call the playpowerupanim() using a settimer.
-            ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-            APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+            PlayerController->DisableInput(PlayerController);
 
-            if (PlayerCharacter && PlayerController)
-
-            {
-
-                PlayerController->SetViewTargetWithBlend(PlayerCharacter->PowerUpCamera->GetChildActor(), 0.6f, EViewTargetBlendFunction::VTBlend_Linear, 0.0, false);
-
-            }
-
-
-            GetWorld()->GetTimerManager().SetTimer(PowerUpAnimTimer, this, &ALowPoly_Survival_GameMode::PlayPowerUpAnim, 1.0f, false);
+            GetWorld()->GetTimerManager().SetTimer(PowerUpAnimTimer, this, &ALowPoly_Survival_GameMode::PlayPowerUpAnim, 1.0f, false, 1.0f);
 
 
 
         }
 
 
-        StartNextRound();
     }
+
+
 }
 
 
@@ -322,6 +335,7 @@ void ALowPoly_Survival_GameMode::ActivateRandomPowerUp()
     if (PlayerCharacter)
     {
         PlayerCharacter->ApplyPowerUp(RandomPowerUp); // Call the existing ApplyPowerUp method in the character class
+        PlayerCharacter->ActivatePowerUpVFX();
     }
 
 
@@ -335,11 +349,14 @@ void ALowPoly_Survival_GameMode::PlayPowerUpAnim()
 
 
     ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+   // APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
     if (PlayerCharacter)
     {
         if (PlayerCharacter->PowerUpAnim) // Ensure the animation montage is valid
         {
             PlayerCharacter->PlayAnimMontage(PlayerCharacter->PowerUpAnim); // Play the animation
+
         }
         else
         {
@@ -351,6 +368,8 @@ void ALowPoly_Survival_GameMode::PlayPowerUpAnim()
         UE_LOG(LogTemp, Warning, TEXT("Failed to cast to ARen_Low_Poly_Character."));
     }
 
+
+    
 
     GetWorld()->GetTimerManager().SetTimer(PowerUpAnimTimer, this, &ALowPoly_Survival_GameMode::ReturnCamera, 3.0f, false);
 
