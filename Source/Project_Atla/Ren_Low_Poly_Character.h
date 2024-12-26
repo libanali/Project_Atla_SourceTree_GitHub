@@ -572,6 +572,7 @@ public:
 	// Handle for the timer
 	FTimerHandle BurnTimerHandle;
 	FTimerHandle BurnEndTimerHandle;
+	FTimerHandle Leveluphandle;
 	// Store the remaining burn time
 	float BurnDurationRemaining;
 
@@ -588,8 +589,6 @@ public:
 		void ApplyStunEffect(AEnemy_Poly* Enemy, float Duration);
 
 	void InitialiseElementalAttacks();
-
-	FTimerHandle Leveluphandle;
 
 
 	float PreviousElementalPower;
@@ -688,6 +687,16 @@ public:
 
 	TArray<float> QueuedEXP;
 	//Level & Weapon Proficiency
+
+
+
+	//Camera Shake
+	UFUNCTION(BlueprintCallable)
+		void TriggerCameraShake();
+
+	UPROPERTY(EditDefaultsOnly, Category = "Camera")
+		TSubclassOf<UCameraShakeBase> MyCameraShakeClass;
+	//Camera Shake
 
 
 

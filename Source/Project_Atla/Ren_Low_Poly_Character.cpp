@@ -10,6 +10,7 @@
 #include "Command_Menu_Widget.h"
 #include "Components/Button.h"
 #include "Components/Widget.h"
+#include "Camera/CameraShakeBase.h"
 #include "Technique_Struct.h"
 #include "Enemy_Detection_Arrow.h"
 #include "Player_Save_Game.h"
@@ -2080,6 +2081,28 @@ FTechnique_Struct* ARen_Low_Poly_Character::FindTechniqueByName(const FString& T
 	return nullptr;
 }
 
+
+
+
+
+void ARen_Low_Poly_Character::TriggerCameraShake()
+{
+
+
+	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+
+
+	if (PlayerController)
+
+	{
+
+		PlayerController->ClientStartCameraShake(MyCameraShakeClass, 1.0f);
+
+	}
+
+
+
+}
 
 
 
