@@ -57,13 +57,21 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* PressAnyButtonText;
 
-	// "Press Any Button" Text Block
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* LegalText;
 
-	// "Press Any Button" Text Block
 	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* CharacterSelectTitle;
+		class UTextBlock* WeaponSelectTitle;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* AttackStat;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* DefenceStat;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* ElementalStat;
+
 
 	// Animation for fading in and out
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
@@ -76,5 +84,6 @@ protected:
 	UFUNCTION()
 		void OnBackClicked();
 
-	
+	UFUNCTION()
+		void HandleGoBack();
 };

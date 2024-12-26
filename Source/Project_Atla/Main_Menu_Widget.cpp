@@ -46,13 +46,35 @@ void UMain_Menu_Widget::OnPlayClicked()
 void UMain_Menu_Widget::OnBackClicked()
 {
 
+    if (WidgetSwitcher)
+    {
+        int32 CurrentIndex = WidgetSwitcher->GetActiveWidgetIndex();
+
+        // Logic to go back to the previous menu
+        if (CurrentIndex > 0)
+        {
+            WidgetSwitcher->SetActiveWidgetIndex(CurrentIndex - 1);
+        }
+    }
+
+
+
+}
+
+void UMain_Menu_Widget::HandleGoBack()
+{
+
 
     if (WidgetSwitcher)
     {
-        // Switch to Main Menu (index 1)
-        WidgetSwitcher->SetActiveWidgetIndex(1);
-    }
+        int32 CurrentIndex = WidgetSwitcher->GetActiveWidgetIndex();
 
+        // Logic to go back to the previous menu
+        if (CurrentIndex > 0)
+        {
+            WidgetSwitcher->SetActiveWidgetIndex(CurrentIndex - 1);
+        }
+    }
 
 
 
