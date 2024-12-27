@@ -22,10 +22,9 @@ public:
 
 
 
-
 protected:
 		// Widget Switcher
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UWidgetSwitcher* WidgetSwitcher;
 
 	// Buttons
@@ -47,10 +46,10 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UBorder* BackgroundImage;
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UButton* SwordButton;
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UButton* StaffButton;
 
 	// "Press Any Button" Text Block
@@ -86,4 +85,24 @@ protected:
 
 	UFUNCTION()
 		void HandleGoBack();
+
+	UFUNCTION()
+		void SwitchToMainMenu();
+
+	UFUNCTION()
+		void SwitchToWeaponSelectMenu();
+
+
+	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
+
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
+
+private:
+
+	bool bIsOnTitleScreen;
+	bool bHasSetFocusForSwordButton;
 };
+
+
+
+
