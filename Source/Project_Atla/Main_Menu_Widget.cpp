@@ -3,9 +3,12 @@
 
 #include "Main_Menu_Widget.h"
 #include "Components/Button.h"
+#include "Components/Widget.h"
+#include "Components/TextBlock.h"
 #include "Kismet/Gameplaystatics.h"
 #include "Components/WidgetSwitcher.h"
 #include "Game_Instance.h"
+#include "Ren_Low_Poly_Character.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -28,12 +31,14 @@ void UMain_Menu_Widget::NativeConstruct()
     if (SwordButton)
     {
         SwordButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnSwordButtonClicked);
+        SwordButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnSwordButtonHovered);
     }
 
 
     if (StaffButton)
     {
         StaffButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnStaffButtonClicked);
+        StaffButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnStaffButtonHovered);
     }
 
 
@@ -65,6 +70,7 @@ void UMain_Menu_Widget::NativeConstruct()
     bIsOnTitleScreen = true;
     bHasSetFocusForSwordButton = false;
     
+
 }
 
 
@@ -123,6 +129,29 @@ void UMain_Menu_Widget::OnSwordButtonClicked()
 
 }
 
+
+
+void UMain_Menu_Widget::OnSwordButtonHovered()
+{
+
+    UpdateWeaponStats(EWeaponType::Sword);
+    GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Sword Button Hovered"));
+
+
+
+}
+
+
+
+void UMain_Menu_Widget::OnSwordButtonFocused()
+{
+
+    UpdateWeaponStats(EWeaponType::Sword);
+    GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Sword Button Focused"));
+
+
+}
+
 void UMain_Menu_Widget::OnStaffButtonClicked()
 {
 
@@ -140,6 +169,72 @@ void UMain_Menu_Widget::OnStaffButtonClicked()
     UGameplayStatics::OpenLevel(this, FName("LowPoly_Level"));
 
 
+
+}
+
+
+
+void UMain_Menu_Widget::OnStaffButtonHovered()
+{
+
+    UpdateWeaponStats(EWeaponType::Staff);
+    GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Staff Button Hovered"));
+
+
+
+}
+
+
+
+void UMain_Menu_Widget::OnStaffButtonFocused()
+{
+
+
+    UpdateWeaponStats(EWeaponType::Staff);
+    GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Staff Button Focused"));
+
+
+}
+
+
+void UMain_Menu_Widget::UpdateWeaponStats(EWeaponType WeaponType)
+{
+
+    // Get the player's weapon proficiency map (assumed to be in the character)
+    ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+    if (PlayerCharacter)
+    {
+        const TMap<EWeaponType, FWeapon_Proficiency_Struct>& WeaponProficiencyMap = PlayerCharacter->WeaponProficiencyMap;
+
+        // Get the stats for the selected weapon
+        if (WeaponProficiencyMap.Contains(WeaponType))
+        {
+            const FWeapon_Proficiency_Struct& WeaponProficiency = WeaponProficiencyMap[WeaponType];
+
+            // Update the UI text blocks with weapon stats
+            if (AttackStat)
+
+            {
+                AttackStat->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), WeaponProficiency.AttackPowerBoost)));
+
+            }
+
+            if (DefenceStat)
+
+            {
+                DefenceStat->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), WeaponProficiency.DefenseBoost)));
+
+            }
+
+            if (ElementalStat)
+
+            {
+                ElementalStat->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), WeaponProficiency.ElementalPowerBoost)));
+
+            }
+        }
+    }
 
 }
 
@@ -237,6 +332,8 @@ void UMain_Menu_Widget::SwitchToWeaponSelectMenu()
 
 
 
+
+
 FReply UMain_Menu_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
 
@@ -254,7 +351,7 @@ FReply UMain_Menu_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKe
 
 
     // Check for "Any Key" or "Gamepad Face Button Bottom" for switching to the main menu
-    if (PressedKey == EKeys::AnyKey || PressedKey == EKeys::Gamepad_FaceButton_Bottom)
+    if (PressedKey == EKeys::SpaceBar || PressedKey == EKeys::Gamepad_FaceButton_Bottom)
     {
         SwitchToMainMenu(); // Handle switching to the main menu
         return FReply::Handled();
@@ -275,6 +372,21 @@ void UMain_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 
 
     SwitchToWeaponSelectMenu();
+
+
+    // Check if the sword button has keyboard focus and update stats
+    if (SwordButton && SwordButton->HasKeyboardFocus())
+    {
+        UpdateWeaponStats(EWeaponType::Sword);
+
+    }
+
+    // Check if the staff button has keyboard focus and update stats
+    if (StaffButton && StaffButton->HasKeyboardFocus())
+    {
+        UpdateWeaponStats(EWeaponType::Staff);
+    }
+
 
 }
 

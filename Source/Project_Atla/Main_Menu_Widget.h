@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Ren_Low_Poly_Character.h"
 #include "Main_Menu_Widget.generated.h"
 
 /**
@@ -76,6 +77,13 @@ protected:
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 		class UWidgetAnimation* FadeAnimation;
 
+
+	// Store the selected weapon type
+	UPROPERTY(BlueprintReadWrite, Category = "Weapons")
+		EWeaponType Weapon;
+
+
+
 	// Functions for button click events
 	UFUNCTION()
 		void OnPlayClicked();
@@ -87,7 +95,19 @@ protected:
 		void OnSwordButtonClicked();
 
 	UFUNCTION()
+		void OnSwordButtonHovered();
+
+	UFUNCTION()
+		void OnSwordButtonFocused();
+
+	UFUNCTION()
 		void OnStaffButtonClicked();
+
+	UFUNCTION()
+		void OnStaffButtonHovered();
+
+	UFUNCTION()
+		void OnStaffButtonFocused();
 
 	UFUNCTION()
 		void HandleGoBack();
@@ -97,6 +117,9 @@ protected:
 
 	UFUNCTION()
 		void SwitchToWeaponSelectMenu();
+
+	UFUNCTION()
+		void UpdateWeaponStats(EWeaponType WeaponType);
 
 
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
