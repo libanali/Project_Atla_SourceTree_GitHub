@@ -119,6 +119,13 @@ public:
 	//Movement
 
 
+
+	//Game mode
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Mode")
+		class AGameMode* LowPoly_Survival_GameMode;
+	//Game mode
+
+
 	//Combat 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		bool SwordChosen;

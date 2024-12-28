@@ -5,6 +5,7 @@
 #include "Components/Button.h"
 #include "Kismet/Gameplaystatics.h"
 #include "Components/WidgetSwitcher.h"
+#include "Game_Instance.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -16,9 +17,23 @@ void UMain_Menu_Widget::NativeConstruct()
     {
         PlayButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnPlayClicked);
     }
+
+
     if (BackButton)
     {
         BackButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnBackClicked);
+    }
+
+
+    if (SwordButton)
+    {
+        SwordButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnSwordButtonClicked);
+    }
+
+
+    if (StaffButton)
+    {
+        StaffButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnStaffButtonClicked);
     }
 
 
@@ -90,6 +105,44 @@ void UMain_Menu_Widget::OnBackClicked()
 
 }
 
+void UMain_Menu_Widget::OnSwordButtonClicked()
+{
+
+    if (UGameInstance* GameInstance = GetGameInstance())
+    {
+        UGame_Instance* CustomGameInstance = Cast<UGame_Instance>(GameInstance);
+        if (CustomGameInstance)
+        {
+            CustomGameInstance->SelectedWeapon = EWeaponType::Sword; // Set weapon to Sword
+        }
+    }
+
+    // Open the gameplay level
+    UGameplayStatics::OpenLevel(this, FName("LowPoly_Level"));
+
+
+}
+
+void UMain_Menu_Widget::OnStaffButtonClicked()
+{
+
+
+    if (UGameInstance* GameInstance = GetGameInstance())
+    {
+        UGame_Instance* CustomGameInstance = Cast<UGame_Instance>(GameInstance);
+        if (CustomGameInstance)
+        {
+            CustomGameInstance->SelectedWeapon = EWeaponType::Staff; // Set weapon to Sword
+        }
+    }
+
+    // Open the gameplay level
+    UGameplayStatics::OpenLevel(this, FName("LowPoly_Level"));
+
+
+
+}
+
 
 
 void UMain_Menu_Widget::HandleGoBack()
@@ -103,6 +156,13 @@ void UMain_Menu_Widget::HandleGoBack()
         if (CurrentIndex > 1)
         {
             WidgetSwitcher->SetActiveWidgetIndex(CurrentIndex - 1);
+
+            // Check if switching back to Main Menu (index 1)
+            if (WidgetSwitcher->GetActiveWidgetIndex() == 1 && PlayButton)
+            {
+                PlayButton->SetKeyboardFocus();
+                GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Focused on Play Button"));
+            }
         }
         else
         {
@@ -114,7 +174,6 @@ void UMain_Menu_Widget::HandleGoBack()
     {
         UE_LOG(LogTemp, Error, TEXT("WidgetSwitcher is null!"));
     }
-
 }
 
 

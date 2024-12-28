@@ -84,6 +84,12 @@ protected:
 		void OnBackClicked();
 
 	UFUNCTION()
+		void OnSwordButtonClicked();
+
+	UFUNCTION()
+		void OnStaffButtonClicked();
+
+	UFUNCTION()
 		void HandleGoBack();
 
 	UFUNCTION()

@@ -2,6 +2,7 @@
 
 
 #include "Ren_Low_Poly_Character.h"
+#include "LowPoly_Survival_GameMode.h"
 #include "Kismet/Gameplaystatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Enemy_Poly.h"
@@ -14,6 +15,7 @@
 #include "Technique_Struct.h"
 #include "Enemy_Detection_Arrow.h"
 #include "Player_Save_Game.h"
+#include "Game_Instance.h"
 #include "Game_Over_Widget.h"
 
 
@@ -2491,8 +2493,32 @@ void ARen_Low_Poly_Character::BeginPlay()
 {
 	Super::BeginPlay();
 
-	LoadHighScore();
+	// Cast to ALowPoly_Survival_GameMode
+	LowPoly_Survival_GameMode = Cast<ALowPoly_Survival_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
+	if (LowPoly_Survival_GameMode)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Game Mode successfully cast to ALowPoly_Survival_GameMode"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to cast to ALowPoly_Survival_GameMode. Check the level's game mode settings."));
+	}
+
+	
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+	if (PC)
+
+	{
+		FInputModeGameOnly GameOnlyInput;
+
+		PC->SetInputMode(GameOnlyInput);
+
+	}
+
+
+	LoadHighScore();
 	LoadPlayerProgress();
 
 	UnlockQueuedTechniques();
@@ -2515,6 +2541,25 @@ void ARen_Low_Poly_Character::BeginPlay()
 	TechniqueStruct.MaxGauge = 100.0f;
 	TechniqueStruct.TechniquePoints = 1;
 	TechniqueStruct.MaxTechniquePoints = 7;
+
+
+	UGameInstance* GameInstance = GetGameInstance();
+	if (GameInstance)
+	{
+		UGame_Instance* CustomGameInstance = Cast<UGame_Instance>(GameInstance);
+		if (CustomGameInstance)
+		{
+
+			WeaponType = CustomGameInstance->SelectedWeapon;
+
+
+		}
+
+	}
+
+
+
+
 
 	TArray<AActor*> OverlappingActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Enemy")), OverlappingActors);
