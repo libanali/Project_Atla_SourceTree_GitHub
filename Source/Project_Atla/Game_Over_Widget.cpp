@@ -991,7 +991,8 @@ void UGame_Over_Widget::UpdateDisplayedScore()
 
         if (Ren)
         {
-            Ren->Score_Reaction_Anim();
+            //Ren->Score_Reaction_Anim();
+            
             // Now that the animation is complete, update the high score
             Ren->UpdateHighScore(TargetScore);  // Update high score here
 

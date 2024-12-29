@@ -64,6 +64,9 @@ protected:
 		class UTextBlock* WeaponSelectTitle;
 
 	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* WeaponDescription;
+
+	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* AttackStat;
 
 	UPROPERTY(meta = (BindWidget))
@@ -120,6 +123,10 @@ protected:
 
 	UFUNCTION()
 		void UpdateWeaponStats(EWeaponType WeaponType);
+
+	UFUNCTION()
+		void OnWeaponButtonHovered(const FString& Description);
+
 
 
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;

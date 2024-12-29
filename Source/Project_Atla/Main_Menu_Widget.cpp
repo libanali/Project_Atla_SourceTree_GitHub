@@ -135,9 +135,8 @@ void UMain_Menu_Widget::OnSwordButtonHovered()
 {
 
     UpdateWeaponStats(EWeaponType::Sword);
+    OnWeaponButtonHovered(TEXT("A sharp sword with enhanced lightning power."));
     GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Sword Button Hovered"));
-
-
 
 }
 
@@ -147,6 +146,7 @@ void UMain_Menu_Widget::OnSwordButtonFocused()
 {
 
     UpdateWeaponStats(EWeaponType::Sword);
+    OnWeaponButtonHovered(TEXT("A sharp sword with enhanced lightning power."));
     GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Sword Button Focused"));
 
 
@@ -178,9 +178,8 @@ void UMain_Menu_Widget::OnStaffButtonHovered()
 {
 
     UpdateWeaponStats(EWeaponType::Staff);
+    OnWeaponButtonHovered(TEXT("A mystical staff that boosts elemental power."));
     GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Staff Button Hovered"));
-
-
 
 }
 
@@ -191,10 +190,26 @@ void UMain_Menu_Widget::OnStaffButtonFocused()
 
 
     UpdateWeaponStats(EWeaponType::Staff);
+    OnWeaponButtonHovered(TEXT("A mystical staff that boosts elemental power."));
     GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Staff Button Focused"));
 
 
 }
+
+
+
+
+
+void UMain_Menu_Widget::OnWeaponButtonHovered(const FString& Description)
+{
+
+    if (WeaponDescription)
+    {
+        WeaponDescription->SetText(FText::FromString(Description));
+    }
+
+}
+
 
 
 void UMain_Menu_Widget::UpdateWeaponStats(EWeaponType WeaponType)
@@ -216,27 +231,29 @@ void UMain_Menu_Widget::UpdateWeaponStats(EWeaponType WeaponType)
             if (AttackStat)
 
             {
-                AttackStat->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), WeaponProficiency.AttackPowerBoost)));
+             //   AttackStat->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), WeaponProficiency.AttackPowerBoost)));
 
             }
 
             if (DefenceStat)
 
             {
-                DefenceStat->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), WeaponProficiency.DefenseBoost)));
+              //  DefenceStat->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), WeaponProficiency.DefenseBoost)));
 
             }
 
             if (ElementalStat)
 
             {
-                ElementalStat->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), WeaponProficiency.ElementalPowerBoost)));
+              //  ElementalStat->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), WeaponProficiency.ElementalPowerBoost)));
 
             }
         }
     }
 
 }
+
+
 
 
 
@@ -378,15 +395,31 @@ void UMain_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
     if (SwordButton && SwordButton->HasKeyboardFocus())
     {
         UpdateWeaponStats(EWeaponType::Sword);
+        OnWeaponButtonHovered("A sharp sword with enhanced attack power.");
 
     }
+
+    else if (SwordButton && SwordButton->IsHovered())
+
+    {
+        UpdateWeaponStats(EWeaponType::Sword);
+    }
+
 
     // Check if the staff button has keyboard focus and update stats
     if (StaffButton && StaffButton->HasKeyboardFocus())
     {
         UpdateWeaponStats(EWeaponType::Staff);
+        OnWeaponButtonHovered("A mystical staff that boosts elemental power.");
+ 
     }
 
+    else if (StaffButton && StaffButton->IsHovered())
+
+    {
+        UpdateWeaponStats(EWeaponType::Staff);
+
+    }
 
 }
 
