@@ -138,6 +138,9 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 
 
+
+
+
 void ARen_Low_Poly_Character::MoveForward(float Axis)
 {
 
@@ -172,6 +175,43 @@ void ARen_Low_Poly_Character::MoveRight(float Axis)
 		AddMovementInput(Direction, Axis);
 
 	}
+
+}
+
+
+
+
+void ARen_Low_Poly_Character::DisplayWeaponStats(EWeaponType TheWeaponType)
+{
+
+	float Attack = 0.f;
+	float Defense = 0.f;
+	float ElementalAttack = 0.f;
+
+	if (TheWeaponType == EWeaponType::Sword)
+	{
+		Attack = BaseAttack;
+		Defense = BaseDefence;
+		ElementalAttack = BaseElementalAttack;
+	}
+	else if (TheWeaponType == EWeaponType::Staff)
+	{
+		Attack = BaseAttack;
+		Defense = BaseDefence;
+		ElementalAttack = BaseElementalAttack;
+	}
+
+	if (WeaponProficiencyMap.Contains(TheWeaponType))
+	{
+		const FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[TheWeaponType];
+		Attack += Proficiency.AttackPowerBoost;
+		Defense += Proficiency.DefenseBoost;
+		ElementalAttack += Proficiency.ElementalPowerBoost;
+	}
+
+	// Log the final stats
+	UE_LOG(LogTemp, Warning, TEXT("Weapon Type: %d, Attack: %.2f, Defense: %.2f, Elemental Attack: %.2f"),
+		(int32)TheWeaponType, Attack, Defense, ElementalAttack);
 
 }
 
@@ -276,10 +316,10 @@ void ARen_Low_Poly_Character::UpdateStatsBasedOnWeapon()
 		ManaStruct.MaxMana += Proficiency.MaxManaBoost;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("Updated Stats - Attack: %f, Defense: %f, Elemental: %f, Max Health: %f"),
-		BaseAttack, BaseDefence, BaseElementalAttack, HealthStruct.MaxHealth);
-
+	
 }
+
+
 
 
 
@@ -573,6 +613,8 @@ void ARen_Low_Poly_Character::SavePlayerProgress()
 
 }
 
+
+
 void ARen_Low_Poly_Character::LoadPlayerProgress()
 {
 
@@ -589,6 +631,9 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 				Pair.Value.WeaponLevel,
 				Pair.Value.CurrentEXP);
 		}
+
+		UpdateStatsBasedOnWeapon();
+
 	}
 	else
 	{
@@ -3039,6 +3084,7 @@ void ARen_Low_Poly_Character::AddPoints(int32 Points)
 
 
 }
+
 
 
 

@@ -92,6 +92,10 @@ public:
 
 
 
+
+
+
+
 class AEnemy_Poly;
 class AResults_camera;
 
@@ -120,11 +124,16 @@ public:
 
 
 
+
+
+
 	//Game mode
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Mode")
 		class AGameMode* LowPoly_Survival_GameMode;
 	//Game mode
 
+
+	void DisplayWeaponStats(EWeaponType WeaponType);
 
 	//Combat 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
@@ -784,7 +793,6 @@ public:
 
 
 
-
 	//Enemy Arrow UI
 	UPROPERTY()
 		TArray<UEnemy_Detection_Arrow*> EnemyArrowWidgets;
@@ -818,8 +826,5 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Projectile")
 		USceneComponent* StaffFireProjectile;
 	//Character Components
-
-
-
 
 };

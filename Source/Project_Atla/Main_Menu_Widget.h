@@ -124,6 +124,10 @@ protected:
 	UFUNCTION()
 		void UpdateWeaponStats(EWeaponType WeaponType);
 
+
+	void UpdateWeaponStatsText(float Attack, float Defense, float ElementalAttack);
+
+
 	UFUNCTION()
 		void OnWeaponButtonHovered(const FString& Description);
 
@@ -137,6 +141,8 @@ private:
 
 	bool bIsOnTitleScreen;
 	bool bHasSetFocusForSwordButton;
+	ARen_Low_Poly_Character* GetPlayerCharacter();
+
 };
 
 

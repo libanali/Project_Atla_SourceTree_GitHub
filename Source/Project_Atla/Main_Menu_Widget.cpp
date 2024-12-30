@@ -10,6 +10,7 @@
 #include "Game_Instance.h"
 #include "Ren_Low_Poly_Character.h"
 #include "Kismet/GameplayStatics.h"
+#include "Player_Save_Game.h"
 
 
 void UMain_Menu_Widget::NativeConstruct()
@@ -69,7 +70,22 @@ void UMain_Menu_Widget::NativeConstruct()
     
     bIsOnTitleScreen = true;
     bHasSetFocusForSwordButton = false;
-    
+
+
+    // Get the custom game instance
+    UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
+    if (GameInstance)
+    {
+        // Load the player progress
+        GameInstance->LoadPlayerProgress();
+
+        // Example: Use the loaded data to update the UI or set weapon selection
+        if (GameInstance->WeaponProficiencyMap.Contains(EWeaponType::Sword))
+        {
+            const FWeapon_Proficiency_Struct& SwordStats = GameInstance->WeaponProficiencyMap[EWeaponType::Sword];
+            UE_LOG(LogTemp, Log, TEXT("Sword Level: %d, Sword EXP: %.2f"), SwordStats.WeaponLevel, SwordStats.CurrentEXP);
+        }
+    }
 
 }
 
@@ -214,41 +230,64 @@ void UMain_Menu_Widget::OnWeaponButtonHovered(const FString& Description)
 
 void UMain_Menu_Widget::UpdateWeaponStats(EWeaponType WeaponType)
 {
+    // Get the Game Instance
+    UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
 
-    // Get the player's weapon proficiency map (assumed to be in the character)
-    ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-
-    if (PlayerCharacter)
+    if (!GameInstance)
     {
-        const TMap<EWeaponType, FWeapon_Proficiency_Struct>& WeaponProficiencyMap = PlayerCharacter->WeaponProficiencyMap;
+        UE_LOG(LogTemp, Error, TEXT("Failed to get GameInstance in UpdateWeaponStats!"));
+        return;
+    }
 
-        // Get the stats for the selected weapon
-        if (WeaponProficiencyMap.Contains(WeaponType))
-        {
-            const FWeapon_Proficiency_Struct& WeaponProficiency = WeaponProficiencyMap[WeaponType];
+    // Retrieve individual base stats using the modified function
+    float BaseAttack = 0.0f;
+    float BaseDefense = 0.0f;
+    float BaseElementalAttack = 0.0f;
 
-            // Update the UI text blocks with weapon stats
-            if (AttackStat)
+    if (GameInstance->GetWeaponBaseStats(WeaponType, BaseAttack, BaseDefense, BaseElementalAttack))
+    {
+        // Update the UI with the retrieved stats
+        UpdateWeaponStatsText(BaseAttack, BaseDefense, BaseElementalAttack);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Failed to retrieve base stats for WeaponType: %d"), (int32)WeaponType);
+    }
+}
 
-            {
-             //   AttackStat->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), WeaponProficiency.AttackPowerBoost)));
 
-            }
 
-            if (DefenceStat)
 
-            {
-              //  DefenceStat->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), WeaponProficiency.DefenseBoost)));
+void UMain_Menu_Widget::UpdateWeaponStatsText(float Attack, float Defense, float ElementalAttack)
+{
+    if (AttackStat)
+    {
+        AttackStat->SetText(FText::FromString(FString::Printf(TEXT("Attack: %.2f"), Attack)));
+        UE_LOG(LogTemp, Warning, TEXT("AttackStat updated with: %.2f"), Attack);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("AttackStat is null!"));
+    }
 
-            }
+    if (DefenceStat)
+    {
+        DefenceStat->SetText(FText::FromString(FString::Printf(TEXT("Defense: %.2f"), Defense)));
+        UE_LOG(LogTemp, Warning, TEXT("DefenceStat updated with: %.2f"), Defense);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("DefenceStat is null!"));
+    }
 
-            if (ElementalStat)
-
-            {
-              //  ElementalStat->SetText(FText::FromString(FString::Printf(TEXT("%.2f"), WeaponProficiency.ElementalPowerBoost)));
-
-            }
-        }
+    if (ElementalStat)
+    {
+        ElementalStat->SetText(FText::FromString(FString::Printf(TEXT("Elemental Attack: %.2f"), ElementalAttack)));
+        UE_LOG(LogTemp, Warning, TEXT("ElementalStat updated with: %.2f"), ElementalAttack);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("ElementalStat is null!"));
     }
 
 }
@@ -287,6 +326,8 @@ void UMain_Menu_Widget::HandleGoBack()
         UE_LOG(LogTemp, Error, TEXT("WidgetSwitcher is null!"));
     }
 }
+
+
 
 
 
@@ -421,6 +462,11 @@ void UMain_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 
     }
 
+}
+
+ARen_Low_Poly_Character* UMain_Menu_Widget::GetPlayerCharacter()
+{
+    return nullptr;
 }
 
 

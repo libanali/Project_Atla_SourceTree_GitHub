@@ -27,7 +27,28 @@ public:
         EWeaponType SelectedWeapon;
 
 	
+    UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Save Data")
+        TMap<EWeaponType, FWeapon_Proficiency_Struct> WeaponProficiencyMap;
+
+    UFUNCTION(BlueprintCallable, Category = "Save Data")
+        void LoadPlayerProgress();
+
+
+    UPROPERTY(BlueprintReadWrite, Category = "Weapon Stats")
+        float CurrentAttack;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Weapon Stats")
+        float CurrentDefense;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Weapon Stats")
+        float CurrentMaxHealth;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Weapon Stats")
+        float CurrentElementalAttack;
 
 
 
+
+
+    bool GetWeaponBaseStats(EWeaponType WeaponType, float& OutAttack, float& OutDefense, float& OutElementalAttack) const;
 };
