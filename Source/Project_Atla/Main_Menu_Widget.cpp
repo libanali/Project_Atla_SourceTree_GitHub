@@ -87,6 +87,7 @@ void UMain_Menu_Widget::NativeConstruct()
         }
     }
 
+
 }
 
 
@@ -154,6 +155,35 @@ void UMain_Menu_Widget::OnSwordButtonHovered()
     OnWeaponButtonHovered(TEXT("A sharp sword with enhanced lightning power."));
     GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Sword Button Hovered"));
 
+    UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
+
+    if (!GameInstance)
+    {
+        UE_LOG(LogTemp, Error, TEXT("GameInstance is null in OnSwordButtonHovered!"));
+        return;
+    }
+
+    // Check if the weapon data exists in the proficiency map
+    if (GameInstance->WeaponProficiencyMap.Contains(EWeaponType::Sword))
+    {
+        const FWeapon_Proficiency_Struct& SwordStats = GameInstance->WeaponProficiencyMap[EWeaponType::Sword];
+
+        // Update the weapon level text
+        if (WeaponLevelStat)
+        {
+            WeaponLevelStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), SwordStats.WeaponLevel)));
+            UE_LOG(LogTemp, Log, TEXT("Updated WeaponLevelStat with Sword Level: %d"), SwordStats.WeaponLevel);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("WeaponLevelStat is null!"));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Sword not found in WeaponProficiencyMap!"));
+    }
+
 }
 
 
@@ -164,7 +194,34 @@ void UMain_Menu_Widget::OnSwordButtonFocused()
     UpdateWeaponStats(EWeaponType::Sword);
     OnWeaponButtonHovered(TEXT("A sharp sword with enhanced lightning power."));
     GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Sword Button Focused"));
+    UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
 
+    if (!GameInstance)
+    {
+        UE_LOG(LogTemp, Error, TEXT("GameInstance is null in OnSwordButtonHovered!"));
+        return;
+    }
+
+    // Check if the weapon data exists in the proficiency map
+    if (GameInstance->WeaponProficiencyMap.Contains(EWeaponType::Sword))
+    {
+        const FWeapon_Proficiency_Struct& SwordStats = GameInstance->WeaponProficiencyMap[EWeaponType::Sword];
+
+        // Update the weapon level text
+        if (WeaponLevelStat)
+        {
+            WeaponLevelStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), SwordStats.WeaponLevel)));
+            UE_LOG(LogTemp, Log, TEXT("Updated WeaponLevelStat with Sword Level: %d"), SwordStats.WeaponLevel);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("WeaponLevelStat is null!"));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Sword not found in WeaponProficiencyMap!"));
+    }
 
 }
 
@@ -197,6 +254,35 @@ void UMain_Menu_Widget::OnStaffButtonHovered()
     OnWeaponButtonHovered(TEXT("A mystical staff that boosts elemental power."));
     GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Staff Button Hovered"));
 
+    UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
+
+    if (!GameInstance)
+    {
+        UE_LOG(LogTemp, Error, TEXT("GameInstance is null in OnStaffButtonHovered!"));
+        return;
+    }
+
+    // Check if the weapon data exists in the proficiency map
+    if (GameInstance->WeaponProficiencyMap.Contains(EWeaponType::Staff))
+    {
+        const FWeapon_Proficiency_Struct& SwordStats = GameInstance->WeaponProficiencyMap[EWeaponType::Staff];
+
+        // Update the weapon level text
+        if (WeaponLevelStat)
+        {
+            WeaponLevelStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), SwordStats.WeaponLevel)));
+            UE_LOG(LogTemp, Log, TEXT("Updated WeaponLevelStat with Staff Level: %d"), SwordStats.WeaponLevel);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("WeaponLevelStat is null!"));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Staff not found in WeaponProficiencyMap!"));
+    }
+
 }
 
 
@@ -210,6 +296,34 @@ void UMain_Menu_Widget::OnStaffButtonFocused()
     GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Staff Button Focused"));
 
 
+    UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
+
+    if (!GameInstance)
+    {
+        UE_LOG(LogTemp, Error, TEXT("GameInstance is null in OnSwordButtonHovered!"));
+        return;
+    }
+
+    // Check if the weapon data exists in the proficiency map
+    if (GameInstance->WeaponProficiencyMap.Contains(EWeaponType::Staff))
+    {
+        const FWeapon_Proficiency_Struct& SwordStats = GameInstance->WeaponProficiencyMap[EWeaponType::Staff];
+
+        // Update the weapon level text
+        if (WeaponLevelStat)
+        {
+            WeaponLevelStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), SwordStats.WeaponLevel)));
+            UE_LOG(LogTemp, Log, TEXT("Updated WeaponLevelStat with Sword Level: %d"), SwordStats.WeaponLevel);
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("WeaponLevelStat is null!"));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Sword not found in WeaponProficiencyMap!"));
+    }
 }
 
 
@@ -239,16 +353,19 @@ void UMain_Menu_Widget::UpdateWeaponStats(EWeaponType WeaponType)
         return;
     }
 
+
     // Retrieve updated stats
     float UpdatedAttack = 0.0f;
     float UpdatedDefense = 0.0f;
     float UpdatedElementalAttack = 0.0f;
-    float UpdatedMaxHealth = 0.0f;
+    float UpdatedMaxHealth = 0.0f;  
+    int32 UpdatedWeaponLevel = 0;
 
-    if (GameInstance->GetWeaponBaseStats(WeaponType, UpdatedAttack, UpdatedDefense, UpdatedElementalAttack))
+
+    if (GameInstance->GetWeaponBaseStats(WeaponType, UpdatedAttack, UpdatedDefense, UpdatedElementalAttack, UpdatedWeaponLevel))
     {
         // Update the UI with the retrieved stats
-        UpdateWeaponStatsText(UpdatedAttack, UpdatedDefense, UpdatedElementalAttack);
+        UpdateWeaponStatsText(UpdatedAttack, UpdatedDefense, UpdatedElementalAttack, UpdatedWeaponLevel);
     }
     else
     {
@@ -259,12 +376,14 @@ void UMain_Menu_Widget::UpdateWeaponStats(EWeaponType WeaponType)
 
 
 
-void UMain_Menu_Widget::UpdateWeaponStatsText(float Attack, float Defense, float ElementalAttack)
+void UMain_Menu_Widget::UpdateWeaponStatsText(float Attack, float Defense, float ElementalAttack, int32 WeaponLevel)
 {
+
     if (AttackStat)
     {
-        AttackStat->SetText(FText::FromString(FString::Printf(TEXT("Attack: %.2f"), Attack)));
-        UE_LOG(LogTemp, Warning, TEXT("AttackStat updated with: %.2f"), Attack);
+        // Convert Attack to an integer and update the text
+        AttackStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), static_cast<int32>(Attack))));
+        UE_LOG(LogTemp, Warning, TEXT("AttackStat updated with: %d"), static_cast<int32>(Attack));
     }
     else
     {
@@ -273,8 +392,9 @@ void UMain_Menu_Widget::UpdateWeaponStatsText(float Attack, float Defense, float
 
     if (DefenceStat)
     {
-        DefenceStat->SetText(FText::FromString(FString::Printf(TEXT("Defense: %.2f"), Defense)));
-        UE_LOG(LogTemp, Warning, TEXT("DefenceStat updated with: %.2f"), Defense);
+        // Convert Defense to an integer and update the text
+        DefenceStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), static_cast<int32>(Defense))));
+        UE_LOG(LogTemp, Warning, TEXT("DefenceStat updated with: %d"), static_cast<int32>(Defense));
     }
     else
     {
@@ -283,15 +403,27 @@ void UMain_Menu_Widget::UpdateWeaponStatsText(float Attack, float Defense, float
 
     if (ElementalStat)
     {
-        ElementalStat->SetText(FText::FromString(FString::Printf(TEXT("Elemental Attack: %.2f"), ElementalAttack)));
-        UE_LOG(LogTemp, Warning, TEXT("ElementalStat updated with: %.2f"), ElementalAttack);
+        // Convert ElementalAttack to an integer and update the text
+        ElementalStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), static_cast<int32>(ElementalAttack))));
+        UE_LOG(LogTemp, Warning, TEXT("ElementalStat updated with: %d"), static_cast<int32>(ElementalAttack));
     }
     else
     {
         UE_LOG(LogTemp, Error, TEXT("ElementalStat is null!"));
     }
 
+    if (WeaponLevelStat)
+    {
+        // WeaponLevel is already an integer, so no conversion needed
+        WeaponLevelStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), WeaponLevel)));
+        UE_LOG(LogTemp, Warning, TEXT("WeaponLevelStat updated with: %d"), WeaponLevel);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("WeaponLevelStat is null!"));
+    }
 }
+
 
 
 

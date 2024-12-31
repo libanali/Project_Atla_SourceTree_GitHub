@@ -2850,6 +2850,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	InputComponent->BindAction("Open Commands Menu", IE_Pressed, this, &ARen_Low_Poly_Character::ToggleCommandMenu);
 	InputComponent->BindAction("Roll Dodge or Back", IE_Pressed, this, &ARen_Low_Poly_Character::HandleBackInput);
 
+
 	if (WeaponProficiencyMap.Contains(EWeaponType::Sword))
 	{
 		FWeapon_Proficiency_Struct& SwordProficiency = WeaponProficiencyMap[EWeaponType::Sword];

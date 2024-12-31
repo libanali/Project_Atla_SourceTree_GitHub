@@ -50,5 +50,5 @@ public:
 
 
 
-    bool GetWeaponBaseStats(EWeaponType WeaponType, float& OutAttack, float& OutDefense, float& OutElementalAttack) const;
+    bool GetWeaponBaseStats(EWeaponType WeaponType, float& OutAttack, float& OutDefense, float& OutElementalAttack, int32& OutWeaponLevel) const;
 };

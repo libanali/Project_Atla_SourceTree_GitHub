@@ -75,6 +75,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* ElementalStat;
 
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* WeaponLevelStat;
+
 
 	// Animation for fading in and out
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
@@ -125,7 +128,7 @@ protected:
 		void UpdateWeaponStats(EWeaponType WeaponType);
 
 
-	void UpdateWeaponStatsText(float Attack, float Defense, float ElementalAttack);
+	void UpdateWeaponStatsText(float Attack, float Defense, float ElementalAttack, int32 WeaponLevel);
 
 
 	UFUNCTION()

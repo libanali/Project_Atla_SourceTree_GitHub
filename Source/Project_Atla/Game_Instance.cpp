@@ -31,12 +31,13 @@ void UGame_Instance::LoadPlayerProgress()
 
 }
 
-bool UGame_Instance::GetWeaponBaseStats(EWeaponType WeaponType, float& OutAttack, float& OutDefense, float& OutElementalAttack) const
+bool UGame_Instance::GetWeaponBaseStats(EWeaponType WeaponType, float& OutAttack, float& OutDefense, float& OutElementalAttack, int32& OutWeaponLevel) const
 {
     // Initialize outputs
     OutAttack = 0.0f;
     OutDefense = 0.0f;
     OutElementalAttack = 0.0f;
+    OutWeaponLevel = 0;
 
     // Retrieve base stats based on WeaponType
     if (WeaponType == EWeaponType::Sword)
@@ -44,14 +45,21 @@ bool UGame_Instance::GetWeaponBaseStats(EWeaponType WeaponType, float& OutAttack
         OutAttack = 3.0f;
         OutDefense = 2.0f;
         OutElementalAttack = 4.0f;
+        OutWeaponLevel = 1;  // Default level for Sword
+
     }
+
     else if (WeaponType == EWeaponType::Staff)
     {
         OutAttack = 20.0f;
         OutDefense = 2.0f;
         OutElementalAttack = 10.0f;
+        OutWeaponLevel = 1;  // Default level for Sword
+
     }
+
     else
+
     {
         // If the weapon type is not recognized, return false
         return false;
@@ -66,6 +74,7 @@ bool UGame_Instance::GetWeaponBaseStats(EWeaponType WeaponType, float& OutAttack
         OutAttack += Proficiency.AttackPowerBoost;
         OutDefense += Proficiency.DefenseBoost;
         OutElementalAttack += Proficiency.ElementalPowerBoost;
+        OutWeaponLevel = Proficiency.WeaponLevel;
     }
 
     return true;
