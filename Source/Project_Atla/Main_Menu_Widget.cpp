@@ -239,19 +239,20 @@ void UMain_Menu_Widget::UpdateWeaponStats(EWeaponType WeaponType)
         return;
     }
 
-    // Retrieve individual base stats using the modified function
-    float BaseAttack = 0.0f;
-    float BaseDefense = 0.0f;
-    float BaseElementalAttack = 0.0f;
+    // Retrieve updated stats
+    float UpdatedAttack = 0.0f;
+    float UpdatedDefense = 0.0f;
+    float UpdatedElementalAttack = 0.0f;
+    float UpdatedMaxHealth = 0.0f;
 
-    if (GameInstance->GetWeaponBaseStats(WeaponType, BaseAttack, BaseDefense, BaseElementalAttack))
+    if (GameInstance->GetWeaponBaseStats(WeaponType, UpdatedAttack, UpdatedDefense, UpdatedElementalAttack))
     {
         // Update the UI with the retrieved stats
-        UpdateWeaponStatsText(BaseAttack, BaseDefense, BaseElementalAttack);
+        UpdateWeaponStatsText(UpdatedAttack, UpdatedDefense, UpdatedElementalAttack);
     }
     else
     {
-        UE_LOG(LogTemp, Warning, TEXT("Failed to retrieve base stats for WeaponType: %d"), (int32)WeaponType);
+        UE_LOG(LogTemp, Warning, TEXT("Failed to retrieve updated stats for WeaponType: %d"), (int32)WeaponType);
     }
 }
 

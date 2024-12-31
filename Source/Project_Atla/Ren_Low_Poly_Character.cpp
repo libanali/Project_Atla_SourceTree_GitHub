@@ -2306,6 +2306,8 @@ void ARen_Low_Poly_Character::ApplyQueuedEXP()
 
 
 
+
+
 void ARen_Low_Poly_Character::ApplyQueuedLevelUp(EWeaponType Weapon)
 {
 	// Clear queued techniques to ensure only current level-up techniques are added
@@ -2363,9 +2365,6 @@ void ARen_Low_Poly_Character::ApplyQueuedLevelUp(EWeaponType Weapon)
 		}
 	}
 }
-
-
-
 
 
 
@@ -2496,6 +2495,7 @@ void ARen_Low_Poly_Character::CheckAndDisplayArrow(AActor* Enemy, UEnemy_Detecti
 			{
 				EdgePosition.X = ViewportSize.X - EdgePadding;  // Right edge
 			}
+
 			EdgePosition.Y = ViewportSize.Y / 2 + (Direction.Y * (ViewportSize.Y / 2 - EdgePadding)); // Center vertically along the edge
 		}
 		else

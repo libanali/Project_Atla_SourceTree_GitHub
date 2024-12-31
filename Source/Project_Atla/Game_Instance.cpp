@@ -33,29 +33,42 @@ void UGame_Instance::LoadPlayerProgress()
 
 bool UGame_Instance::GetWeaponBaseStats(EWeaponType WeaponType, float& OutAttack, float& OutDefense, float& OutElementalAttack) const
 {
-    // Initialize outputs to 0
+    // Initialize outputs
     OutAttack = 0.0f;
     OutDefense = 0.0f;
     OutElementalAttack = 0.0f;
 
-    // Return base stats based on WeaponType
+    // Retrieve base stats based on WeaponType
     if (WeaponType == EWeaponType::Sword)
     {
         OutAttack = 3.0f;
         OutDefense = 2.0f;
         OutElementalAttack = 4.0f;
-        return true;
     }
     else if (WeaponType == EWeaponType::Staff)
     {
         OutAttack = 20.0f;
         OutDefense = 2.0f;
         OutElementalAttack = 10.0f;
-        return true;
+    }
+    else
+    {
+        // If the weapon type is not recognized, return false
+        return false;
     }
 
-    // If the weapon type is not recognized
-    return false;
+    // Check if the weapon exists in the proficiency map
+    if (WeaponProficiencyMap.Contains(WeaponType))
+    {
+        const FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[WeaponType];
+
+        // Apply proficiency boosts to the base stats
+        OutAttack += Proficiency.AttackPowerBoost;
+        OutDefense += Proficiency.DefenseBoost;
+        OutElementalAttack += Proficiency.ElementalPowerBoost;
+    }
+
+    return true;
 }
 
 
