@@ -5,6 +5,7 @@
 #include "Components/Button.h"
 #include "Components/Widget.h"
 #include "Components/TextBlock.h"
+#include "Components/ProgressBar.h"
 #include "Kismet/Gameplaystatics.h"
 #include "Components/WidgetSwitcher.h"
 #include "Game_Instance.h"

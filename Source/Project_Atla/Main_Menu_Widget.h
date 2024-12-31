@@ -78,6 +78,24 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* WeaponLevelStat;
 
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* FireProficiencyLevel;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* IceProficiencyLevel;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* ThunderProficiencyLevel;
+
+	UPROPERTY(meta = (BindWidget))
+		class UProgressBar* FireProficiencyBar;
+
+	UPROPERTY(meta = (BindWidget))
+		class UProgressBar* IceProficiencyBar;
+
+	UPROPERTY(meta = (BindWidget))
+		class UProgressBar* ThunderProficiencyBar;
+
 
 	// Animation for fading in and out
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
