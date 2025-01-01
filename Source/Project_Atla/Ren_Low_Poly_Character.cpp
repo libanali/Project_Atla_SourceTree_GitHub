@@ -1485,29 +1485,134 @@ void ARen_Low_Poly_Character::AddExperienceToElementalProfiency(EWeaponType TheW
 
 void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, EElementalAttackType ElementType)
 {
-
 	// Define the new ability to be unlocked
 	FElemental_Struct NewAbility;
 
-	if (ElementType == EElementalAttackType::Fire)
+	// Check which weapon type and elemental type we are dealing with
+	if (TheWeaponType == EWeaponType::Sword)
 	{
-		NewAbility = FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 1.5f, 10.0f, 2, true, FireAOEAnimation);
-		ElementalAttacks.Add(NewAbility);
-		UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.2 Ability!"));
+		// Check Fire Elemental Level and Unlock Abilities
+		if (ElementType == EElementalAttackType::Fire)
+		{
+			int32 CurrentFireLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword].FireLevel;
+
+			// Unlock abilities based on Fire Level, starting from Level 2
+			if (CurrentFireLevel == 2)
+			{
+				NewAbility = FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 2.0f, 7.5f, 2, true, FireAOEAnimation);
+				ElementalAttacks.Add(NewAbility);
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.2 Ability!"));
+			}
+			else if (CurrentFireLevel == 3)
+			{
+				NewAbility = FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 2.5f, 10.0f, 3, true, FireGroundAnimation);
+				ElementalAttacks.Add(NewAbility);
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.3 Ability!"));
+			}
+		}
+		// Check Ice Elemental Level and Unlock Abilities
+		else if (ElementType == EElementalAttackType::Ice)
+		{
+			int32 CurrentIceLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword].IceLevel;
+
+			// Unlock abilities based on Ice Level, starting from Level 2
+			if (CurrentIceLevel == 2)
+			{
+				NewAbility = FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 1.5f, 7.0f, 2, true, IceAOEAnimation);
+				ElementalAttacks.Add(NewAbility);
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.2 Ability!"));
+			}
+			else if (CurrentIceLevel == 3)
+			{
+				NewAbility = FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 2.0f, 10.0f, 3, true, IceGroundAnimation);
+				ElementalAttacks.Add(NewAbility);
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.3 Ability!"));
+			}
+		}
+		// Check Thunder Elemental Level and Unlock Abilities
+		else if (ElementType == EElementalAttackType::Thunder)
+		{
+			int32 CurrentThunderLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword].ThunderLevel;
+
+			// Unlock abilities based on Thunder Level, starting from Level 2
+			if (CurrentThunderLevel == 2)
+			{
+				NewAbility = FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 1.8f, 8.0f, 2, true, ThunderAOEAnimation);
+				ElementalAttacks.Add(NewAbility);
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.2 Ability!"));
+			}
+			else if (CurrentThunderLevel == 3)
+			{
+				NewAbility = FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 2.5f, 10.0f, 3, true, ThunderGroundAnimation);
+				ElementalAttacks.Add(NewAbility);
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.3 Ability!"));
+			}
+		}
 	}
-	else if (ElementType == EElementalAttackType::Ice)
+	// Add logic for Staff Weapon Type
+	else if (TheWeaponType == EWeaponType::Staff)
 	{
-		NewAbility = FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 1.5f, 10.0f, 2, true, IceAOEAnimation);
-		ElementalAttacks.Add(NewAbility);
-		UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.2 Ability!"));
-	}
-	else if (ElementType == EElementalAttackType::Thunder)
-	{
-		NewAbility = FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 1.5f, 10.0f, 2, true, ThunderAOEAnimation);
-		ElementalAttacks.Add(NewAbility);
-		UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.2 Ability!"));
+		// Check Fire Elemental Level and Unlock Abilities for Staff
+		if (ElementType == EElementalAttackType::Fire)
+		{
+			int32 CurrentFireLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Staff].FireLevel;
+
+			// Unlock abilities based on Fire Level, starting from Level 2 for Staff
+			if (CurrentFireLevel == 2)
+			{
+				NewAbility = FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 2.2f, 8.0f, 2, true, FireAOEAnimation);
+				ElementalAttacks.Add(NewAbility);
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.2 Ability for Staff!"));
+			}
+			else if (CurrentFireLevel == 3)
+			{
+				NewAbility = FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 2.8f, 10.5f, 3, true, FireGroundAnimation);
+				ElementalAttacks.Add(NewAbility);
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.3 Ability for Staff!"));
+			}
+		}
+		// Check Ice Elemental Level and Unlock Abilities for Staff
+		else if (ElementType == EElementalAttackType::Ice)
+		{
+			int32 CurrentIceLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Staff].IceLevel;
+
+			// Unlock abilities based on Ice Level, starting from Level 2 for Staff
+			if (CurrentIceLevel == 2)
+			{
+				NewAbility = FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 2.2f, 8.5f, 2, true, IceAOEAnimation);
+				ElementalAttacks.Add(NewAbility);
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.2 Ability for Staff!"));
+			}
+			else if (CurrentIceLevel == 3)
+			{
+				NewAbility = FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 2.7f, 11.0f, 3, true, IceGroundAnimation);
+				ElementalAttacks.Add(NewAbility);
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.3 Ability for Staff!"));
+			}
+		}
+		// Check Thunder Elemental Level and Unlock Abilities for Staff
+		else if (ElementType == EElementalAttackType::Thunder)
+		{
+			int32 CurrentThunderLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Staff].ThunderLevel;
+
+			// Unlock abilities based on Thunder Level, starting from Level 2 for Staff
+			if (CurrentThunderLevel == 2)
+			{
+				NewAbility = FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 2.0f, 9.0f, 2, true, ThunderAOEAnimation);
+				ElementalAttacks.Add(NewAbility);
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.2 Ability for Staff!"));
+			}
+			else if (CurrentThunderLevel == 3)
+			{
+				NewAbility = FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 2.5f, 11.5f, 3, true, ThunderGroundAnimation);
+				ElementalAttacks.Add(NewAbility);
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.3 Ability for Staff!"));
+			}
+		}
 	}
 }
+
+
 
 
 
