@@ -41,4 +41,15 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental Proficiency")
         int32 ThunderLevel = 1;
 
+
+    // Thresholds for leveling up each elemental proficiency
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental Proficiency")
+        TMap<int32, float> FireProficiencyThresholds;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental Proficiency")
+        TMap<int32, float> IceProficiencyThresholds;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental Proficiency")
+        TMap<int32, float> ThunderProficiencyThresholds;
+
 };

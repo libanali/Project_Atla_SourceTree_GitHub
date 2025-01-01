@@ -1151,7 +1151,6 @@ void ARen_Low_Poly_Character::IncreaseDefence(float IncreaseAmount)
 
 
 
-
 void ARen_Low_Poly_Character::CalculateElementalAttack()
 {
 
@@ -1168,6 +1167,7 @@ void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 	{
 		FElemental_Struct& SelectedElementalAttack = ElementalAttacks[ElementalIndex];
 
+		// Check if the elemental attack is unlocked and if there is enough mana to use the attack
 		if (SelectedElementalAttack.bIsUnlocked && ManaStruct.CurrentMana >= SelectedElementalAttack.ManaCost)
 		{
 			// Deduct mana
@@ -1179,34 +1179,22 @@ void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 			// Set the current elemental attack type
 			CurrentElementalAttackType = SelectedElementalAttack.ElementalType;
 
-		//	AddExperienceToElementalProfiency(WeaponType, SelectedElementalAttack.ElementalType, 250.0f);
+			// Immediately add experience to the elemental proficiency
+			AddExperienceToElementalProfiency(WeaponType, SelectedElementalAttack.ElementalType, 1750.0f);
 
-			// Use the TimerHandle to add experience after a 1-second delay
-			GetWorld()->GetTimerManager().SetTimer(
-				Leveluphandle, // Timer handle
-				FTimerDelegate::CreateUObject(
-					this,
-					&ARen_Low_Poly_Character::AddExperienceToElementalProfiency,
-					WeaponType,                         // Pass WeaponType
-					SelectedElementalAttack.ElementalType, // Pass ElementType
-					250.0f                             // EXP Amount
-				),
-				1.0f, // Delay of 1 second
-				false // Do not loop
-			);
 
 			// Log the successful use of the attack
 			UE_LOG(LogTemp, Warning, TEXT("Used Elemental Attack: %s, Gained EXP!"),
 				*SelectedElementalAttack.ElementalAttackName);
 
-			// Log the successful use of the attack
+			// Log the mana cost and usage
 			UE_LOG(LogTemp, Warning, TEXT("Used Elemental Attack: %s, Mana Cost: %f"),
 				*SelectedElementalAttack.ElementalAttackName, SelectedElementalAttack.ManaCost);
 
 		}
 		else
 		{
-			// Log an error if the attack cannot be used
+			// Log an error if the attack cannot be used (either not enough mana or attack is locked)
 			UE_LOG(LogTemp, Warning, TEXT("Cannot use Elemental Attack %s: Not enough mana or locked!"),
 				*SelectedElementalAttack.ElementalAttackName);
 		}
@@ -1342,63 +1330,48 @@ void ARen_Low_Poly_Character::SpawnElementalGround(FVector SpawnLocation, FRotat
 void ARen_Low_Poly_Character::AddExperienceToElementalProfiency(EWeaponType TheWeaponType, EElementalAttackType ElementType, float EXPAmount)
 {
 
-
-	// Check if the map contains the weapon type
-	if (!WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(TheWeaponType))
-	{
-		UE_LOG(LogTemp, Error, TEXT("ElementalWeaponProficiencyMap does not contain the weapon type: %s"),
-			*UEnum::GetValueAsString(TheWeaponType));
-		return;
-	}
-
-
-
 	FElemental_Proficiency_Struct* ProficiencyStruct = nullptr;
 
-	// Find the proficiency map for the correct weapon
-	if (TheWeaponType == EWeaponType::Sword)
+	// Get the proficiency struct based on the weapon type
+	if (WeaponType == EWeaponType::Sword)
 	{
 		ProficiencyStruct = &WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword];
 	}
-	else if (TheWeaponType == EWeaponType::Staff)
+	else if (WeaponType == EWeaponType::Staff)
 	{
 		ProficiencyStruct = &WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Staff];
 	}
 
-	// Add EXP to the correct element's proficiency
 	if (ProficiencyStruct)
 	{
-		switch (ElementType)
+		// Add experience to the appropriate proficiency (Fire, Ice, or Thunder)
+		if (ElementType == EElementalAttackType::Fire)
 		{
-		case EElementalAttackType::Fire:
 			ProficiencyStruct->FireProficiency += EXPAmount;
-
-			break;
-		case EElementalAttackType::Ice:
-			ProficiencyStruct->IceProficiency += EXPAmount;
-			break;
-		case EElementalAttackType::Thunder:
-			ProficiencyStruct->ThunderProficiency += EXPAmount;
-			break;
-		default:
-			break;
 		}
+		else if (ElementType == EElementalAttackType::Ice)
+		{
+			ProficiencyStruct->IceProficiency += EXPAmount;
+		}
+		else if (ElementType == EElementalAttackType::Thunder)
+		{
+			ProficiencyStruct->ThunderProficiency += EXPAmount;
+		}
+
+		// Now, check if the elemental proficiency reaches a level-up threshold
+		CheckElementalLevelUp(TheWeaponType, ElementType);
 	}
-
-	// Check if the proficiency has leveled up
-	CheckElementalLevelUp(TheWeaponType, ElementType);
-
-
 }
+
 
 
 
 
 void ARen_Low_Poly_Character::CheckElementalLevelUp(EWeaponType TheWeaponType, EElementalAttackType ElementType)
 {
-
 	FElemental_Proficiency_Struct* ProficiencyStruct = nullptr;
 
+	// Get the proficiency struct based on the weapon type
 	if (TheWeaponType == EWeaponType::Sword)
 	{
 		ProficiencyStruct = &WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword];
@@ -1410,58 +1383,58 @@ void ARen_Low_Poly_Character::CheckElementalLevelUp(EWeaponType TheWeaponType, E
 
 	if (ProficiencyStruct)
 	{
-		// Check Fire proficiency and level it up
+		// Determine the elemental proficiency and level dynamically
+		float* Proficiency = nullptr;
+		int32* Level = nullptr;
+		TMap<int32, float>* Thresholds = nullptr;
+
+		// Set the correct proficiency, level, and thresholds based on the element type
 		if (ElementType == EElementalAttackType::Fire)
 		{
-			if (ProficiencyStruct->FireProficiency >= 200.0f && ProficiencyStruct->FireLevel == 1) // Level 1 to 2
-			{
-				ProficiencyStruct->FireLevel = 2;
-				ProficiencyStruct->FireProficiency = 0.0f;
-				UnlockElementalAbilities(TheWeaponType, ElementType, 2);  // Unlock level 2 Fire abilities
-			}
-			else if (ProficiencyStruct->FireProficiency >= 300.0f && ProficiencyStruct->FireLevel == 2) // Level 2 to 3
-			{
-				ProficiencyStruct->FireLevel = 3;
-				ProficiencyStruct->FireProficiency = 0.0f;
-				UnlockElementalAbilities(TheWeaponType, ElementType, 3);  // Unlock level 3 Fire abilities
-			}
+			Proficiency = &ProficiencyStruct->FireProficiency;
+			Level = &ProficiencyStruct->FireLevel;
+			Thresholds = &ProficiencyStruct->FireProficiencyThresholds;
 		}
-
-		// Repeat the same for Ice and Thunder
 		else if (ElementType == EElementalAttackType::Ice)
 		{
-			if (ProficiencyStruct->IceProficiency >= 200.0f && ProficiencyStruct->IceLevel == 1) // Level 1 to 2
-			{
-				ProficiencyStruct->IceLevel = 2;
-				ProficiencyStruct->IceProficiency = 0.0f;
-				UnlockElementalAbilities(TheWeaponType, ElementType, 2);
-			}
-			else if (ProficiencyStruct->IceProficiency >= 300.0f && ProficiencyStruct->IceLevel == 2) // Level 2 to 3
-			{
-				ProficiencyStruct->IceLevel = 3;
-				ProficiencyStruct->IceProficiency = 0.0f;
-				UnlockElementalAbilities(TheWeaponType, ElementType, 3);
-			}
+			Proficiency = &ProficiencyStruct->IceProficiency;
+			Level = &ProficiencyStruct->IceLevel;
+			Thresholds = &ProficiencyStruct->IceProficiencyThresholds;
 		}
 		else if (ElementType == EElementalAttackType::Thunder)
 		{
-			if (ProficiencyStruct->ThunderProficiency >= 200.0f && ProficiencyStruct->ThunderLevel == 1) // Level 1 to 2
+			Proficiency = &ProficiencyStruct->ThunderProficiency;
+			Level = &ProficiencyStruct->ThunderLevel;
+			Thresholds = &ProficiencyStruct->ThunderProficiencyThresholds;
+		}
+
+		// If valid proficiency data for the chosen element type
+		if (Proficiency && Level && Thresholds)
+		{
+			// Loop through the thresholds to check for level-ups
+			for (auto& Threshold : *Thresholds)
 			{
-				ProficiencyStruct->ThunderLevel = 2;
-				ProficiencyStruct->ThunderProficiency = 0.0f;
-				UnlockElementalAbilities(TheWeaponType, ElementType, 2);
-			}
-			else if (ProficiencyStruct->ThunderProficiency >= 300.0f && ProficiencyStruct->ThunderLevel == 2) // Level 2 to 3
-			{
-				ProficiencyStruct->ThunderLevel = 3;
-				ProficiencyStruct->ThunderProficiency = 0.0f;
-				UnlockElementalAbilities(TheWeaponType, ElementType, 3);
+				int32 ThresholdLevel = Threshold.Key;
+				float ThresholdValue = Threshold.Value;
+
+				// Log the proficiency and thresholds to see if they're working correctly
+				UE_LOG(LogTemp, Warning, TEXT("Proficiency: %.2f, Threshold: %.2f, Level: %d, Threshold Level: %d"),
+					*Proficiency, ThresholdValue, *Level, ThresholdLevel);
+
+				// If the proficiency exceeds the threshold and is at the correct level
+				if (*Proficiency >= ThresholdValue && *Level == (ThresholdLevel - 1))
+				{
+					// Level up and reset proficiency to 0
+					*Level = ThresholdLevel;
+					*Proficiency = 0.0f;
+					//UE_LOG(LogTemp, Warning, TEXT("Leveled up Elemental Attack %s to Level %d"), *ElementTypeToString(ElementType), ThresholdLevel);
+					UnlockElementalAbilities(TheWeaponType, ElementType, ThresholdLevel);  // Unlock abilities for the new level
+					break; // Exit the loop once level-up is done
+				}
 			}
 		}
 	}
-
 }
-
 
 
 
@@ -1469,133 +1442,98 @@ void ARen_Low_Poly_Character::CheckElementalLevelUp(EWeaponType TheWeaponType, E
 void ARen_Low_Poly_Character::UnlockElementalAbilities(EWeaponType TheWeaponType, EElementalAttackType ElementType, int32 Level)
 {
 
-	if (TheWeaponType == EWeaponType::Sword)
+	// Declare animation variables (you can adjust these if needed)
+	UAnimMontage* AOEAnimation = nullptr;
+	UAnimMontage* GroundAnimation = nullptr;
+	FString AttackName;
+	float DamageMultiplier = 1.7f;  // This could be adjusted by Level or ElementType
+	float ManaCost = 10.0f;          // This could also be adjusted
+	int32 ElementalLevel = 2;
+	float EXPToNextLevel = 2000.0f;
+
+	// Declare an FElemental_Struct instance
+	FElemental_Struct NewAttack;
+
+	// Handle each elemental attack
+	switch (ElementType)
 	{
-		if (ElementType == EElementalAttackType::Fire)
+	case EElementalAttackType::Fire:
+		AOEAnimation = FireAOEAnimation;
+		GroundAnimation = FireGroundAnimation;
+		if (Level == 2)
 		{
-			if (Level == 2)
-			{
-				// Unlock level 2 Fire attack for Sword
-
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 1.7f, 15.0f, 2, true, FireAOEAnimation));
-
-				UE_LOG(LogTemp, Warning, TEXT("Leveled Up Fire, unlocked Fire AOE!"))
-
-			}
-			else if (Level == 3)
-			{
-
-
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 2.7f, 25.0f, 3, true, FireGroundAnimation));
-				UE_LOG(LogTemp, Warning, TEXT("Leveled Up Fire, unlocked Fire Ground!"))
-
-			}
+			AttackName = TEXT("Fire Lv.2");
+			// Populate the FElemental_Struct instance
+			NewAttack = FElemental_Struct(AttackName, ElementType, DamageMultiplier, ManaCost, ElementalLevel, true, AOEAnimation, 10.0f, EXPToNextLevel);
+			AddElementalAttackDelayed(NewAttack);
+			UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.2 Attack"));
 		}
-		else if (ElementType == EElementalAttackType::Ice)
+		else if (Level == 3)
 		{
-			if (Level == 2)
-			{
-
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 1.7f, 10.0f, 3, true, IceAOEAnimation));
-
-				//ElementalAttacks.Add(FElemental_Struct(TEXT("Ice AOE"), EElementalAttackType::Ice, 1.7f, 10.0f, 2, true, IceAOEAnimation));
-				UE_LOG(LogTemp, Warning, TEXT("Leveled Up Ice, unlocked Ice AOE!"))
-
-
-			}
-			else if (Level == 3)
-			{
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 1.7f, 10.0f, 3, true, IceGroundAnimation));
-				UE_LOG(LogTemp, Warning, TEXT("Leveled Up Ice, unlocked Ice Ground!"))
-
-
-			}
+			AttackName = TEXT("Fire Lv.3");
+			// Populate the FElemental_Struct instance
+			NewAttack = FElemental_Struct(AttackName, ElementType, DamageMultiplier, ManaCost, ElementalLevel, true, GroundAnimation, 20.0f, EXPToNextLevel);
+			AddElementalAttackDelayed(NewAttack);
+			UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.3 Attack"));
 		}
-		else if (ElementType == EElementalAttackType::Thunder)
+		break;
+
+	case EElementalAttackType::Ice:
+		AOEAnimation = IceAOEAnimation;
+		GroundAnimation = IceGroundAnimation;
+		if (Level == 2)
 		{
-			if (Level == 2)
-			{
-
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 1.7f, 10.0f, 3, true, ThunderAOEAnimation));
-				UE_LOG(LogTemp, Warning, TEXT("Leveled Up thunder, unlocked Thunder AOE!"))
-
-
-			}
-			else if (Level == 3)
-			{
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 1.7f, 10.0f, 3, true, ThunderGroundAnimation));
-				UE_LOG(LogTemp, Warning, TEXT("Leveled Up thunder, unlocked Thunder Ground!"))
-
-			}
+			AttackName = TEXT("Ice Lv.2");
+			// Populate the FElemental_Struct instance
+			NewAttack = FElemental_Struct(AttackName, ElementType, DamageMultiplier, ManaCost, ElementalLevel, true, AOEAnimation, 10.0f, EXPToNextLevel);
+			AddElementalAttackDelayed(NewAttack);
+			UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.2 Attack"));
 		}
-	}
-
-
-	if (TheWeaponType == EWeaponType::Staff)
-	{
-		if (ElementType == EElementalAttackType::Fire)
+		else if (Level == 3)
 		{
-
-			if (Level == 2)
-			{
-				// Unlock level 2 Fire attack for Sword
-
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 1.7f, 15.0f, 2, true, FireAOEAnimation));
-
-				UE_LOG(LogTemp, Warning, TEXT("Leveled Up Fire, unlocked Fire AOE!"))
-
-			}
-			else if (Level == 3)
-			{
-
-
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 2.7f, 25.0f, 3, true, FireGroundAnimation));
-				UE_LOG(LogTemp, Warning, TEXT("Leveled Up Fire, unlocked Fire Ground!"))
-
-			}
+			AttackName = TEXT("Ice Lv.3");
+			// Populate the FElemental_Struct instance
+			NewAttack = FElemental_Struct(AttackName, ElementType, DamageMultiplier, ManaCost, ElementalLevel, true, GroundAnimation, 20.0f, EXPToNextLevel);
+			AddElementalAttackDelayed(NewAttack);
+			UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.3 Attack"));
 		}
-		else if (ElementType == EElementalAttackType::Ice)
+		break;
+
+	case EElementalAttackType::Thunder:
+		AOEAnimation = ThunderAOEAnimation;
+		GroundAnimation = ThunderGroundAnimation;
+		if (Level == 2)
 		{
-			if (Level == 2)
-			{
-
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 1.7f, 10.0f, 3, true, IceAOEAnimation));
-
-				//ElementalAttacks.Add(FElemental_Struct(TEXT("Ice AOE"), EElementalAttackType::Ice, 1.7f, 10.0f, 2, true, IceAOEAnimation));
-				UE_LOG(LogTemp, Warning, TEXT("Leveled Up Ice, unlocked Ice AOE!"))
-
-
-			}
-			else if (Level == 3)
-			{
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 1.7f, 10.0f, 3, true, IceGroundAnimation));
-				UE_LOG(LogTemp, Warning, TEXT("Leveled Up Ice, unlocked Ice Ground!"))
-
-
-			}
+			AttackName = TEXT("Thunder Lv.2");
+			// Populate the FElemental_Struct instance
+			NewAttack = FElemental_Struct(AttackName, ElementType, DamageMultiplier, ManaCost, ElementalLevel, true, AOEAnimation, 10.0f, EXPToNextLevel);
+			AddElementalAttackDelayed(NewAttack);
+			UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.2 Attack"));
 		}
-		else if (ElementType == EElementalAttackType::Thunder)
+		else if (Level == 3)
 		{
-			if (Level == 2)
-			{
-
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 1.7f, 10.0f, 3, true, ThunderAOEAnimation));
-				UE_LOG(LogTemp, Warning, TEXT("Leveled Up thunder, unlocked Thunder AOE!"))
-
-
-			}
-			else if (Level == 3)
-			{
-				ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 1.7f, 10.0f, 3, true, ThunderGroundAnimation));
-				UE_LOG(LogTemp, Warning, TEXT("Leveled Up thunder, unlocked Thunder Ground!"))
-
-			}
+			AttackName = TEXT("Thunder Lv.3");
+			// Populate the FElemental_Struct instance
+			NewAttack = FElemental_Struct(AttackName, ElementType, DamageMultiplier, ManaCost, ElementalLevel, true, GroundAnimation, 20.0f, EXPToNextLevel);
+			AddElementalAttackDelayed(NewAttack);
+			UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.3 Attack"));
 		}
-
+		break;
 	}
 }
 
 
+
+void ARen_Low_Poly_Character::AddElementalAttackDelayed(const FElemental_Struct& ElementalAttack)
+{
+
+
+
+	// Add the attack to the ElementalAttacks array
+	ElementalAttacks.Add(ElementalAttack);
+	//UE_LOG(LogTemp, Warning, TEXT("Unlocked %s attack: %s!"), *ElementTypeToString(ElementalAttack.ElementalType), *ElementalAttack.ElementalAttackName);
+
+}
 
 
 
@@ -2764,7 +2702,18 @@ void ARen_Low_Poly_Character::BeginPlay()
 	}
 
 
+	// Initialize proficiency thresholds for each element
+	ElementalProficiency.FireProficiencyThresholds.Add(1, 100.0f);
+	ElementalProficiency.FireProficiencyThresholds.Add(2, 200.0f);
+	ElementalProficiency.FireProficiencyThresholds.Add(3, 300.0f);
 
+	ElementalProficiency.IceProficiencyThresholds.Add(1, 100.0f);
+	ElementalProficiency.IceProficiencyThresholds.Add(2, 200.0f);
+	ElementalProficiency.IceProficiencyThresholds.Add(3, 300.0f);
+
+	ElementalProficiency.ThunderProficiencyThresholds.Add(1, 100.0f);
+	ElementalProficiency.ThunderProficiencyThresholds.Add(2, 200.0f);
+	ElementalProficiency.ThunderProficiencyThresholds.Add(3, 300.0f);
 
 
 

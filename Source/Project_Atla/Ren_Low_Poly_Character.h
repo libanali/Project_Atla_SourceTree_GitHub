@@ -541,6 +541,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		TMap<EWeaponType, FWeaponElementalProgression> WeaponElementalMap;
 
+	// Elemental proficiency data
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental Proficiency")
+		FElemental_Proficiency_Struct ElementalProficiency;
+
+	UFUNCTION()
+		void AddElementalAttackDelayed(const FElemental_Struct& ElementalAttack);
+
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void CalculateElementalAttack();
 
@@ -589,6 +596,8 @@ public:
 	FTimerHandle BurnTimerHandle;
 	FTimerHandle BurnEndTimerHandle;
 	FTimerHandle Leveluphandle;
+	FTimerHandle TimerHandle_AddElementalAttack;
+
 	// Store the remaining burn time
 	float BurnDurationRemaining;
 
