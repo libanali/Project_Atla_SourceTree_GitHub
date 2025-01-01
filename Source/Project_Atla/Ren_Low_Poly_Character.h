@@ -581,11 +581,11 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void AddExperienceToElementalProfiency(EWeaponType TheWeaponType, EElementalAttackType ElementType, float EXPAmount);
 
-	UFUNCTION(BlueprintCallable, Category = "Elemental")
-		void CheckElementalLevelUp(EWeaponType TheWeaponType, EElementalAttackType ElementType);
+	//UFUNCTION(BlueprintCallable, Category = "Elemental")
+		//void CheckElementalLevelUp(EWeaponType TheWeaponType, EElementalAttackType ElementType);
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
-		void UnlockElementalAbilities(EWeaponType TheWeaponType, EElementalAttackType ElementType, int32 Level);
+		void UnlockElementalAbility(EWeaponType TheWeaponType, EElementalAttackType ElementType);
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void ApplyTheBurnEffect(AEnemy_Poly* Enemy, float Duration, float DamagePerSecond);
