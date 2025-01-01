@@ -596,8 +596,7 @@ public:
 	FTimerHandle BurnTimerHandle;
 	FTimerHandle BurnEndTimerHandle;
 	FTimerHandle Leveluphandle;
-	FTimerHandle TimerHandle_AddElementalAttack;
-
+	FTimerHandle TimerHandle_UnlockElementalAbility;
 	// Store the remaining burn time
 	float BurnDurationRemaining;
 

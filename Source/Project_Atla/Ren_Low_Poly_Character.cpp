@@ -133,6 +133,46 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 	WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Sword, FElemental_Proficiency_Struct());
 	WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Staff, FElemental_Proficiency_Struct());
+
+
+	
+		FElemental_Proficiency_Struct SwordProficiency;
+		SwordProficiency.FireProficiencyThresholds.Add(1, 100.f);
+		SwordProficiency.FireProficiencyThresholds.Add(2, 200.f);
+		SwordProficiency.FireProficiencyThresholds.Add(3, 300.f);
+		UE_LOG(LogTemp, Warning, TEXT("Sword FireProficiencyThresholds initialized with %d entries"), SwordProficiency.FireProficiencyThresholds.Num());
+
+		SwordProficiency.IceProficiencyThresholds.Add(1, 100.f);
+		SwordProficiency.IceProficiencyThresholds.Add(2, 200.f);
+		SwordProficiency.IceProficiencyThresholds.Add(3, 300.f);
+		UE_LOG(LogTemp, Warning, TEXT("Sword IceProficiencyThresholds initialized with %d entries"), SwordProficiency.IceProficiencyThresholds.Num());
+
+		SwordProficiency.ThunderProficiencyThresholds.Add(1, 100.f);
+		SwordProficiency.ThunderProficiencyThresholds.Add(2, 200.f);
+		SwordProficiency.ThunderProficiencyThresholds.Add(3, 300.f);
+		UE_LOG(LogTemp, Warning, TEXT("Sword ThunderProficiencyThresholds initialized with %d entries"), SwordProficiency.ThunderProficiencyThresholds.Num());
+
+		WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Sword, SwordProficiency);
+
+		FElemental_Proficiency_Struct StaffProficiency;
+		StaffProficiency.FireProficiencyThresholds.Add(1, 100.f);
+		StaffProficiency.FireProficiencyThresholds.Add(2, 200.f);
+		StaffProficiency.FireProficiencyThresholds.Add(3, 300.f);
+		UE_LOG(LogTemp, Warning, TEXT("Staff FireProficiencyThresholds initialized with %d entries"), StaffProficiency.FireProficiencyThresholds.Num());
+
+		StaffProficiency.IceProficiencyThresholds.Add(1, 100.f);
+		StaffProficiency.IceProficiencyThresholds.Add(2, 200.f);
+		StaffProficiency.IceProficiencyThresholds.Add(3, 300.f);
+		UE_LOG(LogTemp, Warning, TEXT("Staff IceProficiencyThresholds initialized with %d entries"), StaffProficiency.IceProficiencyThresholds.Num());
+
+		StaffProficiency.ThunderProficiencyThresholds.Add(1, 100.f);
+		StaffProficiency.ThunderProficiencyThresholds.Add(2, 200.f);
+		StaffProficiency.ThunderProficiencyThresholds.Add(3, 300.f);
+		UE_LOG(LogTemp, Warning, TEXT("Staff ThunderProficiencyThresholds initialized with %d entries"), StaffProficiency.ThunderProficiencyThresholds.Num());
+
+		WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Staff, StaffProficiency);
+	
+
 }
 
 
@@ -1324,12 +1364,10 @@ void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 
 
 
-
 void ARen_Low_Poly_Character::AddExperienceToElementalProfiency(EWeaponType TheWeaponType, EElementalAttackType ElementType, float EXPAmount)
 {
 	FElemental_Proficiency_Struct* ProficiencyStruct = nullptr;
 
-	// Get the proficiency struct based on the weapon type
 	if (TheWeaponType == EWeaponType::Sword)
 	{
 		ProficiencyStruct = &WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword];
@@ -1343,65 +1381,35 @@ void ARen_Low_Poly_Character::AddExperienceToElementalProfiency(EWeaponType TheW
 
 	if (ProficiencyStruct)
 	{
-		// Add experience to the appropriate proficiency (Fire, Ice, or Thunder)
+		UE_LOG(LogTemp, Warning, TEXT("Fire Proficiency Thresholds: %d"), ProficiencyStruct->FireProficiencyThresholds.Num());
+
 		if (ElementType == EElementalAttackType::Fire)
 		{
 			ProficiencyStruct->FireProficiency += EXPAmount;
-			UE_LOG(LogTemp, Warning, TEXT("Added %.2f EXP to Fire proficiency. New Proficiency: %.2f"), EXPAmount, ProficiencyStruct->FireProficiency);
-
-			// Check if Fire proficiency has leveled up
 			int32 CurrentLevel = ProficiencyStruct->FireLevel;
-			float ThresholdValue = ProficiencyStruct->FireProficiencyThresholds.FindRef(CurrentLevel);
-			UE_LOG(LogTemp, Warning, TEXT("Fire Level: %d, Threshold Value: %.2f"), CurrentLevel, ThresholdValue);
 
-			if (ThresholdValue > 0 && ProficiencyStruct->FireProficiency >= ThresholdValue)
+			if (ProficiencyStruct->FireProficiencyThresholds.Contains(CurrentLevel))
 			{
-				// Level up Fire
-				ProficiencyStruct->FireLevel++;
-				ProficiencyStruct->FireProficiency -= ThresholdValue; // Keep remaining EXP for next level
-				UnlockElementalAbility(EWeaponType::Sword, EElementalAttackType::Fire); // Unlock next Fire ability
+				float ThresholdValue = ProficiencyStruct->FireProficiencyThresholds[CurrentLevel];
+				if (ProficiencyStruct->FireProficiency >= ThresholdValue)
+				{
+					ProficiencyStruct->FireLevel++;
+					ProficiencyStruct->FireProficiency -= ThresholdValue;
 
-				UE_LOG(LogTemp, Warning, TEXT("Fire proficiency leveled up! New Level: %d"), ProficiencyStruct->FireLevel);
+					// Set a timer to call UnlockElementalAbility after 1 second
+					GetWorld()->GetTimerManager().SetTimer(TimerHandle_UnlockElementalAbility, FTimerDelegate::CreateUObject(this, &ARen_Low_Poly_Character::UnlockElementalAbility, EWeaponType::Sword, EElementalAttackType::Fire), 1.0f, false);
+
+					UE_LOG(LogTemp, Warning, TEXT("Fire proficiency leveled up! New Level: %d"), ProficiencyStruct->FireLevel);
+				}
 			}
-		}
-		else if (ElementType == EElementalAttackType::Ice)
-		{
-			ProficiencyStruct->IceProficiency += EXPAmount;
-			UE_LOG(LogTemp, Warning, TEXT("Added %.2f EXP to Ice proficiency. New Proficiency: %.2f"), EXPAmount, ProficiencyStruct->IceProficiency);
-
-			// Check if Ice proficiency has leveled up
-			int32 CurrentLevel = ProficiencyStruct->IceLevel;
-			float ThresholdValue = ProficiencyStruct->IceProficiencyThresholds.FindRef(CurrentLevel);
-			UE_LOG(LogTemp, Warning, TEXT("Ice Level: %d, Threshold Value: %.2f"), CurrentLevel, ThresholdValue);
-
-			if (ThresholdValue > 0 && ProficiencyStruct->IceProficiency >= ThresholdValue)
+			else
 			{
-				// Level up Ice
-				ProficiencyStruct->IceLevel++;
-				ProficiencyStruct->IceProficiency -= ThresholdValue;
-				UnlockElementalAbility(EWeaponType::Sword, EElementalAttackType::Ice);
+				UE_LOG(LogTemp, Warning, TEXT("Threshold for Fire Level %d not found!"), CurrentLevel);
 
-				UE_LOG(LogTemp, Warning, TEXT("Ice proficiency leveled up! New Level: %d"), ProficiencyStruct->IceLevel);
-			}
-		}
-		else if (ElementType == EElementalAttackType::Thunder)
-		{
-			ProficiencyStruct->ThunderProficiency += EXPAmount;
-			UE_LOG(LogTemp, Warning, TEXT("Added %.2f EXP to Thunder proficiency. New Proficiency: %.2f"), EXPAmount, ProficiencyStruct->ThunderProficiency);
-
-			// Check if Thunder proficiency has leveled up
-			int32 CurrentLevel = ProficiencyStruct->ThunderLevel;
-			float ThresholdValue = ProficiencyStruct->ThunderProficiencyThresholds.FindRef(CurrentLevel);
-			UE_LOG(LogTemp, Warning, TEXT("Thunder Level: %d, Threshold Value: %.2f"), CurrentLevel, ThresholdValue);
-
-			if (ThresholdValue > 0 && ProficiencyStruct->ThunderProficiency >= ThresholdValue)
-			{
-				// Level up Thunder
-				ProficiencyStruct->ThunderLevel++;
-				ProficiencyStruct->ThunderProficiency -= ThresholdValue;
-				UnlockElementalAbility(EWeaponType::Sword, EElementalAttackType::Thunder);
-
-				UE_LOG(LogTemp, Warning, TEXT("Thunder proficiency leveled up! New Level: %d"), ProficiencyStruct->ThunderLevel);
+				for (const auto& Threshold : ProficiencyStruct->FireProficiencyThresholds)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Fire Threshold - Level: %d, Value: %.2f"), Threshold.Key, Threshold.Value);
+				}
 			}
 		}
 	}
@@ -1545,7 +1553,7 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 
 	if (ElementType == EElementalAttackType::Fire)
 	{
-		NewAbility = FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.5f, 10.0f, 2, true, FireAOEAnimation);
+		NewAbility = FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 1.5f, 10.0f, 2, true, FireAOEAnimation);
 		ElementalAttacks.Add(NewAbility);
 		UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.2 Ability!"));
 	}
@@ -2542,6 +2550,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	}
 
 
+
 	LoadHighScore();
 	LoadPlayerProgress();
 
@@ -2568,25 +2577,13 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 
 
-	// Initialize Fire proficiency thresholds
-	ElementalProficiency.FireProficiencyThresholds.Add(1, 100.f);  // Level 1 -> 2 requires 100 EXP
-	ElementalProficiency.FireProficiencyThresholds.Add(2, 200.f);  // Level 2 -> 3 requires 200 EXP
-	ElementalProficiency.FireProficiencyThresholds.Add(3, 300.f);  // Level 3 -> 4 requires 300 EXP
-	// Add more levels as needed...
-
-	// Initialize Ice proficiency thresholds
-	ElementalProficiency.IceProficiencyThresholds.Add(1, 100.f);   // Level 1 -> 2 requires 100 EXP
-	ElementalProficiency.IceProficiencyThresholds.Add(2, 200.f);   // Level 2 -> 3 requires 200 EXP
-	ElementalProficiency.IceProficiencyThresholds.Add(3, 300.f);   // Level 3 -> 4 requires 300 EXP
-	// Add more levels as needed...
-
-	// Initialize Thunder proficiency thresholds
-	ElementalProficiency.ThunderProficiencyThresholds.Add(1, 100.f);   // Level 1 -> 2 requires 100 EXP
-	ElementalProficiency.ThunderProficiencyThresholds.Add(2, 200.f);   // Level 2 -> 3 requires 200 EXP
-	ElementalProficiency.ThunderProficiencyThresholds.Add(3, 300.f);   // Level 3 -> 4 requires 300 EXP
 
 	
-
+	// Log Fire proficiency thresholds to confirm initialization
+	for (const auto& Pair : ElementalProficiency.FireProficiencyThresholds)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Fire Threshold: Level %d -> %f EXP"), Pair.Key, Pair.Value);
+	}
 
 
 	UGameInstance* GameInstance = GetGameInstance();
