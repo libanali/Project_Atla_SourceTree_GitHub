@@ -1363,11 +1363,11 @@ void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 }
 
 
-
 void ARen_Low_Poly_Character::AddExperienceToElementalProfiency(EWeaponType TheWeaponType, EElementalAttackType ElementType, float EXPAmount)
 {
 	FElemental_Proficiency_Struct* ProficiencyStruct = nullptr;
 
+	// Get the proficiency struct based on the weapon type
 	if (TheWeaponType == EWeaponType::Sword)
 	{
 		ProficiencyStruct = &WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword];
@@ -1381,23 +1381,28 @@ void ARen_Low_Poly_Character::AddExperienceToElementalProfiency(EWeaponType TheW
 
 	if (ProficiencyStruct)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Fire Proficiency Thresholds: %d"), ProficiencyStruct->FireProficiencyThresholds.Num());
-
+		// Logic for Fire Proficiency
 		if (ElementType == EElementalAttackType::Fire)
 		{
 			ProficiencyStruct->FireProficiency += EXPAmount;
+			UE_LOG(LogTemp, Warning, TEXT("Added %.2f EXP to Fire proficiency. New Proficiency: %.2f"), EXPAmount, ProficiencyStruct->FireProficiency);
+
+			// Check if Fire proficiency has leveled up
 			int32 CurrentLevel = ProficiencyStruct->FireLevel;
+			UE_LOG(LogTemp, Warning, TEXT("Current Fire Level: %d"), CurrentLevel);
 
 			if (ProficiencyStruct->FireProficiencyThresholds.Contains(CurrentLevel))
 			{
 				float ThresholdValue = ProficiencyStruct->FireProficiencyThresholds[CurrentLevel];
+				UE_LOG(LogTemp, Warning, TEXT("Fire Level: %d, Threshold Value: %.2f"), CurrentLevel, ThresholdValue);
+
 				if (ProficiencyStruct->FireProficiency >= ThresholdValue)
 				{
 					ProficiencyStruct->FireLevel++;
 					ProficiencyStruct->FireProficiency -= ThresholdValue;
 
 					// Set a timer to call UnlockElementalAbility after 1 second
-					GetWorld()->GetTimerManager().SetTimer(TimerHandle_UnlockElementalAbility, FTimerDelegate::CreateUObject(this, &ARen_Low_Poly_Character::UnlockElementalAbility, EWeaponType::Sword, EElementalAttackType::Fire), 1.0f, false);
+					GetWorld()->GetTimerManager().SetTimer(TimerHandle_UnlockElementalAbility, FTimerDelegate::CreateUObject(this, &ARen_Low_Poly_Character::UnlockElementalAbility, TheWeaponType, EElementalAttackType::Fire), 1.0f, false);
 
 					UE_LOG(LogTemp, Warning, TEXT("Fire proficiency leveled up! New Level: %d"), ProficiencyStruct->FireLevel);
 				}
@@ -1405,11 +1410,68 @@ void ARen_Low_Poly_Character::AddExperienceToElementalProfiency(EWeaponType TheW
 			else
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Threshold for Fire Level %d not found!"), CurrentLevel);
+			}
+		}
+		// Logic for Ice Proficiency
+		else if (ElementType == EElementalAttackType::Ice)
+		{
+			ProficiencyStruct->IceProficiency += EXPAmount;
+			UE_LOG(LogTemp, Warning, TEXT("Added %.2f EXP to Ice proficiency. New Proficiency: %.2f"), EXPAmount, ProficiencyStruct->IceProficiency);
 
-				for (const auto& Threshold : ProficiencyStruct->FireProficiencyThresholds)
+			// Check if Ice proficiency has leveled up
+			int32 CurrentLevel = ProficiencyStruct->IceLevel;
+			UE_LOG(LogTemp, Warning, TEXT("Current Ice Level: %d"), CurrentLevel);
+
+			if (ProficiencyStruct->IceProficiencyThresholds.Contains(CurrentLevel))
+			{
+				float ThresholdValue = ProficiencyStruct->IceProficiencyThresholds[CurrentLevel];
+				UE_LOG(LogTemp, Warning, TEXT("Ice Level: %d, Threshold Value: %.2f"), CurrentLevel, ThresholdValue);
+
+				if (ProficiencyStruct->IceProficiency >= ThresholdValue)
 				{
-					UE_LOG(LogTemp, Warning, TEXT("Fire Threshold - Level: %d, Value: %.2f"), Threshold.Key, Threshold.Value);
+					ProficiencyStruct->IceLevel++;
+					ProficiencyStruct->IceProficiency -= ThresholdValue;
+
+					// Set a timer to call UnlockElementalAbility after 1 second
+					GetWorld()->GetTimerManager().SetTimer(TimerHandle_UnlockElementalAbility, FTimerDelegate::CreateUObject(this, &ARen_Low_Poly_Character::UnlockElementalAbility, TheWeaponType, EElementalAttackType::Ice), 1.0f, false);
+
+					UE_LOG(LogTemp, Warning, TEXT("Ice proficiency leveled up! New Level: %d"), ProficiencyStruct->IceLevel);
 				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Threshold for Ice Level %d not found!"), CurrentLevel);
+			}
+		}
+		// Logic for Thunder Proficiency
+		else if (ElementType == EElementalAttackType::Thunder)
+		{
+			ProficiencyStruct->ThunderProficiency += EXPAmount;
+			UE_LOG(LogTemp, Warning, TEXT("Added %.2f EXP to Thunder proficiency. New Proficiency: %.2f"), EXPAmount, ProficiencyStruct->ThunderProficiency);
+
+			// Check if Thunder proficiency has leveled up
+			int32 CurrentLevel = ProficiencyStruct->ThunderLevel;
+			UE_LOG(LogTemp, Warning, TEXT("Current Thunder Level: %d"), CurrentLevel);
+
+			if (ProficiencyStruct->ThunderProficiencyThresholds.Contains(CurrentLevel))
+			{
+				float ThresholdValue = ProficiencyStruct->ThunderProficiencyThresholds[CurrentLevel];
+				UE_LOG(LogTemp, Warning, TEXT("Thunder Level: %d, Threshold Value: %.2f"), CurrentLevel, ThresholdValue);
+
+				if (ProficiencyStruct->ThunderProficiency >= ThresholdValue)
+				{
+					ProficiencyStruct->ThunderLevel++;
+					ProficiencyStruct->ThunderProficiency -= ThresholdValue;
+
+					// Set a timer to call UnlockElementalAbility after 1 second
+					GetWorld()->GetTimerManager().SetTimer(TimerHandle_UnlockElementalAbility, FTimerDelegate::CreateUObject(this, &ARen_Low_Poly_Character::UnlockElementalAbility, TheWeaponType, EElementalAttackType::Thunder), 1.0f, false);
+
+					UE_LOG(LogTemp, Warning, TEXT("Thunder proficiency leveled up! New Level: %d"), ProficiencyStruct->ThunderLevel);
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Threshold for Thunder Level %d not found!"), CurrentLevel);
 			}
 		}
 	}
@@ -1420,130 +1482,6 @@ void ARen_Low_Poly_Character::AddExperienceToElementalProfiency(EWeaponType TheW
 }
 
 
-
-/*
-
-void ARen_Low_Poly_Character::CheckElementalLevelUp(EWeaponType TheWeaponType, EElementalAttackType ElementType)
-{
-	// Validate WeaponType (assuming invalid types are not in the map)
-	if (!WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(TheWeaponType))
-	{
-		UE_LOG(LogTemp, Error, TEXT("Invalid WeaponType passed to CheckElementalLevelUp: %d"), static_cast<int32>(TheWeaponType));
-		return;
-	}
-
-	// Validate ElementType (ensure it is Fire, Ice, or Thunder)
-	if (ElementType != EElementalAttackType::Fire &&
-		ElementType != EElementalAttackType::Ice &&
-		ElementType != EElementalAttackType::Thunder)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Invalid ElementType passed to CheckElementalLevelUp: %d"), static_cast<int32>(ElementType));
-		return;
-	}
-
-	// Get the proficiency struct based on the weapon type
-	FElemental_Proficiency_Struct* ProficiencyStruct = nullptr;
-
-	switch (TheWeaponType)
-	{
-	case EWeaponType::Sword:
-		ProficiencyStruct = &WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword];
-		break;
-	case EWeaponType::Staff:
-		ProficiencyStruct = &WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Staff];
-		break;
-	default:
-		UE_LOG(LogTemp, Error, TEXT("Unhandled WeaponType: %d"), static_cast<int32>(TheWeaponType));
-		return;
-	}
-
-	if (!ProficiencyStruct)
-	{
-		UE_LOG(LogTemp, Error, TEXT("ProficiencyStruct is null for WeaponType: %d"), static_cast<int32>(TheWeaponType));
-		return;
-	}
-
-	// Variables for proficiency, level, and thresholds
-	float* Proficiency = nullptr;
-	int32* Level = nullptr;
-	TMap<int32, float>* Thresholds = nullptr;
-
-	// Set the correct proficiency, level, and thresholds based on ElementType
-	switch (ElementType)
-	{
-	case EElementalAttackType::Fire:
-		Proficiency = &ProficiencyStruct->FireProficiency;
-		Level = &ProficiencyStruct->FireLevel;
-		Thresholds = &ProficiencyStruct->FireProficiencyThresholds;
-		break;
-	case EElementalAttackType::Ice:
-		Proficiency = &ProficiencyStruct->IceProficiency;
-		Level = &ProficiencyStruct->IceLevel;
-		Thresholds = &ProficiencyStruct->IceProficiencyThresholds;
-		break;
-	case EElementalAttackType::Thunder:
-		Proficiency = &ProficiencyStruct->ThunderProficiency;
-		Level = &ProficiencyStruct->ThunderLevel;
-		Thresholds = &ProficiencyStruct->ThunderProficiencyThresholds;
-		break;
-	default:
-		UE_LOG(LogTemp, Error, TEXT("Unhandled ElementType: %d"), static_cast<int32>(ElementType));
-		return;
-	}
-
-	if (!Proficiency || !Level || !Thresholds)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Proficiency, Level, or Thresholds are null for ElementType: %s"), *UEnum::GetValueAsString(ElementType));
-		return;
-	}
-
-	// Log current proficiency and level before checking
-	UE_LOG(LogTemp, Warning, TEXT("Checking Level-Up for %s: Proficiency=%.2f, Level=%d"),
-		*UEnum::GetValueAsString(ElementType), *Proficiency, *Level);
-
-	// Log the thresholds being used
-	for (auto& Threshold : *Thresholds)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Threshold for Level %d: %.2f"), Threshold.Key, Threshold.Value);
-	}
-
-	// Iterate through the thresholds and check if the proficiency exceeds any of them
-	const float Tolerance = 0.1f; // Small tolerance value for floating-point comparison
-	for (auto& Threshold : *Thresholds)
-	{
-		int32 ThresholdLevel = Threshold.Key;
-		float ThresholdValue = Threshold.Value;
-
-		// Log the threshold being checked
-		UE_LOG(LogTemp, Warning, TEXT("Checking Threshold: Level=%d, Value=%.2f"), ThresholdLevel, ThresholdValue);
-
-		// Check if the proficiency is close enough to the threshold value using fabs
-		if (FMath::Abs(*Proficiency - ThresholdValue) <= Tolerance && *Level == (ThresholdLevel - 1))
-		{
-			// Level-up condition met, update proficiency and level
-			*Level = ThresholdLevel;
-			*Proficiency = ThresholdValue; // Set proficiency to the threshold value
-
-			// Unlock abilities associated with the new level
-			UnlockElementalAbilities(TheWeaponType, ElementType, ThresholdLevel);
-
-			// Log the successful level-up
-			UE_LOG(LogTemp, Warning, TEXT("Level-up achieved for %s! New Level: %d, Proficiency: %.2f"),
-				*UEnum::GetValueAsString(ElementType), *Level, *Proficiency);
-
-			break; // Exit the loop after level-up
-		}
-		else
-		{
-			// If level-up conditions are not met, log the failure
-			UE_LOG(LogTemp, Warning, TEXT("Level-up not met for %s: Proficiency=%.2f, Level=%d"),
-				*UEnum::GetValueAsString(ElementType), *Proficiency, *Level);
-		}
-	}
-}
-
-
-*/
 
 void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, EElementalAttackType ElementType)
 {
@@ -1559,13 +1497,13 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 	}
 	else if (ElementType == EElementalAttackType::Ice)
 	{
-		NewAbility = FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.5f, 10.0f, 2, true, IceAOEAnimation);
+		NewAbility = FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 1.5f, 10.0f, 2, true, IceAOEAnimation);
 		ElementalAttacks.Add(NewAbility);
 		UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.2 Ability!"));
 	}
 	else if (ElementType == EElementalAttackType::Thunder)
 	{
-		NewAbility = FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.5f, 10.0f, 2, true, ThunderAOEAnimation);
+		NewAbility = FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 1.5f, 10.0f, 2, true, ThunderAOEAnimation);
 		ElementalAttacks.Add(NewAbility);
 		UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.2 Ability!"));
 	}
@@ -1576,11 +1514,7 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 void ARen_Low_Poly_Character::AddElementalAttackDelayed(const FElemental_Struct& ElementalAttack)
 {
 
-
-
-	// Add the attack to the ElementalAttacks array
 	ElementalAttacks.Add(ElementalAttack);
-	//UE_LOG(LogTemp, Warning, TEXT("Unlocked %s attack: %s!"), *ElementTypeToString(ElementalAttack.ElementalType), *ElementalAttack.ElementalAttackName);
 
 }
 
