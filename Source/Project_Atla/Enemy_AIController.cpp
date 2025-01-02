@@ -267,7 +267,7 @@ void AEnemy_AIController::DisableAI()
     {
         // Disable movement
         Enemy->GetCharacterMovement()->DisableMovement();
-        bIsAIStopped = true;
+       // bIsAIStopped = true;
 
     }
 
@@ -289,7 +289,7 @@ void AEnemy_AIController::RestartAI()
     {
         // Enable movement
         Enemy->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-        bIsAIStopped = false;
+      //  bIsAIStopped = false;
 
     }
 

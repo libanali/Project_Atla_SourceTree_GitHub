@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
 #include "Weapon_Proficiency_Struct.h"  // Include the struct definition
+#include "Elemental_Proficiency_Struct.h"
 #include "Ren_Low_Poly_Character.h"
 #include "Player_Save_Game.generated.h"
 
@@ -28,6 +29,18 @@ public:
     // Map to store weapon proficiency for different weapon types
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Weapon Proficiency")
         TMap<EWeaponType, FWeapon_Proficiency_Struct> SavedWeaponProficiencyMap;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Elemental Proficiency")
+        TMap<EWeaponType, FElemental_Proficiency_Struct> SavedElementalProficiencyMap;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Elemental Usage")
+        float FireElementalUsage;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Elemental Usage")
+        float IceElementalUsage;
+
+    UPROPERTY(BlueprintReadWrite, Category = "Elemental Usage")
+        float ThunderElementalUsage;
 
     // Constructor to initialize defaults (optional)
     UPlayer_Save_Game()
