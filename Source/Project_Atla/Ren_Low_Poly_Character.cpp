@@ -134,65 +134,26 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	//WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Sword, FElemental_Proficiency_Struct());
 	//WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Staff, FElemental_Proficiency_Struct());
 
-
-	// Declare Sword Proficiency
+// Inside the constructor or an initialization function
 	FElemental_Proficiency_Struct SwordProficiency;
 	SwordProficiency.FireProficiencyThresholds.Add(1, 100.f);
 	SwordProficiency.FireProficiencyThresholds.Add(2, 200.f);
 	SwordProficiency.FireProficiencyThresholds.Add(3, 300.f);
-	UE_LOG(LogTemp, Warning, TEXT("Sword FireProficiencyThresholds initialized with %d entries"), SwordProficiency.FireProficiencyThresholds.Num());
 
 	SwordProficiency.IceProficiencyThresholds.Add(1, 100.f);
 	SwordProficiency.IceProficiencyThresholds.Add(2, 200.f);
 	SwordProficiency.IceProficiencyThresholds.Add(3, 300.f);
-	UE_LOG(LogTemp, Warning, TEXT("Sword IceProficiencyThresholds initialized with %d entries"), SwordProficiency.IceProficiencyThresholds.Num());
 
 	SwordProficiency.ThunderProficiencyThresholds.Add(1, 100.f);
 	SwordProficiency.ThunderProficiencyThresholds.Add(2, 200.f);
 	SwordProficiency.ThunderProficiencyThresholds.Add(3, 300.f);
-	UE_LOG(LogTemp, Warning, TEXT("Sword ThunderProficiencyThresholds initialized with %d entries"), SwordProficiency.ThunderProficiencyThresholds.Num());
 
 	// Add Sword proficiency to the map
 	WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Sword, SwordProficiency);
 
-	// Check if Sword was added
-	if (WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Sword))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Sword has been successfully added to the map!"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to add Sword to the map!"));
-	}
 
-	// Declare and initialize Staff Proficiency only once
-	FElemental_Proficiency_Struct StaffProficiency;
-	StaffProficiency.FireProficiencyThresholds.Add(1, 100.f);
-	StaffProficiency.FireProficiencyThresholds.Add(2, 200.f);
-	StaffProficiency.FireProficiencyThresholds.Add(3, 300.f);
-	UE_LOG(LogTemp, Warning, TEXT("Staff FireProficiencyThresholds initialized with %d entries"), StaffProficiency.FireProficiencyThresholds.Num());
+	InitialiseDefaultElementalProficiencyValues();
 
-	StaffProficiency.IceProficiencyThresholds.Add(1, 100.f);
-	StaffProficiency.IceProficiencyThresholds.Add(2, 200.f);
-	StaffProficiency.IceProficiencyThresholds.Add(3, 300.f);
-	UE_LOG(LogTemp, Warning, TEXT("Staff IceProficiencyThresholds initialized with %d entries"), StaffProficiency.IceProficiencyThresholds.Num());
-
-	StaffProficiency.ThunderProficiencyThresholds.Add(1, 100.f);
-	StaffProficiency.ThunderProficiencyThresholds.Add(2, 200.f);
-	StaffProficiency.ThunderProficiencyThresholds.Add(3, 300.f);
-	UE_LOG(LogTemp, Warning, TEXT("Staff ThunderProficiencyThresholds initialized with %d entries"), StaffProficiency.ThunderProficiencyThresholds.Num());
-
-	// Add Staff proficiency to the map
-	WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Staff, StaffProficiency);
-
-	// Log map content at the end of the constructor
-	UE_LOG(LogTemp, Warning, TEXT("Map contains %d entries"), WeaponElementalProficiency.ElementalWeaponProficiencyMap.Num());
-
-	// Log the keys of the map
-	for (auto& Pair : WeaponElementalProficiency.ElementalWeaponProficiencyMap)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Key: %d"), (int32)Pair.Key);
-	}
 
 }
 
@@ -654,26 +615,27 @@ void ARen_Low_Poly_Character::LoadHighScore()
 }
 
 
+
 void ARen_Low_Poly_Character::SavePlayerProgress()
 {
 
 	UPlayer_Save_Game* SaveGameInstance = Cast<UPlayer_Save_Game>(UGameplayStatics::CreateSaveGameObject(UPlayer_Save_Game::StaticClass()));
 	if (SaveGameInstance)
 	{
+		// Copy data to save instance
 		SaveGameInstance->SavedWeaponProficiencyMap = WeaponProficiencyMap;
-		//SaveGameInstance->SavedElementalProficiencyMap = WeaponElementalProficiency.ElementalWeaponProficiencyMap;
+		SaveGameInstance->SavedElementalProficiencyMap = WeaponElementalProficiency.ElementalWeaponProficiencyMap;
 
-
+		// Save to slot
 		if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Player Save Slot"), 0))
 		{
-			UE_LOG(LogTemp, Log, TEXT("Weapon proficiency saved successfully."));
+			UE_LOG(LogTemp, Log, TEXT("Player progress saved successfully."));
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Failed to save weapon proficiency."));
+			UE_LOG(LogTemp, Warning, TEXT("Failed to save player progress."));
 		}
 	}
-
 }
 
 
@@ -684,11 +646,13 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 	UPlayer_Save_Game* LoadGameInstance = Cast<UPlayer_Save_Game>(UGameplayStatics::LoadGameFromSlot(TEXT("Player Save Slot"), 0));
 	if (LoadGameInstance)
 	{
+		// Load data from save instance
 		WeaponProficiencyMap = LoadGameInstance->SavedWeaponProficiencyMap;
 		//WeaponElementalProficiency.ElementalWeaponProficiencyMap = LoadGameInstance->SavedElementalProficiencyMap;
 
+		UE_LOG(LogTemp, Log, TEXT("Successfully loaded player progress."));
 
-		UE_LOG(LogTemp, Log, TEXT("Successfully loaded weapon proficiency map."));
+		// Log weapon proficiency map
 		for (const TPair<EWeaponType, FWeapon_Proficiency_Struct>& Pair : WeaponProficiencyMap)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Loaded %s: Level %d, EXP %.2f"),
@@ -697,9 +661,8 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 				Pair.Value.CurrentEXP);
 		}
 
-/*
 
-		UE_LOG(LogTemp, Log, TEXT("Progress loaded successfully."));
+		// Log elemental proficiency map
 		for (const TPair<EWeaponType, FElemental_Proficiency_Struct>& Pair : WeaponElementalProficiency.ElementalWeaponProficiencyMap)
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Loaded Elemental Proficiency for %s: Fire Level %d, Ice Level %d, Thunder Level %d"),
@@ -708,14 +671,14 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 				Pair.Value.IceLevel,
 				Pair.Value.ThunderLevel);
 		}
-*/
 
-		UpdateStatsBasedOnWeapon();
+
 
 	}
 	else
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No save game found. Initializing default values."));
+		InitialiseDefaultElementalProficiencyValues();
 	}
 
 }
@@ -1407,17 +1370,17 @@ void ARen_Low_Poly_Character::AddExperienceToElementalProfiency(EWeaponType TheW
 {
 	FElemental_Proficiency_Struct* ProficiencyStruct = nullptr;
 
-	// Get the proficiency struct based on the weapon type
-	if (TheWeaponType == EWeaponType::Sword)
-	{
-		ProficiencyStruct = &WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword];
-		UE_LOG(LogTemp, Warning, TEXT("Proficiency Struct: Sword"));
-	}
-	else if (TheWeaponType == EWeaponType::Staff)
-	{
-		ProficiencyStruct = &WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Staff];
-		UE_LOG(LogTemp, Warning, TEXT("Proficiency Struct: Staff"));
-	}
+	  // Check if the weapon type exists in the map first
+    if (WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(TheWeaponType))
+    {
+        ProficiencyStruct = &WeaponElementalProficiency.ElementalWeaponProficiencyMap[TheWeaponType];
+        UE_LOG(LogTemp, Warning, TEXT("Proficiency Struct: %s"), *UEnum::GetValueAsString(TheWeaponType));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Weapon type %s not found in proficiency map!"), *UEnum::GetValueAsString(TheWeaponType));
+        return;  // Exit the function early if the weapon type doesn't exist
+    }
 
 	if (ProficiencyStruct)
 	{
@@ -1940,6 +1903,24 @@ void ARen_Low_Poly_Character::InitialiseElementalAttacks()
 	//ElementalAttackMap.Add(EElementalAttackType::Thunder, ThunderAttack);
 
 	
+
+}
+
+
+
+void ARen_Low_Poly_Character::InitialiseDefaultElementalProficiencyValues()
+{
+
+	// Elemental Weapon Proficiency Map
+	if (!WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Sword))
+	{
+		WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Sword, FElemental_Proficiency_Struct());
+	}
+
+	if (!WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Staff))
+	{
+		WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Staff, FElemental_Proficiency_Struct());
+	}
 
 }
 
@@ -2639,6 +2620,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 
 	InitialiseElementalAttacks();
+	InitialiseDefaultElementalProficiencyValues();
 
 
 	AbilityStruct.InitializeAbilityPoints();
