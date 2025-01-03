@@ -610,7 +610,7 @@ void ARen_Low_Poly_Character::SavePlayerProgress()
 		// Copy data to save instance
 		SaveGameInstance->SavedWeaponProficiencyMap = WeaponProficiencyMap;
 		SaveGameInstance->SavedElementalProficiencyMap = WeaponElementalProficiency.ElementalWeaponProficiencyMap;
-
+		SaveGameInstance->SavedElementalAttacks = ElementalAttacks;
 		// Save to slot
 		if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Player Save Slot"), 0))
 		{
@@ -634,6 +634,7 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 		// Load data from save instance
 		WeaponProficiencyMap = LoadGameInstance->SavedWeaponProficiencyMap;
 		WeaponElementalProficiency.ElementalWeaponProficiencyMap = LoadGameInstance->SavedElementalProficiencyMap;
+		ElementalAttacks = LoadGameInstance->SavedElementalAttacks;
 		InitialiseElementalProficiencies();
 
 		UE_LOG(LogTemp, Log, TEXT("Successfully loaded player progress."));
@@ -3017,8 +3018,37 @@ void ARen_Low_Poly_Character::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("Sword proficiency not found!"));
 	}
 
+	// Log Elemental Stats for Sword
+	if (WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Sword))
+	{
+		FElemental_Proficiency_Struct& SwordElementalProficiency = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword];
 
+		// Log elemental stats for Sword
+		UE_LOG(LogTemp, Log, TEXT("Sword Elemental Stats:"));
+		UE_LOG(LogTemp, Log, TEXT("Fire Proficiency: %.2f | Level: %d"), SwordElementalProficiency.FireProficiency, SwordElementalProficiency.FireLevel);
+		UE_LOG(LogTemp, Log, TEXT("Ice Proficiency: %.2f | Level: %d"), SwordElementalProficiency.IceProficiency, SwordElementalProficiency.IceLevel);
+		UE_LOG(LogTemp, Log, TEXT("Thunder Proficiency: %.2f | Level: %d"), SwordElementalProficiency.ThunderProficiency, SwordElementalProficiency.ThunderLevel);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Sword elemental proficiency not found!"));
+	}
 
+	// Log Elemental Stats for Staff
+	if (WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Staff))
+	{
+		FElemental_Proficiency_Struct& StaffElementalProficiency = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Staff];
+
+		// Log elemental stats for Staff
+		UE_LOG(LogTemp, Log, TEXT("Staff Elemental Stats:"));
+		UE_LOG(LogTemp, Log, TEXT("Fire Proficiency: %.2f | Level: %d"), StaffElementalProficiency.FireProficiency, StaffElementalProficiency.FireLevel);
+		UE_LOG(LogTemp, Log, TEXT("Ice Proficiency: %.2f | Level: %d"), StaffElementalProficiency.IceProficiency, StaffElementalProficiency.IceLevel);
+		UE_LOG(LogTemp, Log, TEXT("Thunder Proficiency: %.2f | Level: %d"), StaffElementalProficiency.ThunderProficiency, StaffElementalProficiency.ThunderLevel);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Staff elemental proficiency not found!"));
+	}
 }
 	
 
