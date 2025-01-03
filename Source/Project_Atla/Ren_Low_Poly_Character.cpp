@@ -131,47 +131,68 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	QueuedUnlockTechniques = TArray<FString>();
 
 
-	WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Sword, FElemental_Proficiency_Struct());
-	WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Staff, FElemental_Proficiency_Struct());
+	//WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Sword, FElemental_Proficiency_Struct());
+	//WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Staff, FElemental_Proficiency_Struct());
 
 
-	
-		FElemental_Proficiency_Struct SwordProficiency;
-		SwordProficiency.FireProficiencyThresholds.Add(1, 100.f);
-		SwordProficiency.FireProficiencyThresholds.Add(2, 200.f);
-		SwordProficiency.FireProficiencyThresholds.Add(3, 300.f);
-		UE_LOG(LogTemp, Warning, TEXT("Sword FireProficiencyThresholds initialized with %d entries"), SwordProficiency.FireProficiencyThresholds.Num());
+	// Declare Sword Proficiency
+	FElemental_Proficiency_Struct SwordProficiency;
+	SwordProficiency.FireProficiencyThresholds.Add(1, 100.f);
+	SwordProficiency.FireProficiencyThresholds.Add(2, 200.f);
+	SwordProficiency.FireProficiencyThresholds.Add(3, 300.f);
+	UE_LOG(LogTemp, Warning, TEXT("Sword FireProficiencyThresholds initialized with %d entries"), SwordProficiency.FireProficiencyThresholds.Num());
 
-		SwordProficiency.IceProficiencyThresholds.Add(1, 100.f);
-		SwordProficiency.IceProficiencyThresholds.Add(2, 200.f);
-		SwordProficiency.IceProficiencyThresholds.Add(3, 300.f);
-		UE_LOG(LogTemp, Warning, TEXT("Sword IceProficiencyThresholds initialized with %d entries"), SwordProficiency.IceProficiencyThresholds.Num());
+	SwordProficiency.IceProficiencyThresholds.Add(1, 100.f);
+	SwordProficiency.IceProficiencyThresholds.Add(2, 200.f);
+	SwordProficiency.IceProficiencyThresholds.Add(3, 300.f);
+	UE_LOG(LogTemp, Warning, TEXT("Sword IceProficiencyThresholds initialized with %d entries"), SwordProficiency.IceProficiencyThresholds.Num());
 
-		SwordProficiency.ThunderProficiencyThresholds.Add(1, 100.f);
-		SwordProficiency.ThunderProficiencyThresholds.Add(2, 200.f);
-		SwordProficiency.ThunderProficiencyThresholds.Add(3, 300.f);
-		UE_LOG(LogTemp, Warning, TEXT("Sword ThunderProficiencyThresholds initialized with %d entries"), SwordProficiency.ThunderProficiencyThresholds.Num());
+	SwordProficiency.ThunderProficiencyThresholds.Add(1, 100.f);
+	SwordProficiency.ThunderProficiencyThresholds.Add(2, 200.f);
+	SwordProficiency.ThunderProficiencyThresholds.Add(3, 300.f);
+	UE_LOG(LogTemp, Warning, TEXT("Sword ThunderProficiencyThresholds initialized with %d entries"), SwordProficiency.ThunderProficiencyThresholds.Num());
 
-		WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Sword, SwordProficiency);
+	// Add Sword proficiency to the map
+	WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Sword, SwordProficiency);
 
-		FElemental_Proficiency_Struct StaffProficiency;
-		StaffProficiency.FireProficiencyThresholds.Add(1, 100.f);
-		StaffProficiency.FireProficiencyThresholds.Add(2, 200.f);
-		StaffProficiency.FireProficiencyThresholds.Add(3, 300.f);
-		UE_LOG(LogTemp, Warning, TEXT("Staff FireProficiencyThresholds initialized with %d entries"), StaffProficiency.FireProficiencyThresholds.Num());
+	// Check if Sword was added
+	if (WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Sword))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Sword has been successfully added to the map!"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to add Sword to the map!"));
+	}
 
-		StaffProficiency.IceProficiencyThresholds.Add(1, 100.f);
-		StaffProficiency.IceProficiencyThresholds.Add(2, 200.f);
-		StaffProficiency.IceProficiencyThresholds.Add(3, 300.f);
-		UE_LOG(LogTemp, Warning, TEXT("Staff IceProficiencyThresholds initialized with %d entries"), StaffProficiency.IceProficiencyThresholds.Num());
+	// Declare and initialize Staff Proficiency only once
+	FElemental_Proficiency_Struct StaffProficiency;
+	StaffProficiency.FireProficiencyThresholds.Add(1, 100.f);
+	StaffProficiency.FireProficiencyThresholds.Add(2, 200.f);
+	StaffProficiency.FireProficiencyThresholds.Add(3, 300.f);
+	UE_LOG(LogTemp, Warning, TEXT("Staff FireProficiencyThresholds initialized with %d entries"), StaffProficiency.FireProficiencyThresholds.Num());
 
-		StaffProficiency.ThunderProficiencyThresholds.Add(1, 100.f);
-		StaffProficiency.ThunderProficiencyThresholds.Add(2, 200.f);
-		StaffProficiency.ThunderProficiencyThresholds.Add(3, 300.f);
-		UE_LOG(LogTemp, Warning, TEXT("Staff ThunderProficiencyThresholds initialized with %d entries"), StaffProficiency.ThunderProficiencyThresholds.Num());
+	StaffProficiency.IceProficiencyThresholds.Add(1, 100.f);
+	StaffProficiency.IceProficiencyThresholds.Add(2, 200.f);
+	StaffProficiency.IceProficiencyThresholds.Add(3, 300.f);
+	UE_LOG(LogTemp, Warning, TEXT("Staff IceProficiencyThresholds initialized with %d entries"), StaffProficiency.IceProficiencyThresholds.Num());
 
-		WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Staff, StaffProficiency);
-	
+	StaffProficiency.ThunderProficiencyThresholds.Add(1, 100.f);
+	StaffProficiency.ThunderProficiencyThresholds.Add(2, 200.f);
+	StaffProficiency.ThunderProficiencyThresholds.Add(3, 300.f);
+	UE_LOG(LogTemp, Warning, TEXT("Staff ThunderProficiencyThresholds initialized with %d entries"), StaffProficiency.ThunderProficiencyThresholds.Num());
+
+	// Add Staff proficiency to the map
+	WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Staff, StaffProficiency);
+
+	// Log map content at the end of the constructor
+	UE_LOG(LogTemp, Warning, TEXT("Map contains %d entries"), WeaponElementalProficiency.ElementalWeaponProficiencyMap.Num());
+
+	// Log the keys of the map
+	for (auto& Pair : WeaponElementalProficiency.ElementalWeaponProficiencyMap)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Key: %d"), (int32)Pair.Key);
+	}
 
 }
 
@@ -640,6 +661,7 @@ void ARen_Low_Poly_Character::SavePlayerProgress()
 	if (SaveGameInstance)
 	{
 		SaveGameInstance->SavedWeaponProficiencyMap = WeaponProficiencyMap;
+		//SaveGameInstance->SavedElementalProficiencyMap = WeaponElementalProficiency.ElementalWeaponProficiencyMap;
 
 
 		if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Player Save Slot"), 0))
@@ -663,6 +685,8 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 	if (LoadGameInstance)
 	{
 		WeaponProficiencyMap = LoadGameInstance->SavedWeaponProficiencyMap;
+		//WeaponElementalProficiency.ElementalWeaponProficiencyMap = LoadGameInstance->SavedElementalProficiencyMap;
+
 
 		UE_LOG(LogTemp, Log, TEXT("Successfully loaded weapon proficiency map."));
 		for (const TPair<EWeaponType, FWeapon_Proficiency_Struct>& Pair : WeaponProficiencyMap)
@@ -672,6 +696,19 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 				Pair.Value.WeaponLevel,
 				Pair.Value.CurrentEXP);
 		}
+
+/*
+
+		UE_LOG(LogTemp, Log, TEXT("Progress loaded successfully."));
+		for (const TPair<EWeaponType, FElemental_Proficiency_Struct>& Pair : WeaponElementalProficiency.ElementalWeaponProficiencyMap)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Loaded Elemental Proficiency for %s: Fire Level %d, Ice Level %d, Thunder Level %d"),
+				*UEnum::GetValueAsString(Pair.Key),
+				Pair.Value.FireLevel,
+				Pair.Value.IceLevel,
+				Pair.Value.ThunderLevel);
+		}
+*/
 
 		UpdateStatsBasedOnWeapon();
 
