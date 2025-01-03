@@ -233,7 +233,9 @@ public:
 	void SaveHighScore();
 	void LoadHighScore();
 
+	UFUNCTION(BlueprintCallable)
 	void SavePlayerProgress();
+
 	void LoadPlayerProgress();
 	//Save Data
 
