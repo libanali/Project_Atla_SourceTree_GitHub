@@ -617,6 +617,7 @@ public:
 	void InitialiseElementalAttacks();
 
 	void InitialiseDefaultElementalProficiencyValues();
+	void InitialiseElementalProficiencies();
 
 	float PreviousElementalPower;
 	float InitialElemental;

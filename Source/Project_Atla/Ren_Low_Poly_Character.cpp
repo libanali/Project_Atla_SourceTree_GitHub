@@ -634,7 +634,7 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 		// Load data from save instance
 		WeaponProficiencyMap = LoadGameInstance->SavedWeaponProficiencyMap;
 		WeaponElementalProficiency.ElementalWeaponProficiencyMap = LoadGameInstance->SavedElementalProficiencyMap;
-		InitialiseDefaultElementalProficiencyValues();
+		InitialiseElementalProficiencies();
 
 		UE_LOG(LogTemp, Log, TEXT("Successfully loaded player progress."));
 
@@ -1330,8 +1330,6 @@ void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 			// Immediately add experience to the elemental proficiency
 			AddExperienceToElementalProfiency(WeaponType, SelectedElementalAttack.ElementalType, 90.0f);
 
-			//SavePlayerProgress();
-
 			// Log the successful use of the attack
 			UE_LOG(LogTemp, Warning, TEXT("Used Elemental Attack: %s, Gained EXP!"),
 				*SelectedElementalAttack.ElementalAttackName);
@@ -1497,6 +1495,7 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 				NewAbility = FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 2.5f, 30.0f, 3, true, FireGroundAnimation);
 				ElementalAttacks.Add(NewAbility);
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.3 Ability!"));
+
 			}
 		}
 		// Check Ice Elemental Level and Unlock Abilities
@@ -1940,6 +1939,61 @@ void ARen_Low_Poly_Character::InitialiseDefaultElementalProficiencyValues()
 	UE_LOG(LogTemp, Warning, TEXT("Final map contains %d entries"), WeaponElementalProficiency.ElementalWeaponProficiencyMap.Num());
 
 }
+
+
+void ARen_Low_Poly_Character::InitialiseElementalProficiencies()
+{
+	// Ensure Sword thresholds are initialized only if missing
+	if (WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Sword))
+	{
+		FElemental_Proficiency_Struct& SwordProficiency = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword];
+
+		if (SwordProficiency.FireProficiencyThresholds.Num() == 0)
+		{
+			SwordProficiency.FireProficiencyThresholds.Add(1, 100.f);
+			SwordProficiency.FireProficiencyThresholds.Add(2, 200.f);
+			SwordProficiency.FireProficiencyThresholds.Add(3, 300.f);
+		}
+		if (SwordProficiency.IceProficiencyThresholds.Num() == 0)
+		{
+			SwordProficiency.IceProficiencyThresholds.Add(1, 100.f);
+			SwordProficiency.IceProficiencyThresholds.Add(2, 200.f);
+			SwordProficiency.IceProficiencyThresholds.Add(3, 300.f);
+		}
+		if (SwordProficiency.ThunderProficiencyThresholds.Num() == 0)
+		{
+			SwordProficiency.ThunderProficiencyThresholds.Add(1, 100.f);
+			SwordProficiency.ThunderProficiencyThresholds.Add(2, 200.f);
+			SwordProficiency.ThunderProficiencyThresholds.Add(3, 300.f);
+		}
+	}
+
+	// Ensure Staff thresholds are initialized only if missing
+	if (WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Staff))
+	{
+		FElemental_Proficiency_Struct& StaffProficiency = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Staff];
+
+		if (StaffProficiency.FireProficiencyThresholds.Num() == 0)
+		{
+			StaffProficiency.FireProficiencyThresholds.Add(1, 100.f);
+			StaffProficiency.FireProficiencyThresholds.Add(2, 200.f);
+			StaffProficiency.FireProficiencyThresholds.Add(3, 300.f);
+		}
+		if (StaffProficiency.IceProficiencyThresholds.Num() == 0)
+		{
+			StaffProficiency.IceProficiencyThresholds.Add(1, 100.f);
+			StaffProficiency.IceProficiencyThresholds.Add(2, 200.f);
+			StaffProficiency.IceProficiencyThresholds.Add(3, 300.f);
+		}
+		if (StaffProficiency.ThunderProficiencyThresholds.Num() == 0)
+		{
+			StaffProficiency.ThunderProficiencyThresholds.Add(1, 100.f);
+			StaffProficiency.ThunderProficiencyThresholds.Add(2, 200.f);
+			StaffProficiency.ThunderProficiencyThresholds.Add(3, 300.f);
+		}
+	}
+}
+
 
 
 
@@ -2636,8 +2690,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 	FindResultsCamera();
 
 
-	InitialiseElementalAttacks();
-	InitialiseDefaultElementalProficiencyValues();
+	//InitialiseElementalAttacks();
+	//InitialiseDefaultElementalProficiencyValues();
 
 
 	AbilityStruct.InitializeAbilityPoints();
@@ -2965,8 +3019,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 
 
-	
 }
+	
 
 
 
