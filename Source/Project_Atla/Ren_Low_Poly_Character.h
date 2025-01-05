@@ -90,7 +90,14 @@ public:
 
 
 
+USTRUCT(BlueprintType)
+struct FWeaponElementalAttacks
+{
+	GENERATED_BODY()
 
+		UPROPERTY(BlueprintReadWrite, Category = "Elemental Attacks")
+		TArray<FElemental_Struct> ElementalAttacks;
+};
 
 
 
@@ -547,8 +554,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental Proficiency")
 		FElemental_Proficiency_Struct ElementalProficiency;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental Attacks")
+		TMap<EWeaponType, FWeaponElementalAttacks> WeaponElementalAttacks;
+
+
 	UFUNCTION()
-		void AddElementalAttackDelayed(const FElemental_Struct& ElementalAttack);
+		void AddElementalAttackDelayed(const FElemental_Struct& ElementalAttack, EWeaponType TheWeaponType);
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void CalculateElementalAttack();
