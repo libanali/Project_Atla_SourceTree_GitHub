@@ -625,19 +625,18 @@ void ARen_Low_Poly_Character::SavePlayerProgress()
 }
 
 
-
 void ARen_Low_Poly_Character::LoadPlayerProgress()
 {
-
 	UPlayer_Save_Game* LoadGameInstance = Cast<UPlayer_Save_Game>(UGameplayStatics::LoadGameFromSlot(TEXT("Player Save Slot"), 0));
 	if (LoadGameInstance)
 	{
 		// Load data from save instance
 		WeaponProficiencyMap = LoadGameInstance->SavedWeaponProficiencyMap;
 		WeaponElementalProficiency.ElementalWeaponProficiencyMap = LoadGameInstance->SavedElementalProficiencyMap;
-		//ElementalAttacks = LoadGameInstance->SavedElementalAttacks;
 		WeaponElementalAttacks = LoadGameInstance->SavedWeaponElementalAttacks;
-		InitialiseElementalProficiencies();
+
+		// InitialiseElementalAttacks to update ElementalAttacks based on loaded data
+		InitialiseElementalAttacks();
 
 		UE_LOG(LogTemp, Log, TEXT("Successfully loaded player progress."));
 
@@ -650,7 +649,6 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 				Pair.Value.CurrentEXP);
 		}
 
-
 		// Log elemental proficiency map
 		for (const TPair<EWeaponType, FElemental_Proficiency_Struct>& Pair : WeaponElementalProficiency.ElementalWeaponProficiencyMap)
 		{
@@ -661,7 +659,15 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 				Pair.Value.ThunderLevel);
 		}
 
-
+		// Log loaded elemental attacks (for debugging)
+		for (const TPair<EWeaponType, FWeaponElementalAttacks>& Pair : WeaponElementalAttacks)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Loaded Elemental Attacks for %s:"), *UEnum::GetValueAsString(Pair.Key));
+			for (const FElemental_Struct& Attack : Pair.Value.ElementalAttacks)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("    - %s"), *Attack.ElementalAttackName);
+			}
+		}
 
 	}
 	else
@@ -669,7 +675,6 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 		UE_LOG(LogTemp, Warning, TEXT("No save game found. Initializing default values."));
 		InitialiseDefaultElementalProficiencyValues();
 	}
-
 }
 
 
@@ -1599,8 +1604,6 @@ void ARen_Low_Poly_Character::AddElementalAttackDelayed(const FElemental_Struct&
 {
 
 	//ElementalAttacks.Add(ElementalAttack);
-	
-
 
  // Check if the WeaponType exists in the map, if not, initialize it
 	if (!WeaponElementalAttacks.Contains(TheWeaponType))
@@ -2671,7 +2674,11 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	}
 
+	// Initialize Elemental Attacks
+	InitialiseElementalAttacks();
 
+	// Initialize Elemental Proficiencies
+	InitialiseElementalProficiencies();
 
 	LoadHighScore();
 	LoadPlayerProgress();
@@ -2680,8 +2687,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	FindResultsCamera();
 
-	InitialiseElementalAttacks();
-	//InitialiseDefaultElementalProficiencyValues();
+	
 
 
 	AbilityStruct.InitializeAbilityPoints();
