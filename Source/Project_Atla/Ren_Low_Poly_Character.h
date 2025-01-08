@@ -635,6 +635,7 @@ public:
 	void VerifyElementalAttacks();
 	void LogCurrentELementalAttacks();
 
+
 	float PreviousElementalPower;
 	float InitialElemental;
 	//Elemental Stats
