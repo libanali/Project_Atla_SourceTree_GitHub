@@ -636,7 +636,14 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 		WeaponElementalAttacks = LoadGameInstance->SavedWeaponElementalAttacks;
 
 		// InitialiseElementalAttacks to update ElementalAttacks based on loaded data
-		InitialiseElementalAttacks();
+		 // Delay the call to InitialiseElementalAttacks by 2 seconds (adjust as needed)
+		GetWorld()->GetTimerManager().SetTimer(
+			ElementalAttackInitTimerHandle,  // Timer handle
+			this,                           // Target object
+			&ARen_Low_Poly_Character::InitialiseElementalAttacks, // Function to call
+			1.0f,                           // Delay in seconds
+			false                           // Don't loop
+		);
 
 		UE_LOG(LogTemp, Log, TEXT("Successfully loaded player progress."));
 
@@ -674,6 +681,15 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("No save game found. Initializing default values."));
 		InitialiseDefaultElementalProficiencyValues();
+		// InitialiseElementalAttacks to update ElementalAttacks based on loaded data
+		 // Delay the call to InitialiseElementalAttacks by 2 seconds (adjust as needed)
+		GetWorld()->GetTimerManager().SetTimer(
+			ElementalAttackInitTimerHandle,  // Timer handle
+			this,                           // Target object
+			&ARen_Low_Poly_Character::InitialiseElementalAttacks, // Function to call
+			1.0f,                           // Delay in seconds
+			false                           // Don't loop
+		);
 	}
 }
 
@@ -1850,34 +1866,82 @@ void ARen_Low_Poly_Character::ApplyStunEffect(AEnemy_Poly* Enemy, float Duration
 
 void ARen_Low_Poly_Character::InitialiseElementalAttacks()
 {
-	// Clear existing attacks
-	ElementalAttacks.Empty();
+	// Clear existing attacks for all weapon types
+	WeaponElementalAttacks.Empty();
 
-	// Check if WeaponType is valid
-	if (WeaponType != EWeaponType::Sword && WeaponType != EWeaponType::Staff)
+	// Initialize attacks for each weapon type
+	for (auto& WeaponPair : WeaponElementalProficiency.ElementalWeaponProficiencyMap)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("WeaponType is not set. Cannot initialise elemental attacks."));
-		return;
-	}
+		EWeaponType CurrentWeaponType = WeaponPair.Key;
+		const FElemental_Proficiency_Struct& ProficiencyStruct = WeaponPair.Value;
 
-	// Create a new array of FElemental_Struct based on WeaponType
-	TArray<FElemental_Struct> NewElementalAttacks;
+		// Create new FWeaponElementalAttacks for this weapon type
+		FWeaponElementalAttacks NewWeaponAttacks;
 
-	if (WeaponType == EWeaponType::Sword)
-	{
-		NewElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.5f, 10.0f, 1, true, FireProjectileAnimation));
-		NewElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 20.0f, 1, true, IceProjectileAnimation));
-		NewElementalAttacks.Add(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.8f, 20.0f, 1, true, ThunderProjectileAnimation));
-	}
-	else if (WeaponType == EWeaponType::Staff)
-	{
-		NewElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.7f, 25.0f, 1, true, FireProjectileAnimation));
-		NewElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.9f, 15.0f, 1, true, IceProjectileAnimation));
-		NewElementalAttacks.Add(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.5f, 10.0f, 1, true, ThunderProjectileAnimation));
-	}
+		// First add to the map so UnlockElementalAbility has something to work with
+		WeaponElementalAttacks.Add(CurrentWeaponType, NewWeaponAttacks);
 
-	// Assign the new array to ElementalAttacks
-	ElementalAttacks = NewElementalAttacks;
+		if (CurrentWeaponType == EWeaponType::Sword)
+		{
+			// Add base attacks directly to the map
+			WeaponElementalAttacks[CurrentWeaponType].ElementalAttacks.Add(
+				FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.5f, 10.0f, 1, true, FireProjectileAnimation));
+			WeaponElementalAttacks[CurrentWeaponType].ElementalAttacks.Add(
+				FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 20.0f, 1, true, IceProjectileAnimation));
+			WeaponElementalAttacks[CurrentWeaponType].ElementalAttacks.Add(
+				FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.8f, 20.0f, 1, true, ThunderProjectileAnimation));
+
+			// Now handle the unlocked abilities
+			if (ProficiencyStruct.FireLevel >= 2)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Initializing Fire Level 2 attack for Sword"));
+				FElemental_Struct NewAbility(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 2.0f, 20.0f, 2, true, FireAOEAnimation);
+				WeaponElementalAttacks[CurrentWeaponType].ElementalAttacks.Add(NewAbility);
+			}
+			if (ProficiencyStruct.FireLevel >= 3)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Initializing Fire Level 3 attack for Sword"));
+				FElemental_Struct NewAbility(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 2.5f, 30.0f, 3, true, FireGroundAnimation);
+				WeaponElementalAttacks[CurrentWeaponType].ElementalAttacks.Add(NewAbility);
+			}
+
+			// Do the same for Ice and Thunder
+			if (ProficiencyStruct.IceLevel >= 2)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Initializing Ice Level 2 attack for Sword"));
+				FElemental_Struct NewAbility(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 2.0f, 20.0f, 2, true, IceAOEAnimation);
+				WeaponElementalAttacks[CurrentWeaponType].ElementalAttacks.Add(NewAbility);
+			}
+			if (ProficiencyStruct.IceLevel >= 3)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Initializing Ice Level 3 attack for Sword"));
+				FElemental_Struct NewAbility(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 2.5f, 30.0f, 3, true, IceGroundAnimation);
+				WeaponElementalAttacks[CurrentWeaponType].ElementalAttacks.Add(NewAbility);
+			}
+
+			if (ProficiencyStruct.ThunderLevel >= 2)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Initializing Thunder Level 2 attack for Sword"));
+				FElemental_Struct NewAbility(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 2.0f, 20.0f, 2, true, ThunderAOEAnimation);
+				WeaponElementalAttacks[CurrentWeaponType].ElementalAttacks.Add(NewAbility);
+			}
+			if (ProficiencyStruct.ThunderLevel >= 3)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Initializing Thunder Level 3 attack for Sword"));
+				FElemental_Struct NewAbility(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 2.5f, 30.0f, 3, true, ThunderGroundAnimation);
+				WeaponElementalAttacks[CurrentWeaponType].ElementalAttacks.Add(NewAbility);
+			}
+		}
+		else if (CurrentWeaponType == EWeaponType::Staff)
+		{
+			// Similar implementation for Staff...
+		}
+
+		// Log the initialization for this weapon
+		UE_LOG(LogTemp, Warning, TEXT("Initialized %d attacks for %s"),
+			WeaponElementalAttacks[CurrentWeaponType].ElementalAttacks.Num(),
+			*UEnum::GetValueAsString(CurrentWeaponType));
+	}
 }
 
 
@@ -1984,6 +2048,165 @@ void ARen_Low_Poly_Character::InitialiseElementalProficiencies()
 		StaffProficiency.ThunderProficiencyThresholds.Add(2, 200.f);
 		StaffProficiency.ThunderProficiencyThresholds.Add(3, 300.f);
 	}
+}
+
+
+
+
+
+void ARen_Low_Poly_Character::EnsureAllInitialisation()
+{
+
+	if (WeaponElementalProficiency.ElementalWeaponProficiencyMap.Num() == 0)
+	{
+		InitialiseElementalProficiencies();
+	}
+
+//	InitialiseElementalAttacks();
+
+	// Delay the call to InitialiseElementalAttacks by 2 seconds (adjust as needed)
+	GetWorld()->GetTimerManager().SetTimer(
+		ElementalAttackInitTimerHandle,  // Timer handle
+		this,                           // Target object
+		&ARen_Low_Poly_Character::InitialiseElementalAttacks, // Function to call
+		1.0f,                           // Delay in seconds
+		false                           // Don't loop
+	);
+	VerifyInitialisation();
+	VerifyElementalAttacks(); // Add this line
+}
+
+
+
+
+void ARen_Low_Poly_Character::VerifyInitialisation()
+{
+
+
+	bool bHasSword = WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Sword);
+	bool bHasStaff = WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Staff);
+
+	UE_LOG(LogTemp, Log, TEXT("Verification - Sword: %s, Staff: %s"),
+		bHasSword ? TEXT("Present") : TEXT("Missing"),
+		bHasStaff ? TEXT("Present") : TEXT("Missing"));
+
+	if (!bHasSword || !bHasStaff)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Missing weapon types after initialization. Reinitializing..."));
+		InitialiseElementalProficiencies();
+	}
+
+
+}
+
+
+
+void ARen_Low_Poly_Character::VerifyElementalAttacks()
+{
+
+	for (const auto& WeaponPair : WeaponElementalProficiency.ElementalWeaponProficiencyMap)
+	{
+		EWeaponType CurrentWeaponType = WeaponPair.Key;
+		const FElemental_Proficiency_Struct& ProficiencyStruct = WeaponPair.Value;
+
+		// Check if this weapon type has its attacks initialized
+		if (!WeaponElementalAttacks.Contains(CurrentWeaponType))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Missing attacks for weapon type %s, reinitializing..."),
+				*UEnum::GetValueAsString(CurrentWeaponType));
+			continue;
+		}
+
+		TArray<FElemental_Struct>& Attacks = WeaponElementalAttacks[CurrentWeaponType].ElementalAttacks;
+
+		// Verify Fire attacks match proficiency
+		bool hasLevel2Fire = false;
+		bool hasLevel3Fire = false;
+
+		for (const FElemental_Struct& Attack : Attacks)
+		{
+			if (Attack.ElementalType == EElementalAttackType::Fire)
+			{
+				if (Attack.ElementalLevel == 2) hasLevel2Fire = true;
+				if (Attack.ElementalLevel == 3) hasLevel3Fire = true;
+			}
+		}
+
+		// Log any mismatches
+		if (ProficiencyStruct.FireLevel >= 2 && !hasLevel2Fire)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Missing Level 2 Fire attack for %s despite having required proficiency"),
+				*UEnum::GetValueAsString(CurrentWeaponType));
+		}
+
+		// Similar checks for Ice and Thunder...
+	}
+
+}
+
+
+
+
+void ARen_Low_Poly_Character::LogCurrentELementalAttacks()
+{
+
+	// Log total number of weapons with attacks
+	UE_LOG(LogTemp, Warning, TEXT("=== Current Elemental Attacks Status ==="));
+	UE_LOG(LogTemp, Warning, TEXT("Total weapon types with attacks: %d"), WeaponElementalAttacks.Num());
+
+	// For each weapon type
+	for (const auto& WeaponPair : WeaponElementalAttacks)
+	{
+		EWeaponType CurrentWeaponType = WeaponPair.Key;
+		const FWeaponElementalAttacks& Attacks = WeaponPair.Value;
+
+		UE_LOG(LogTemp, Warning, TEXT("\nWeapon Type: %s"), *UEnum::GetValueAsString(CurrentWeaponType));
+		UE_LOG(LogTemp, Warning, TEXT("Total attacks: %d"), Attacks.ElementalAttacks.Num());
+
+		// Count attacks by element and level
+		int32 FireAttacks = 0;
+		int32 IceAttacks = 0;
+		int32 ThunderAttacks = 0;
+
+		// Log each attack's details
+		for (const FElemental_Struct& Attack : Attacks.ElementalAttacks)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("  - Attack: %s (Level %d)"), *Attack.ElementalAttackName, Attack.ElementalLevel);
+
+			switch (Attack.ElementalType)
+			{
+			case EElementalAttackType::Fire:
+				FireAttacks++;
+				break;
+			case EElementalAttackType::Ice:
+				IceAttacks++;
+				break;
+			case EElementalAttackType::Thunder:
+				ThunderAttacks++;
+				break;
+			}
+		}
+
+		// Log summary for this weapon
+		UE_LOG(LogTemp, Warning, TEXT("Summary for %s:"), *UEnum::GetValueAsString(CurrentWeaponType));
+		UE_LOG(LogTemp, Warning, TEXT("  Fire Attacks: %d"), FireAttacks);
+		UE_LOG(LogTemp, Warning, TEXT("  Ice Attacks: %d"), IceAttacks);
+		UE_LOG(LogTemp, Warning, TEXT("  Thunder Attacks: %d"), ThunderAttacks);
+
+		// Also log the current proficiency levels for comparison
+		if (WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(CurrentWeaponType))
+		{
+			const FElemental_Proficiency_Struct& Proficiency = WeaponElementalProficiency.ElementalWeaponProficiencyMap[CurrentWeaponType];
+			UE_LOG(LogTemp, Warning, TEXT("Current Proficiency Levels:"));
+			UE_LOG(LogTemp, Warning, TEXT("  Fire Level: %d"), Proficiency.FireLevel);
+			UE_LOG(LogTemp, Warning, TEXT("  Ice Level: %d"), Proficiency.IceLevel);
+			UE_LOG(LogTemp, Warning, TEXT("  Thunder Level: %d"), Proficiency.ThunderLevel);
+		}
+	}
+	UE_LOG(LogTemp, Warning, TEXT("=== End of Elemental Attacks Status ===\n"));
+
+
+
 }
 
 
@@ -2675,19 +2898,21 @@ void ARen_Low_Poly_Character::BeginPlay()
 	}
 
 	// Initialize Elemental Attacks
-	InitialiseElementalAttacks();
+	//InitialiseElementalAttacks();
 
 	// Initialize Elemental Proficiencies
-	InitialiseElementalProficiencies();
+	//InitialiseElementalProficiencies();
+
 
 	LoadHighScore();
 	LoadPlayerProgress();
+	EnsureAllInitialisation();
 
 	UnlockQueuedTechniques();
 
 	FindResultsCamera();
 
-	
+	LogCurrentELementalAttacks();
 
 
 	AbilityStruct.InitializeAbilityPoints();
@@ -2986,6 +3211,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	InputComponent->BindAction("Roll Dodge or Back", IE_Pressed, this, &ARen_Low_Poly_Character::HandleBackInput);
 
 
+
 	if (WeaponProficiencyMap.Contains(EWeaponType::Sword))
 	{
 		FWeapon_Proficiency_Struct& SwordProficiency = WeaponProficiencyMap[EWeaponType::Sword];
@@ -3026,6 +3252,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("Sword proficiency not found!"));
 	}
 
+
+
 	// Log Elemental Stats for Sword
 	if (WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Sword))
 	{
@@ -3057,6 +3285,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Staff elemental proficiency not found!"));
 	}
+
 }
 	
 

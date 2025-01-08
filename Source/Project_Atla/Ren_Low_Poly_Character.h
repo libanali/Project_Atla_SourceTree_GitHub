@@ -630,6 +630,10 @@ public:
 
 	void InitialiseDefaultElementalProficiencyValues();
 	void InitialiseElementalProficiencies();
+	void EnsureAllInitialisation();
+	void VerifyInitialisation();
+	void VerifyElementalAttacks();
+	void LogCurrentELementalAttacks();
 
 	float PreviousElementalPower;
 	float InitialElemental;
@@ -680,6 +684,7 @@ public:
 	FTimerHandle RegenHealthTimer;
 	FTimerHandle RegenHealthDurationTimer;
 	FTimerHandle DoublePointsTimer;
+	FTimerHandle ElementalAttackInitTimerHandle;
 	//Power-Up system
 
 
