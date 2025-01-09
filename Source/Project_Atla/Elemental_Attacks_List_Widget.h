@@ -26,9 +26,13 @@ public:
     virtual void NativeOnInitialized() override;
 
     /** Set up the widget with a reference to the player character */
+    UFUNCTION(BlueprintCallable)
     void SetupWidget(ARen_Low_Poly_Character* Character);
 
 
+    /** The widget class for the elemental attack button */
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+        TSubclassOf<UElemental_Attacks_Button_Widget> ElementalAttackButtonClass;
 
 private:
     /** Populates the scroll box with buttons for unlocked elemental attacks */
@@ -43,7 +47,9 @@ private:
     /** Reference to the player character */
     ARen_Low_Poly_Character* PlayerCharacter;
 
-    /** The widget class for the elemental attack button */
-    UPROPERTY(EditAnywhere, Category = "UI")
-        TSubclassOf<UElemental_Attacks_Button_Widget> ElementalAttackButtonClass;
+
+
+
+    virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
+
 };

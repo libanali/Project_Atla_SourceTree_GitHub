@@ -15,8 +15,10 @@ void UElemental_Attacks_List_Widget::NativeOnInitialized()
     // Make sure the scroll box and player character are valid before populating
     if (Elemental_Attack_ScrollBox && PlayerCharacter)
     {
-        PopulateElementalAttackList();
+     //   PopulateElementalAttackList();
     }
+
+    
 
 
 }
@@ -45,7 +47,6 @@ void UElemental_Attacks_List_Widget::SetupWidget(ARen_Low_Poly_Character* Charac
 
 void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
 {
-
     // Clear the scroll box before adding new buttons
     Elemental_Attack_ScrollBox->ClearChildren();
 
@@ -59,12 +60,13 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
     // A variable to keep track of the first button
     UElemental_Attacks_Button_Widget* FirstButton = nullptr;
 
-    // Iterate through the player's unlocked elemental attacks
+    // Iterate through the player's weapon types and their associated elemental attacks
     for (const auto& WeaponAttacksPair : PlayerCharacter->WeaponElementalAttacks)
     {
+        const EWeaponType& WeaponType = WeaponAttacksPair.Key;
         const FWeaponElementalAttacks& WeaponAttacks = WeaponAttacksPair.Value;
 
-        // Loop through elemental attacks
+        // Loop through the elemental attacks for this weapon type
         for (int32 Index = 0; Index < WeaponAttacks.ElementalAttacks.Num(); ++Index)
         {
             const FElemental_Struct& ElementalAttack = WeaponAttacks.ElementalAttacks[Index];
@@ -86,7 +88,7 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
                         // Add the button to the scroll box
                         Elemental_Attack_ScrollBox->AddChild(ElementalButton);
 
-                        // Track the first button to set focus later
+                        // If this is the first button, set it as the focusable one
                         if (!FirstButton)
                         {
                             FirstButton = ElementalButton;
@@ -101,9 +103,20 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
         }
     }
 
-    // After adding all the buttons, set focus to the first button
+    // If there's a first button, set focus on it
     if (FirstButton)
     {
         FirstButton->SetKeyboardFocus();
     }
+}
+
+
+
+void UElemental_Attacks_List_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+
+    Super::NativeTick(MyGeometry, InDeltaTime);
+
+
+
 }
