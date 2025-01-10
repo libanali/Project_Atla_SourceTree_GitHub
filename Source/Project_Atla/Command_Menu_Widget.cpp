@@ -377,8 +377,6 @@ void UCommand_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDelta
     Super::NativeTick(MyGeometry, InDeltaTime);
 
 
-
-
     if (CurrentInputMode == EInputMode::Gamepad)
     {
         // Gamepad: Check for keyboard focus

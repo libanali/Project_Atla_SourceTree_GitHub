@@ -24,6 +24,9 @@ class PROJECT_ATLA_API UElemental_Attacks_List_Widget : public UUserWidget
 public:
     /** Initializes the widget and populates the list of elemental attacks */
     virtual void NativeOnInitialized() override;
+    virtual void NativeConstruct() override;
+
+    void SetupInputMode();
 
     /** Set up the widget with a reference to the player character */
     UFUNCTION(BlueprintCallable)

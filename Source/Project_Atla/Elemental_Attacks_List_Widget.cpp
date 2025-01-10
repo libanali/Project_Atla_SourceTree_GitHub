@@ -3,112 +3,140 @@
 
 #include "Elemental_Attacks_List_Widget.h"
 #include "Components/ScrollBox.h"
+#include "Components/Button.h"
 #include "Elemental_Attacks_Button_Widget.h"
 #include "Ren_Low_Poly_Character.h"
-
+#include "Kismet/GameplayStatics.h"
 
 void UElemental_Attacks_List_Widget::NativeOnInitialized()
 {
-
     Super::NativeOnInitialized();
 
-    // Make sure the scroll box and player character are valid before populating
-    if (Elemental_Attack_ScrollBox && PlayerCharacter)
-    {
-     //   PopulateElementalAttackList();
-    }
+    // Ensure this widget can receive focus
+    bIsFocusable = true;
 
-    
-
+    UE_LOG(LogTemp, Warning, TEXT("Native Initialised!"));
 
 }
 
 
 
-void UElemental_Attacks_List_Widget::SetupWidget(ARen_Low_Poly_Character* Character)
+void UElemental_Attacks_List_Widget::NativeConstruct()
 {
-    // Store a reference to the player character
-    PlayerCharacter = Character;
 
-    // If the scroll box is valid, populate the list
-    if (Elemental_Attack_ScrollBox)
+    Super::NativeConstruct();
+
+
+    if (Elemental_Attack_ScrollBox && PlayerCharacter)
     {
         PopulateElementalAttackList();
     }
-    else
+
+    // Set up input mode after a short delay to ensure widget is fully constructed
+
+/*
+
+    FTimerHandle UnusedHandle;
+    GetWorld()->GetTimerManager().SetTimer(
+        UnusedHandle,
+        FTimerDelegate::CreateUObject(this, &UElemental_Attacks_List_Widget::SetupInputMode),
+        0.1f,
+        false
+    );
+
+    UE_LOG(LogTemp, Warning, TEXT("Native Construct!"));
+    */
+}
+
+
+
+
+void UElemental_Attacks_List_Widget::SetupInputMode()
+{
+
+    APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+    if (PlayerController)
     {
-        UE_LOG(LogTemp, Warning, TEXT("Elemental_Attack_ScrollBox is not valid."));
+        FInputModeGameAndUI InputMode;
+        InputMode.SetWidgetToFocus(TakeWidget());
+        InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+        PlayerController->SetInputMode(InputMode);
+        PlayerController->bShowMouseCursor = true;
     }
 
 
 }
+
+void UElemental_Attacks_List_Widget::SetupWidget(ARen_Low_Poly_Character* Character)
+{
+    PlayerCharacter = Character;
+
+    if (!PlayerCharacter)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Invalid PlayerCharacter passed to SetupWidget"));
+        return;
+    }
+
+    if (Elemental_Attack_ScrollBox)
+    {
+        PopulateElementalAttackList();
+        SetupInputMode();
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Elemental_Attack_ScrollBox is not valid in SetupWidget"));
+    }
+}
+
 
 
 
 void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
 {
-    // Clear the scroll box before adding new buttons
-    Elemental_Attack_ScrollBox->ClearChildren();
-
-    // Validate the player character
-    if (!PlayerCharacter)
+    if (!PlayerCharacter || !Elemental_Attack_ScrollBox)
     {
-        UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter is null in Elemental_Attack_List_Widget."));
+        UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter or Elemental_Attack_ScrollBox is null."));
         return;
     }
 
-    // A variable to keep track of the first button
-    UElemental_Attacks_Button_Widget* FirstButton = nullptr;
+    Elemental_Attack_ScrollBox->ClearChildren();
+    TArray<UElemental_Attacks_Button_Widget*> CreatedButtons;
 
-    // Iterate through the player's weapon types and their associated elemental attacks
     for (const auto& WeaponAttacksPair : PlayerCharacter->WeaponElementalAttacks)
     {
-        const EWeaponType& WeaponType = WeaponAttacksPair.Key;
-        const FWeaponElementalAttacks& WeaponAttacks = WeaponAttacksPair.Value;
-
-        // Loop through the elemental attacks for this weapon type
-        for (int32 Index = 0; Index < WeaponAttacks.ElementalAttacks.Num(); ++Index)
+        for (int32 Index = 0; Index < WeaponAttacksPair.Value.ElementalAttacks.Num(); ++Index)
         {
-            const FElemental_Struct& ElementalAttack = WeaponAttacks.ElementalAttacks[Index];
-
-            // Check if the attack is unlocked
-            if (ElementalAttack.bIsUnlocked)
+            const FElemental_Struct& ElementalAttack = WeaponAttacksPair.Value.ElementalAttacks[Index];
+            if (ElementalAttack.bIsUnlocked && ElementalAttackButtonClass)
             {
-                // Ensure the button class is valid
-                if (ElementalAttackButtonClass)
+                UElemental_Attacks_Button_Widget* ElementalButton = CreateWidget<UElemental_Attacks_Button_Widget>(GetWorld(), ElementalAttackButtonClass);
+                if (ElementalButton)
                 {
-                    // Create a new button widget dynamically
-                    UElemental_Attacks_Button_Widget* ElementalButton = CreateWidget<UElemental_Attacks_Button_Widget>(GetWorld(), ElementalAttackButtonClass);
-
-                    if (ElementalButton)
-                    {
-                        // Set up the button with the attack's data, player reference, and the index
-                        ElementalButton->SetupButton(ElementalAttack, PlayerCharacter, Index);
-
-                        // Add the button to the scroll box
-                        Elemental_Attack_ScrollBox->AddChild(ElementalButton);
-
-                        // If this is the first button, set it as the focusable one
-                        if (!FirstButton)
-                        {
-                            FirstButton = ElementalButton;
-                        }
-                    }
-                }
-                else
-                {
-                    UE_LOG(LogTemp, Warning, TEXT("ElementalAttackButtonClass is not set in Elemental_Attack_List_Widget."));
+                    ElementalButton->SetupButton(ElementalAttack, PlayerCharacter, Index);
+                    Elemental_Attack_ScrollBox->AddChild(ElementalButton);
+                    CreatedButtons.Add(ElementalButton);
                 }
             }
         }
     }
 
-    // If there's a first button, set focus on it
-    if (FirstButton)
+    // Focus the first button after all buttons are created
+    if (CreatedButtons.Num() > 0)
     {
-        FirstButton->SetKeyboardFocus();
+        CreatedButtons[0]->SetKeyboardFocus();
+
+        // Optional: Log success
+        if (CreatedButtons[0]->HasKeyboardFocus())
+        {
+            UE_LOG(LogTemp, Log, TEXT("Successfully set focus to the first button."));
+        }
+        else
+        {
+            UE_LOG(LogTemp, Warning, TEXT("Failed to set focus to the first button."));
+        }
     }
 }
+
 
 
 

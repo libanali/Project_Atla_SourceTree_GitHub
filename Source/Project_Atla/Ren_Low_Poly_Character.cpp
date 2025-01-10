@@ -3501,10 +3501,10 @@ void ARen_Low_Poly_Character::OpenElementalAttacks()
 
 	if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher)
 	{
-		// Set the WidgetSwitcher to display the techniques menu (index 3)
+		// Set the WidgetSwitcher to display the elemental menu (index 4)
 		CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(4);
 
-		// Update visibility specifically for techniques menu
+		// Update visibility specifically for elemental menu
 		UpdateVisibilityBasedOnIndex(4);
 		bIsInventoryOpen = false;
 		bIsTechniquesOpen = false;
@@ -3515,7 +3515,7 @@ void ARen_Low_Poly_Character::OpenElementalAttacks()
 
 
 	SetInputModeForUI();
-	bIsInUIMode = true; // Track UI mode for techniques menu
+	bIsInUIMode = true; // Track UI mode for elemental menu
 
 
 
