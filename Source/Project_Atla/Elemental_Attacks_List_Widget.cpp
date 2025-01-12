@@ -5,6 +5,7 @@
 #include "Components/ScrollBox.h"
 #include "Components/Button.h"
 #include "Elemental_Attacks_Button_Widget.h"
+#include "Test_Button_Widget.h"
 #include "Ren_Low_Poly_Character.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -40,27 +41,24 @@ void UElemental_Attacks_List_Widget::NativeConstruct()
     Super::NativeConstruct();
 
 
-    if (Elemental_Attack_ScrollBox && PlayerCharacter)
+   // NewPopulateElementalAttackList();
+    
+    
+
+     // Get the player character
+    ARen_Low_Poly_Character* Character = Cast<ARen_Low_Poly_Character>(GetOwningPlayerPawn());
+
+    if (Character)
     {
-      //  PopulateElementalAttackList();
+        SetupWidget(Character);
+        UE_LOG(LogTemp, Log, TEXT("SetupWidget called from NativeConstruct"));
     }
-
-    // Set up input mode after a short delay to ensure widget is fully constructed
-
-/*
-
-    FTimerHandle UnusedHandle;
-    GetWorld()->GetTimerManager().SetTimer(
-        UnusedHandle,
-        FTimerDelegate::CreateUObject(this, &UElemental_Attacks_List_Widget::SetupInputMode),
-        0.1f,
-        false
-    );
-
-    UE_LOG(LogTemp, Warning, TEXT("Native Construct!"));
-    */
-
-    NewPopulateElementalAttackList();
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Could not get player character in NativeConstruct"));
+    }
+ 
+ 
 }
 
 
@@ -69,7 +67,6 @@ void UElemental_Attacks_List_Widget::NativeConstruct()
 void UElemental_Attacks_List_Widget::SetupWidget(ARen_Low_Poly_Character* Character)
 {
     PlayerCharacter = Character;
-
     if (!PlayerCharacter)
     {
         UE_LOG(LogTemp, Warning, TEXT("Invalid PlayerCharacter passed to SetupWidget"));
@@ -78,8 +75,8 @@ void UElemental_Attacks_List_Widget::SetupWidget(ARen_Low_Poly_Character* Charac
 
     if (Elemental_Attack_ScrollBox)
     {
-        PopulateElementalAttackList();
-        SetupInputMode();
+       // SetupInputMode();  // Set up input mode first
+        PopulateElementalAttackList();  // Then populate the list
     }
     else
     {
@@ -92,15 +89,17 @@ void UElemental_Attacks_List_Widget::SetupWidget(ARen_Low_Poly_Character* Charac
 
 void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
 {
-    if (!PlayerCharacter || !Elemental_Attack_ScrollBox)
+    if (!Elemental_Attack_ScrollBox || !PlayerCharacter)
     {
-        UE_LOG(LogTemp, Warning, TEXT("PlayerCharacter or Elemental_Attack_ScrollBox is null."));
+        UE_LOG(LogTemp, Warning, TEXT("Scroll box or PlayerCharacter is null!"));
         return;
     }
 
+    // Clear any existing children
     Elemental_Attack_ScrollBox->ClearChildren();
     TArray<UElemental_Attacks_Button_Widget*> CreatedButtons;
 
+    // Create elemental attack buttons
     for (const auto& WeaponAttacksPair : PlayerCharacter->WeaponElementalAttacks)
     {
         for (int32 Index = 0; Index < WeaponAttacksPair.Value.ElementalAttacks.Num(); ++Index)
@@ -112,6 +111,12 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
                 if (ElementalButton)
                 {
                     ElementalButton->SetupButton(ElementalAttack, PlayerCharacter, Index);
+                    if (ElementalButton->Elemental_Attack_Button)
+                    {
+                        ElementalButton->Elemental_Attack_Button->SetIsEnabled(true);
+                        ElementalButton->Elemental_Attack_Button->IsFocusable = true;
+                    }
+
                     Elemental_Attack_ScrollBox->AddChild(ElementalButton);
                     CreatedButtons.Add(ElementalButton);
                 }
@@ -119,20 +124,23 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
         }
     }
 
-    // Focus the first button after all buttons are created
+    // Set focus to first button with delay
     if (CreatedButtons.Num() > 0)
     {
-        CreatedButtons[0]->SetKeyboardFocus();
-
-        // Optional: Log success
-        if (CreatedButtons[0]->HasKeyboardFocus())
-        {
-            UE_LOG(LogTemp, Log, TEXT("Successfully set focus to the first button."));
-        }
-        else
-        {
-            UE_LOG(LogTemp, Warning, TEXT("Failed to set focus to the first button."));
-        }
+        FTimerHandle FocusTimerHandle;
+        GetWorld()->GetTimerManager().SetTimer(
+            FocusTimerHandle,
+            [FirstButton = CreatedButtons[0]]()
+            {
+                if (FirstButton && FirstButton->Elemental_Attack_Button)
+                {
+                    FirstButton->Elemental_Attack_Button->SetKeyboardFocus();
+                    UE_LOG(LogTemp, Log, TEXT("Focus set on first elemental button"));
+                }
+            },
+            0.001f,
+                false
+                );
     }
 }
 
@@ -150,54 +158,49 @@ void UElemental_Attacks_List_Widget::NewPopulateElementalAttackList()
     // Clear any existing children
     Elemental_Attack_ScrollBox->ClearChildren();
 
-    // Create three buttons with different colors
-    UButton* FirstButton = NewObject<UButton>(this);
+    // Create three test buttons
+    UTest_Button_Widget* FirstButton = CreateWidget<UTest_Button_Widget>(GetWorld(), Test_Button_Widget_Class);
     if (FirstButton)
     {
-        FirstButton->SetBackgroundColor(FLinearColor::Blue);
-        FirstButton->SetIsEnabled(true);
-        FirstButton->IsFocusable = true;
         Elemental_Attack_ScrollBox->AddChild(FirstButton);
 
-        // Set focus after a 0.1 second delay
+        // Set focus after delay
         FTimerHandle FocusTimerHandle;
         GetWorld()->GetTimerManager().SetTimer(
             FocusTimerHandle,
             [FirstButton]()
             {
-                if (FirstButton)
+                if (FirstButton && FirstButton->TestButton)
                 {
-                    FirstButton->SetKeyboardFocus();
-                    UE_LOG(LogTemp, Log, TEXT("Focus set on first button"));
+                    FirstButton->TestButton->SetKeyboardFocus();
+                    UE_LOG(LogTemp, Log, TEXT("Focus set on first test button"));
                 }
             },
             0.001f,  // 0.1 second delay
                 false  // Don't loop
                 );
 
-        UE_LOG(LogTemp, Log, TEXT("First button added to scroll box"));
+        UE_LOG(LogTemp, Log, TEXT("First test button added to scroll box"));
     }
 
-    UButton* SecondButton = NewObject<UButton>(this);
+    UTest_Button_Widget* SecondButton = CreateWidget<UTest_Button_Widget>(GetWorld(), Test_Button_Widget_Class);
     if (SecondButton)
     {
-        SecondButton->SetBackgroundColor(FLinearColor::Red);
-        SecondButton->SetIsEnabled(true);
-        SecondButton->IsFocusable = true;
         Elemental_Attack_ScrollBox->AddChild(SecondButton);
-        UE_LOG(LogTemp, Log, TEXT("Second button added to scroll box"));
+        UE_LOG(LogTemp, Log, TEXT("Second test button added to scroll box"));
     }
 
-    UButton* ThirdButton = NewObject<UButton>(this);
+    UTest_Button_Widget* ThirdButton = CreateWidget<UTest_Button_Widget>(GetWorld(), Test_Button_Widget_Class);
     if (ThirdButton)
     {
-        ThirdButton->SetBackgroundColor(FLinearColor::Green);
-        ThirdButton->SetIsEnabled(true);
-        ThirdButton->IsFocusable = true;
         Elemental_Attack_ScrollBox->AddChild(ThirdButton);
-        UE_LOG(LogTemp, Log, TEXT("Third button added to scroll box"));
+        UE_LOG(LogTemp, Log, TEXT("Third test button added to scroll box"));
     }
 }
+
+
+
+
 
 
 

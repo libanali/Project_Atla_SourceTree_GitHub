@@ -13,6 +13,7 @@
 
  // Forward declarations
 class UElemental_Attacks_Button_Widget;
+class UTest_Button_Widget;
 class ARen_Low_Poly_Character;
 
 
@@ -38,14 +39,14 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
         TSubclassOf<UElemental_Attacks_Button_Widget> ElementalAttackButtonClass;
 
-
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+        TSubclassOf<UTest_Button_Widget> Test_Button_Widget_Class;
 
 private:
     /** Populates the scroll box with buttons for unlocked elemental attacks */
 
     void PopulateElementalAttackList();
     void NewPopulateElementalAttackList();
-
 
     /** Reference to the scroll box container for the buttons */
     UPROPERTY(meta = (BindWidget))

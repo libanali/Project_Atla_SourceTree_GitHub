@@ -32,6 +32,9 @@ public:
 		UCommand_Menu_Widget* CommandMenuWidget;
 
 
+	UFUNCTION(BlueprintImplementableEvent)
+		 void ReturnToGameplay();
+
 	UPROPERTY()
 		class ARen_Low_Poly_Character* PlayerCharacter;
 
@@ -44,11 +47,12 @@ public:
 	
 	int32 ElementalIndex;
 
-	void SetFocusTimer();
-	void FocusOnButton();
+	void OnAnyButtonClicked();
+
 
 	virtual void NativeConstruct() override;
 	virtual void NativeOnInitialized() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
+	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 
 };

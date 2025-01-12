@@ -12,8 +12,6 @@
 
 
 
-
-
 void UElemental_Attacks_Button_Widget::NativeConstruct()
 {
     Super::NativeConstruct();
@@ -27,7 +25,9 @@ void UElemental_Attacks_Button_Widget::NativeConstruct()
     // Just bind the click - keep it simple
     Elemental_Attack_Button->OnClicked.AddDynamic(this, &UElemental_Attacks_Button_Widget::OnElementalAttackButtonClicked);
     Elemental_Attack_Button->SetIsEnabled(true);
-    bIsFocusable = true;
+    Elemental_Attack_Button->IsFocusable = true;
+
+
 }
 
 
@@ -38,7 +38,7 @@ void UElemental_Attacks_Button_Widget::NativeOnInitialized()
 
     Super::NativeOnInitialized();
 
-
+/*
     if (Elemental_Attack_Button)
     {
 
@@ -46,47 +46,23 @@ void UElemental_Attacks_Button_Widget::NativeOnInitialized()
 
     }
 
+    bIsFocusable = true;
 
+    */
 }
 
 
 
 
-void UElemental_Attacks_Button_Widget::SetFocusTimer()
+
+void UElemental_Attacks_Button_Widget::OnAnyButtonClicked()
 {
 
-    FTimerManager& TimerManager = GetWorld()->GetTimerManager();
+    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Button clicked!"));
 
-    FTimerHandle FocusTimerHandle;
-    TimerManager.SetTimer(FocusTimerHandle, this, &UElemental_Attacks_Button_Widget::FocusOnButton, 2.1f, false);
 
 }
 
-
-
-void UElemental_Attacks_Button_Widget::FocusOnButton()
-{
-
-    Elemental_Attack_Button->SetKeyboardFocus();
-
-    if (PlayerCharacter && PlayerCharacter->bIsElementalsOpen)
-
-    {
-
-         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Magenta, TEXT("Elemental list is open!"));
-          Elemental_Attack_Button->SetKeyboardFocus();
-
-    }
-
-  
-    else
-
-    {
-
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Elemental button doesn't have keyboard focus"));
-
-    }
-}
 
 
 
@@ -95,21 +71,12 @@ void UElemental_Attacks_Button_Widget::NativeTick(const FGeometry& MyGeometry, f
 {
     Super::NativeTick(MyGeometry, InDeltaTime);
 
-    if (Elemental_Attack_Button->HasKeyboardFocus())
-    {
-      //  GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Magenta, TEXT("Elemental button has keyboard focus"));
-    }
-
-    if (PlayerCharacter && PlayerCharacter->bIsElementalsOpen)
-
-    {
-
-      //  GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Magenta, TEXT("Elemental list is open!"));
-        //Elemental_Attack_Button->SetKeyboardFocus();
-
-    }
-
+ 
 }
+
+
+
+
 
 
 
@@ -134,6 +101,26 @@ void UElemental_Attacks_Button_Widget::SetupButton(FElemental_Struct ElementalAt
 
 
 
+FReply UElemental_Attacks_Button_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
+{
+
+    if (InKeyEvent.GetKey() == EKeys::Enter ||
+        InKeyEvent.GetKey() == EKeys::SpaceBar ||
+        InKeyEvent.GetKey() == EKeys::Gamepad_FaceButton_Bottom)
+    {
+        if (Elemental_Attack_Button)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Key pressed on elemental button!"));
+            OnElementalAttackButtonClicked();
+            return FReply::Handled();
+        }
+    }
+
+    return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
+
+}
+
+
 
 void UElemental_Attacks_Button_Widget::OnElementalAttackButtonClicked()
 {
@@ -141,10 +128,11 @@ void UElemental_Attacks_Button_Widget::OnElementalAttackButtonClicked()
     if (PlayerCharacter && ElementalIndex >= 0)
     {
         PlayerCharacter->UseElementalAttack(ElementalIndex); // Call the player's attack function
+        ReturnToGameplay();
     }
 
 
-    UE_LOG(LogTemp, Warning, TEXT("Clicked!"))
+    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("Elemental Attack Button Clicked!"));
 }
 
 

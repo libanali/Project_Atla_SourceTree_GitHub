@@ -3362,6 +3362,8 @@ void ARen_Low_Poly_Character::ToggleCommandMenu()
 }
 
 
+
+
 void ARen_Low_Poly_Character::UpdateVisibilityBasedOnIndex(int Index)
 {
 
