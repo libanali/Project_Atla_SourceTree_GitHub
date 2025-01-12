@@ -24,8 +24,10 @@ void UElemental_Attacks_Button_Widget::NativeConstruct()
         return;
     }
 
-
-    SetFocusTimer();
+    // Just bind the click - keep it simple
+    Elemental_Attack_Button->OnClicked.AddDynamic(this, &UElemental_Attacks_Button_Widget::OnElementalAttackButtonClicked);
+    Elemental_Attack_Button->SetIsEnabled(true);
+    bIsFocusable = true;
 }
 
 

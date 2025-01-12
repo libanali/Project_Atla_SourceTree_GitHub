@@ -454,6 +454,22 @@ void ARen_Low_Poly_Character::DisplayGameOverUI()
 
 
 
+void ARen_Low_Poly_Character::AddPoints(int32 Points)
+{
+
+	if (bDoublePoints)
+
+	{
+		Points *= 2;
+	}
+
+	PlayerScore += Points;
+
+}
+
+
+
+
 void ARen_Low_Poly_Character::Score_Reaction_Anim()
 {
 
@@ -3094,9 +3110,10 @@ void ARen_Low_Poly_Character::BeginPlay()
 		if (CommandMenuWidget)
 		{
 			CommandMenuWidget->AddToViewport(); // Add it to the player's viewport
-			//CommandMenuWidget->SetVisibility(ESlateVisibility::Hidden); // Initially hide it
 		}
 	}
+
+
 	
 	FVector2D ViewportSizee;
 
@@ -3414,27 +3431,6 @@ void ARen_Low_Poly_Character::UpdateVisibilityBasedOnIndex(int Index)
 
 }
 
-
-
-
-void ARen_Low_Poly_Character::AddPoints(int32 Points)
-{
-
-
-
-	if (bDoublePoints)
-
-	{
-
-		Points *= 2;
-
-
-	}
-
-	PlayerScore += Points;
-
-
-}
 
 
 

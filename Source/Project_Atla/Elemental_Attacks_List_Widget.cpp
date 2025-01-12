@@ -8,15 +8,28 @@
 #include "Ren_Low_Poly_Character.h"
 #include "Kismet/GameplayStatics.h"
 
+
+
 void UElemental_Attacks_List_Widget::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
 
-    // Ensure this widget can receive focus
-    bIsFocusable = true;
 
-    UE_LOG(LogTemp, Warning, TEXT("Native Initialised!"));
+}
 
+
+
+void UElemental_Attacks_List_Widget::SetupInputMode()
+{
+    APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+    if (PlayerController)
+    {
+        FInputModeGameAndUI InputMode;
+        InputMode.SetWidgetToFocus(TakeWidget());
+        InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+        InputMode.SetHideCursorDuringCapture(false);
+        PlayerController->SetInputMode(InputMode);
+    }
 }
 
 
@@ -29,7 +42,7 @@ void UElemental_Attacks_List_Widget::NativeConstruct()
 
     if (Elemental_Attack_ScrollBox && PlayerCharacter)
     {
-        PopulateElementalAttackList();
+      //  PopulateElementalAttackList();
     }
 
     // Set up input mode after a short delay to ensure widget is fully constructed
@@ -46,26 +59,12 @@ void UElemental_Attacks_List_Widget::NativeConstruct()
 
     UE_LOG(LogTemp, Warning, TEXT("Native Construct!"));
     */
+
+    NewPopulateElementalAttackList();
 }
 
 
 
-
-void UElemental_Attacks_List_Widget::SetupInputMode()
-{
-
-    APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-    if (PlayerController)
-    {
-        FInputModeGameAndUI InputMode;
-        InputMode.SetWidgetToFocus(TakeWidget());
-        InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-        PlayerController->SetInputMode(InputMode);
-        PlayerController->bShowMouseCursor = true;
-    }
-
-
-}
 
 void UElemental_Attacks_List_Widget::SetupWidget(ARen_Low_Poly_Character* Character)
 {
@@ -140,6 +139,69 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
 
 
 
+void UElemental_Attacks_List_Widget::NewPopulateElementalAttackList()
+{
+    if (!Elemental_Attack_ScrollBox)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Scroll box is null!"));
+        return;
+    }
+
+    // Clear any existing children
+    Elemental_Attack_ScrollBox->ClearChildren();
+
+    // Create three buttons with different colors
+    UButton* FirstButton = NewObject<UButton>(this);
+    if (FirstButton)
+    {
+        FirstButton->SetBackgroundColor(FLinearColor::Blue);
+        FirstButton->SetIsEnabled(true);
+        FirstButton->IsFocusable = true;
+        Elemental_Attack_ScrollBox->AddChild(FirstButton);
+
+        // Set focus after a 0.1 second delay
+        FTimerHandle FocusTimerHandle;
+        GetWorld()->GetTimerManager().SetTimer(
+            FocusTimerHandle,
+            [FirstButton]()
+            {
+                if (FirstButton)
+                {
+                    FirstButton->SetKeyboardFocus();
+                    UE_LOG(LogTemp, Log, TEXT("Focus set on first button"));
+                }
+            },
+            0.001f,  // 0.1 second delay
+                false  // Don't loop
+                );
+
+        UE_LOG(LogTemp, Log, TEXT("First button added to scroll box"));
+    }
+
+    UButton* SecondButton = NewObject<UButton>(this);
+    if (SecondButton)
+    {
+        SecondButton->SetBackgroundColor(FLinearColor::Red);
+        SecondButton->SetIsEnabled(true);
+        SecondButton->IsFocusable = true;
+        Elemental_Attack_ScrollBox->AddChild(SecondButton);
+        UE_LOG(LogTemp, Log, TEXT("Second button added to scroll box"));
+    }
+
+    UButton* ThirdButton = NewObject<UButton>(this);
+    if (ThirdButton)
+    {
+        ThirdButton->SetBackgroundColor(FLinearColor::Green);
+        ThirdButton->SetIsEnabled(true);
+        ThirdButton->IsFocusable = true;
+        Elemental_Attack_ScrollBox->AddChild(ThirdButton);
+        UE_LOG(LogTemp, Log, TEXT("Third button added to scroll box"));
+    }
+}
+
+
+
+
 void UElemental_Attacks_List_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 
@@ -148,3 +210,5 @@ void UElemental_Attacks_List_Widget::NativeTick(const FGeometry& MyGeometry, flo
 
 
 }
+
+

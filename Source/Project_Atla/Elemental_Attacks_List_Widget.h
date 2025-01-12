@@ -16,6 +16,7 @@ class UElemental_Attacks_Button_Widget;
 class ARen_Low_Poly_Character;
 
 
+
 UCLASS()
 class PROJECT_ATLA_API UElemental_Attacks_List_Widget : public UUserWidget
 {
@@ -37,10 +38,13 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
         TSubclassOf<UElemental_Attacks_Button_Widget> ElementalAttackButtonClass;
 
+
+
 private:
     /** Populates the scroll box with buttons for unlocked elemental attacks */
 
     void PopulateElementalAttackList();
+    void NewPopulateElementalAttackList();
 
 
     /** Reference to the scroll box container for the buttons */
@@ -49,8 +53,6 @@ private:
 
     /** Reference to the player character */
     ARen_Low_Poly_Character* PlayerCharacter;
-
-
 
 
     virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
