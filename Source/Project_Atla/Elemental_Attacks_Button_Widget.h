@@ -50,9 +50,17 @@ public:
 	void OnAnyButtonClicked();
 
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Button Style")
+		FSlateBrush HoveredBrush;
+
+	UPROPERTY()
+		FSlateBrush CurrentNormalBrush;
+
+
 	virtual void NativeConstruct() override;
 	virtual void NativeOnInitialized() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
-
+	virtual FReply NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent) override;
+	virtual void NativeOnFocusLost(const FFocusEvent& InFocusEvent) override;
 };

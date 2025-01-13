@@ -22,12 +22,23 @@ void UElemental_Attacks_Button_Widget::NativeConstruct()
         return;
     }
 
-    // Just bind the click - keep it simple
+    // Store the original normal brush
+    CurrentNormalBrush = Elemental_Attack_Button->WidgetStyle.Normal;
+
+    // Set up button style for hover/focus states
+    FButtonStyle ButtonStyle = Elemental_Attack_Button->WidgetStyle;
+    ButtonStyle.SetHovered(HoveredBrush);
+    ButtonStyle.SetPressed(HoveredBrush);
+
+    // Apply the style
+    Elemental_Attack_Button->SetStyle(ButtonStyle);
+
+    // Rest of your setup...
     Elemental_Attack_Button->OnClicked.AddDynamic(this, &UElemental_Attacks_Button_Widget::OnElementalAttackButtonClicked);
     Elemental_Attack_Button->SetIsEnabled(true);
     Elemental_Attack_Button->IsFocusable = true;
 
-
+ 
 }
 
 
@@ -117,6 +128,42 @@ FReply UElemental_Attacks_Button_Widget::NativeOnKeyDown(const FGeometry& InGeom
     }
 
     return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
+
+}
+
+
+
+FReply UElemental_Attacks_Button_Widget::NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent)
+{
+
+
+    if (Elemental_Attack_Button)
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Focus Received - Setting Hovered Brush"));
+
+        FButtonStyle ButtonStyle = Elemental_Attack_Button->WidgetStyle;
+        ButtonStyle.SetNormal(HoveredBrush);  // Use hovered brush when focused
+        Elemental_Attack_Button->SetStyle(ButtonStyle);
+    }
+
+    return Super::NativeOnFocusReceived(InGeometry, InFocusEvent);
+
+
+}
+
+
+
+void UElemental_Attacks_Button_Widget::NativeOnFocusLost(const FFocusEvent& InFocusEvent)
+{
+
+    if (Elemental_Attack_Button)
+    {
+        FButtonStyle ButtonStyle = Elemental_Attack_Button->WidgetStyle;
+        ButtonStyle.SetNormal(CurrentNormalBrush);  // Use the stored original brush
+        Elemental_Attack_Button->SetStyle(ButtonStyle);
+    }
+
+    Super::NativeOnFocusLost(InFocusEvent);
 
 }
 

@@ -28,7 +28,7 @@ void UElemental_Attacks_List_Widget::SetupInputMode()
         FInputModeGameAndUI InputMode;
         InputMode.SetWidgetToFocus(TakeWidget());
         InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-        InputMode.SetHideCursorDuringCapture(false);
+        //InputMode.SetHideCursorDuringCapture(false);
         PlayerController->SetInputMode(InputMode);
     }
 }
@@ -134,11 +134,12 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
             {
                 if (FirstButton && FirstButton->Elemental_Attack_Button)
                 {
+                    // Just set keyboard focus - let the focus events handle the brush
                     FirstButton->Elemental_Attack_Button->SetKeyboardFocus();
-                    UE_LOG(LogTemp, Log, TEXT("Focus set on first elemental button"));
+                    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Focus set on first button"));
                 }
             },
-            0.001f,
+            0.1f,
                 false
                 );
     }
