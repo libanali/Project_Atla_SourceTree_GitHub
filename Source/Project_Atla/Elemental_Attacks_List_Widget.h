@@ -42,6 +42,11 @@ public:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
         TSubclassOf<UTest_Button_Widget> Test_Button_Widget_Class;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UTextBlock* DescriptionText;
+
+
+
 private:
     /** Populates the scroll box with buttons for unlocked elemental attacks */
 

@@ -23,7 +23,8 @@ public:
         bIsUnlocked(false),
         CurrentEXP(0.0f),
         EXPToNextLevel(100.0f),
-        Elemental_Attack_Animation(nullptr)
+        Elemental_Attack_Animation(nullptr),
+        ElementDescription(TEXT("No description available"))
     {}
 
     FElemental_Struct(
@@ -34,6 +35,7 @@ public:
         int32 InElementalLevel,
         bool bUnlocked,
         UAnimMontage* InAnimationMontage,
+        FString InDescription,
         float InEXP = 0.0f,
         float InEXPToNextLevel = 2000.0f
     )
@@ -45,7 +47,9 @@ public:
         bIsUnlocked(bUnlocked),
         CurrentEXP(InEXP),
         EXPToNextLevel(InEXPToNextLevel),
-        Elemental_Attack_Animation(InAnimationMontage)
+        Elemental_Attack_Animation(InAnimationMontage),
+        ElementDescription(InDescription)  // Initialize description
+
     {}
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")

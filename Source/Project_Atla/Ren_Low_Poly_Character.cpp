@@ -1526,13 +1526,13 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 			int32 CurrentFireLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword].FireLevel;
 			if (CurrentFireLevel == 2)
 			{
-				NewAbility = FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 2.0f, 20.0f, 2, true, FireAOEAnimation);
+				NewAbility = FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 2.0f, 20.0f, 2, true, FireAOEAnimation, TEXT("Creates an explosion, burns enemies for longer."));
 				AddElementalAttackDelayed(NewAbility, TheWeaponType);
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.2 Ability for Sword!"));
 			}
 			else if (CurrentFireLevel == 3)
 			{
-				NewAbility = FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 2.5f, 30.0f, 3, true, FireGroundAnimation);
+				NewAbility = FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 2.5f, 30.0f, 3, true, FireGroundAnimation, TEXT("Summons molten spikes, burns enemies for an extended time."));
 				AddElementalAttackDelayed(NewAbility, TheWeaponType);
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.3 Ability for Sword!"));
 			}
@@ -1542,13 +1542,13 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 			int32 CurrentIceLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword].IceLevel;
 			if (CurrentIceLevel == 2)
 			{
-				NewAbility = FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 2.0f, 20.0f, 2, true, IceAOEAnimation); // Replace with your IceAOEAnimation
+				NewAbility = FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 2.0f, 20.0f, 2, true, IceAOEAnimation, TEXT("Summons ice shards, freezing enemies for longer.")); // Replace with your IceAOEAnimation
 				AddElementalAttackDelayed(NewAbility, TheWeaponType);
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.2 Ability for Sword!"));
 			}
 			else if (CurrentIceLevel == 3)
 			{
-				NewAbility = FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 2.5f, 30.0f, 3, true, IceGroundAnimation); // Replace with your IceGroundAnimation
+				NewAbility = FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 2.5f, 30.0f, 3, true, IceGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time.")); // Replace with your IceGroundAnimation
 				AddElementalAttackDelayed(NewAbility, TheWeaponType);
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.3 Ability for Sword!"));
 			}
@@ -1558,13 +1558,13 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 			int32 CurrentThunderLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword].ThunderLevel;
 			if (CurrentThunderLevel == 2)
 			{
-				NewAbility = FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 2.0f, 20.0f, 2, true, ThunderAOEAnimation); // Replace with your ThunderAOEAnimation
+				NewAbility = FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 2.0f, 20.0f, 2, true, ThunderAOEAnimation, TEXT("Summons lightning, stunning enemies for longer.")); // Replace with your ThunderAOEAnimation
 				AddElementalAttackDelayed(NewAbility, TheWeaponType);
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.2 Ability for Sword!"));
 			}
 			else if (CurrentThunderLevel == 3)
 			{
-				NewAbility = FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 2.5f, 30.0f, 3, true, ThunderGroundAnimation); // Replace with your ThunderGroundAnimation
+				NewAbility = FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 2.5f, 30.0f, 3, true, ThunderGroundAnimation, TEXT("Summons lightning hoop, stunning enemies for an extended time.")); // Replace with your ThunderGroundAnimation
 				AddElementalAttackDelayed(NewAbility, TheWeaponType);
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.3 Ability for Sword!"));
 			}
@@ -1577,13 +1577,13 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 			int32 CurrentFireLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Staff].FireLevel;
 			if (CurrentFireLevel == 2)
 			{
-				NewAbility = FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 2.2f, 20.0f, 2, true, FireAOEAnimation);
+				NewAbility = FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 2.2f, 20.0f, 2, true, FireAOEAnimation, TEXT("Creates an explosion, burns enemies for longer."));
 				AddElementalAttackDelayed(NewAbility, TheWeaponType);
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.2 Ability for Staff!"));
 			}
 			else if (CurrentFireLevel == 3)
 			{
-				NewAbility = FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 2.8f, 30.5f, 3, true, FireGroundAnimation);
+				NewAbility = FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 2.8f, 30.5f, 3, true, FireGroundAnimation, TEXT("Summons molten spikes, burns enemies for an extended time."));
 				AddElementalAttackDelayed(NewAbility, TheWeaponType);
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.3 Ability for Staff!"));
 			}
@@ -1593,13 +1593,13 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 			int32 CurrentIceLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Staff].IceLevel;
 			if (CurrentIceLevel == 2)
 			{
-				NewAbility = FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 2.0f, 20.0f, 2, true, IceAOEAnimation); // Replace with your IceAOEAnimation
+				NewAbility = FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 2.0f, 20.0f, 2, true, IceAOEAnimation, TEXT("Summons ice shards, freezing enemies for longer.")); // Replace with your IceAOEAnimation
 				AddElementalAttackDelayed(NewAbility, TheWeaponType);
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.2 Ability for Staff!"));
 			}
 			else if (CurrentIceLevel == 3)
 			{
-				NewAbility = FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 2.5f, 30.0f, 3, true, IceGroundAnimation); // Replace with your IceGroundAnimation
+				NewAbility = FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 2.5f, 30.0f, 3, true, IceGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time.")); // Replace with your IceGroundAnimation
 				AddElementalAttackDelayed(NewAbility, TheWeaponType);
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.3 Ability for Staff!"));
 			}
@@ -1609,13 +1609,13 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 			int32 CurrentThunderLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Staff].ThunderLevel;
 			if (CurrentThunderLevel == 2)
 			{
-				NewAbility = FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 2.0f, 20.0f, 2, true, ThunderAOEAnimation); // Replace with your ThunderAOEAnimation
+				NewAbility = FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 2.0f, 20.0f, 2, true, ThunderAOEAnimation, TEXT("Summons lightning, stunning enemies for longer.")); // Replace with your ThunderAOEAnimation
 				AddElementalAttackDelayed(NewAbility, TheWeaponType);
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.2 Ability for Staff!"));
 			}
 			else if (CurrentThunderLevel == 3)
 			{
-				NewAbility = FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 2.5f, 30.0f, 3, true, ThunderGroundAnimation); // Replace with your ThunderGroundAnimation
+				NewAbility = FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 2.5f, 30.0f, 3, true, ThunderGroundAnimation, TEXT("Summons lightning hoop, stunning enemies for an extended time.")); // Replace with your ThunderGroundAnimation
 				AddElementalAttackDelayed(NewAbility, TheWeaponType);
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.3 Ability for Staff!"));
 			}
@@ -1902,20 +1902,40 @@ void ARen_Low_Poly_Character::InitialiseElementalAttacks()
 			};
 
 			// Add base attacks
-			AddUniqueAttack(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.5f, 10.0f, 1, true, FireProjectileAnimation));
-			AddUniqueAttack(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 20.0f, 1, true, IceProjectileAnimation));
-			AddUniqueAttack(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.8f, 20.0f, 1, true, ThunderProjectileAnimation));
+			AddUniqueAttack(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.5f, 10.0f, 1, true, FireProjectileAnimation, TEXT("Burn enemies over time")));
+			AddUniqueAttack(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 20.0f, 1, true, IceProjectileAnimation, TEXT("Freeze enemies over time")));
+			AddUniqueAttack(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.8f, 20.0f, 1, true, ThunderProjectileAnimation, TEXT("Stun enemies over time")));
 
 			// Add unlocked abilities based on levels
 			if (ProficiencyStruct.FireLevel >= 2)
 			{
-				AddUniqueAttack(FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 2.0f, 20.0f, 2, true, FireAOEAnimation));
+				AddUniqueAttack(FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 2.0f, 20.0f, 2, true, FireAOEAnimation, TEXT("Creates an explosion, burns enemies for longer.")));
 			}
 			if (ProficiencyStruct.FireLevel >= 3)
 			{
-				AddUniqueAttack(FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 2.5f, 30.0f, 3, true, FireGroundAnimation));
+				AddUniqueAttack(FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 2.5f, 30.0f, 3, true, FireGroundAnimation, TEXT("Summons molten spikes, burns enemies for an extended time.")));
 			}
-			// Add other level checks similarly...
+
+			// Add unlocked abilities based on levels
+			if (ProficiencyStruct.IceLevel >= 2)
+			{
+				AddUniqueAttack(FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Ice, 2.0f, 20.0f, 2, true, IceAOEAnimation, TEXT("Summons ice shards, freezing enemies for longer.")));
+			}
+			if (ProficiencyStruct.IceLevel >= 3)
+			{
+				AddUniqueAttack(FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Ice, 2.5f, 30.0f, 3, true, IceGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time.")));
+			}
+
+			// Add unlocked abilities based on levels
+			if (ProficiencyStruct.ThunderLevel >= 2)
+			{
+				AddUniqueAttack(FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Thunder, 2.0f, 20.0f, 2, true, ThunderAOEAnimation, TEXT("Summons lightning, stunning enemies for longer.")));
+			}
+			if (ProficiencyStruct.ThunderLevel >= 3)
+			{
+				AddUniqueAttack(FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Thunder, 2.5f, 30.0f, 3, true, ThunderGroundAnimation, TEXT("Summons lightning hoop, stunning enemies for an extended time.")));
+			}
+
 		}
 		// Handle Staff similarly...
 
@@ -3014,9 +3034,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("Furious multi-strike sword combo."), true, StormStrikeFlurryAnimMontage, 1.6f, 3});
 
 		WeaponElementalAttacks.Add(EWeaponType::Sword, FWeaponElementalAttacks{
-	   {FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.7f, 15.0f, 1, true, FireProjectileAnimation),
-		FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.9f, 15.0f, 1, true, IceProjectileAnimation),
-		FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.5f, 10.0f, 1, true, ThunderProjectileAnimation)}
+	   {FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.7f, 15.0f, 1, true, FireProjectileAnimation, TEXT("Burns enemies over time.")),
+		FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.9f, 15.0f, 1, true, IceProjectileAnimation, TEXT("Freezes enemies over time.")),
+		FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.5f, 10.0f, 1, true, ThunderProjectileAnimation, TEXT("Stuns enemies over time."))}
 			});
 		
 
@@ -3066,9 +3086,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 
 		WeaponElementalAttacks.Add(EWeaponType::Staff, FWeaponElementalAttacks{
-	   {FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.7f, 15.0f, 1, true, FireProjectileAnimation),
-		FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.9f, 15.0f, 1, true, IceProjectileAnimation),
-		FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.5f, 10.0f, 1, true, ThunderProjectileAnimation)}
+	   {FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.7f, 15.0f, 1, true, FireProjectileAnimation, TEXT("Burns enemies over time.")),
+		FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.9f, 15.0f, 1, true, IceProjectileAnimation, TEXT("Freezes enemies over time.")),
+		FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.5f, 10.0f, 1, true, ThunderProjectileAnimation, TEXT("Stuns enemies over time."))}
 			});
 
 

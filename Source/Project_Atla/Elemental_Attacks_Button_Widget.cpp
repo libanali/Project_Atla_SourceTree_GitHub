@@ -2,6 +2,8 @@
 
 
 #include "Elemental_Attacks_Button_Widget.h"
+#include "Elemental_Attacks_List_Widget.h"
+#include "Elemental_Struct.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Ren_Low_Poly_Character.h"
@@ -22,6 +24,13 @@ void UElemental_Attacks_Button_Widget::NativeConstruct()
         return;
     }
 
+
+    // Clear existing delegates before adding new ones
+    Elemental_Attack_Button->OnClicked.Clear();
+    Elemental_Attack_Button->OnHovered.Clear();
+    Elemental_Attack_Button->OnUnhovered.Clear();
+
+
     // Store the original normal brush
     CurrentNormalBrush = Elemental_Attack_Button->WidgetStyle.Normal;
 
@@ -35,6 +44,9 @@ void UElemental_Attacks_Button_Widget::NativeConstruct()
 
     // Rest of your setup...
     Elemental_Attack_Button->OnClicked.AddDynamic(this, &UElemental_Attacks_Button_Widget::OnElementalAttackButtonClicked);
+    Elemental_Attack_Button->OnHovered.AddDynamic(this, &UElemental_Attacks_Button_Widget::OnElementalAttackButtonHovered);
+    Elemental_Attack_Button->OnUnhovered.AddDynamic(this, &UElemental_Attacks_Button_Widget::OnElementalAttackButtonUnhovered);
+
     Elemental_Attack_Button->SetIsEnabled(true);
     Elemental_Attack_Button->IsFocusable = true;
 
@@ -74,6 +86,38 @@ void UElemental_Attacks_Button_Widget::OnAnyButtonClicked()
 
 }
 
+void UElemental_Attacks_Button_Widget::SetParentList(UElemental_Attacks_List_Widget* InParentList)
+{
+
+    ParentListWidget = InParentList;
+
+}
+
+
+
+void UElemental_Attacks_Button_Widget::OnElementalAttackButtonHovered()
+{
+
+    if (ParentListWidget && ParentListWidget->DescriptionText)
+    {
+        ParentListWidget->DescriptionText->SetText(FText::FromString(CurrentElementalAttack.ElementDescription));
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Hover Description Updated"));
+    }
+
+}
+
+void UElemental_Attacks_Button_Widget::OnElementalAttackButtonUnhovered()
+{
+
+    if (ParentListWidget && ParentListWidget->DescriptionText)
+    {
+        ParentListWidget->DescriptionText->SetText(FText::GetEmpty());
+    }
+
+
+}
+
+
 
 
 
@@ -94,6 +138,11 @@ void UElemental_Attacks_Button_Widget::NativeTick(const FGeometry& MyGeometry, f
 
 void UElemental_Attacks_Button_Widget::SetupButton(FElemental_Struct ElementalAttack, ARen_Low_Poly_Character* Character, int32 Index)
 {
+
+
+    // Store the elemental attack data
+    CurrentElementalAttack = ElementalAttack;
+
     // Set up the button text for attack name and mana cost
     if (Elemental_Attack_Name)
     {
@@ -108,6 +157,26 @@ void UElemental_Attacks_Button_Widget::SetupButton(FElemental_Struct ElementalAt
 
     PlayerCharacter = Character;
     ElementalIndex = Index;
+
+
+    // Debug logging to check parent list
+    if (!ParentListWidget)
+    {
+        // Try to find the parent list widget
+        ParentListWidget = Cast<UElemental_Attacks_List_Widget>(GetParent());
+
+        if (!ParentListWidget)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red,
+                TEXT("Could not find ParentListWidget in SetupButton"));
+        }
+        else
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green,
+                TEXT("ParentListWidget found successfully"));
+        }
+
+    }
 }
 
 
@@ -142,9 +211,26 @@ FReply UElemental_Attacks_Button_Widget::NativeOnFocusReceived(const FGeometry& 
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Focus Received - Setting Hovered Brush"));
 
         FButtonStyle ButtonStyle = Elemental_Attack_Button->WidgetStyle;
-        ButtonStyle.SetNormal(HoveredBrush);  // Use hovered brush when focused
+        ButtonStyle.SetNormal(HoveredBrush);
         Elemental_Attack_Button->SetStyle(ButtonStyle);
+        
+
+        if (ParentListWidget && ParentListWidget->DescriptionText)
+        {
+            ParentListWidget->DescriptionText->SetText(FText::FromString(CurrentElementalAttack.ElementDescription));
+            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Focus Description Updated"));
+        }
+
+        else
+
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Focus Description Not Updated"));
+
+
+        }
+       
     }
+
 
     return Super::NativeOnFocusReceived(InGeometry, InFocusEvent);
 
@@ -161,6 +247,13 @@ void UElemental_Attacks_Button_Widget::NativeOnFocusLost(const FFocusEvent& InFo
         FButtonStyle ButtonStyle = Elemental_Attack_Button->WidgetStyle;
         ButtonStyle.SetNormal(CurrentNormalBrush);  // Use the stored original brush
         Elemental_Attack_Button->SetStyle(ButtonStyle);
+
+
+        // Clear the description when focus is lost
+        if (ParentListWidget && ParentListWidget->DescriptionText)
+        {
+            ParentListWidget->DescriptionText->SetText(FText::GetEmpty());
+        }
     }
 
     Super::NativeOnFocusLost(InFocusEvent);

@@ -109,7 +109,10 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
             {
                 UElemental_Attacks_Button_Widget* ElementalButton = CreateWidget<UElemental_Attacks_Button_Widget>(GetWorld(), ElementalAttackButtonClass);
                 if (ElementalButton)
+
                 {
+                    // Explicitly set the parent list
+                    ElementalButton->SetParentList(this);
                     ElementalButton->SetupButton(ElementalAttack, PlayerCharacter, Index);
                     if (ElementalButton->Elemental_Attack_Button)
                     {

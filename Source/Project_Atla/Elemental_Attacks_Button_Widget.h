@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Elemental_Struct.h"
+#include "Elemental_Struct.h"
+#include "Elemental_Attacks_List_Widget.h"
 #include "Command_Menu_Widget.h"
 #include "Elemental_Attacks_Button_Widget.generated.h"
 
@@ -31,6 +33,9 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "UI")
 		UCommand_Menu_Widget* CommandMenuWidget;
 
+	UPROPERTY()
+		UElemental_Attacks_List_Widget* ParentListWidget;
+
 
 	UFUNCTION(BlueprintImplementableEvent)
 		 void ReturnToGameplay();
@@ -49,6 +54,13 @@ public:
 
 	void OnAnyButtonClicked();
 
+	void SetParentList(UElemental_Attacks_List_Widget* InParentList);
+
+	UFUNCTION()
+		void OnElementalAttackButtonHovered();
+
+	UFUNCTION()
+		void OnElementalAttackButtonUnhovered();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Button Style")
 		FSlateBrush HoveredBrush;
@@ -56,6 +68,8 @@ public:
 	UPROPERTY()
 		FSlateBrush CurrentNormalBrush;
 
+	UPROPERTY()  // Add this property
+		FElemental_Struct CurrentElementalAttack;
 
 	virtual void NativeConstruct() override;
 	virtual void NativeOnInitialized() override;
