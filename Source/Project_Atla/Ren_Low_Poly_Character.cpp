@@ -644,6 +644,9 @@ void ARen_Low_Poly_Character::SavePlayerProgress()
 
 void ARen_Low_Poly_Character::LoadPlayerProgress()
 {
+
+	bIsGameLoaded = true;
+
 	UPlayer_Save_Game* LoadGameInstance = Cast<UPlayer_Save_Game>(UGameplayStatics::LoadGameFromSlot(TEXT("Player Save Slot"), 0));
 	if (LoadGameInstance)
 	{
@@ -655,6 +658,7 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 		// InitialiseElementalAttacks to update ElementalAttacks based on loaded data
 		//InitialiseElementalAttacks();
 
+		bIsGameLoaded = false;
 
 
 
@@ -689,6 +693,29 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 				UE_LOG(LogTemp, Warning, TEXT("    - %s"), *Attack.ElementalAttackName);
 			}
 		}
+
+		// ADDITIONAL DETAILED LOGGING
+		UE_LOG(LogTemp, Error, TEXT("LOADED ATTACKS DETAILED DUMP:"));
+		for (const auto& WeaponPair : WeaponElementalAttacks)
+		{
+			EWeaponType TheWeaponType = WeaponPair.Key;
+			const FWeaponElementalAttacks& Attacks = WeaponPair.Value;
+
+			UE_LOG(LogTemp, Error, TEXT("Weapon Type: %s - Total Attacks: %d"),
+				*UEnum::GetValueAsString(TheWeaponType),
+				Attacks.ElementalAttacks.Num());
+
+			for (const FElemental_Struct& Attack : Attacks.ElementalAttacks)
+			{
+				UE_LOG(LogTemp, Error, TEXT(" - Detailed Attack: Name=%s, Level=%d, Type=%s, Unlocked=%s"),
+					*Attack.ElementalAttackName,
+					Attack.ElementalLevel,
+					*UEnum::GetValueAsString(Attack.ElementalType),
+					Attack.bIsUnlocked ? TEXT("TRUE") : TEXT("FALSE"));
+			}
+		}
+
+
 
 	}
 	else
@@ -1639,6 +1666,15 @@ void ARen_Low_Poly_Character::AddElementalAttackDelayed(const FElemental_Struct&
 	// Add the new Elemental Attack to the corresponding weapon's array
 	WeaponElementalAttacks[TheWeaponType].ElementalAttacks.Add(ElementalAttack);
 
+	// Extensive logging
+	UE_LOG(LogTemp, Warning, TEXT("Adding New Elemental Attack:"));
+	UE_LOG(LogTemp, Warning, TEXT("  Weapon Type: %s"), *UEnum::GetValueAsString(TheWeaponType));
+	UE_LOG(LogTemp, Warning, TEXT("  Attack Name: %s"), *ElementalAttack.ElementalAttackName);
+	UE_LOG(LogTemp, Warning, TEXT("  Elemental Type: %s"), *UEnum::GetValueAsString(ElementalAttack.ElementalType));
+	UE_LOG(LogTemp, Warning, TEXT("  Attack Level: %d"), ElementalAttack.ElementalLevel);
+	UE_LOG(LogTemp, Warning, TEXT("  Is Unlocked: %s"), ElementalAttack.bIsUnlocked ? TEXT("TRUE") : TEXT("FALSE"));
+
+
 	// Log the number of attacks for that weapon type
 	UE_LOG(LogTemp, Warning, TEXT("Added new elemental attack to weapon type %d. Total attacks: %d"),
 		(int32)TheWeaponType, WeaponElementalAttacks[TheWeaponType].ElementalAttacks.Num());
@@ -1878,11 +1914,19 @@ void ARen_Low_Poly_Character::InitialiseElementalAttacks()
 	// Clear existing attacks for all weapon types
 	WeaponElementalAttacks.Empty();
 
+	UE_LOG(LogTemp, Error, TEXT("=== INITIALIZING ELEMENTAL ATTACKS ==="));
+
 	// Initialize attacks for each weapon type
 	for (auto& WeaponPair : WeaponElementalProficiency.ElementalWeaponProficiencyMap)
 	{
 		EWeaponType CurrentWeaponType = WeaponPair.Key;
 		const FElemental_Proficiency_Struct& ProficiencyStruct = WeaponPair.Value;
+
+		UE_LOG(LogTemp, Error, TEXT("Initializing Attacks for Weapon Type: %s"), *UEnum::GetValueAsString(CurrentWeaponType));
+		UE_LOG(LogTemp, Error, TEXT("Current Proficiency Levels - Fire: %d, Ice: %d, Thunder: %d"),
+			ProficiencyStruct.FireLevel,
+			ProficiencyStruct.IceLevel,
+			ProficiencyStruct.ThunderLevel);
 
 		// Create new FWeaponElementalAttacks for this weapon type
 		FWeaponElementalAttacks NewWeaponAttacks;
@@ -1898,6 +1942,12 @@ void ARen_Low_Poly_Character::InitialiseElementalAttacks()
 				{
 					NewWeaponAttacks.ElementalAttacks.Add(Attack);
 					AddedAttacks.Add(AttackKey);
+
+					// Log each added attack
+					UE_LOG(LogTemp, Error, TEXT("Added Attack: %s (Level %d, Type %s)"),
+						*Attack.ElementalAttackName,
+						Attack.ElementalLevel,
+						*UEnum::GetValueAsString(Attack.ElementalType));
 				}
 			};
 
@@ -1919,21 +1969,21 @@ void ARen_Low_Poly_Character::InitialiseElementalAttacks()
 			// Add unlocked abilities based on levels
 			if (ProficiencyStruct.IceLevel >= 2)
 			{
-				AddUniqueAttack(FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Ice, 2.0f, 20.0f, 2, true, IceAOEAnimation, TEXT("Summons ice shards, freezing enemies for longer.")));
+				AddUniqueAttack(FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 2.0f, 20.0f, 2, true, IceAOEAnimation, TEXT("Summons ice shards, freezing enemies for longer.")));
 			}
 			if (ProficiencyStruct.IceLevel >= 3)
 			{
-				AddUniqueAttack(FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Ice, 2.5f, 30.0f, 3, true, IceGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time.")));
+				AddUniqueAttack(FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 2.5f, 30.0f, 3, true, IceGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time.")));
 			}
 
 			// Add unlocked abilities based on levels
 			if (ProficiencyStruct.ThunderLevel >= 2)
 			{
-				AddUniqueAttack(FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Thunder, 2.0f, 20.0f, 2, true, ThunderAOEAnimation, TEXT("Summons lightning, stunning enemies for longer.")));
+				AddUniqueAttack(FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 2.0f, 20.0f, 2, true, ThunderAOEAnimation, TEXT("Summons lightning, stunning enemies for longer.")));
 			}
 			if (ProficiencyStruct.ThunderLevel >= 3)
 			{
-				AddUniqueAttack(FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Thunder, 2.5f, 30.0f, 3, true, ThunderGroundAnimation, TEXT("Summons lightning hoop, stunning enemies for an extended time.")));
+				AddUniqueAttack(FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 2.5f, 30.0f, 3, true, ThunderGroundAnimation, TEXT("Summons lightning hoop, stunning enemies for an extended time.")));
 			}
 
 		}
@@ -1941,7 +1991,18 @@ void ARen_Low_Poly_Character::InitialiseElementalAttacks()
 
 		// Add the initialized attacks to the map
 		WeaponElementalAttacks.Add(CurrentWeaponType, NewWeaponAttacks);
+
+
+		// Log total attacks for this weapon type
+		UE_LOG(LogTemp, Error, TEXT("Total Attacks for %s: %d"),
+			*UEnum::GetValueAsString(CurrentWeaponType),
+			NewWeaponAttacks.ElementalAttacks.Num());
+
+
 	}
+
+	UE_LOG(LogTemp, Error, TEXT("=== FINISHED INITIALIZING ELEMENTAL ATTACKS ==="));
+
 }
 
 

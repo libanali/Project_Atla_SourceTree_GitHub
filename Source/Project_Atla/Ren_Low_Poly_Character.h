@@ -244,6 +244,9 @@ public:
 	void SavePlayerProgress();
 
 	void LoadPlayerProgress();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Game State")
+		bool bIsGameLoaded = false;
 	//Save Data
 
 

@@ -86,6 +86,8 @@ void UElemental_Attacks_Button_Widget::OnAnyButtonClicked()
 
 }
 
+
+
 void UElemental_Attacks_Button_Widget::SetParentList(UElemental_Attacks_List_Widget* InParentList)
 {
 
@@ -106,18 +108,21 @@ void UElemental_Attacks_Button_Widget::OnElementalAttackButtonHovered()
 
 }
 
+
+
+
 void UElemental_Attacks_Button_Widget::OnElementalAttackButtonUnhovered()
 {
 
     if (ParentListWidget && ParentListWidget->DescriptionText)
     {
+
         ParentListWidget->DescriptionText->SetText(FText::GetEmpty());
+
     }
 
 
 }
-
-
 
 
 
@@ -128,9 +133,6 @@ void UElemental_Attacks_Button_Widget::NativeTick(const FGeometry& MyGeometry, f
 
  
 }
-
-
-
 
 
 

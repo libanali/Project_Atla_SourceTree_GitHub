@@ -75,8 +75,26 @@ void UElemental_Attacks_List_Widget::SetupWidget(ARen_Low_Poly_Character* Charac
 
     if (Elemental_Attack_ScrollBox)
     {
-       // SetupInputMode();  // Set up input mode first
-        PopulateElementalAttackList();  // Then populate the list
+        // Check if this is a loaded game
+        bool bIsLoadedGame = PlayerCharacter->bIsGameLoaded;
+
+        if (bIsLoadedGame)
+        {
+            // Add a delay before populating the list
+            FTimerHandle PopulateTimerHandle;
+            GetWorld()->GetTimerManager().SetTimer(
+                PopulateTimerHandle,
+                this,
+                &UElemental_Attacks_List_Widget::PopulateElementalAttackList,
+                0.5f,  // 0.5 second delay
+                false
+            );
+        }
+        else
+        {
+            // Normal game start, populate immediately
+            PopulateElementalAttackList();
+        }
     }
     else
     {
@@ -89,6 +107,8 @@ void UElemental_Attacks_List_Widget::SetupWidget(ARen_Low_Poly_Character* Charac
 
 void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
 {
+
+
     if (!Elemental_Attack_ScrollBox || !PlayerCharacter)
     {
         UE_LOG(LogTemp, Warning, TEXT("Scroll box or PlayerCharacter is null!"));
@@ -99,21 +119,44 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
     Elemental_Attack_ScrollBox->ClearChildren();
     TArray<UElemental_Attacks_Button_Widget*> CreatedButtons;
 
-    // Create elemental attack buttons
-    for (const auto& WeaponAttacksPair : PlayerCharacter->WeaponElementalAttacks)
+    // Get the current weapon type from the player character
+    EWeaponType CurrentWeaponType = PlayerCharacter->WeaponType;
+
+    // Extensive logging about weapon type and attacks
+    UE_LOG(LogTemp, Warning, TEXT("Current Weapon Type: %s"), *UEnum::GetValueAsString(CurrentWeaponType));
+    UE_LOG(LogTemp, Warning, TEXT("Total Weapon Types with Attacks: %d"),
+        PlayerCharacter->WeaponElementalAttacks.Num());
+
+     UE_LOG(LogTemp, Error, TEXT("POPULATE ELEMENTAL ATTACKS - START"));
+    UE_LOG(LogTemp, Error, TEXT("Current Weapon Type: %s"), *UEnum::GetValueAsString(CurrentWeaponType));
+
+
+    // Check if the weapon type exists in the elemental attacks map
+    if (PlayerCharacter->WeaponElementalAttacks.Contains(CurrentWeaponType))
     {
-        for (int32 Index = 0; Index < WeaponAttacksPair.Value.ElementalAttacks.Num(); ++Index)
+        const FWeaponElementalAttacks& WeaponAttacks = PlayerCharacter->WeaponElementalAttacks[CurrentWeaponType];
+
+        // Get the current proficiency levels
+        const FElemental_Proficiency_Struct& ProficiencyStruct =
+            PlayerCharacter->WeaponElementalProficiency.ElementalWeaponProficiencyMap[CurrentWeaponType];
+
+        // Create elemental attack buttons
+        for (int32 Index = 0; Index < WeaponAttacks.ElementalAttacks.Num(); ++Index)
         {
-            const FElemental_Struct& ElementalAttack = WeaponAttacksPair.Value.ElementalAttacks[Index];
+            const FElemental_Struct& ElementalAttack = WeaponAttacks.ElementalAttacks[Index];
+
+            // Simply check if the attack is unlocked
             if (ElementalAttack.bIsUnlocked && ElementalAttackButtonClass)
             {
-                UElemental_Attacks_Button_Widget* ElementalButton = CreateWidget<UElemental_Attacks_Button_Widget>(GetWorld(), ElementalAttackButtonClass);
-                if (ElementalButton)
+                UElemental_Attacks_Button_Widget* ElementalButton =
+                    CreateWidget<UElemental_Attacks_Button_Widget>(GetWorld(), ElementalAttackButtonClass);
 
+                if (ElementalButton)
                 {
                     // Explicitly set the parent list
                     ElementalButton->SetParentList(this);
                     ElementalButton->SetupButton(ElementalAttack, PlayerCharacter, Index);
+
                     if (ElementalButton->Elemental_Attack_Button)
                     {
                         ElementalButton->Elemental_Attack_Button->SetIsEnabled(true);
@@ -125,26 +168,27 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
                 }
             }
         }
-    }
 
-    // Set focus to first button with delay
-    if (CreatedButtons.Num() > 0)
-    {
-        FTimerHandle FocusTimerHandle;
-        GetWorld()->GetTimerManager().SetTimer(
-            FocusTimerHandle,
-            [FirstButton = CreatedButtons[0]]()
-            {
-                if (FirstButton && FirstButton->Elemental_Attack_Button)
+        UE_LOG(LogTemp, Warning, TEXT("Total Buttons Created: %d"), CreatedButtons.Num());
+
+        // Set focus to first button with delay
+        if (CreatedButtons.Num() > 0)
+        {
+            FTimerHandle FocusTimerHandle;
+            GetWorld()->GetTimerManager().SetTimer(
+                FocusTimerHandle,
+                [FirstButton = CreatedButtons[0]]()
                 {
-                    // Just set keyboard focus - let the focus events handle the brush
-                    FirstButton->Elemental_Attack_Button->SetKeyboardFocus();
-                    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Focus set on first button"));
-                }
-            },
-            0.1f,
-                false
-                );
+                    if (FirstButton && FirstButton->Elemental_Attack_Button)
+                    {
+                        FirstButton->Elemental_Attack_Button->SetKeyboardFocus();
+                        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Focus set on first button"));
+                    }
+                },
+                0.1f,
+                    false
+                    );
+        }
     }
 }
 

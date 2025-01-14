@@ -68,6 +68,7 @@ void UCommand_Menu_Widget::NativeOnInitialized()
     }
 
 
+
     // Ensure the command image is visible at the start
     CommandMenuIcon->SetVisibility(ESlateVisibility::Visible); 
 
@@ -227,6 +228,7 @@ void UCommand_Menu_Widget::OnElementalAttacksClicked()
 
 
 }
+
 
 
 
