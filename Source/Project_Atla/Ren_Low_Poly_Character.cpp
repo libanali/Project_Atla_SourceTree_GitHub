@@ -627,8 +627,28 @@ void ARen_Low_Poly_Character::SavePlayerProgress()
 		// Copy data to save instance
 		SaveGameInstance->SavedWeaponProficiencyMap = WeaponProficiencyMap;
 		SaveGameInstance->SavedElementalProficiencyMap = WeaponElementalProficiency.ElementalWeaponProficiencyMap;
-		//SaveGameInstance->SavedElementalAttacks = ElementalAttacks;
 		SaveGameInstance->SavedWeaponElementalAttacks = WeaponElementalAttacks;
+
+		// EXTENSIVE DEBUGGING
+		UE_LOG(LogTemp, Error, TEXT("=== SAVING GAME - DETAILED ATTACK DUMP ==="));
+		for (const auto& WeaponPair : SaveGameInstance->SavedWeaponElementalAttacks)
+		{
+			EWeaponType TheWeaponType = WeaponPair.Key;
+			const FWeaponElementalAttacks& Attacks = WeaponPair.Value;
+
+			UE_LOG(LogTemp, Error, TEXT("Weapon Type: %s"), *UEnum::GetValueAsString(TheWeaponType));
+			UE_LOG(LogTemp, Error, TEXT("Total Attacks: %d"), Attacks.ElementalAttacks.Num());
+
+			for (const FElemental_Struct& Attack : Attacks.ElementalAttacks)
+			{
+				UE_LOG(LogTemp, Error, TEXT("  Attack Name: %s"), *Attack.ElementalAttackName);
+				UE_LOG(LogTemp, Error, TEXT("    Level: %d"), Attack.ElementalLevel);
+				UE_LOG(LogTemp, Error, TEXT("    Type: %s"), *UEnum::GetValueAsString(Attack.ElementalType));
+				UE_LOG(LogTemp, Error, TEXT("    Is Unlocked: %s"), Attack.bIsUnlocked ? TEXT("TRUE") : TEXT("FALSE"));
+			}
+		}
+		UE_LOG(LogTemp, Error, TEXT("=== END OF SAVING GAME DUMP ==="));
+
 		// Save to slot
 		if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Player Save Slot"), 0))
 		{
@@ -1663,8 +1683,13 @@ void ARen_Low_Poly_Character::AddElementalAttackDelayed(const FElemental_Struct&
 		WeaponElementalAttacks.Emplace(TheWeaponType, FWeaponElementalAttacks()); // Use Emplace for more efficient initialization
 	}
 
+	FElemental_Struct UnlockedAttack = ElementalAttack;
+	UnlockedAttack.bIsUnlocked = true;
+
 	// Add the new Elemental Attack to the corresponding weapon's array
-	WeaponElementalAttacks[TheWeaponType].ElementalAttacks.Add(ElementalAttack);
+	WeaponElementalAttacks[TheWeaponType].ElementalAttacks.Add(UnlockedAttack);
+
+
 
 	// Extensive logging
 	UE_LOG(LogTemp, Warning, TEXT("Adding New Elemental Attack:"));
@@ -1911,8 +1936,11 @@ void ARen_Low_Poly_Character::ApplyStunEffect(AEnemy_Poly* Enemy, float Duration
 
 void ARen_Low_Poly_Character::InitialiseElementalAttacks()
 {
-	// Clear existing attacks for all weapon types
-	WeaponElementalAttacks.Empty();
+	// IMPORTANT: Only clear if no attacks are present
+	if (WeaponElementalAttacks.Num() == 0)
+	{
+		WeaponElementalAttacks.Empty();
+	}
 
 	UE_LOG(LogTemp, Error, TEXT("=== INITIALIZING ELEMENTAL ATTACKS ==="));
 
@@ -1928,77 +1956,110 @@ void ARen_Low_Poly_Character::InitialiseElementalAttacks()
 			ProficiencyStruct.IceLevel,
 			ProficiencyStruct.ThunderLevel);
 
-		// Create new FWeaponElementalAttacks for this weapon type
-		FWeaponElementalAttacks NewWeaponAttacks;
-		TSet<FString> AddedAttacks; // Track added attacks to prevent duplicates
-
-		if (CurrentWeaponType == EWeaponType::Sword)
+		// Only add attacks if the weapon type doesn't already have attacks
+		if (!WeaponElementalAttacks.Contains(CurrentWeaponType))
 		{
-			// Helper function to add attack if not already present
-			auto AddUniqueAttack = [&](const FElemental_Struct& Attack) {
-				FString AttackKey = FString::Printf(TEXT("%s_Lv%d"),
-					*Attack.ElementalAttackName, Attack.ElementalLevel);
-				if (!AddedAttacks.Contains(AttackKey))
+			// Create new FWeaponElementalAttacks for this weapon type
+			FWeaponElementalAttacks NewWeaponAttacks;
+			TSet<FString> AddedAttacks; // Track added attacks to prevent duplicates
+
+			if (CurrentWeaponType == EWeaponType::Sword)
+			{
+				// Helper function to add attack if not already present
+				auto AddUniqueAttack = [&](const FElemental_Struct& Attack) {
+					FString AttackKey = FString::Printf(TEXT("%s_Lv%d"),
+						*Attack.ElementalAttackName, Attack.ElementalLevel);
+					if (!AddedAttacks.Contains(AttackKey))
+					{
+						NewWeaponAttacks.ElementalAttacks.Add(Attack);
+						AddedAttacks.Add(AttackKey);
+
+						// Log each added attack
+						UE_LOG(LogTemp, Error, TEXT("Added Attack: %s (Level %d, Type %s)"),
+							*Attack.ElementalAttackName,
+							Attack.ElementalLevel,
+							*UEnum::GetValueAsString(Attack.ElementalType));
+					}
+				};
+
+				// Add base attacks
+				AddUniqueAttack(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.5f, 10.0f, 1, true, FireProjectileAnimation, TEXT("Burn enemies over time")));
+				AddUniqueAttack(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 20.0f, 1, true, IceProjectileAnimation, TEXT("Freeze enemies over time")));
+				AddUniqueAttack(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.8f, 20.0f, 1, true, ThunderProjectileAnimation, TEXT("Stun enemies over time")));
+
+				// Add unlocked abilities based on levels
+				if (ProficiencyStruct.FireLevel >= 2)
 				{
-					NewWeaponAttacks.ElementalAttacks.Add(Attack);
-					AddedAttacks.Add(AttackKey);
-
-					// Log each added attack
-					UE_LOG(LogTemp, Error, TEXT("Added Attack: %s (Level %d, Type %s)"),
-						*Attack.ElementalAttackName,
-						Attack.ElementalLevel,
-						*UEnum::GetValueAsString(Attack.ElementalType));
+					AddUniqueAttack(FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 2.0f, 20.0f, 2, true, FireAOEAnimation, TEXT("Creates an explosion, burns enemies for longer.")));
 				}
-			};
+				if (ProficiencyStruct.FireLevel >= 3)
+				{
+					AddUniqueAttack(FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 2.5f, 30.0f, 3, true, FireGroundAnimation, TEXT("Summons molten spikes, burns enemies for an extended time.")));
+				}
 
-			// Add base attacks
-			AddUniqueAttack(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.5f, 10.0f, 1, true, FireProjectileAnimation, TEXT("Burn enemies over time")));
-			AddUniqueAttack(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 20.0f, 1, true, IceProjectileAnimation, TEXT("Freeze enemies over time")));
-			AddUniqueAttack(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.8f, 20.0f, 1, true, ThunderProjectileAnimation, TEXT("Stun enemies over time")));
+				// Add unlocked abilities based on levels
+				if (ProficiencyStruct.IceLevel >= 2)
+				{
+					AddUniqueAttack(FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 2.0f, 20.0f, 2, true, IceAOEAnimation, TEXT("Summons ice shards, freezing enemies for longer.")));
+				}
+				if (ProficiencyStruct.IceLevel >= 3)
+				{
+					AddUniqueAttack(FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 2.5f, 30.0f, 3, true, IceGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time.")));
+				}
 
-			// Add unlocked abilities based on levels
-			if (ProficiencyStruct.FireLevel >= 2)
-			{
-				AddUniqueAttack(FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 2.0f, 20.0f, 2, true, FireAOEAnimation, TEXT("Creates an explosion, burns enemies for longer.")));
+				// Add unlocked abilities based on levels
+				if (ProficiencyStruct.ThunderLevel >= 2)
+				{
+					AddUniqueAttack(FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 2.0f, 20.0f, 2, true, ThunderAOEAnimation, TEXT("Summons lightning, stunning enemies for longer.")));
+				}
+				if (ProficiencyStruct.ThunderLevel >= 3)
+				{
+					AddUniqueAttack(FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 2.5f, 30.0f, 3, true, ThunderGroundAnimation, TEXT("Summons lightning hoop, stunning enemies for an extended time.")));
+				}
 			}
-			if (ProficiencyStruct.FireLevel >= 3)
+			else if (CurrentWeaponType == EWeaponType::Staff)
 			{
-				AddUniqueAttack(FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 2.5f, 30.0f, 3, true, FireGroundAnimation, TEXT("Summons molten spikes, burns enemies for an extended time.")));
+				// Similar logic for Staff, but with Staff-specific attacks
+				auto AddUniqueAttack = [&](const FElemental_Struct& Attack) {
+					FString AttackKey = FString::Printf(TEXT("%s_Lv%d"),
+						*Attack.ElementalAttackName, Attack.ElementalLevel);
+					if (!AddedAttacks.Contains(AttackKey))
+					{
+						NewWeaponAttacks.ElementalAttacks.Add(Attack);
+						AddedAttacks.Add(AttackKey);
+					}
+				};
+
+				// Add base Staff attacks
+				AddUniqueAttack(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.7f, 15.0f, 1, true, FireProjectileAnimation, TEXT("Burns enemies over time.")));
+				AddUniqueAttack(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.9f, 15.0f, 1, true, IceProjectileAnimation, TEXT("Freezes enemies over time.")));
+				AddUniqueAttack(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.5f, 10.0f, 1, true, ThunderProjectileAnimation, TEXT("Stuns enemies over time.")));
+
+				// Add Staff-specific level 2 and 3 attacks based on proficiency
+				if (ProficiencyStruct.FireLevel >= 2)
+				{
+					AddUniqueAttack(FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 2.2f, 20.0f, 2, true, FireAOEAnimation, TEXT("Creates an explosion, burns enemies for longer.")));
+				}
+				if (ProficiencyStruct.FireLevel >= 3)
+				{
+					AddUniqueAttack(FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 2.8f, 30.5f, 3, true, FireGroundAnimation, TEXT("Summons molten spikes, burns enemies for an extended time.")));
+				}
+
+				// Similar additions for Ice and Thunder attacks for Staff
 			}
 
-			// Add unlocked abilities based on levels
-			if (ProficiencyStruct.IceLevel >= 2)
-			{
-				AddUniqueAttack(FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 2.0f, 20.0f, 2, true, IceAOEAnimation, TEXT("Summons ice shards, freezing enemies for longer.")));
-			}
-			if (ProficiencyStruct.IceLevel >= 3)
-			{
-				AddUniqueAttack(FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 2.5f, 30.0f, 3, true, IceGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time.")));
-			}
-
-			// Add unlocked abilities based on levels
-			if (ProficiencyStruct.ThunderLevel >= 2)
-			{
-				AddUniqueAttack(FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 2.0f, 20.0f, 2, true, ThunderAOEAnimation, TEXT("Summons lightning, stunning enemies for longer.")));
-			}
-			if (ProficiencyStruct.ThunderLevel >= 3)
-			{
-				AddUniqueAttack(FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 2.5f, 30.0f, 3, true, ThunderGroundAnimation, TEXT("Summons lightning hoop, stunning enemies for an extended time.")));
-			}
-
+			// Add the initialized attacks to the map
+			WeaponElementalAttacks.Add(CurrentWeaponType, NewWeaponAttacks);
 		}
-		// Handle Staff similarly...
-
-		// Add the initialized attacks to the map
-		WeaponElementalAttacks.Add(CurrentWeaponType, NewWeaponAttacks);
-
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Attacks already exist for %s, skipping initialization"), *UEnum::GetValueAsString(CurrentWeaponType));
+		}
 
 		// Log total attacks for this weapon type
 		UE_LOG(LogTemp, Error, TEXT("Total Attacks for %s: %d"),
 			*UEnum::GetValueAsString(CurrentWeaponType),
-			NewWeaponAttacks.ElementalAttacks.Num());
-
-
+			WeaponElementalAttacks[CurrentWeaponType].ElementalAttacks.Num());
 	}
 
 	UE_LOG(LogTemp, Error, TEXT("=== FINISHED INITIALIZING ELEMENTAL ATTACKS ==="));

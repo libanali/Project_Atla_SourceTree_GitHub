@@ -15,7 +15,7 @@ void UElemental_Attacks_List_Widget::NativeOnInitialized()
 {
     Super::NativeOnInitialized();
 
-
+    
 }
 
 
@@ -122,14 +122,8 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
     // Get the current weapon type from the player character
     EWeaponType CurrentWeaponType = PlayerCharacter->WeaponType;
 
-    // Extensive logging about weapon type and attacks
-    UE_LOG(LogTemp, Warning, TEXT("Current Weapon Type: %s"), *UEnum::GetValueAsString(CurrentWeaponType));
-    UE_LOG(LogTemp, Warning, TEXT("Total Weapon Types with Attacks: %d"),
-        PlayerCharacter->WeaponElementalAttacks.Num());
-
-     UE_LOG(LogTemp, Error, TEXT("POPULATE ELEMENTAL ATTACKS - START"));
+    UE_LOG(LogTemp, Error, TEXT("=== POPULATING ELEMENTAL ATTACKS UI ==="));
     UE_LOG(LogTemp, Error, TEXT("Current Weapon Type: %s"), *UEnum::GetValueAsString(CurrentWeaponType));
-
 
     // Check if the weapon type exists in the elemental attacks map
     if (PlayerCharacter->WeaponElementalAttacks.Contains(CurrentWeaponType))
@@ -140,13 +134,39 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
         const FElemental_Proficiency_Struct& ProficiencyStruct =
             PlayerCharacter->WeaponElementalProficiency.ElementalWeaponProficiencyMap[CurrentWeaponType];
 
+        UE_LOG(LogTemp, Error, TEXT("Current Proficiency Levels:"));
+        UE_LOG(LogTemp, Error, TEXT("  Fire Level: %d"), ProficiencyStruct.FireLevel);
+        UE_LOG(LogTemp, Error, TEXT("  Ice Level: %d"), ProficiencyStruct.IceLevel);
+        UE_LOG(LogTemp, Error, TEXT("  Thunder Level: %d"), ProficiencyStruct.ThunderLevel);
+
         // Create elemental attack buttons
         for (int32 Index = 0; Index < WeaponAttacks.ElementalAttacks.Num(); ++Index)
         {
             const FElemental_Struct& ElementalAttack = WeaponAttacks.ElementalAttacks[Index];
 
-            // Simply check if the attack is unlocked
-            if (ElementalAttack.bIsUnlocked && ElementalAttackButtonClass)
+            UE_LOG(LogTemp, Error, TEXT("Checking Attack: %s"), *ElementalAttack.ElementalAttackName);
+            UE_LOG(LogTemp, Error, TEXT("  Level: %d"), ElementalAttack.ElementalLevel);
+            UE_LOG(LogTemp, Error, TEXT("  Type: %s"), *UEnum::GetValueAsString(ElementalAttack.ElementalType));
+            UE_LOG(LogTemp, Error, TEXT("  Is Unlocked: %s"), ElementalAttack.bIsUnlocked ? TEXT("TRUE") : TEXT("FALSE"));
+
+            // MODIFIED: Explicitly check for attacks that should be displayed
+            bool bShouldDisplay = false;
+            switch (ElementalAttack.ElementalType)
+            {
+            case EElementalAttackType::Fire:
+                bShouldDisplay = ElementalAttack.ElementalLevel <= ProficiencyStruct.FireLevel;
+                break;
+            case EElementalAttackType::Ice:
+                bShouldDisplay = ElementalAttack.ElementalLevel <= ProficiencyStruct.IceLevel;
+                break;
+            case EElementalAttackType::Thunder:
+                bShouldDisplay = ElementalAttack.ElementalLevel <= ProficiencyStruct.ThunderLevel;
+                break;
+            }
+
+            UE_LOG(LogTemp, Error, TEXT("  Should Display: %s"), bShouldDisplay ? TEXT("TRUE") : TEXT("FALSE"));
+
+            if ((bShouldDisplay || ElementalAttack.bIsUnlocked) && ElementalAttackButtonClass)
             {
                 UElemental_Attacks_Button_Widget* ElementalButton =
                     CreateWidget<UElemental_Attacks_Button_Widget>(GetWorld(), ElementalAttackButtonClass);
@@ -165,11 +185,15 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
 
                     Elemental_Attack_ScrollBox->AddChild(ElementalButton);
                     CreatedButtons.Add(ElementalButton);
+
+                    UE_LOG(LogTemp, Error, TEXT("ADDED TO UI: %s (Level %d)"),
+                        *ElementalAttack.ElementalAttackName,
+                        ElementalAttack.ElementalLevel);
                 }
             }
         }
 
-        UE_LOG(LogTemp, Warning, TEXT("Total Buttons Created: %d"), CreatedButtons.Num());
+        UE_LOG(LogTemp, Error, TEXT("Total Buttons Created: %d"), CreatedButtons.Num());
 
         // Set focus to first button with delay
         if (CreatedButtons.Num() > 0)

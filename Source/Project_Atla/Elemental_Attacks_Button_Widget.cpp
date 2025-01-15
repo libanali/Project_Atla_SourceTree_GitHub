@@ -50,7 +50,6 @@ void UElemental_Attacks_Button_Widget::NativeConstruct()
     Elemental_Attack_Button->SetIsEnabled(true);
     Elemental_Attack_Button->IsFocusable = true;
 
- 
 }
 
 
