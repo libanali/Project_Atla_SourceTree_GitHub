@@ -45,6 +45,10 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UTextBlock* DescriptionText;
 
+    void BindToCharacter();
+
+    UFUNCTION()
+        void OnProficiencyChanged(EWeaponType WeaponType, EElementalAttackType ElementType, int32 NewLevel);
 
 
 private:

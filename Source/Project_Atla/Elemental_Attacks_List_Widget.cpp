@@ -51,6 +51,7 @@ void UElemental_Attacks_List_Widget::NativeConstruct()
     if (Character)
     {
         SetupWidget(Character);
+        BindToCharacter();
         UE_LOG(LogTemp, Log, TEXT("SetupWidget called from NativeConstruct"));
     }
     else
@@ -104,6 +105,43 @@ void UElemental_Attacks_List_Widget::SetupWidget(ARen_Low_Poly_Character* Charac
 
 
 
+
+void UElemental_Attacks_List_Widget::BindToCharacter()
+{
+
+    if (PlayerCharacter)
+    {
+        // Bind to the proficiency change delegate
+        PlayerCharacter->OnElementalProficiencyChanged.AddDynamic(
+            this, &UElemental_Attacks_List_Widget::OnProficiencyChanged);
+    }
+
+}
+
+
+
+void UElemental_Attacks_List_Widget::OnProficiencyChanged(EWeaponType WeaponType, EElementalAttackType ElementType, int32 NewLevel)
+{
+
+    // Only refresh if this is for our current weapon type
+    if (WeaponType == PlayerCharacter->WeaponType)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Refreshing UI for %s element level change to %d"),
+            *UEnum::GetValueAsString(ElementType), NewLevel);
+
+        // Small delay to ensure new attacks are added to the array
+        FTimerHandle RefreshTimerHandle;
+        GetWorld()->GetTimerManager().SetTimer(
+            RefreshTimerHandle,
+            this,
+            &UElemental_Attacks_List_Widget::PopulateElementalAttackList,
+            0.2f,
+            false
+        );
+    }
+
+
+}
 
 void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
 {

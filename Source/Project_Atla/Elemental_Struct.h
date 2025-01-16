@@ -58,7 +58,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
         EElementalAttackType ElementalType;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Technique Animation")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Animation")
         UAnimMontage* Elemental_Attack_Animation;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")

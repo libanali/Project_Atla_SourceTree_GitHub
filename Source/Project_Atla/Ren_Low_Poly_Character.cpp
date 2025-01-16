@@ -667,84 +667,34 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 
 	bIsGameLoaded = true;
 
-	UPlayer_Save_Game* LoadGameInstance = Cast<UPlayer_Save_Game>(UGameplayStatics::LoadGameFromSlot(TEXT("Player Save Slot"), 0));
+	UPlayer_Save_Game* LoadGameInstance = Cast<UPlayer_Save_Game>(
+		UGameplayStatics::LoadGameFromSlot(TEXT("Player Save Slot"), 0));
+
 	if (LoadGameInstance)
 	{
-		// Load data from save instance
+		// Load the saved data
 		WeaponProficiencyMap = LoadGameInstance->SavedWeaponProficiencyMap;
-		WeaponElementalProficiency.ElementalWeaponProficiencyMap = LoadGameInstance->SavedElementalProficiencyMap;
+		WeaponElementalProficiency.ElementalWeaponProficiencyMap =
+			LoadGameInstance->SavedElementalProficiencyMap;
 		WeaponElementalAttacks = LoadGameInstance->SavedWeaponElementalAttacks;
 
-		// InitialiseElementalAttacks to update ElementalAttacks based on loaded data
-		//InitialiseElementalAttacks();
+		// Broadcast current levels for UI update
+		if (WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(WeaponType))
+		{
+			const FElemental_Proficiency_Struct& ProfStruct =
+				WeaponElementalProficiency.ElementalWeaponProficiencyMap[WeaponType];
 
+			// Broadcast each element's level
+			OnElementalProficiencyChanged.Broadcast(WeaponType, EElementalAttackType::Fire,
+				ProfStruct.FireLevel);
+			OnElementalProficiencyChanged.Broadcast(WeaponType, EElementalAttackType::Ice,
+				ProfStruct.IceLevel);
+			OnElementalProficiencyChanged.Broadcast(WeaponType, EElementalAttackType::Thunder,
+				ProfStruct.ThunderLevel);
+		}
+
+		// Rest of your existing load code...
 		bIsGameLoaded = false;
-
-
-
-
-		UE_LOG(LogTemp, Log, TEXT("Successfully loaded player progress."));
-
-		// Log weapon proficiency map
-		for (const TPair<EWeaponType, FWeapon_Proficiency_Struct>& Pair : WeaponProficiencyMap)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Loaded %s: Level %d, EXP %.2f"),
-				*UEnum::GetValueAsString(Pair.Key),
-				Pair.Value.WeaponLevel,
-				Pair.Value.CurrentEXP);
-		}
-
-		// Log elemental proficiency map
-		for (const TPair<EWeaponType, FElemental_Proficiency_Struct>& Pair : WeaponElementalProficiency.ElementalWeaponProficiencyMap)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Loaded Elemental Proficiency for %s: Fire Level %d, Ice Level %d, Thunder Level %d"),
-				*UEnum::GetValueAsString(Pair.Key),
-				Pair.Value.FireLevel,
-				Pair.Value.IceLevel,
-				Pair.Value.ThunderLevel);
-		}
-
-		// Log loaded elemental attacks (for debugging)
-		for (const TPair<EWeaponType, FWeaponElementalAttacks>& Pair : WeaponElementalAttacks)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Loaded Elemental Attacks for %s:"), *UEnum::GetValueAsString(Pair.Key));
-			for (const FElemental_Struct& Attack : Pair.Value.ElementalAttacks)
-			{
-				UE_LOG(LogTemp, Warning, TEXT("    - %s"), *Attack.ElementalAttackName);
-			}
-		}
-
-		// ADDITIONAL DETAILED LOGGING
-		UE_LOG(LogTemp, Error, TEXT("LOADED ATTACKS DETAILED DUMP:"));
-		for (const auto& WeaponPair : WeaponElementalAttacks)
-		{
-			EWeaponType TheWeaponType = WeaponPair.Key;
-			const FWeaponElementalAttacks& Attacks = WeaponPair.Value;
-
-			UE_LOG(LogTemp, Error, TEXT("Weapon Type: %s - Total Attacks: %d"),
-				*UEnum::GetValueAsString(TheWeaponType),
-				Attacks.ElementalAttacks.Num());
-
-			for (const FElemental_Struct& Attack : Attacks.ElementalAttacks)
-			{
-				UE_LOG(LogTemp, Error, TEXT(" - Detailed Attack: Name=%s, Level=%d, Type=%s, Unlocked=%s"),
-					*Attack.ElementalAttackName,
-					Attack.ElementalLevel,
-					*UEnum::GetValueAsString(Attack.ElementalType),
-					Attack.bIsUnlocked ? TEXT("TRUE") : TEXT("FALSE"));
-			}
-		}
-
-
-
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No save game found. Initializing default values."));
-		InitialiseDefaultElementalProficiencyValues();
-		// InitialiseElementalAttacks to update ElementalAttacks based on loaded data
-		InitialiseElementalAttacks();
-
 	}
 }
 
@@ -1477,6 +1427,9 @@ void ARen_Low_Poly_Character::AddExperienceToElementalProfiency(EWeaponType TheW
 				{
 					ProficiencyStruct->FireLevel++;
 					ProficiencyStruct->FireProficiency -= ThresholdValue;
+
+					OnElementalProficiencyChanged.Broadcast(TheWeaponType, ElementType,
+						ProficiencyStruct->FireLevel);
 
 					// Set a timer to call UnlockElementalAbility after 1 second
 					GetWorld()->GetTimerManager().SetTimer(TimerHandle_UnlockElementalAbility, FTimerDelegate::CreateUObject(this, &ARen_Low_Poly_Character::UnlockElementalAbility, TheWeaponType, EElementalAttackType::Fire), 1.0f, false);

@@ -108,10 +108,14 @@ class AResults_camera;
 
 
 
+
+
 UCLASS()
 class PROJECT_ATLA_API ARen_Low_Poly_Character : public ACharacter
 {
 	GENERATED_BODY()
+
+	
 
 public:
 	// Sets default values for this character's properties
@@ -130,7 +134,11 @@ public:
 	//Movement
 
 
+	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnElementalProficiencyChanged, EWeaponType, WeaponType,
+		EElementalAttackType, ElementType, int32, NewLevel);
 
+	UPROPERTY(BlueprintAssignable, Category = "Elemental")
+		FOnElementalProficiencyChanged OnElementalProficiencyChanged;
 
 
 
