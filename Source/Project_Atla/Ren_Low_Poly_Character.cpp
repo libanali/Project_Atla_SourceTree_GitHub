@@ -1511,7 +1511,6 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 	}
 
 	FWeaponElementalAttacks& WeaponAttacksRef = WeaponElementalAttacks[TheWeaponType];
-
 	int32 CurrentLevel = 0;
 	switch (ElementType)
 	{
@@ -1540,20 +1539,107 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 			{
 				NewAbility = FElemental_Struct(TEXT("Fire Lv.2"), ElementType, 2.0f, 20.0f, 2, true, FireAOEAnimation,
 					TEXT("Creates an explosion, burns enemies for longer."));
-				NewAbility.ManaCost = 30.0f;  // Set appropriate mana cost
+				NewAbility.ManaCost = 30.0f;
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.2 Ability for Sword!"));
 			}
 			else if (CurrentLevel == 3)
 			{
 				NewAbility = FElemental_Struct(TEXT("Fire Lv.3"), ElementType, 2.5f, 30.0f, 3, true, FireGroundAnimation,
 					TEXT("Summons molten spikes, burns enemies for an extended time."));
-				NewAbility.ManaCost = 45.0f;  // Set appropriate mana cost
+				NewAbility.ManaCost = 45.0f;
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.3 Ability for Sword!"));
 			}
 			break;
 
-			// Similar cases for Ice and Thunder...
-			// Make sure to set bIsUnlocked = true and appropriate ManaCost for each
+		case EElementalAttackType::Ice:
+			if (CurrentLevel == 2)
+			{
+				NewAbility = FElemental_Struct(TEXT("Ice Lv.2"), ElementType, 2.0f, 20.0f, 2, true, IceAOEAnimation,
+					TEXT("Summons ice shards, freezing enemies for longer."));
+				NewAbility.ManaCost = 30.0f;
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.2 Ability for Sword!"));
+			}
+			else if (CurrentLevel == 3)
+			{
+				NewAbility = FElemental_Struct(TEXT("Ice Lv.3"), ElementType, 2.5f, 30.0f, 3, true, IceGroundAnimation,
+					TEXT("Summons ice spiral, freezing enemies for an extended time."));
+				NewAbility.ManaCost = 45.0f;
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.3 Ability for Sword!"));
+			}
+			break;
+
+		case EElementalAttackType::Thunder:
+			if (CurrentLevel == 2)
+			{
+				NewAbility = FElemental_Struct(TEXT("Thunder Lv.2"), ElementType, 2.0f, 20.0f, 2, true, ThunderAOEAnimation,
+					TEXT("Summons lightning, stunning enemies for longer."));
+				NewAbility.ManaCost = 30.0f;
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.2 Ability for Sword!"));
+			}
+			else if (CurrentLevel == 3)
+			{
+				NewAbility = FElemental_Struct(TEXT("Thunder Lv.3"), ElementType, 2.5f, 30.0f, 3, true, ThunderGroundAnimation,
+					TEXT("Summons lightning hoop, stunning enemies for an extended time."));
+				NewAbility.ManaCost = 45.0f;
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.3 Ability for Sword!"));
+			}
+			break;
+		}
+	}
+	else if (TheWeaponType == EWeaponType::Staff)
+	{
+		switch (ElementType)
+		{
+		case EElementalAttackType::Fire:
+			if (CurrentLevel == 2)
+			{
+				NewAbility = FElemental_Struct(TEXT("Fire Lv.2"), ElementType, 2.2f, 20.0f, 2, true, FireAOEAnimation,
+					TEXT("Creates a larger explosion, burns enemies for longer."));
+				NewAbility.ManaCost = 25.0f;  // Staff uses less mana
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.2 Ability for Staff!"));
+			}
+			else if (CurrentLevel == 3)
+			{
+				NewAbility = FElemental_Struct(TEXT("Fire Lv.3"), ElementType, 2.8f, 30.5f, 3, true, FireGroundAnimation,
+					TEXT("Summons multiple molten spikes, burns enemies for an extended time."));
+				NewAbility.ManaCost = 40.0f;
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.3 Ability for Staff!"));
+			}
+			break;
+
+		case EElementalAttackType::Ice:
+			if (CurrentLevel == 2)
+			{
+				NewAbility = FElemental_Struct(TEXT("Ice Lv.2"), ElementType, 2.0f, 20.0f, 2, true, IceAOEAnimation,
+					TEXT("Creates a frost nova, freezing multiple enemies."));
+				NewAbility.ManaCost = 25.0f;
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.2 Ability for Staff!"));
+			}
+			else if (CurrentLevel == 3)
+			{
+				NewAbility = FElemental_Struct(TEXT("Ice Lv.3"), ElementType, 2.5f, 30.0f, 3, true, IceGroundAnimation,
+					TEXT("Summons an ice storm, freezing all nearby enemies."));
+				NewAbility.ManaCost = 40.0f;
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.3 Ability for Staff!"));
+			}
+			break;
+
+		case EElementalAttackType::Thunder:
+			if (CurrentLevel == 2)
+			{
+				NewAbility = FElemental_Struct(TEXT("Thunder Lv.2"), ElementType, 2.0f, 20.0f, 2, true, ThunderAOEAnimation,
+					TEXT("Calls down chain lightning, stunning multiple enemies."));
+				NewAbility.ManaCost = 25.0f;
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.2 Ability for Staff!"));
+			}
+			else if (CurrentLevel == 3)
+			{
+				NewAbility = FElemental_Struct(TEXT("Thunder Lv.3"), ElementType, 2.5f, 30.0f, 3, true, ThunderGroundAnimation,
+					TEXT("Creates a thunder storm, stunning all nearby enemies."));
+				NewAbility.ManaCost = 40.0f;
+				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.3 Ability for Staff!"));
+			}
+			break;
 		}
 	}
 
@@ -1581,7 +1667,6 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 				NewAbility.ManaCost);
 		}
 	}
-	// Similar logic would be added for Staff and any other weapon types
 }
 
 
