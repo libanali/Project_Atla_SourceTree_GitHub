@@ -140,7 +140,6 @@ void UElemental_Attacks_Button_Widget::NativeTick(const FGeometry& MyGeometry, f
 void UElemental_Attacks_Button_Widget::SetupButton(FElemental_Struct ElementalAttack, ARen_Low_Poly_Character* Character, int32 Index)
 {
 
-
     // Store the elemental attack data
     CurrentElementalAttack = ElementalAttack;
 
@@ -157,15 +156,11 @@ void UElemental_Attacks_Button_Widget::SetupButton(FElemental_Struct ElementalAt
     }
 
     PlayerCharacter = Character;
-    ElementalIndex = Index;
+    // We no longer need ElementalIndex since we're storing the full attack data
 
-
-    // Debug logging to check parent list
     if (!ParentListWidget)
     {
-        // Try to find the parent list widget
         ParentListWidget = Cast<UElemental_Attacks_List_Widget>(GetParent());
-
         if (!ParentListWidget)
         {
             GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red,
@@ -176,7 +171,6 @@ void UElemental_Attacks_Button_Widget::SetupButton(FElemental_Struct ElementalAt
             GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green,
                 TEXT("ParentListWidget found successfully"));
         }
-
     }
 }
 
@@ -268,7 +262,7 @@ void UElemental_Attacks_Button_Widget::OnElementalAttackButtonClicked()
     // Ensure the player character is valid and the index is valid
     if (PlayerCharacter && ElementalIndex >= 0)
     {
-        PlayerCharacter->UseElementalAttack(ElementalIndex); // Call the player's attack function
+        PlayerCharacter->UseElementalAttack(CurrentElementalAttack); // Call the player's attack function
         ReturnToGameplay();
     }
 

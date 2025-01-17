@@ -1324,15 +1324,22 @@ void ARen_Low_Poly_Character::SpawnElementalGround(FVector SpawnLocation, FRotat
 }
 
 
-void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
+void ARen_Low_Poly_Character::UseElementalAttack(const FElemental_Struct& Attack)
 {
 	FWeaponElementalAttacks* WeaponAttacks = WeaponElementalAttacks.Find(WeaponType);
-	if (WeaponAttacks)
+	if (!WeaponAttacks)
 	{
-		if (ElementalIndex >= 0 && ElementalIndex < WeaponAttacks->ElementalAttacks.Num())
-		{
-			FElemental_Struct& SelectedElementalAttack = WeaponAttacks->ElementalAttacks[ElementalIndex];
+		UE_LOG(LogTemp, Warning, TEXT("No weapon attacks found for current weapon type"));
+		return;
+	}
 
+	// Find the attack in the array
+	for (FElemental_Struct& SelectedElementalAttack : WeaponAttacks->ElementalAttacks)
+	{
+		if (SelectedElementalAttack.ElementalAttackName == Attack.ElementalAttackName &&
+			SelectedElementalAttack.ElementalType == Attack.ElementalType &&
+			SelectedElementalAttack.ElementalLevel == Attack.ElementalLevel)
+		{
 			// Add debug logging
 			UE_LOG(LogTemp, Warning, TEXT("Attempting to use attack: %s"), *SelectedElementalAttack.ElementalAttackName);
 			UE_LOG(LogTemp, Warning, TEXT("Attack status - Unlocked: %s, Current Mana: %.1f, Required Mana: %.1f"),
@@ -1360,13 +1367,21 @@ void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 
 			if (bHasRequiredLevel && ManaStruct.CurrentMana >= SelectedElementalAttack.ManaCost)
 			{
-				// Rest of your existing implementation...
+				// Deduct mana
 				ManaStruct.CurrentMana -= SelectedElementalAttack.ManaCost;
+
+				// Play the animation for the attack
 				PlayAnimMontage(SelectedElementalAttack.Elemental_Attack_Animation);
+
+				// Set the current elemental attack type
 				CurrentElementalAttackType = SelectedElementalAttack.ElementalType;
+
+				// Add experience
 				AddExperienceToElementalProfiency(WeaponType, SelectedElementalAttack.ElementalType, 90.0f);
 
 				UE_LOG(LogTemp, Warning, TEXT("Successfully used attack: %s"), *SelectedElementalAttack.ElementalAttackName);
+				UE_LOG(LogTemp, Warning, TEXT("Mana Cost: %.1f, Current Mana: %.1f"),
+					SelectedElementalAttack.ManaCost, ManaStruct.CurrentMana);
 			}
 			else
 			{
@@ -1375,8 +1390,11 @@ void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 					bHasRequiredLevel ? TEXT("True") : TEXT("False"),
 					(ManaStruct.CurrentMana >= SelectedElementalAttack.ManaCost) ? TEXT("True") : TEXT("False"));
 			}
+			return;
 		}
 	}
+
+	UE_LOG(LogTemp, Warning, TEXT("Attack not found in weapon attacks array"));
 }
 
 
@@ -3039,10 +3057,11 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	//TechniqueStruct.CurrentGauge = 100.0f;
 	TechniqueStruct.MaxGauge = 100.0f;
-	TechniqueStruct.TechniquePoints = 1;
+	TechniqueStruct.TechniquePoints = 5;
 	TechniqueStruct.MaxTechniquePoints = 7;
 
 
+	AbilityStruct.CurrentAbilityPoints = 0.0f;
 
 
 	
@@ -3080,7 +3099,6 @@ void ARen_Low_Poly_Character::BeginPlay()
 	}
 
 
-	AbilityStruct.CurrentAbilityPoints = 0.0f;
 
 
 	// Ensure WeaponProficiencyMap has entries for all weapon types, even if not loaded
@@ -3152,7 +3170,12 @@ void ARen_Low_Poly_Character::BeginPlay()
 	if (WeaponType == EWeaponType::Sword)
 	{
 		// Initialize Sword techniques
-		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("Furious multi-strike sword combo."), true, StormStrikeFlurryAnimMontage, 1.6f, 3 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("Furious multi-strike sword combo."), true, StormStrikeFlurryAnimMontage, 1.6f, 1 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("Electrifying ground-slam force field."), true, VoltageBreakerAnimMontage, 1.3f, 1 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Rapid flurry of strikes."), true, TempestBarrageAnimMontage, 1.7f, 1 });
+
+
+
 
 		WeaponElementalAttacks.Add(EWeaponType::Sword, FWeaponElementalAttacks{
 	   {FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.7f, 15.0f, 1, true, FireProjectileAnimation, TEXT("Burns enemies over time.")),
@@ -3162,7 +3185,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 		FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 2.5f, 30.0f, 2, false, IceAOEAnimation, TEXT("Summons ice shards, freezing enemies for longer.")),
 		FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 1.9f, 15.0f, 2, false, ThunderAOEAnimation, TEXT("Summons lightning, stunning enemies for longer.")),
 		FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 1.5f, 30.0f, 3, false, FireGroundAnimation, TEXT("Summons molten spikes, burns enemies for an extended time.")),
-		FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 1.9f, 15.0f, 35, false, IceGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time.")),
+		FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 1.9f, 35.0f, 3, false, IceGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time.")),
 		FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 1.5f, 20.0f, 3, false, ThunderGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time."))
 
 		}
@@ -3190,11 +3213,11 @@ void ARen_Low_Poly_Character::BeginPlay()
 			// Add sword techniques based on the level of proficiency (this should match your progression)
 			if (SwordWeaponLevel >= 6)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("Electrifying ground-slam force field."), true, VoltageBreakerAnimMontage, 1.3f, 1 });
+				//Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("Electrifying ground-slam force field."), true, VoltageBreakerAnimMontage, 1.3f, 1 });
 			}
 			if (SwordWeaponLevel >= 10)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Rapid flurry of strikes."), true, TempestBarrageAnimMontage, 1.7f, 1 });
+			//	Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Rapid flurry of strikes."), true, TempestBarrageAnimMontage, 1.7f, 1 });
 			}
 			if (SwordWeaponLevel >= 19)
 			{
@@ -3810,6 +3833,7 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 		//UE_LOG(LogTemp, Warning, TEXT("EnemyArrowMap is empty! No arrows to update."));
 	}
 
+	/*
 
 	FString StatsText = FString::Printf(TEXT("Current Attack: %.2f\nCurrent Defense: %.2f\nMax Health: %.2f\nCurrent Health: %.2f\nMax Mana: %f\nCurrent Mana: %f"),
 		BaseAttack, BaseDefence, HealthStruct.MaxHealth, HealthStruct.CurrentHealth, ManaStruct.MaxMana, ManaStruct.CurrentMana);
@@ -3818,7 +3842,7 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 
 
 
-
+	*/
 
 }
 

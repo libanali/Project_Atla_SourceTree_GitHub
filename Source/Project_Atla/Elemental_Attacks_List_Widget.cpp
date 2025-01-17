@@ -139,10 +139,8 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
             });
 
         // Create buttons for unique attacks
-        for (int32 Index = 0; Index < SortedAttacks.Num(); ++Index)
+        for (const FElemental_Struct& ElementalAttack : SortedAttacks)
         {
-            const FElemental_Struct& ElementalAttack = SortedAttacks[Index];
-
             // Create a unique key for this attack
             FString AttackKey = FString::Printf(TEXT("%s_%d_%d"),
                 *ElementalAttack.ElementalAttackName,
@@ -167,7 +165,8 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
                     AddedAttacks.Add(AttackKey);
 
                     ElementalButton->SetParentList(this);
-                    ElementalButton->SetupButton(ElementalAttack, PlayerCharacter, Index);
+                    // We no longer need to pass an index since we're passing the full attack data
+                    ElementalButton->SetupButton(ElementalAttack, PlayerCharacter, 0); // Index parameter will be ignored
 
                     // Determine if the button should be enabled based on proficiency level
                     bool bShouldEnable = false;

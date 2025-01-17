@@ -573,7 +573,7 @@ public:
 		void CalculateElementalAttack();
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
-		void UseElementalAttack(int32 ElementalIndex);
+		void UseElementalAttack(const FElemental_Struct& Attack);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental Attacks")
 		TMap<EElementalAttackType, FElemental_Struct> ElementalAttackMap;
