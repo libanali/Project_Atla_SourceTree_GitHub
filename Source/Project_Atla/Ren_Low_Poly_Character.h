@@ -134,12 +134,6 @@ public:
 	//Movement
 
 
-	DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnElementalProficiencyChanged, EWeaponType, WeaponType,
-		EElementalAttackType, ElementType, int32, NewLevel);
-
-	UPROPERTY(BlueprintAssignable, Category = "Elemental")
-		FOnElementalProficiencyChanged OnElementalProficiencyChanged;
-
 
 
 	//Game mode
@@ -252,6 +246,8 @@ public:
 	void SavePlayerProgress();
 
 	void LoadPlayerProgress();
+
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Game State")
 		bool bIsGameLoaded = false;

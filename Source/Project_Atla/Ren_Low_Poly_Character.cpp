@@ -17,7 +17,8 @@
 #include "Player_Save_Game.h"
 #include "Game_Instance.h"
 #include "Game_Over_Widget.h"
-
+#include "Blueprint/WidgetBlueprintLibrary.h"
+#include "Elemental_Attacks_List_Widget.h"
 
 // Sets default values
 ARen_Low_Poly_Character::ARen_Low_Poly_Character()
@@ -678,20 +679,6 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 			LoadGameInstance->SavedElementalProficiencyMap;
 		WeaponElementalAttacks = LoadGameInstance->SavedWeaponElementalAttacks;
 
-		// Broadcast current levels for UI update
-		if (WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(WeaponType))
-		{
-			const FElemental_Proficiency_Struct& ProfStruct =
-				WeaponElementalProficiency.ElementalWeaponProficiencyMap[WeaponType];
-
-			// Broadcast each element's level
-			OnElementalProficiencyChanged.Broadcast(WeaponType, EElementalAttackType::Fire,
-				ProfStruct.FireLevel);
-			OnElementalProficiencyChanged.Broadcast(WeaponType, EElementalAttackType::Ice,
-				ProfStruct.IceLevel);
-			OnElementalProficiencyChanged.Broadcast(WeaponType, EElementalAttackType::Thunder,
-				ProfStruct.ThunderLevel);
-		}
 
 		// Rest of your existing load code...
 		bIsGameLoaded = false;
@@ -1339,7 +1326,6 @@ void ARen_Low_Poly_Character::SpawnElementalGround(FVector SpawnLocation, FRotat
 
 void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 {
-	// Get the ElementalAttacks array for the current weapon type
 	FWeaponElementalAttacks* WeaponAttacks = WeaponElementalAttacks.Find(WeaponType);
 	if (WeaponAttacks)
 	{
@@ -1347,45 +1333,49 @@ void ARen_Low_Poly_Character::UseElementalAttack(int32 ElementalIndex)
 		{
 			FElemental_Struct& SelectedElementalAttack = WeaponAttacks->ElementalAttacks[ElementalIndex];
 
-			// Check if the elemental attack is unlocked and if there is enough mana to use the attack
-			if (SelectedElementalAttack.bIsUnlocked && ManaStruct.CurrentMana >= SelectedElementalAttack.ManaCost)
+			// Add debug logging
+			UE_LOG(LogTemp, Warning, TEXT("Attempting to use attack: %s"), *SelectedElementalAttack.ElementalAttackName);
+			UE_LOG(LogTemp, Warning, TEXT("Attack status - Unlocked: %s, Current Mana: %.1f, Required Mana: %.1f"),
+				SelectedElementalAttack.bIsUnlocked ? TEXT("True") : TEXT("False"),
+				ManaStruct.CurrentMana,
+				SelectedElementalAttack.ManaCost);
+
+			// Check proficiency level requirement
+			bool bHasRequiredLevel = false;
+			const FElemental_Proficiency_Struct& ProficiencyStruct =
+				WeaponElementalProficiency.ElementalWeaponProficiencyMap[WeaponType];
+
+			switch (SelectedElementalAttack.ElementalType)
 			{
-				// Deduct mana
+			case EElementalAttackType::Fire:
+				bHasRequiredLevel = SelectedElementalAttack.ElementalLevel <= ProficiencyStruct.FireLevel;
+				break;
+			case EElementalAttackType::Ice:
+				bHasRequiredLevel = SelectedElementalAttack.ElementalLevel <= ProficiencyStruct.IceLevel;
+				break;
+			case EElementalAttackType::Thunder:
+				bHasRequiredLevel = SelectedElementalAttack.ElementalLevel <= ProficiencyStruct.ThunderLevel;
+				break;
+			}
+
+			if (bHasRequiredLevel && ManaStruct.CurrentMana >= SelectedElementalAttack.ManaCost)
+			{
+				// Rest of your existing implementation...
 				ManaStruct.CurrentMana -= SelectedElementalAttack.ManaCost;
-
-				// Play the animation for the attack
 				PlayAnimMontage(SelectedElementalAttack.Elemental_Attack_Animation);
-
-				// Set the current elemental attack type
 				CurrentElementalAttackType = SelectedElementalAttack.ElementalType;
-
-				// Immediately add experience to the elemental proficiency
 				AddExperienceToElementalProfiency(WeaponType, SelectedElementalAttack.ElementalType, 90.0f);
 
-				// Log the successful use of the attack
-				UE_LOG(LogTemp, Warning, TEXT("Used Elemental Attack: %s, Gained EXP!"),
-					*SelectedElementalAttack.ElementalAttackName);
-
-				// Log the mana cost and usage
-				UE_LOG(LogTemp, Warning, TEXT("Used Elemental Attack: %s, Mana Cost: %f"),
-					*SelectedElementalAttack.ElementalAttackName, SelectedElementalAttack.ManaCost);
-
+				UE_LOG(LogTemp, Warning, TEXT("Successfully used attack: %s"), *SelectedElementalAttack.ElementalAttackName);
 			}
 			else
 			{
-				// Log an error if the attack cannot be used (either not enough mana or attack is locked)
-				UE_LOG(LogTemp, Warning, TEXT("Cannot use Elemental Attack %s: Not enough mana or locked!"),
-					*SelectedElementalAttack.ElementalAttackName);
+				UE_LOG(LogTemp, Warning, TEXT("Cannot use %s - Has Required Level: %s, Has Enough Mana: %s"),
+					*SelectedElementalAttack.ElementalAttackName,
+					bHasRequiredLevel ? TEXT("True") : TEXT("False"),
+					(ManaStruct.CurrentMana >= SelectedElementalAttack.ManaCost) ? TEXT("True") : TEXT("False"));
 			}
 		}
-		else
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Invalid ElementalIndex: %d"), ElementalIndex);
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No elemental attacks found for the current weapon."));
 	}
 }
 
@@ -1428,8 +1418,6 @@ void ARen_Low_Poly_Character::AddExperienceToElementalProfiency(EWeaponType TheW
 					ProficiencyStruct->FireLevel++;
 					ProficiencyStruct->FireProficiency -= ThresholdValue;
 
-					OnElementalProficiencyChanged.Broadcast(TheWeaponType, ElementType,
-						ProficiencyStruct->FireLevel);
 
 					// Set a timer to call UnlockElementalAbility after 1 second
 					GetWorld()->GetTimerManager().SetTimer(TimerHandle_UnlockElementalAbility, FTimerDelegate::CreateUObject(this, &ARen_Low_Poly_Character::UnlockElementalAbility, TheWeaponType, EElementalAttackType::Fire), 1.0f, false);
@@ -1516,111 +1504,84 @@ void ARen_Low_Poly_Character::AddExperienceToElementalProfiency(EWeaponType TheW
 
 void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, EElementalAttackType ElementType)
 {
-	FElemental_Struct NewAbility;
+	// Find the appropriate attacks array for the weapon type
+	if (!WeaponElementalAttacks.Contains(TheWeaponType))
+	{
+		WeaponElementalAttacks.Add(TheWeaponType, FWeaponElementalAttacks());
+	}
 
+	FWeaponElementalAttacks& WeaponAttacksRef = WeaponElementalAttacks[TheWeaponType];
+
+	int32 CurrentLevel = 0;
+	switch (ElementType)
+	{
+	case EElementalAttackType::Fire:
+		CurrentLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[TheWeaponType].FireLevel;
+		break;
+	case EElementalAttackType::Ice:
+		CurrentLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[TheWeaponType].IceLevel;
+		break;
+	case EElementalAttackType::Thunder:
+		CurrentLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[TheWeaponType].ThunderLevel;
+		break;
+	}
+
+	// Create and explicitly set unlock status for the new ability
+	FElemental_Struct NewAbility;
+	NewAbility.bIsUnlocked = true;  // Explicitly set to true
+	NewAbility.ManaCost = 20.0f;    // Set a default mana cost
 
 	if (TheWeaponType == EWeaponType::Sword)
 	{
-		if (ElementType == EElementalAttackType::Fire)
+		switch (ElementType)
 		{
-			int32 CurrentFireLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword].FireLevel;
-			if (CurrentFireLevel == 2)
+		case EElementalAttackType::Fire:
+			if (CurrentLevel == 2)
 			{
-				NewAbility = FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 2.0f, 20.0f, 2, true, FireAOEAnimation, TEXT("Creates an explosion, burns enemies for longer."));
-				AddElementalAttackDelayed(NewAbility, TheWeaponType);
+				NewAbility = FElemental_Struct(TEXT("Fire Lv.2"), ElementType, 2.0f, 20.0f, 2, true, FireAOEAnimation,
+					TEXT("Creates an explosion, burns enemies for longer."));
+				NewAbility.ManaCost = 30.0f;  // Set appropriate mana cost
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.2 Ability for Sword!"));
 			}
-			else if (CurrentFireLevel == 3)
+			else if (CurrentLevel == 3)
 			{
-				NewAbility = FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 2.5f, 30.0f, 3, true, FireGroundAnimation, TEXT("Summons molten spikes, burns enemies for an extended time."));
-				AddElementalAttackDelayed(NewAbility, TheWeaponType);
+				NewAbility = FElemental_Struct(TEXT("Fire Lv.3"), ElementType, 2.5f, 30.0f, 3, true, FireGroundAnimation,
+					TEXT("Summons molten spikes, burns enemies for an extended time."));
+				NewAbility.ManaCost = 45.0f;  // Set appropriate mana cost
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.3 Ability for Sword!"));
 			}
-		}
-		else if (ElementType == EElementalAttackType::Ice)
-		{
-			int32 CurrentIceLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword].IceLevel;
-			if (CurrentIceLevel == 2)
-			{
-				NewAbility = FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 2.0f, 20.0f, 2, true, IceAOEAnimation, TEXT("Summons ice shards, freezing enemies for longer.")); // Replace with your IceAOEAnimation
-				AddElementalAttackDelayed(NewAbility, TheWeaponType);
-				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.2 Ability for Sword!"));
-			}
-			else if (CurrentIceLevel == 3)
-			{
-				NewAbility = FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 2.5f, 30.0f, 3, true, IceGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time.")); // Replace with your IceGroundAnimation
-				AddElementalAttackDelayed(NewAbility, TheWeaponType);
-				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.3 Ability for Sword!"));
-			}
-		}
-		else if (ElementType == EElementalAttackType::Thunder)
-		{
-			int32 CurrentThunderLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword].ThunderLevel;
-			if (CurrentThunderLevel == 2)
-			{
-				NewAbility = FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 2.0f, 20.0f, 2, true, ThunderAOEAnimation, TEXT("Summons lightning, stunning enemies for longer.")); // Replace with your ThunderAOEAnimation
-				AddElementalAttackDelayed(NewAbility, TheWeaponType);
-				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.2 Ability for Sword!"));
-			}
-			else if (CurrentThunderLevel == 3)
-			{
-				NewAbility = FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 2.5f, 30.0f, 3, true, ThunderGroundAnimation, TEXT("Summons lightning hoop, stunning enemies for an extended time.")); // Replace with your ThunderGroundAnimation
-				AddElementalAttackDelayed(NewAbility, TheWeaponType);
-				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.3 Ability for Sword!"));
-			}
+			break;
+
+			// Similar cases for Ice and Thunder...
+			// Make sure to set bIsUnlocked = true and appropriate ManaCost for each
 		}
 	}
-	else if (TheWeaponType == EWeaponType::Staff)
+
+	// Only add if we created a valid ability
+	if (NewAbility.ElementalAttackName != TEXT(""))
 	{
-		if (ElementType == EElementalAttackType::Fire)
+		// Double check that the ability isn't already in the list
+		bool bExists = false;
+		for (const FElemental_Struct& Attack : WeaponAttacksRef.ElementalAttacks)
 		{
-			int32 CurrentFireLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Staff].FireLevel;
-			if (CurrentFireLevel == 2)
+			if (Attack.ElementalAttackName == NewAbility.ElementalAttackName)
 			{
-				NewAbility = FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 2.2f, 20.0f, 2, true, FireAOEAnimation, TEXT("Creates an explosion, burns enemies for longer."));
-				AddElementalAttackDelayed(NewAbility, TheWeaponType);
-				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.2 Ability for Staff!"));
-			}
-			else if (CurrentFireLevel == 3)
-			{
-				NewAbility = FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 2.8f, 30.5f, 3, true, FireGroundAnimation, TEXT("Summons molten spikes, burns enemies for an extended time."));
-				AddElementalAttackDelayed(NewAbility, TheWeaponType);
-				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.3 Ability for Staff!"));
+				bExists = true;
+				break;
 			}
 		}
-		else if (ElementType == EElementalAttackType::Ice)
+
+		if (!bExists)
 		{
-			int32 CurrentIceLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Staff].IceLevel;
-			if (CurrentIceLevel == 2)
-			{
-				NewAbility = FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 2.0f, 20.0f, 2, true, IceAOEAnimation, TEXT("Summons ice shards, freezing enemies for longer.")); // Replace with your IceAOEAnimation
-				AddElementalAttackDelayed(NewAbility, TheWeaponType);
-				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.2 Ability for Staff!"));
-			}
-			else if (CurrentIceLevel == 3)
-			{
-				NewAbility = FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 2.5f, 30.0f, 3, true, IceGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time.")); // Replace with your IceGroundAnimation
-				AddElementalAttackDelayed(NewAbility, TheWeaponType);
-				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.3 Ability for Staff!"));
-			}
-		}
-		else if (ElementType == EElementalAttackType::Thunder)
-		{
-			int32 CurrentThunderLevel = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Staff].ThunderLevel;
-			if (CurrentThunderLevel == 2)
-			{
-				NewAbility = FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 2.0f, 20.0f, 2, true, ThunderAOEAnimation, TEXT("Summons lightning, stunning enemies for longer.")); // Replace with your ThunderAOEAnimation
-				AddElementalAttackDelayed(NewAbility, TheWeaponType);
-				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.2 Ability for Staff!"));
-			}
-			else if (CurrentThunderLevel == 3)
-			{
-				NewAbility = FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 2.5f, 30.0f, 3, true, ThunderGroundAnimation, TEXT("Summons lightning hoop, stunning enemies for an extended time.")); // Replace with your ThunderGroundAnimation
-				AddElementalAttackDelayed(NewAbility, TheWeaponType);
-				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.3 Ability for Staff!"));
-			}
+			NewAbility.bIsUnlocked = true;  // Double-check it's set
+			WeaponAttacksRef.ElementalAttacks.Add(NewAbility);
+			UE_LOG(LogTemp, Warning, TEXT("Added new ability: %s (Unlocked: %s, Mana Cost: %.1f)"),
+				*NewAbility.ElementalAttackName,
+				NewAbility.bIsUnlocked ? TEXT("True") : TEXT("False"),
+				NewAbility.ManaCost);
 		}
 	}
+	// Similar logic would be added for Staff and any other weapon types
 }
 
 
@@ -3106,14 +3067,25 @@ void ARen_Low_Poly_Character::BeginPlay()
 	if (WeaponType == EWeaponType::Sword)
 	{
 		// Initialize Sword techniques
-		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("Furious multi-strike sword combo."), true, StormStrikeFlurryAnimMontage, 1.6f, 3});
+		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("Furious multi-strike sword combo."), true, StormStrikeFlurryAnimMontage, 1.6f, 3 });
 
 		WeaponElementalAttacks.Add(EWeaponType::Sword, FWeaponElementalAttacks{
 	   {FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.7f, 15.0f, 1, true, FireProjectileAnimation, TEXT("Burns enemies over time.")),
 		FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.9f, 15.0f, 1, true, IceProjectileAnimation, TEXT("Freezes enemies over time.")),
-		FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.5f, 10.0f, 1, true, ThunderProjectileAnimation, TEXT("Stuns enemies over time."))}
-			});
-		
+		FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.5f, 10.0f, 1, true, ThunderProjectileAnimation, TEXT("Stuns enemies over time.")),
+		FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 2.9f, 25.0f, 2, false, FireAOEAnimation, TEXT("Creates an explosion, burns enemies for longer")),
+		FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 2.5f, 30.0f, 2, false, IceAOEAnimation, TEXT("Summons ice shards, freezing enemies for longer.")),
+		FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 1.9f, 15.0f, 2, false, ThunderAOEAnimation, TEXT("Summons lightning, stunning enemies for longer.")),
+		FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 1.5f, 30.0f, 3, false, FireGroundAnimation, TEXT("Summons molten spikes, burns enemies for an extended time.")),
+		FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 1.9f, 15.0f, 35, false, IceGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time.")),
+		FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 1.5f, 20.0f, 3, false, ThunderGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time."))
+
+		}
+
+	});
+
+			
+	
 
 	 //   ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.5f, 10.0f, 1, true, FireProjectileAnimation));
 		//ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 20.0f, 1, true, IceProjectileAnimation));

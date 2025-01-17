@@ -45,16 +45,12 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UTextBlock* DescriptionText;
 
-    void BindToCharacter();
-
-    UFUNCTION()
-        void OnProficiencyChanged(EWeaponType WeaponType, EElementalAttackType ElementType, int32 NewLevel);
-
+    
+    void PopulateElementalAttackList();
 
 private:
     /** Populates the scroll box with buttons for unlocked elemental attacks */
 
-    void PopulateElementalAttackList();
     void NewPopulateElementalAttackList();
 
     /** Reference to the scroll box container for the buttons */

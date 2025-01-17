@@ -51,7 +51,6 @@ void UElemental_Attacks_List_Widget::NativeConstruct()
     if (Character)
     {
         SetupWidget(Character);
-        BindToCharacter();
         UE_LOG(LogTemp, Log, TEXT("SetupWidget called from NativeConstruct"));
     }
     else
@@ -106,46 +105,8 @@ void UElemental_Attacks_List_Widget::SetupWidget(ARen_Low_Poly_Character* Charac
 
 
 
-void UElemental_Attacks_List_Widget::BindToCharacter()
-{
-
-    if (PlayerCharacter)
-    {
-        // Bind to the proficiency change delegate
-        PlayerCharacter->OnElementalProficiencyChanged.AddDynamic(
-            this, &UElemental_Attacks_List_Widget::OnProficiencyChanged);
-    }
-
-}
-
-
-
-void UElemental_Attacks_List_Widget::OnProficiencyChanged(EWeaponType WeaponType, EElementalAttackType ElementType, int32 NewLevel)
-{
-
-    // Only refresh if this is for our current weapon type
-    if (WeaponType == PlayerCharacter->WeaponType)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Refreshing UI for %s element level change to %d"),
-            *UEnum::GetValueAsString(ElementType), NewLevel);
-
-        // Small delay to ensure new attacks are added to the array
-        FTimerHandle RefreshTimerHandle;
-        GetWorld()->GetTimerManager().SetTimer(
-            RefreshTimerHandle,
-            this,
-            &UElemental_Attacks_List_Widget::PopulateElementalAttackList,
-            0.2f,
-            false
-        );
-    }
-
-
-}
-
 void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
 {
-
 
     if (!Elemental_Attack_ScrollBox || !PlayerCharacter)
     {
@@ -155,96 +116,108 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
 
     // Clear any existing children
     Elemental_Attack_ScrollBox->ClearChildren();
-    TArray<UElemental_Attacks_Button_Widget*> CreatedButtons;
 
     // Get the current weapon type from the player character
     EWeaponType CurrentWeaponType = PlayerCharacter->WeaponType;
-
-    UE_LOG(LogTemp, Error, TEXT("=== POPULATING ELEMENTAL ATTACKS UI ==="));
-    UE_LOG(LogTemp, Error, TEXT("Current Weapon Type: %s"), *UEnum::GetValueAsString(CurrentWeaponType));
 
     // Check if the weapon type exists in the elemental attacks map
     if (PlayerCharacter->WeaponElementalAttacks.Contains(CurrentWeaponType))
     {
         const FWeaponElementalAttacks& WeaponAttacks = PlayerCharacter->WeaponElementalAttacks[CurrentWeaponType];
-
-        // Get the current proficiency levels
         const FElemental_Proficiency_Struct& ProficiencyStruct =
             PlayerCharacter->WeaponElementalProficiency.ElementalWeaponProficiencyMap[CurrentWeaponType];
 
-        UE_LOG(LogTemp, Error, TEXT("Current Proficiency Levels:"));
-        UE_LOG(LogTemp, Error, TEXT("  Fire Level: %d"), ProficiencyStruct.FireLevel);
-        UE_LOG(LogTemp, Error, TEXT("  Ice Level: %d"), ProficiencyStruct.IceLevel);
-        UE_LOG(LogTemp, Error, TEXT("  Thunder Level: %d"), ProficiencyStruct.ThunderLevel);
+        // Create a set to track which attacks we've already added
+        TSet<FString> AddedAttacks;
 
-        // Create elemental attack buttons
-        for (int32 Index = 0; Index < WeaponAttacks.ElementalAttacks.Num(); ++Index)
+        // Sort attacks by level first, then by element type
+        TArray<FElemental_Struct> SortedAttacks = WeaponAttacks.ElementalAttacks;
+        SortedAttacks.Sort([](const FElemental_Struct& A, const FElemental_Struct& B) {
+            if (A.ElementalLevel != B.ElementalLevel)
+                return A.ElementalLevel < B.ElementalLevel;
+            return A.ElementalType < B.ElementalType;
+            });
+
+        // Create buttons for unique attacks
+        for (int32 Index = 0; Index < SortedAttacks.Num(); ++Index)
         {
-            const FElemental_Struct& ElementalAttack = WeaponAttacks.ElementalAttacks[Index];
+            const FElemental_Struct& ElementalAttack = SortedAttacks[Index];
 
-            UE_LOG(LogTemp, Error, TEXT("Checking Attack: %s"), *ElementalAttack.ElementalAttackName);
-            UE_LOG(LogTemp, Error, TEXT("  Level: %d"), ElementalAttack.ElementalLevel);
-            UE_LOG(LogTemp, Error, TEXT("  Type: %s"), *UEnum::GetValueAsString(ElementalAttack.ElementalType));
-            UE_LOG(LogTemp, Error, TEXT("  Is Unlocked: %s"), ElementalAttack.bIsUnlocked ? TEXT("TRUE") : TEXT("FALSE"));
+            // Create a unique key for this attack
+            FString AttackKey = FString::Printf(TEXT("%s_%d_%d"),
+                *ElementalAttack.ElementalAttackName,
+                static_cast<int32>(ElementalAttack.ElementalType),
+                ElementalAttack.ElementalLevel);
 
-            // MODIFIED: Explicitly check for attacks that should be displayed
-            bool bShouldDisplay = false;
-            switch (ElementalAttack.ElementalType)
+            // Skip if we've already added this attack
+            if (AddedAttacks.Contains(AttackKey))
             {
-            case EElementalAttackType::Fire:
-                bShouldDisplay = ElementalAttack.ElementalLevel <= ProficiencyStruct.FireLevel;
-                break;
-            case EElementalAttackType::Ice:
-                bShouldDisplay = ElementalAttack.ElementalLevel <= ProficiencyStruct.IceLevel;
-                break;
-            case EElementalAttackType::Thunder:
-                bShouldDisplay = ElementalAttack.ElementalLevel <= ProficiencyStruct.ThunderLevel;
-                break;
+                UE_LOG(LogTemp, Warning, TEXT("Skipping duplicate attack: %s"), *AttackKey);
+                continue;
             }
 
-            UE_LOG(LogTemp, Error, TEXT("  Should Display: %s"), bShouldDisplay ? TEXT("TRUE") : TEXT("FALSE"));
-
-            if ((bShouldDisplay || ElementalAttack.bIsUnlocked) && ElementalAttackButtonClass)
+            if (ElementalAttackButtonClass)
             {
                 UElemental_Attacks_Button_Widget* ElementalButton =
                     CreateWidget<UElemental_Attacks_Button_Widget>(GetWorld(), ElementalAttackButtonClass);
 
                 if (ElementalButton)
                 {
-                    // Explicitly set the parent list
+                    // Add to our set of tracked attacks
+                    AddedAttacks.Add(AttackKey);
+
                     ElementalButton->SetParentList(this);
                     ElementalButton->SetupButton(ElementalAttack, PlayerCharacter, Index);
 
+                    // Determine if the button should be enabled based on proficiency level
+                    bool bShouldEnable = false;
+                    switch (ElementalAttack.ElementalType)
+                    {
+                    case EElementalAttackType::Fire:
+                        bShouldEnable = ElementalAttack.ElementalLevel <= ProficiencyStruct.FireLevel;
+                        break;
+                    case EElementalAttackType::Ice:
+                        bShouldEnable = ElementalAttack.ElementalLevel <= ProficiencyStruct.IceLevel;
+                        break;
+                    case EElementalAttackType::Thunder:
+                        bShouldEnable = ElementalAttack.ElementalLevel <= ProficiencyStruct.ThunderLevel;
+                        break;
+                    }
+
                     if (ElementalButton->Elemental_Attack_Button)
                     {
-                        ElementalButton->Elemental_Attack_Button->SetIsEnabled(true);
-                        ElementalButton->Elemental_Attack_Button->IsFocusable = true;
+                        ElementalButton->Elemental_Attack_Button->SetIsEnabled(bShouldEnable);
+                        ElementalButton->Elemental_Attack_Button->IsFocusable = bShouldEnable;
+                        ElementalButton->SetRenderOpacity(bShouldEnable ? 1.0f : 0.5f);
                     }
 
                     Elemental_Attack_ScrollBox->AddChild(ElementalButton);
-                    CreatedButtons.Add(ElementalButton);
 
-                    UE_LOG(LogTemp, Error, TEXT("ADDED TO UI: %s (Level %d)"),
+                    UE_LOG(LogTemp, Warning, TEXT("Added Attack: %s (Level %d, Enabled: %s)"),
                         *ElementalAttack.ElementalAttackName,
-                        ElementalAttack.ElementalLevel);
+                        ElementalAttack.ElementalLevel,
+                        bShouldEnable ? TEXT("TRUE") : TEXT("FALSE"));
                 }
             }
         }
 
-        UE_LOG(LogTemp, Error, TEXT("Total Buttons Created: %d"), CreatedButtons.Num());
-
         // Set focus to first button with delay
-        if (CreatedButtons.Num() > 0)
+        if (Elemental_Attack_ScrollBox->GetChildrenCount() > 0)
         {
             FTimerHandle FocusTimerHandle;
             GetWorld()->GetTimerManager().SetTimer(
                 FocusTimerHandle,
-                [FirstButton = CreatedButtons[0]]()
+                [this]()
                 {
-                    if (FirstButton && FirstButton->Elemental_Attack_Button)
+                    if (Elemental_Attack_ScrollBox->GetChildAt(0))
                     {
-                        FirstButton->Elemental_Attack_Button->SetKeyboardFocus();
-                        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Focus set on first button"));
+                        UElemental_Attacks_Button_Widget* FirstButton =
+                            Cast<UElemental_Attacks_Button_Widget>(Elemental_Attack_ScrollBox->GetChildAt(0));
+
+                        if (FirstButton && FirstButton->Elemental_Attack_Button)
+                        {
+                            FirstButton->Elemental_Attack_Button->SetKeyboardFocus();
+                        }
                     }
                 },
                 0.1f,
