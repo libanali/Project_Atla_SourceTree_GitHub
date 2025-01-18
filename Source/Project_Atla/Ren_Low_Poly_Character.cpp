@@ -3833,7 +3833,7 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 		//UE_LOG(LogTemp, Warning, TEXT("EnemyArrowMap is empty! No arrows to update."));
 	}
 
-	/*
+	
 
 	FString StatsText = FString::Printf(TEXT("Current Attack: %.2f\nCurrent Defense: %.2f\nMax Health: %.2f\nCurrent Health: %.2f\nMax Mana: %f\nCurrent Mana: %f"),
 		BaseAttack, BaseDefence, HealthStruct.MaxHealth, HealthStruct.CurrentHealth, ManaStruct.MaxMana, ManaStruct.CurrentMana);
@@ -3841,8 +3841,7 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 	GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green, StatsText);
 
 
-
-	*/
+	
 
 }
 
