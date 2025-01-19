@@ -24,45 +24,76 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
         float CurrentEXP;
 
-    // Experience points required to reach the next level
+    // Map of level thresholds (similar to elemental system)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
-        float EXPToNextLevel;
+        TMap<int32, float> WeaponProficiencyThresholds;
 
-    // Attack power boost provided by this weapon
+    // Stat boosts for each level
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
+        TMap<int32, float> AttackBoostPerLevel;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
+        TMap<int32, float> DefenseBoostPerLevel;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
+        TMap<int32, float> ElementalBoostPerLevel;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
+        TMap<int32, float> HealthBoostPerLevel;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
+        TMap<int32, float> ManaBoostPerLevel;
+
+    // Current stat boosts (calculated based on level)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
         float AttackPowerBoost;
 
-    // Defense power boost provided by this weapon
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
         float DefenseBoost;
 
-    // Elemental damage boost provided by this weapon
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
         float ElementalPowerBoost;
 
-    // Max health boost provided by this weapon
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
         float MaxHealthBoost;
 
-    // Max health boost provided by this weapon
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
         float MaxManaBoost;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
-    TMap<EElementalAttackType, FElemental_Struct> ElementalProficiencyMap;
-
-
-    // Constructor to initialize default values
+    // Constructor
     FWeapon_Proficiency_Struct()
-        : WeaponLevel(1),
-        CurrentEXP(0.f),
-        EXPToNextLevel(100.f),  // Default starting EXP for level 1
-        AttackPowerBoost(0.f),
-        DefenseBoost(0.f),
-        ElementalPowerBoost(0.f),
-        MaxHealthBoost(0.f),
-        MaxManaBoost(0.0f)
+        : WeaponLevel(1)
+        , CurrentEXP(0.f)
+        , AttackPowerBoost(0.f)
+        , DefenseBoost(0.f)
+        , ElementalPowerBoost(0.f)
+        , MaxHealthBoost(0.f)
+        , MaxManaBoost(0.0f)
     {
-    }
+        // Initialize default thresholds
+        WeaponProficiencyThresholds.Add(1, 100.f);
+        WeaponProficiencyThresholds.Add(2, 200.f);
+        WeaponProficiencyThresholds.Add(3, 300.f);
 
+        // Initialize default stat boosts per level
+        AttackBoostPerLevel.Add(1, 5.f);    // +5 attack at level 1
+        AttackBoostPerLevel.Add(2, 10.f);   // +10 attack at level 2
+        AttackBoostPerLevel.Add(3, 15.f);   // +15 attack at level 3
+
+        DefenseBoostPerLevel.Add(1, 3.f);
+        DefenseBoostPerLevel.Add(2, 6.f);
+        DefenseBoostPerLevel.Add(3, 9.f);
+
+        ElementalBoostPerLevel.Add(1, 5.f);
+        ElementalBoostPerLevel.Add(2, 10.f);
+        ElementalBoostPerLevel.Add(3, 15.f);
+
+        HealthBoostPerLevel.Add(1, 10.f);
+        HealthBoostPerLevel.Add(2, 20.f);
+        HealthBoostPerLevel.Add(3, 30.f);
+
+        ManaBoostPerLevel.Add(1, 10.f);
+        ManaBoostPerLevel.Add(2, 20.f);
+        ManaBoostPerLevel.Add(3, 30.f);
+    }
 };

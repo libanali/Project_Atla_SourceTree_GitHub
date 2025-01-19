@@ -1050,6 +1050,10 @@ void ARen_Low_Poly_Character::CheckTechniquePoints()
 
 void ARen_Low_Poly_Character::InitializeWeaponTechniques()
 {
+
+
+
+
 }
 
 
@@ -1058,6 +1062,12 @@ void ARen_Low_Poly_Character::InitializeWeaponTechniques()
 
 void ARen_Low_Poly_Character::UnlockWeaponTechnique(EWeaponType TheWeaponType)
 {
+
+
+
+
+
+
 }
 
 
@@ -2597,21 +2607,144 @@ void ARen_Low_Poly_Character::AddWeaponEXP(float ExpAmount)
 	{
 		FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[WeaponType];
 
-		// Add EXP to the current weapon
+		// Get current level's threshold
+		float CurrentThreshold = 100.0f; // Default threshold
+		if (Proficiency.WeaponProficiencyThresholds.Contains(Proficiency.WeaponLevel))
+		{
+			CurrentThreshold = Proficiency.WeaponProficiencyThresholds[Proficiency.WeaponLevel];
+		}
+
+		// Add EXP
 		Proficiency.CurrentEXP += ExpAmount;
 
-		UE_LOG(LogTemp, Warning, TEXT("EXP after adding: %.2f"), Proficiency.CurrentEXP);
+		UE_LOG(LogTemp, Warning, TEXT("Added %.2f EXP to %s"),
+			ExpAmount,
+			*UEnum::GetValueAsString(WeaponType));
+		UE_LOG(LogTemp, Warning, TEXT("Current EXP: %.2f / %.2f"),
+			Proficiency.CurrentEXP,
+			CurrentThreshold);
+		UE_LOG(LogTemp, Warning, TEXT("Current Level: %d"),
+			Proficiency.WeaponLevel);
 
-
-		// Check for level-up
+		// Immediately check for level up
+		CheckAndApplyWeaponLevelUp(WeaponType);
 	}
-
 	else
 	{
-		// Log a warning if WeaponType is missing from the map
-		UE_LOG(LogTemp, Error, TEXT("WeaponProficiencyMap does not contain the current WeaponType!"));
+		UE_LOG(LogTemp, Error, TEXT("Cannot add EXP: WeaponProficiencyMap does not contain weapon type: %s"),
+			*UEnum::GetValueAsString(WeaponType));
 	}
 
+}
+
+
+
+
+void ARen_Low_Poly_Character::CheckAndApplyWeaponLevelUp(EWeaponType TheWeaponType)
+{
+
+	if (!WeaponProficiencyMap.Contains(WeaponType))
+	{
+		return;
+	}
+
+	FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[WeaponType];
+
+	// Get current level's threshold
+	float CurrentThreshold = 100.0f; // Default threshold
+	if (Proficiency.WeaponProficiencyThresholds.Contains(Proficiency.WeaponLevel))
+	{
+		CurrentThreshold = Proficiency.WeaponProficiencyThresholds[Proficiency.WeaponLevel];
+	}
+
+	// Check if we have enough EXP to level up and haven't hit max level
+	while (Proficiency.CurrentEXP >= CurrentThreshold && Proficiency.WeaponLevel < 30)
+	{
+		// Level up!
+		Proficiency.WeaponLevel++;
+
+		// Subtract the EXP used for this level
+		Proficiency.CurrentEXP -= CurrentThreshold;
+
+		// Update stats based on new level
+		if (Proficiency.AttackBoostPerLevel.Contains(Proficiency.WeaponLevel))
+		{
+			Proficiency.AttackPowerBoost = Proficiency.AttackBoostPerLevel[Proficiency.WeaponLevel];
+		}
+		else
+		{
+			Proficiency.AttackPowerBoost += 4.0f;
+		}
+
+		if (Proficiency.DefenseBoostPerLevel.Contains(Proficiency.WeaponLevel))
+		{
+			Proficiency.DefenseBoost = Proficiency.DefenseBoostPerLevel[Proficiency.WeaponLevel];
+		}
+		else
+		{
+			Proficiency.DefenseBoost += 2.0f;
+		}
+
+		if (Proficiency.ElementalBoostPerLevel.Contains(Proficiency.WeaponLevel))
+		{
+			Proficiency.ElementalPowerBoost = Proficiency.ElementalBoostPerLevel[Proficiency.WeaponLevel];
+		}
+		else
+		{
+			Proficiency.ElementalPowerBoost += 3.0f;
+		}
+
+		if (Proficiency.HealthBoostPerLevel.Contains(Proficiency.WeaponLevel))
+		{
+			Proficiency.MaxHealthBoost = Proficiency.HealthBoostPerLevel[Proficiency.WeaponLevel];
+		}
+		else
+		{
+			Proficiency.MaxHealthBoost += 10.0f;
+		}
+
+		if (Proficiency.ManaBoostPerLevel.Contains(Proficiency.WeaponLevel))
+		{
+			Proficiency.MaxManaBoost = Proficiency.ManaBoostPerLevel[Proficiency.WeaponLevel];
+		}
+		else
+		{
+			Proficiency.MaxManaBoost += 15.0f;
+		}
+
+		// Get next level's threshold
+		if (Proficiency.WeaponProficiencyThresholds.Contains(Proficiency.WeaponLevel))
+		{
+			CurrentThreshold = Proficiency.WeaponProficiencyThresholds[Proficiency.WeaponLevel];
+		}
+		else
+		{
+			CurrentThreshold *= 1.25f;
+		}
+
+		// Update total stats
+		UpdateStatsBasedOnWeapon();
+
+		// Check for and unlock any new techniques
+		UnlockWeaponTechnique(WeaponType);
+
+		// Log level up and compare with initial stats
+		UE_LOG(LogTemp, Warning, TEXT("=== WEAPON LEVEL UP ==="));
+		UE_LOG(LogTemp, Warning, TEXT("%s reached level %d!"),
+			*UEnum::GetValueAsString(WeaponType),
+			Proficiency.WeaponLevel);
+		UE_LOG(LogTemp, Warning, TEXT("Attack: %.2f -> %.2f (Initial: %.2f)"),
+			InitialAttack, BaseAttack, InitialAttack);
+		UE_LOG(LogTemp, Warning, TEXT("Defense: %.2f -> %.2f (Initial: %.2f)"),
+			InitialDefense, BaseDefence, InitialDefense);
+		UE_LOG(LogTemp, Warning, TEXT("Elemental: %.2f -> %.2f (Initial: %.2f)"),
+			InitialElemental, BaseElementalAttack, InitialElemental);
+		UE_LOG(LogTemp, Warning, TEXT("Max Health: %.2f -> %.2f (Initial: %.2f)"),
+			InitialMaxHealth, HealthStruct.MaxHealth, InitialMaxHealth);
+		UE_LOG(LogTemp, Warning, TEXT("Max Mana: %.2f -> %.2f (Initial: %.2f)"),
+			InitialMaxMana, ManaStruct.MaxMana, InitialMaxMana);
+		UE_LOG(LogTemp, Warning, TEXT("Next level requires: %.2f EXP"), CurrentThreshold);
+	}
 }
 
 
@@ -2929,10 +3062,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 	{
 		// Initialize Sword techniques
 		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("Furious multi-strike sword combo."), true, StormStrikeFlurryAnimMontage, 1.6f, 1 });
-		Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("Electrifying ground-slam force field."), true, VoltageBreakerAnimMontage, 1.3f, 1 });
-		Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Rapid flurry of strikes."), true, TempestBarrageAnimMontage, 1.7f, 1 });
-
-
+		Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("Electrifying ground-slam force field."), false, VoltageBreakerAnimMontage, 1.3f, 2});
+		Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Rapid flurry of strikes."), false, TempestBarrageAnimMontage, 1.7f, 3});
+		Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Lightning-infused sword combo."), false, StaticRushAnimMontage, 2.4f, 4});
 
 
 		WeaponElementalAttacks.Add(EWeaponType::Sword, FWeaponElementalAttacks{
@@ -2952,16 +3084,6 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 			
 	
-
-	 //   ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.5f, 10.0f, 1, true, FireProjectileAnimation));
-		//ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.6f, 20.0f, 1, true, IceProjectileAnimation));
-	//	ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.8f, 20.0f, 1, true, ThunderProjectileAnimation));
-		//ElementalAttacks.Add(FElemental_Struct(TEXT("Fire AOE"), EElementalAttackType::Fire, 2.4f, 30.0f, 2, false, FireAOEAnimation));
-		//ElementalAttacks.Add(FElemental_Struct(TEXT("Ice AOE"), EElementalAttackType::Ice, 2.4f, 30.0f, 2, false, IceAOEAnimation));
-		//ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder AOE"), EElementalAttackType::Thunder, 2.4f, 30.0f, 2, false, ThunderAOEAnimation));
-		
-
-
 
 		// Check WeaponProficiencyMap and unlock techniques based on proficiency level
 		if (WeaponProficiencyMap.Contains(EWeaponType::Sword))
@@ -2998,17 +3120,22 @@ void ARen_Low_Poly_Character::BeginPlay()
 	//	Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), true, FeudFangAnimMontage, 3.7f, 2 });
 
 
+
 		WeaponElementalAttacks.Add(EWeaponType::Staff, FWeaponElementalAttacks{
-	   {FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.7f, 15.0f, 1, true, FireProjectileAnimation, TEXT("Burns enemies over time.")),
+	   {FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 2.7f, 15.0f, 1, true, FireProjectileAnimation, TEXT("Burns enemies over time.")),
 		FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.9f, 15.0f, 1, true, IceProjectileAnimation, TEXT("Freezes enemies over time.")),
-		FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.5f, 10.0f, 1, true, ThunderProjectileAnimation, TEXT("Stuns enemies over time."))}
-			});
+		FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.5f, 10.0f, 1, true, ThunderProjectileAnimation, TEXT("Stuns enemies over time.")),
+		FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 2.9f, 25.0f, 2, false, FireAOEAnimation, TEXT("Creates an explosion, burns enemies for longer")),
+		FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 2.5f, 30.0f, 2, false, IceAOEAnimation, TEXT("Summons ice shards, freezing enemies for longer.")),
+		FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 1.9f, 15.0f, 2, false, ThunderAOEAnimation, TEXT("Summons lightning, stunning enemies for longer.")),
+		FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 1.5f, 30.0f, 3, false, FireGroundAnimation, TEXT("Summons molten spikes, burns enemies for an extended time.")),
+		FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 1.9f, 35.0f, 3, false, IceGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time.")),
+		FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 1.5f, 20.0f, 3, false, ThunderGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time."))
 
+		}
 
-		//ElementalAttacks.Add(FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.7f, 65.0f, 1, true, FireProjectileAnimation));
-		//ElementalAttacks.Add(FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.9f, 15.0f, 1, true, IceProjectileAnimation));
-		//ElementalAttacks.Add(FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.5f, 10.0f, 1, true, ThunderProjectileAnimation));
-
+	});
+		
 
 
 
@@ -3123,11 +3250,17 @@ void ARen_Low_Poly_Character::BeginPlay()
 	{
 		FWeapon_Proficiency_Struct& SwordProficiency = WeaponProficiencyMap[EWeaponType::Sword];
 
+		// Get current level's threshold for Sword
+		float SwordThreshold = 100.0f; // Default threshold
+		if (SwordProficiency.WeaponProficiencyThresholds.Contains(SwordProficiency.WeaponLevel))
+		{
+			SwordThreshold = SwordProficiency.WeaponProficiencyThresholds[SwordProficiency.WeaponLevel];
+		}
+
 		// Log weapon stats
 		UE_LOG(LogTemp, Log, TEXT("Sword Weapon Stats:"));
 		UE_LOG(LogTemp, Log, TEXT("Level: %d"), SwordProficiency.WeaponLevel);
-		UE_LOG(LogTemp, Log, TEXT("Current EXP: %.2f"), SwordProficiency.CurrentEXP);
-		UE_LOG(LogTemp, Log, TEXT("EXP To Next Level: %.2f"), SwordProficiency.EXPToNextLevel);
+		UE_LOG(LogTemp, Log, TEXT("Current EXP: %.2f / %.2f"), SwordProficiency.CurrentEXP, SwordThreshold);
 		UE_LOG(LogTemp, Log, TEXT("Attack Power Boost: %.2f"), SwordProficiency.AttackPowerBoost);
 		UE_LOG(LogTemp, Log, TEXT("Defense Boost: %.2f"), SwordProficiency.DefenseBoost);
 		UE_LOG(LogTemp, Log, TEXT("Elemental Power Boost: %.2f"), SwordProficiency.ElementalPowerBoost);
@@ -3138,17 +3271,21 @@ void ARen_Low_Poly_Character::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("Sword proficiency not found!"));
 	}
 
-
-
 	if (WeaponProficiencyMap.Contains(EWeaponType::Staff))
 	{
 		FWeapon_Proficiency_Struct& StaffProficiency = WeaponProficiencyMap[EWeaponType::Staff];
 
+		// Get current level's threshold for Staff
+		float StaffThreshold = 100.0f; // Default threshold
+		if (StaffProficiency.WeaponProficiencyThresholds.Contains(StaffProficiency.WeaponLevel))
+		{
+			StaffThreshold = StaffProficiency.WeaponProficiencyThresholds[StaffProficiency.WeaponLevel];
+		}
+
 		// Log weapon stats
 		UE_LOG(LogTemp, Log, TEXT("Staff Weapon Stats:"));
 		UE_LOG(LogTemp, Log, TEXT("Level: %d"), StaffProficiency.WeaponLevel);
-		UE_LOG(LogTemp, Log, TEXT("Current EXP: %.2f"), StaffProficiency.CurrentEXP);
-		UE_LOG(LogTemp, Log, TEXT("EXP To Next Level: %.2f"), StaffProficiency.EXPToNextLevel);
+		UE_LOG(LogTemp, Log, TEXT("Current EXP: %.2f / %.2f"), StaffProficiency.CurrentEXP, StaffThreshold);
 		UE_LOG(LogTemp, Log, TEXT("Attack Power Boost: %.2f"), StaffProficiency.AttackPowerBoost);
 		UE_LOG(LogTemp, Log, TEXT("Defense Boost: %.2f"), StaffProficiency.DefenseBoost);
 		UE_LOG(LogTemp, Log, TEXT("Elemental Power Boost: %.2f"), StaffProficiency.ElementalPowerBoost);
@@ -3156,41 +3293,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Sword proficiency not found!"));
-	}
+		UE_LOG(LogTemp, Warning, TEXT("Staff proficiency not found!"));
 
-
-
-	// Log Elemental Stats for Sword
-	if (WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Sword))
-	{
-		FElemental_Proficiency_Struct& SwordElementalProficiency = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword];
-
-		// Log elemental stats for Sword
-		UE_LOG(LogTemp, Log, TEXT("Sword Elemental Stats:"));
-		UE_LOG(LogTemp, Log, TEXT("Fire Proficiency: %.2f | Level: %d"), SwordElementalProficiency.FireProficiency, SwordElementalProficiency.FireLevel);
-		UE_LOG(LogTemp, Log, TEXT("Ice Proficiency: %.2f | Level: %d"), SwordElementalProficiency.IceProficiency, SwordElementalProficiency.IceLevel);
-		UE_LOG(LogTemp, Log, TEXT("Thunder Proficiency: %.2f | Level: %d"), SwordElementalProficiency.ThunderProficiency, SwordElementalProficiency.ThunderLevel);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Sword elemental proficiency not found!"));
-	}
-
-	// Log Elemental Stats for Staff
-	if (WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Staff))
-	{
-		FElemental_Proficiency_Struct& StaffElementalProficiency = WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Staff];
-
-		// Log elemental stats for Staff
-		UE_LOG(LogTemp, Log, TEXT("Staff Elemental Stats:"));
-		UE_LOG(LogTemp, Log, TEXT("Fire Proficiency: %.2f | Level: %d"), StaffElementalProficiency.FireProficiency, StaffElementalProficiency.FireLevel);
-		UE_LOG(LogTemp, Log, TEXT("Ice Proficiency: %.2f | Level: %d"), StaffElementalProficiency.IceProficiency, StaffElementalProficiency.IceLevel);
-		UE_LOG(LogTemp, Log, TEXT("Thunder Proficiency: %.2f | Level: %d"), StaffElementalProficiency.ThunderProficiency, StaffElementalProficiency.ThunderLevel);
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Staff elemental proficiency not found!"));
 	}
 
 }

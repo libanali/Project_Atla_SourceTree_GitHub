@@ -312,13 +312,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void CheckTechniquePoints();
 
-	// Weapon Technique Functions
-	UFUNCTION(BlueprintCallable, Category = "Weapon Techniques")
-		void InitializeWeaponTechniques();
-
-	UFUNCTION(BlueprintCallable, Category = "Weapon Techniques")
-		void UnlockWeaponTechnique(EWeaponType TheWeaponType);
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Technique")
 		bool bIsTechniquePointsMax;
 
@@ -724,6 +717,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void AddWeaponEXP(float ExpAmount);
 
+	UFUNCTION(BlueprintCallable, Category = "Weapon Proficiency")
+		void CheckAndApplyWeaponLevelUp(EWeaponType TheWeaponType);
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon Techniques")
+		void InitializeWeaponTechniques();
+
+	UFUNCTION(BlueprintCallable, Category = "Weapon Techniques")
+		void UnlockWeaponTechnique(EWeaponType TheWeaponType);
 
 	TArray<float> QueuedEXP;
 	//Level & Weapon Proficiency

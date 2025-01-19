@@ -521,18 +521,22 @@ void UGame_Over_Widget::StartEXPTransferAnimation()
     // Initialize values
     CurrentEXP = Proficiency->CurrentEXP;
    // QueuedEXP = Ren->GetQueuedEXP();
-    EXPToNextLevel = Proficiency->EXPToNextLevel;
+//    EXPToNextLevel = Proficiency->EXPToNextLevel;
 
     // Start the timer to update the EXP animation
-    GetWorld()->GetTimerManager().SetTimer(EXPUpdateTimerHandle, this, &UGame_Over_Widget::UpdateEXPAnimation, UpdateInterval, true);
+   // GetWorld()->GetTimerManager().SetTimer(EXPUpdateTimerHandle, this, &UGame_Over_Widget::UpdateEXPAnimation, UpdateInterval, true);
 }
 
 
 
 
 
+/*
+
 void UGame_Over_Widget::UpdateEXPAnimation()
 {
+    
+
     // Early exit if there is no queued EXP
     if (QueuedEXP <= 0.0f)
     {
@@ -617,8 +621,10 @@ void UGame_Over_Widget::UpdateEXPAnimation()
         EXPToNextLevelText->SetText(FText::FromString(FString::Printf(TEXT("EXPToNextLevel: %.0f"), EXPToNextLevel)));
         EXPToNextLevelText->SetVisibility(ESlateVisibility::Visible);
     }
-}
 
+    
+}
+*/
 
 
 void UGame_Over_Widget::OnQueuedEXPAdded()
@@ -648,7 +654,7 @@ void UGame_Over_Widget::OnQueuedEXPAdded()
 
     if (CurrentEXPText)
     {
-        CurrentEXPText->SetText(FText::FromString(FString::Printf(TEXT("%.0f / %.0f"), Proficiency->CurrentEXP, Proficiency->EXPToNextLevel)));
+      //  CurrentEXPText->SetText(FText::FromString(FString::Printf(TEXT("%.0f / %.0f"), Proficiency->CurrentEXP, Proficiency->EXPToNextLevel)));
         CurrentEXPText->SetVisibility(ESlateVisibility::Visible);
     }
 
@@ -664,6 +670,8 @@ void UGame_Over_Widget::OnQueuedEXPAdded()
     }
 
     StartEXPTransferAnimation();
+
+    
 }
 
 
@@ -708,7 +716,7 @@ void UGame_Over_Widget::SkipScoreAnimation()
             }
 
             OnQueuedEXPAdded();
-            UpdateEXPAnimation();
+            //UpdateEXPAnimation();
         }
     }
     else
@@ -987,7 +995,7 @@ void UGame_Over_Widget::UpdateDisplayedScore()
 
             OnQueuedEXPAdded();
 
-            UpdateEXPAnimation();
+         //   UpdateEXPAnimation();
 
         }
     }
