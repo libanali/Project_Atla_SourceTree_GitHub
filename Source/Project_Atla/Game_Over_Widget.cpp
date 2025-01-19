@@ -520,7 +520,7 @@ void UGame_Over_Widget::StartEXPTransferAnimation()
 
     // Initialize values
     CurrentEXP = Proficiency->CurrentEXP;
-    QueuedEXP = Ren->GetQueuedEXP();
+   // QueuedEXP = Ren->GetQueuedEXP();
     EXPToNextLevel = Proficiency->EXPToNextLevel;
 
     // Start the timer to update the EXP animation
@@ -552,7 +552,7 @@ void UGame_Over_Widget::UpdateEXPAnimation()
 
         {
 
-            Ren->GenerateStatUpgradeMessages();
+          //  Ren->GenerateStatUpgradeMessages();
 
         }
 
@@ -576,8 +576,8 @@ void UGame_Over_Widget::UpdateEXPAnimation()
         if (Ren)
         {
             EWeaponType CurrentWeaponType = Ren->WeaponType;
-            Ren->CheckWeaponLevelUp(CurrentWeaponType);
-            Ren->ApplyQueuedLevelUp(CurrentWeaponType);
+          //  Ren->CheckWeaponLevelUp(CurrentWeaponType);
+          //  Ren->ApplyQueuedLevelUp(CurrentWeaponType);
 
             // Get the proficiency data for the weapon type
             FWeapon_Proficiency_Struct* Proficiency = Ren->WeaponProficiencyMap.Find(CurrentWeaponType);
@@ -656,22 +656,9 @@ void UGame_Over_Widget::OnQueuedEXPAdded()
     UnlockedTechniques.Empty();
     UE_LOG(LogTemp, Log, TEXT("Cleared UnlockedTechniques"));
 
-    // Check if there are any queued techniques to collect
-    if (Ren->QueuedUnlockTechniques.Num() > 0)
-    {
-        for (const FString& TechniqueName : Ren->QueuedUnlockTechniques)
-        {
-            UnlockedTechniques.Add(TechniqueName); // Collect the unlocked technique names
-            UE_LOG(LogTemp, Log, TEXT("Collected unlocked technique: %s"), *TechniqueName);  // Debug log to verify techniques are collected
-        }
-
-        Ren->UnlockQueuedTechniques();  // Unlock techniques after collecting for debug log
-        UE_LOG(LogTemp, Log, TEXT("Unlocked queued techniques"));
-
-        Ren->QueuedUnlockTechniques.Empty(); // Clear the queue after collecting
-        UE_LOG(LogTemp, Log, TEXT("Cleared QueuedUnlockTechniques"));
-    }
-    else
+  
+    
+    
     {
         UE_LOG(LogTemp, Warning, TEXT("No techniques to collect"));
     }

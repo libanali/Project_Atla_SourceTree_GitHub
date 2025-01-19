@@ -128,8 +128,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	bPowerUpActive = false;
 
 
-	//Weapon Proficiency
-	QueuedUnlockTechniques = TArray<FString>();
+
 
 
 	//WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Sword, FElemental_Proficiency_Struct());
@@ -1018,23 +1017,6 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 
 
 
-void ARen_Low_Poly_Character::UnlockTechnique(FString TechniqueID)
-{
-
-	for (FTechnique_Struct& Technique : Techniques)
-	{
-		if (Technique.TechniqueName == TechniqueID && !Technique.bIsUnlocked)
-		{
-			Technique.bIsUnlocked = true;
-			// Optionally, add any UI update or notification here to indicate the technique was unlocked
-			UE_LOG(LogTemp, Log, TEXT("Unlocked Technique: %s"), *Technique.TechniqueName);
-			break;
-		}
-	}
-
-
-}
-
 
 
 
@@ -1061,6 +1043,21 @@ void ARen_Low_Poly_Character::CheckTechniquePoints()
 		// Set availability based on points and unlock status
 		TechniqueAvailability[i] = (Technique.TechniquePoints >= Technique.PointsRequired && Technique.bIsUnlocked);
 	}
+}
+
+
+
+
+void ARen_Low_Poly_Character::InitializeWeaponTechniques()
+{
+}
+
+
+
+
+
+void ARen_Low_Poly_Character::UnlockWeaponTechnique(EWeaponType TheWeaponType)
+{
 }
 
 
@@ -2501,99 +2498,7 @@ void ARen_Low_Poly_Character::DecreaseHealth(int amount)
 
 
 
-void ARen_Low_Poly_Character::CheckForTechniqueUnlock(EWeaponType Weapon, int32 WeaponLevel)
-{
 
-
-	// Ensure the WeaponProficiencyMap is valid
-	if (!WeaponProficiencyMap.Contains(WeaponType))
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Weapon type %d not found in proficiency map!"), static_cast<int32>(WeaponType));
-		return;
-	}
-
-	// Check the global technique map for this weapon type
-	if (WeaponLevelToTechniqueMap.Contains(WeaponType))
-	{
-		FWeaponTechniqueMap& TechniqueMap = WeaponLevelToTechniqueMap[WeaponType];
-
-		// Look for a technique associated with the given level
-		if (TechniqueMap.LevelToTechnique.Contains(WeaponLevel))
-		{
-			FString TechniqueName = TechniqueMap.LevelToTechnique[WeaponLevel];
-
-			// Queue the technique for unlocking if not already unlocked
-			if (!QueuedUnlockTechniques.Contains(TechniqueName))
-			{
-				QueuedUnlockTechniques.Add(TechniqueName);
-				UE_LOG(LogTemp, Log, TEXT("Technique '%s' queued for unlock."), *TechniqueName);
-			}
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("No technique map found for weapon type %d!"), static_cast<int32>(WeaponType));
-	}
-
-
-
-
-}
-
-
-
-void ARen_Low_Poly_Character::UnlockQueuedTechniques()
-{
-
-
-	// Check if there are any queued techniques to unlock
-	if (QueuedUnlockTechniques.Num() > 0)
-	{
-		for (const FString& TechniqueName : QueuedUnlockTechniques)
-		{
-			// Find the technique by its name
-			FTechnique_Struct* TechniqueToUnlock = FindTechniqueByName(TechniqueName);
-
-			// Check if the technique exists in the array
-			if (TechniqueToUnlock)
-			{
-				// Unlock the technique
-				TechniqueToUnlock->bIsUnlocked = true;
-				UE_LOG(LogTemp, Log, TEXT("Technique '%s' has been unlocked!"), *TechniqueName);
-			}
-			else
-			{
-				// Log if the technique wasn't found
-				UE_LOG(LogTemp, Warning, TEXT("Technique '%s' not found in Techniques array!"), *TechniqueName);
-			}
-		}
-
-		// Clear the queue after unlocking the techniques
-		QueuedUnlockTechniques.Empty();
-	}
-	else
-	{
-		// Optional: Log if the queue is empty (for debugging purposes)
-		UE_LOG(LogTemp, Warning, TEXT("No techniques in the queue to unlock."));
-	}
-
-}
-
-
-
-FTechnique_Struct* ARen_Low_Poly_Character::FindTechniqueByName(const FString& TechniqueName)
-{
-
-	for (FTechnique_Struct& Technique : Techniques)
-	{
-		if (Technique.TechniqueName == TechniqueName)
-		{
-			return &Technique;
-		}
-	}
-
-	return nullptr;
-}
 
 
 
@@ -2699,7 +2604,6 @@ void ARen_Low_Poly_Character::AddWeaponEXP(float ExpAmount)
 
 
 		// Check for level-up
-		CheckWeaponLevelUp(WeaponType);
 	}
 
 	else
@@ -2709,151 +2613,6 @@ void ARen_Low_Poly_Character::AddWeaponEXP(float ExpAmount)
 	}
 
 }
-
-
-
-
-void ARen_Low_Poly_Character::CheckWeaponLevelUp(EWeaponType Weapon)
-{
-
-	if (WeaponProficiencyMap.Contains(Weapon))
-	{
-		FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[Weapon];
-
-		// Check if the current EXP exceeds the threshold
-		while (Proficiency.CurrentEXP >= Proficiency.EXPToNextLevel && Proficiency.WeaponLevel < 20)
-		{
-
-			Proficiency.CurrentEXP -= Proficiency.EXPToNextLevel;
-
-			bQueuedLevelUp = true;
-
-			break;
-		}
-
-	}
-}
-
-
-
-void ARen_Low_Poly_Character::QueueEXP(float ExpAmount)
-{
-
-	if (ExpAmount > 0)
-	{
-		QueuedEXP.Add(ExpAmount);
-		UE_LOG(LogTemp, Log, TEXT("Queued %.2f EXP for later"), ExpAmount);
-	}
-
-
-
-}
-
-
-
-void ARen_Low_Poly_Character::ApplyQueuedEXP()
-{
-
-
-
-	for (float ExpAmount : QueuedEXP)
-	{
-		AddWeaponEXP(ExpAmount); // This function already handles adding EXP and checking for level-ups
-	}
-
-	// After applying the EXP, clear the queue
-	QueuedEXP.Empty();
-
-	UE_LOG(LogTemp, Log, TEXT("Applied all queued EXP and cleared the queue."));
-
-
-
-
-}
-
-
-
-
-
-void ARen_Low_Poly_Character::ApplyQueuedLevelUp(EWeaponType Weapon)
-{
-	// Clear queued techniques to ensure only current level-up techniques are added
-	QueuedUnlockTechniques.Empty();
-	UE_LOG(LogTemp, Log, TEXT("Cleared QueuedUnlockTechniques at start of ApplyQueuedLevelUp"));
-
-	// Check if a level-up is queued and the weapon exists in the proficiency map
-	if (bQueuedLevelUp && WeaponProficiencyMap.Contains(Weapon))
-	{
-		// Retrieve the proficiency struct for the specified weapon
-		FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[Weapon];
-
-		// Store old stats
-		PreviousAttackPower = BaseAttack;
-		PreviousDefense = BaseDefence;
-		PreviousElementalPower = BaseElementalAttack;
-		PreviousMaxHealth = HealthStruct.MaxHealth;
-		PreviousMaxMana = ManaStruct.MaxMana;
-
-		// Increment weapon level and adjust EXP threshold
-		Proficiency.WeaponLevel++;
-		Proficiency.EXPToNextLevel *= 1.25f;
-		bQueuedLevelUp = false;
-
-		// Apply proficiency upgrades
-		Proficiency.AttackPowerBoost += 4.f;
-		Proficiency.DefenseBoost += 2.f;
-		Proficiency.ElementalPowerBoost += 3.f;
-		Proficiency.MaxHealthBoost += 10.f;
-		Proficiency.MaxManaBoost += 15.f;
-
-		// Update total stats dynamically (base + boost)
-		UpdateStatsBasedOnWeapon();
-
-		// Log the level-up details
-		UE_LOG(LogTemp, Warning, TEXT("Weapon leveled up! Level: %d, Next EXP Threshold: %.2f"), Proficiency.WeaponLevel, Proficiency.EXPToNextLevel);
-
-		// Unlock techniques if applicable
-		if (WeaponLevelToTechniqueMap.Contains(Weapon))
-		{
-			FWeaponTechniqueMap& TechniqueMap = WeaponLevelToTechniqueMap[Weapon];
-			for (const auto& LevelTechniquePair : TechniqueMap.LevelToTechnique)
-			{
-				// Ensure all techniques up to the current level are added
-				if (LevelTechniquePair.Key <= Proficiency.WeaponLevel)
-				{
-					FString TechniqueToUnlock = LevelTechniquePair.Value;
-					if (!QueuedUnlockTechniques.Contains(TechniqueToUnlock))
-					{
-						QueuedUnlockTechniques.Add(TechniqueToUnlock);
-						UE_LOG(LogTemp, Log, TEXT("Queued technique: %s for next run."), *TechniqueToUnlock);
-					}
-				}
-			}
-		}
-	}
-}
-
-
-
-
-
-
-
-float ARen_Low_Poly_Character::GetQueuedEXP() const
-{
-	float TotalQueuedEXP = 0.0f; 
-	
-	for (float ExpAmount : QueuedEXP) 
-	
-	{ 
-		TotalQueuedEXP += ExpAmount;
-	} 
-	
-	return TotalQueuedEXP;
-}
-
-
-
 
 
 
@@ -3040,7 +2799,6 @@ void ARen_Low_Poly_Character::BeginPlay()
 	LoadPlayerProgress();
 	EnsureAllInitialisation();
 
-	UnlockQueuedTechniques();
 
 	FindResultsCamera();
 
