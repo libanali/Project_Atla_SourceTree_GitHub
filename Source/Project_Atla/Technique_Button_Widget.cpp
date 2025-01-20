@@ -14,17 +14,37 @@ void UTechnique_Button_Widget::NativeConstruct()
 {
     Super::NativeConstruct();
 
-    if (Technique_Button)
+    if (!Technique_Button)
     {
-        Technique_Button->OnClicked.AddDynamic(this, &UTechnique_Button_Widget::OnTechniqueButtonClicked);
-        Technique_Button->OnHovered.AddDynamic(this, &UTechnique_Button_Widget::OnTechniqueButtonHovered);
-        Technique_Button->OnUnhovered.AddDynamic(this, &UTechnique_Button_Widget::OnTechniqueButtonUnhovered);
-
-        // Store the normal brush for later use
-        CurrentNormalBrush = Technique_Button->WidgetStyle.Normal;
+        UE_LOG(LogTemp, Warning, TEXT("Technique_Button is nullptr!"));
+        return;
     }
 
+    // Clear existing delegates before adding new ones
+    Technique_Button->OnClicked.Clear();
+    Technique_Button->OnHovered.Clear();
+    Technique_Button->OnUnhovered.Clear();
+
+    // Store the original normal brush
+    CurrentNormalBrush = Technique_Button->WidgetStyle.Normal;
+
+    // Set up button style for hover/focus states
+    FButtonStyle ButtonStyle = Technique_Button->WidgetStyle;
+    ButtonStyle.SetHovered(HoveredBrush);
+    ButtonStyle.SetPressed(HoveredBrush);
+
+    // Apply the style
+    Technique_Button->SetStyle(ButtonStyle);
+
+    // Bind delegates
+    Technique_Button->OnClicked.AddDynamic(this, &UTechnique_Button_Widget::OnTechniqueButtonClicked);
+    Technique_Button->OnHovered.AddDynamic(this, &UTechnique_Button_Widget::OnTechniqueButtonHovered);
+    Technique_Button->OnUnhovered.AddDynamic(this, &UTechnique_Button_Widget::OnTechniqueButtonUnhovered);
+
 }
+
+
+
 
 void UTechnique_Button_Widget::NativeOnInitialized()
 {
@@ -34,21 +54,51 @@ void UTechnique_Button_Widget::NativeOnInitialized()
 }
 
 
+
+
 FReply UTechnique_Button_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
+    if (InKeyEvent.GetKey() == EKeys::Enter ||
+        InKeyEvent.GetKey() == EKeys::SpaceBar ||
+        InKeyEvent.GetKey() == EKeys::Gamepad_FaceButton_Bottom)
+    {
+        if (Technique_Button)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Key pressed on technique button!"));
+            OnTechniqueButtonClicked();
+            return FReply::Handled();
+        }
+    }
+
     return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
 }
 
 
 
+
+
 FReply UTechnique_Button_Widget::NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent)
 {
-    if (Technique_Button && CurrentTechnique.bIsUnlocked)
+    if (Technique_Button)
     {
-        OnTechniqueButtonHovered();
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Focus Received - Setting Hovered Brush"));
+
+        FButtonStyle ButtonStyle = Technique_Button->WidgetStyle;
+        ButtonStyle.SetNormal(HoveredBrush);
+        Technique_Button->SetStyle(ButtonStyle);
+
+        if (ParentListWidget && ParentListWidget->DescriptionText)
+        {
+            ParentListWidget->DescriptionText->SetText(FText::FromString(CurrentTechnique.Description));
+            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Focus Description Updated"));
+        }
     }
+
     return Super::NativeOnFocusReceived(InGeometry, InFocusEvent);
 }
+
+
+
 
 
 void UTechnique_Button_Widget::NativeOnFocusLost(const FFocusEvent& InFocusEvent)
@@ -56,18 +106,29 @@ void UTechnique_Button_Widget::NativeOnFocusLost(const FFocusEvent& InFocusEvent
 
     if (Technique_Button)
     {
-        OnTechniqueButtonUnhovered();
+        FButtonStyle ButtonStyle = Technique_Button->WidgetStyle;
+        ButtonStyle.SetNormal(CurrentNormalBrush);
+        Technique_Button->SetStyle(ButtonStyle);
+
+        if (ParentListWidget && ParentListWidget->DescriptionText)
+        {
+            ParentListWidget->DescriptionText->SetText(FText::GetEmpty());
+        }
     }
+
     Super::NativeOnFocusLost(InFocusEvent);
 
 }
+
+
+
 
 
 void UTechnique_Button_Widget::SetupButton(FTechnique_Struct TechniqueData, ARen_Low_Poly_Character* Character, int32 Index)
 {
     CurrentTechnique = TechniqueData;
     PlayerCharacter = Character;
-    TechniqueIndex = Index;  // Store the index
+    TechniqueIndex = Index;
 
     if (Technique_Name)
     {
@@ -82,6 +143,9 @@ void UTechnique_Button_Widget::SetupButton(FTechnique_Struct TechniqueData, ARen
 
 }
 
+
+
+
 void UTechnique_Button_Widget::OnTechniqueButtonClicked()
 {
 
@@ -93,6 +157,9 @@ void UTechnique_Button_Widget::OnTechniqueButtonClicked()
 
 }
 
+
+
+
 void UTechnique_Button_Widget::SetParentList(UTechnique_List_Widget* InParentList)
 {
 
@@ -100,6 +167,9 @@ void UTechnique_Button_Widget::SetParentList(UTechnique_List_Widget* InParentLis
 
 
 }
+
+
+
 
 void UTechnique_Button_Widget::OnTechniqueButtonHovered()
 {
@@ -111,6 +181,9 @@ void UTechnique_Button_Widget::OnTechniqueButtonHovered()
     }
 
 }
+
+
+
 
 void UTechnique_Button_Widget::OnTechniqueButtonUnhovered()
 {

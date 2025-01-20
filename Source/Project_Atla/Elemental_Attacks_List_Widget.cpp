@@ -165,8 +165,7 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
                     AddedAttacks.Add(AttackKey);
 
                     ElementalButton->SetParentList(this);
-                    // We no longer need to pass an index since we're passing the full attack data
-                    ElementalButton->SetupButton(ElementalAttack, PlayerCharacter, 0); // Index parameter will be ignored
+                    ElementalButton->SetupButton(ElementalAttack, PlayerCharacter, 0);
 
                     // Determine if the button should be enabled based on proficiency level
                     bool bShouldEnable = false;
@@ -183,11 +182,18 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
                         break;
                     }
 
+                    // Update both the button's enabled state AND its visual state
                     if (ElementalButton->Elemental_Attack_Button)
                     {
+                        // Disable interaction for locked abilities
                         ElementalButton->Elemental_Attack_Button->SetIsEnabled(bShouldEnable);
                         ElementalButton->Elemental_Attack_Button->IsFocusable = bShouldEnable;
+
+                        // Set visual state
                         ElementalButton->SetRenderOpacity(bShouldEnable ? 1.0f : 0.5f);
+
+                        // Also update the hit test invisibility for locked abilities
+                        ElementalButton->SetVisibility(bShouldEnable ? ESlateVisibility::Visible : ESlateVisibility::HitTestInvisible);
                     }
 
                     Elemental_Attack_ScrollBox->AddChild(ElementalButton);

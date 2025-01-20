@@ -25,7 +25,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UScrollBox* Technique_ScrollBox;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
         TSubclassOf<UTechnique_Button_Widget> TechniqueButtonClass;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))

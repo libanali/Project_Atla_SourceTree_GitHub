@@ -93,4 +93,13 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Technique System")
         int32 RequiredLevel;
 
+
+
+    bool operator==(const FTechnique_Struct& Other) const
+    {
+        return TechniqueName == Other.TechniqueName &&
+            RequiredLevel == Other.RequiredLevel &&
+            PointsRequired == Other.PointsRequired;
+    }
+
 };
