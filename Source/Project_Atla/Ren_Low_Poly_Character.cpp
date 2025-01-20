@@ -1051,7 +1051,57 @@ void ARen_Low_Poly_Character::CheckTechniquePoints()
 void ARen_Low_Poly_Character::InitializeWeaponTechniques()
 {
 
+	// Clear existing techniques first
+	Techniques.Empty();
 
+	if (WeaponType == EWeaponType::Sword)
+	{
+		// Initialize Sword techniques
+		Techniques.Add(FTechnique_Struct{
+			TEXT("Stormstrike Flurry"),
+			TEXT("Furious multi-strike sword combo."),
+			false,                   // Start locked
+			StormStrikeFlurryAnimMontage,
+			1.6f,                    // Damage bonus
+			1,                       // Level required
+			1                        // Points required
+			});
+
+		Techniques.Add(FTechnique_Struct{
+			TEXT("Voltage Breaker"),
+			TEXT("Electrifying ground-slam force field."),
+			false,
+			VoltageBreakerAnimMontage,
+			1.3f,
+			6,                       // Level required
+			2                        // Points required
+			});
+
+		Techniques.Add(FTechnique_Struct{
+			TEXT("Tempest Barrage"),
+			TEXT("Rapid flurry of strikes."),
+			false,
+			TempestBarrageAnimMontage,
+			1.7f,
+			10,                      // Level required
+			2                        // Points required
+			});
+
+		Techniques.Add(FTechnique_Struct{
+			TEXT("Static Rush"),
+			TEXT("Lightning-infused sword combo."),
+			false,
+			StaticRushAnimMontage,
+			2.4f,
+			19,                      // Level required
+			3                        // Points required
+			});
+	}
+	else if (WeaponType == EWeaponType::Staff)
+	{
+		// Initialize Staff techniques
+		// Add your staff techniques here similarly
+	}
 
 
 }
@@ -1060,12 +1110,27 @@ void ARen_Low_Poly_Character::InitializeWeaponTechniques()
 
 
 
-void ARen_Low_Poly_Character::UnlockWeaponTechnique(EWeaponType TheWeaponType)
+void ARen_Low_Poly_Character::UnlockWeaponTechnique(EWeaponType TheWeaponType, int32 CurrentLevel)
 {
 
+	// Loop through all techniques
+	for (FTechnique_Struct& Technique : Techniques)
+	{
+		// Check if this technique should be unlocked at current level
+		if (CurrentLevel >= Technique.RequiredLevel && !Technique.bIsUnlocked)
+		{
+			// Unlock the technique
+			Technique.bIsUnlocked = true;
 
-
-
+			// Log the unlock
+			UE_LOG(LogTemp, Warning, TEXT("=== NEW TECHNIQUE UNLOCKED ==="));
+			UE_LOG(LogTemp, Warning, TEXT("Weapon Type: %s"), *UEnum::GetValueAsString(TheWeaponType));
+			UE_LOG(LogTemp, Warning, TEXT("Technique: %s"), *Technique.TechniqueName);
+			UE_LOG(LogTemp, Warning, TEXT("Description: %s"), *Technique.Description);
+			UE_LOG(LogTemp, Warning, TEXT("Damage Bonus: %.2f"), Technique.DamageBonus);
+			UE_LOG(LogTemp, Warning, TEXT("Points Required: %d"), Technique.PointsRequired);
+		}
+	}
 
 
 }
@@ -2726,7 +2791,7 @@ void ARen_Low_Poly_Character::CheckAndApplyWeaponLevelUp(EWeaponType TheWeaponTy
 		UpdateStatsBasedOnWeapon();
 
 		// Check for and unlock any new techniques
-		UnlockWeaponTechnique(WeaponType);
+		UnlockWeaponTechnique(WeaponType, Proficiency.WeaponLevel);
 
 		// Log level up and compare with initial stats
 		UE_LOG(LogTemp, Warning, TEXT("=== WEAPON LEVEL UP ==="));
@@ -3060,11 +3125,12 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	if (WeaponType == EWeaponType::Sword)
 	{
+
 		// Initialize Sword techniques
-		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("Furious multi-strike sword combo."), true, StormStrikeFlurryAnimMontage, 1.6f, 1 });
-		Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("Electrifying ground-slam force field."), false, VoltageBreakerAnimMontage, 1.3f, 2});
-		Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Rapid flurry of strikes."), false, TempestBarrageAnimMontage, 1.7f, 3});
-		Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Lightning-infused sword combo."), false, StaticRushAnimMontage, 2.4f, 4});
+		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("Furious multi-strike sword combo."), true, StormStrikeFlurryAnimMontage, 1.6f, 1, 1});
+		Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("Electrifying ground-slam force field."), false, VoltageBreakerAnimMontage, 1.3f, 2, 2});
+		Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Rapid flurry of strikes."), false, TempestBarrageAnimMontage, 1.7f, 3, 3});
+		Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Lightning-infused sword combo."), false, StaticRushAnimMontage, 2.4f, 4, 4});
 
 
 		WeaponElementalAttacks.Add(EWeaponType::Sword, FWeaponElementalAttacks{
@@ -3101,7 +3167,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 			}
 			if (SwordWeaponLevel >= 19)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("Lightning-infused sword combo."), true, StaticRushAnimMontage, 1.9f, 1 });
+			//	Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("Lightning-infused sword combo."), true, StaticRushAnimMontage, 1.9f, 1 });
 			}
 		}
 
@@ -3115,7 +3181,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	if (WeaponType == EWeaponType::Staff)
 	{
 		// Initialize Staff techniques
-		Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("Fiery meteor devastates nearby enemies."), true, MeteorStrikeAnimMontage, 3.5f, 5});
+		//Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("Fiery meteor devastates nearby enemies."), true, MeteorStrikeAnimMontage, 3.5f, 5});
 		//Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), true, FrostRainAnimMontage, 3.1f, 2});
 	//	Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), true, FeudFangAnimMontage, 3.7f, 2 });
 
@@ -3147,15 +3213,15 @@ void ARen_Low_Poly_Character::BeginPlay()
 			// Add sword techniques based on the level of proficiency (this should match your progression)
 			if (StaffWeaponLevel >= 4)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Stone Rush"), TEXT("Dark earth rises with force."), true, StoneRushAnimMontage, 2.9f, 3});
+			//	Techniques.Add(FTechnique_Struct{ TEXT("Stone Rush"), TEXT("Dark earth rises with force."), true, StoneRushAnimMontage, 2.9f, 3});
 			}
 			if (StaffWeaponLevel >= 16)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), true, FrostRainAnimMontage, 1.7f, 3});
+			//	Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), true, FrostRainAnimMontage, 1.7f, 3});
 			}
 			if (StaffWeaponLevel >= 19)
 			{
-				Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), true, FeudFangAnimMontage, 1.9f, 3});
+				//Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), true, FeudFangAnimMontage, 1.9f, 3});
 			}
 		}
 	}

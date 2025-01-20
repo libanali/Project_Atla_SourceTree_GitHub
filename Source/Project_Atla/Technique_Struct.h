@@ -20,11 +20,34 @@ public:
 
     // Default constructor
     FTechnique_Struct()
-        : TechniqueName(TEXT("Unknown")), Description(TEXT("No Description")), bIsUnlocked(false), TechniqueAnimation(nullptr), DamageBonus(1.0f), PointsRequired(1){}
+        : TechniqueName(TEXT("Unknown"))
+        , Description(TEXT("No Description"))
+        , bIsUnlocked(false)
+        , TechniqueAnimation(nullptr)
+        , DamageBonus(1.0f)
+        , RequiredLevel(1)            // Level needed to unlock
+        , PointsRequired(1)           // Points needed to use
+        , CurrentGauge(0.f)
+        , MaxGauge(100.f)
+        , TechniquePoints(0)
+        , MaxTechniquePoints(3)
+    {}
 
     // Parameterized constructor
-    FTechnique_Struct(FString Name, FString Desc, bool bUnlocked, UAnimMontage* AnimMontage, float InDamageBonus, int32 InPointsRequired)
-        : TechniqueName(Name), Description(Desc), bIsUnlocked(bUnlocked), TechniqueAnimation(AnimMontage), DamageBonus(InDamageBonus), PointsRequired(InPointsRequired){}
+    FTechnique_Struct(FString Name, FString Desc, bool bUnlocked, UAnimMontage* AnimMontage,
+        float InDamageBonus, int32 InRequiredLevel, int32 InPointsRequired)    // Added PointsRequired
+        : TechniqueName(Name)
+        , Description(Desc)
+        , bIsUnlocked(bUnlocked)
+        , TechniqueAnimation(AnimMontage)
+        , DamageBonus(InDamageBonus)
+        , RequiredLevel(InRequiredLevel)
+        , PointsRequired(InPointsRequired)
+        , CurrentGauge(0.f)
+        , MaxGauge(100.f)
+        , TechniquePoints(0)
+        , MaxTechniquePoints(3)
+    {}
 
 
     // Current value of the technique gauge
@@ -65,5 +88,9 @@ public:
     // Points required to use the technique
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Technique System")
         int32 PointsRequired;
+
+    // Level required to unlock the technique
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Technique System")
+        int32 RequiredLevel;
 
 };

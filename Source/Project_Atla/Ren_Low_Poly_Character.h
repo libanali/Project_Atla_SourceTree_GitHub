@@ -724,7 +724,7 @@ public:
 		void InitializeWeaponTechniques();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon Techniques")
-		void UnlockWeaponTechnique(EWeaponType TheWeaponType);
+		void UnlockWeaponTechnique(EWeaponType TheWeaponType, int32 CurrentLevel);
 
 	TArray<float> QueuedEXP;
 	//Level & Weapon Proficiency
