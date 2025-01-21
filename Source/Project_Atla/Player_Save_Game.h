@@ -39,6 +39,10 @@ public:
     UPROPERTY(BlueprintReadWrite, Category = "Elemental Attacks") 
         TMap<EWeaponType, FWeaponElementalAttacks> SavedWeaponElementalAttacks;
 
+    UPROPERTY(BlueprintReadWrite, Category = "Weapon Techniques")
+        TMap<EWeaponType, FWeaponTechniques> SavedWeaponTechniques;
+
+
     UPROPERTY(BlueprintReadWrite, Category = "Elemental Usage")
         float FireElementalUsage;
 

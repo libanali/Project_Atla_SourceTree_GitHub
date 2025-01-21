@@ -100,7 +100,14 @@ struct FWeaponElementalAttacks
 };
 
 
+USTRUCT(BlueprintType)
+struct FWeaponTechniques
+{
+	GENERATED_BODY()
 
+		UPROPERTY(BlueprintReadWrite, Category = "Elemental Attacks")
+		TArray<FTechnique_Struct> WeaponTechniques;
+};
 
 
 class AEnemy_Poly;
@@ -710,6 +717,9 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Technique System")
 		bool bQueuedLevelUp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental Attacks")
+		TMap<EWeaponType, FWeaponTechniques> WeaponTechniques;
 
 	void GenerateStatUpgradeMessages();
 

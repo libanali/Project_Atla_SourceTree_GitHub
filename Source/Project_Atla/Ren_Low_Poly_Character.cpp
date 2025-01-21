@@ -624,10 +624,16 @@ void ARen_Low_Poly_Character::SavePlayerProgress()
 	UPlayer_Save_Game* SaveGameInstance = Cast<UPlayer_Save_Game>(UGameplayStatics::CreateSaveGameObject(UPlayer_Save_Game::StaticClass()));
 	if (SaveGameInstance)
 	{
+
+		FWeaponTechniques CurrentWeaponTechniques;
+		CurrentWeaponTechniques.WeaponTechniques = Techniques;
+		WeaponTechniques.Add(WeaponType, CurrentWeaponTechniques);
+
 		// Copy data to save instance
 		SaveGameInstance->SavedWeaponProficiencyMap = WeaponProficiencyMap;
 		SaveGameInstance->SavedElementalProficiencyMap = WeaponElementalProficiency.ElementalWeaponProficiencyMap;
 		SaveGameInstance->SavedWeaponElementalAttacks = WeaponElementalAttacks;
+		SaveGameInstance->SavedWeaponTechniques = WeaponTechniques;
 
 		// EXTENSIVE DEBUGGING
 		UE_LOG(LogTemp, Error, TEXT("=== SAVING GAME - DETAILED ATTACK DUMP ==="));
@@ -677,8 +683,13 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 		WeaponElementalProficiency.ElementalWeaponProficiencyMap =
 			LoadGameInstance->SavedElementalProficiencyMap;
 		WeaponElementalAttacks = LoadGameInstance->SavedWeaponElementalAttacks;
+		WeaponTechniques = LoadGameInstance->SavedWeaponTechniques;
 
-
+		// After loading, sync the Techniques array with the loaded data
+		if (WeaponTechniques.Contains(WeaponType))
+		{
+			Techniques = WeaponTechniques[WeaponType].WeaponTechniques;
+		}
 		// Rest of your existing load code...
 		bIsGameLoaded = false;
 	}
@@ -2975,7 +2986,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("Failed to cast to ALowPoly_Survival_GameMode. Check the level's game mode settings."));
 	}
 
-	
+
 	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
 	if (PC)
@@ -3021,7 +3032,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	AbilityStruct.CurrentAbilityPoints = 0.0f;
 
 
-	
+
 	// Log Fire proficiency thresholds to confirm initialization
 	for (const auto& Pair : ElementalProficiency.FireProficiencyThresholds)
 	{
@@ -3124,56 +3135,44 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 
 
-	if (WeaponType == EWeaponType::Sword)
+
+
+
+	if (!WeaponTechniques.Contains(WeaponType))  // Only initialize if no saved data
 	{
+		// Initialize Sword techniques in the array
+		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("Furious multi-strike sword combo."), true, StormStrikeFlurryAnimMontage, 1.6f, 1, 1 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("Electrifying ground-slam force field."), false, VoltageBreakerAnimMontage, 1.3f, 2, 2 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Rapid flurry of strikes."), false, TempestBarrageAnimMontage, 1.7f, 3, 3 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Lightning-infused sword combo."), false, StaticRushAnimMontage, 2.4f, 4, 4 });
 
-		// Initialize Sword techniques
-		Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("Furious multi-strike sword combo."), true, StormStrikeFlurryAnimMontage, 1.6f, 1, 1});
-		Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("Electrifying ground-slam force field."), false, VoltageBreakerAnimMontage, 1.3f, 2, 2});
-		Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Rapid flurry of strikes."), false, TempestBarrageAnimMontage, 1.7f, 3, 3});
-		Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Lightning-infused sword combo."), false, StaticRushAnimMontage, 2.4f, 4, 4});
+		// Create FWeaponTechniques struct and store the techniques
+		FWeaponTechniques SwordTechniques;
+		SwordTechniques.WeaponTechniques = Techniques;
 
-
-		WeaponElementalAttacks.Add(EWeaponType::Sword, FWeaponElementalAttacks{
-	   {FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.7f, 15.0f, 1, true, FireProjectileAnimation, TEXT("Burns enemies over time.")),
-		FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.9f, 15.0f, 1, true, IceProjectileAnimation, TEXT("Freezes enemies over time.")),
-		FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.5f, 10.0f, 1, true, ThunderProjectileAnimation, TEXT("Stuns enemies over time.")),
-		FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 2.9f, 25.0f, 2, false, FireAOEAnimation, TEXT("Creates an explosion, burns enemies for longer")),
-		FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 2.5f, 30.0f, 2, false, IceAOEAnimation, TEXT("Summons ice shards, freezing enemies for longer.")),
-		FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 1.9f, 15.0f, 2, false, ThunderAOEAnimation, TEXT("Summons lightning, stunning enemies for longer.")),
-		FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 1.5f, 30.0f, 3, false, FireGroundAnimation, TEXT("Summons molten spikes, burns enemies for an extended time.")),
-		FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 1.9f, 35.0f, 3, false, IceGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time.")),
-		FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 1.5f, 20.0f, 3, false, ThunderGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time."))
-
-		}
-
-	});
-
-			
-	
-
-		// Check WeaponProficiencyMap and unlock techniques based on proficiency level
-		if (WeaponProficiencyMap.Contains(EWeaponType::Sword))
-		{
-			int32 SwordWeaponLevel = WeaponProficiencyMap[EWeaponType::Sword].WeaponLevel;
-
-			// Add sword techniques based on the level of proficiency (this should match your progression)
-			if (SwordWeaponLevel >= 6)
-			{
-				//Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("Electrifying ground-slam force field."), true, VoltageBreakerAnimMontage, 1.3f, 1 });
-			}
-			if (SwordWeaponLevel >= 10)
-			{
-			//	Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Rapid flurry of strikes."), true, TempestBarrageAnimMontage, 1.7f, 1 });
-			}
-			if (SwordWeaponLevel >= 19)
-			{
-			//	Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("Lightning-infused sword combo."), true, StaticRushAnimMontage, 1.9f, 1 });
-			}
-		}
-
-
+		// Add to the map
+		WeaponTechniques.Add(WeaponType, SwordTechniques);
 	}
+	else
+	{
+		// If we have saved data, use it to populate the Techniques array
+		Techniques = WeaponTechniques[WeaponType].WeaponTechniques;
+	}
+
+	WeaponElementalAttacks.Add(EWeaponType::Sword, FWeaponElementalAttacks{
+		{
+			FElemental_Struct(TEXT("Fire"), EElementalAttackType::Fire, 1.7f, 15.0f, 1, true, FireProjectileAnimation, TEXT("Burns enemies over time.")),
+			FElemental_Struct(TEXT("Ice"), EElementalAttackType::Ice, 1.9f, 15.0f, 1, true, IceProjectileAnimation, TEXT("Freezes enemies over time.")),
+			FElemental_Struct(TEXT("Thunder"), EElementalAttackType::Thunder, 1.5f, 10.0f, 1, true, ThunderProjectileAnimation, TEXT("Stuns enemies over time.")),
+			FElemental_Struct(TEXT("Fire Lv.2"), EElementalAttackType::Fire, 2.9f, 25.0f, 2, false, FireAOEAnimation, TEXT("Creates an explosion, burns enemies for longer")),
+			FElemental_Struct(TEXT("Ice Lv.2"), EElementalAttackType::Ice, 2.5f, 30.0f, 2, false, IceAOEAnimation, TEXT("Summons ice shards, freezing enemies for longer.")),
+			FElemental_Struct(TEXT("Thunder Lv.2"), EElementalAttackType::Thunder, 1.9f, 15.0f, 2, false, ThunderAOEAnimation, TEXT("Summons lightning, stunning enemies for longer.")),
+			FElemental_Struct(TEXT("Fire Lv.3"), EElementalAttackType::Fire, 1.5f, 30.0f, 3, false, FireGroundAnimation, TEXT("Summons molten spikes, burns enemies for an extended time.")),
+			FElemental_Struct(TEXT("Ice Lv.3"), EElementalAttackType::Ice, 1.9f, 35.0f, 3, false, IceGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time.")),
+			FElemental_Struct(TEXT("Thunder Lv.3"), EElementalAttackType::Thunder, 1.5f, 20.0f, 3, false, ThunderGroundAnimation, TEXT("Summons ice spiral, freezing enemies for an extended time."))
+		}
+		});
+	
 
 
 
@@ -3182,9 +3181,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 	if (WeaponType == EWeaponType::Staff)
 	{
 		// Initialize Staff techniques
-		Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("Fiery meteor devastates nearby enemies."), true, MeteorStrikeAnimMontage, 3.5f, 1, 1});
-		Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), false, FrostRainAnimMontage, 3.1f, 2, 2});
-		Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), false, FeudFangAnimMontage, 3.7f, 3, 3});
+		Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("Fiery meteor devastates nearby enemies."), true, MeteorStrikeAnimMontage, 3.5f, 1, 1 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), false, FrostRainAnimMontage, 3.1f, 2, 2 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), false, FeudFangAnimMontage, 3.7f, 3, 3 });
 
 
 
@@ -3201,34 +3200,12 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 		}
 
-	});
-		
+			});
+	
 
-
-
-		// Check WeaponProficiencyMap and unlock techniques based on proficiency level
-		if (WeaponProficiencyMap.Contains(EWeaponType::Staff))
-		{
-			int32 StaffWeaponLevel = WeaponProficiencyMap[EWeaponType::Staff].WeaponLevel;
-
-			// Add sword techniques based on the level of proficiency (this should match your progression)
-			if (StaffWeaponLevel >= 4)
-			{
-			//	Techniques.Add(FTechnique_Struct{ TEXT("Stone Rush"), TEXT("Dark earth rises with force."), true, StoneRushAnimMontage, 2.9f, 3});
-			}
-			if (StaffWeaponLevel >= 16)
-			{
-			//	Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), true, FrostRainAnimMontage, 1.7f, 3});
-			}
-			if (StaffWeaponLevel >= 19)
-			{
-				//Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), true, FeudFangAnimMontage, 1.9f, 3});
-			}
-		}
 	}
 
-
-
+	
 
 	// Create the command menu widget
 	if (CommandMenuWidgetClass)
