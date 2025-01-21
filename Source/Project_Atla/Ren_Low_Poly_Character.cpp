@@ -1470,6 +1470,7 @@ void ARen_Low_Poly_Character::UseElementalAttack(const FElemental_Struct& Attack
 }
 
 
+
 void ARen_Low_Poly_Character::AddExperienceToElementalProfiency(EWeaponType TheWeaponType, EElementalAttackType ElementType, float EXPAmount)
 {
 	FElemental_Proficiency_Struct* ProficiencyStruct = nullptr;
@@ -3181,9 +3182,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 	if (WeaponType == EWeaponType::Staff)
 	{
 		// Initialize Staff techniques
-		//Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("Fiery meteor devastates nearby enemies."), true, MeteorStrikeAnimMontage, 3.5f, 5});
-		//Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), true, FrostRainAnimMontage, 3.1f, 2});
-	//	Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), true, FeudFangAnimMontage, 3.7f, 2 });
+		Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("Fiery meteor devastates nearby enemies."), true, MeteorStrikeAnimMontage, 3.5f, 1, 1});
+		Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), false, FrostRainAnimMontage, 3.1f, 2, 2});
+		Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), false, FeudFangAnimMontage, 3.7f, 3, 3});
 
 
 
