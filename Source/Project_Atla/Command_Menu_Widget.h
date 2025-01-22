@@ -146,6 +146,7 @@ public:
 
     void UpdateVisibilityBasedOnIndex(int CurrentIndex);
 
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
     EInputMode CurrentInputMode;
 

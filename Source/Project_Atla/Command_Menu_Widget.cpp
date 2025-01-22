@@ -121,6 +121,7 @@ void UCommand_Menu_Widget::NativeOnInitialized()
 }
 
 
+
 void UCommand_Menu_Widget::ShowItemsMenu()
 {
 
@@ -154,6 +155,7 @@ void UCommand_Menu_Widget::ShowElementalAttacksMenu()
     TechniquesButton->SetVisibility(ESlateVisibility::Hidden);
     ElementalButton->SetVisibility(ESlateVisibility::Hidden);
 }
+
 
 
 

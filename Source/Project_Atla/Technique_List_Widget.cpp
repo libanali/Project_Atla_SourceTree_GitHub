@@ -112,7 +112,8 @@ void UTechnique_List_Widget::PopulateTechniqueList()
 
     // Sort techniques by required level
     TArray<FTechnique_Struct> SortedTechniques = PlayerCharacter->Techniques;
-    SortedTechniques.Sort([](const FTechnique_Struct& A, const FTechnique_Struct& B) {
+    SortedTechniques.Sort([](const FTechnique_Struct& A, const FTechnique_Struct& B) 
+        {
         return A.RequiredLevel < B.RequiredLevel;
         });
 

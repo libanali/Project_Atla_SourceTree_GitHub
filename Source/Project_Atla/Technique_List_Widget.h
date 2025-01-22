@@ -31,8 +31,6 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UTextBlock* DescriptionText;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-        class UTextBlock* InsufficientNotificationText;
 
     UPROPERTY()
         ARen_Low_Poly_Character* PlayerCharacter;
