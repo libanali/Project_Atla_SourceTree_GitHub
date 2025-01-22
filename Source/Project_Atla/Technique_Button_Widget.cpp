@@ -194,3 +194,19 @@ void UTechnique_Button_Widget::OnTechniqueButtonUnhovered()
     }
 
 }
+
+
+
+
+
+void UTechnique_Button_Widget::SetButtonTextColor(FLinearColor NewColor)
+{
+
+    if (Technique_Button)
+    {
+        // Set the color of the button text
+        Technique_Button->SetColorAndOpacity(NewColor);
+    }
+
+
+}

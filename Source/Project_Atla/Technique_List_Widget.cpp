@@ -118,16 +118,13 @@ void UTechnique_List_Widget::PopulateTechniqueList()
     for (int32 Index = 0; Index < SortedTechniques.Num(); Index++)
     {
         const FTechnique_Struct& Technique = SortedTechniques[Index];
-
         if (TechniqueButtonClass)
         {
             UTechnique_Button_Widget* TechniqueButton = CreateWidget<UTechnique_Button_Widget>(
                 GetWorld(), TechniqueButtonClass);
-
             if (TechniqueButton)
             {
                 TechniqueButton->SetParentList(this);
-
                 // Find the original index in the unsorted array
                 int32 OriginalIndex = PlayerCharacter->Techniques.Find(Technique);
                 TechniqueButton->SetupButton(Technique, PlayerCharacter, OriginalIndex);
@@ -135,16 +132,34 @@ void UTechnique_List_Widget::PopulateTechniqueList()
                 // Configure button based on unlock status
                 if (TechniqueButton->Technique_Button)
                 {
-                    bool bShouldEnable = Technique.bIsUnlocked &&
-                        PlayerCharacter->TechniqueStruct.TechniquePoints >= Technique.PointsRequired;
-
-                    TechniqueButton->Technique_Button->SetIsEnabled(bShouldEnable);
-                    TechniqueButton->Technique_Button->IsFocusable = bShouldEnable;
-                    TechniqueButton->SetRenderOpacity(bShouldEnable ? 1.0f : 0.5f);
+                    if (!Technique.bIsUnlocked)
+                    {
+                        // Locked (not unlocked yet)
+                        TechniqueButton->Technique_Button->SetIsEnabled(false);
+                        TechniqueButton->Technique_Button->IsFocusable = false;
+                        TechniqueButton->SetRenderOpacity(0.5f);
+                        TechniqueButton->SetButtonTextColor(FLinearColor::White);  // Normal color
+                    }
+                    else if (Technique.bIsUnlocked &&
+                        PlayerCharacter->TechniqueStruct.TechniquePoints < Technique.PointsRequired)
+                    {
+                        // Unlocked but not enough technique points
+                        TechniqueButton->Technique_Button->SetIsEnabled(true);
+                        TechniqueButton->Technique_Button->IsFocusable = true;
+                        TechniqueButton->SetRenderOpacity(0.55f);
+                        TechniqueButton->SetButtonTextColor(FLinearColor::Red);  // Red color
+                    }
+                    else
+                    {
+                        // Unlocked and enough technique points
+                        TechniqueButton->Technique_Button->SetIsEnabled(true);
+                        TechniqueButton->Technique_Button->IsFocusable = true;
+                        TechniqueButton->SetRenderOpacity(1.0f);
+                        TechniqueButton->SetButtonTextColor(FLinearColor::White);  // Normal color
+                    }
                 }
 
                 Technique_ScrollBox->AddChild(TechniqueButton);
-
                 UE_LOG(LogTemp, Warning, TEXT("Added Technique: %s (Level %d, Unlocked: %s, Points Required: %d)"),
                     *Technique.TechniqueName,
                     Technique.RequiredLevel,
@@ -166,7 +181,6 @@ void UTechnique_List_Widget::PopulateTechniqueList()
                 {
                     UTechnique_Button_Widget* FirstButton =
                         Cast<UTechnique_Button_Widget>(Technique_ScrollBox->GetChildAt(0));
-
                     if (FirstButton && FirstButton->Technique_Button)
                     {
                         FirstButton->Technique_Button->SetKeyboardFocus();

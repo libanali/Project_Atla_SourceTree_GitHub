@@ -54,6 +54,9 @@ public:
     UFUNCTION()
         void OnTechniqueButtonUnhovered();
 
+    UFUNCTION(BlueprintCallable, Category = "UI")
+        void SetButtonTextColor(FLinearColor NewColor);
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Button Style")
         FSlateBrush HoveredBrush;
 
