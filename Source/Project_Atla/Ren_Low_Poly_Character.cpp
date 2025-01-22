@@ -3181,10 +3181,10 @@ void ARen_Low_Poly_Character::BeginPlay()
 			Techniques.Empty();
 
 			// Initialize Staff techniques in the array
-			Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("Fiery meteor devastates nearby enemies."), true, MeteorStrikeAnimMontage, 3.5f, 1, 1});
-			Techniques.Add(FTechnique_Struct{ TEXT("Stone Rush"), TEXT("Dark earth rises with force."), false, StoneRushAnimMontage, 2.9f, 2, 2});
-			Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), false, FrostRainAnimMontage, 1.7f, 3, 3});
-			Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), false, FeudFangAnimMontage, 1.9f, 4, 4});
+			Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("Fiery meteor devastates nearby enemies."), true, MeteorStrikeAnimMontage, 3.5f, 1, 1 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Stone Rush"), TEXT("Dark earth rises with force."), false, StoneRushAnimMontage, 2.9f, 2, 2 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), false, FrostRainAnimMontage, 1.7f, 3, 3 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), false, FeudFangAnimMontage, 1.9f, 4, 4 });
 
 			// Create FWeaponTechniques struct and store the techniques
 			FWeaponTechniques StaffTechniques;
@@ -3213,6 +3213,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 			}
 			});
 	}
+	
 
 	
 

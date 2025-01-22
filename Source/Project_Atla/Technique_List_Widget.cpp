@@ -30,6 +30,8 @@ void UTechnique_List_Widget::NativeConstruct()
     }
 
 
+
+
 }
 
 
@@ -187,7 +189,7 @@ void UTechnique_List_Widget::PopulateTechniqueList()
                     }
                 }
             },
-            0.1f,
+            0.01f,
                 false
                 );
     }
