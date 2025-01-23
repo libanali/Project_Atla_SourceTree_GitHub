@@ -14,6 +14,8 @@
 
 
 
+
+
 void UElemental_Attacks_Button_Widget::NativeConstruct()
 {
     Super::NativeConstruct();
@@ -32,23 +34,23 @@ void UElemental_Attacks_Button_Widget::NativeConstruct()
 
 
     // Store the original normal brush
-    CurrentNormalBrush = Elemental_Attack_Button->WidgetStyle.Normal;
+   // CurrentNormalBrush = Elemental_Attack_Button->WidgetStyle.Normal;
 
     // Set up button style for hover/focus states
-    FButtonStyle ButtonStyle = Elemental_Attack_Button->WidgetStyle;
-    ButtonStyle.SetHovered(HoveredBrush);
-    ButtonStyle.SetPressed(HoveredBrush);
+  //  FButtonStyle ButtonStyle = Elemental_Attack_Button->WidgetStyle;
+   // ButtonStyle.SetHovered(HoveredBrush);
+   // ButtonStyle.SetPressed(HoveredBrush);
 
     // Apply the style
-    Elemental_Attack_Button->SetStyle(ButtonStyle);
+ //   Elemental_Attack_Button->SetStyle(ButtonStyle);
 
     // Rest of your setup...
     Elemental_Attack_Button->OnClicked.AddDynamic(this, &UElemental_Attacks_Button_Widget::OnElementalAttackButtonClicked);
     Elemental_Attack_Button->OnHovered.AddDynamic(this, &UElemental_Attacks_Button_Widget::OnElementalAttackButtonHovered);
     Elemental_Attack_Button->OnUnhovered.AddDynamic(this, &UElemental_Attacks_Button_Widget::OnElementalAttackButtonUnhovered);
 
-    Elemental_Attack_Button->SetIsEnabled(true);
-    Elemental_Attack_Button->IsFocusable = true;
+   // Elemental_Attack_Button->SetIsEnabled(true);
+  //  Elemental_Attack_Button->IsFocusable = true;
 
 }
 
@@ -205,9 +207,9 @@ FReply UElemental_Attacks_Button_Widget::NativeOnFocusReceived(const FGeometry& 
     {
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Focus Received - Setting Hovered Brush"));
 
-        FButtonStyle ButtonStyle = Elemental_Attack_Button->WidgetStyle;
-        ButtonStyle.SetNormal(HoveredBrush);
-        Elemental_Attack_Button->SetStyle(ButtonStyle);
+      //  FButtonStyle ButtonStyle = Elemental_Attack_Button->WidgetStyle;
+      //  ButtonStyle.SetNormal(HoveredBrush);
+      //  Elemental_Attack_Button->SetStyle(ButtonStyle);
         
 
         if (ParentListWidget && ParentListWidget->DescriptionText)
@@ -239,9 +241,9 @@ void UElemental_Attacks_Button_Widget::NativeOnFocusLost(const FFocusEvent& InFo
 
     if (Elemental_Attack_Button)
     {
-        FButtonStyle ButtonStyle = Elemental_Attack_Button->WidgetStyle;
-        ButtonStyle.SetNormal(CurrentNormalBrush);  // Use the stored original brush
-        Elemental_Attack_Button->SetStyle(ButtonStyle);
+    //    FButtonStyle ButtonStyle = Elemental_Attack_Button->WidgetStyle;
+    //    ButtonStyle.SetNormal(CurrentNormalBrush);  // Use the stored original brush
+     //   Elemental_Attack_Button->SetStyle(ButtonStyle);
 
 
         // Clear the description when focus is lost
@@ -273,3 +275,15 @@ void UElemental_Attacks_Button_Widget::OnElementalAttackButtonClicked()
 
 
 
+void UElemental_Attacks_Button_Widget::SetButtonTextColor(FLinearColor NewColor)
+{
+
+    if (Elemental_Attack_Button)
+
+    {
+
+        Elemental_Attack_Button->SetColorAndOpacity(NewColor);
+
+    }
+
+}

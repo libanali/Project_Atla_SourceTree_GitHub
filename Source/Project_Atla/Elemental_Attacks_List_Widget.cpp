@@ -185,15 +185,31 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
                     // Update both the button's enabled state AND its visual state
                     if (ElementalButton->Elemental_Attack_Button)
                     {
-                        // Disable interaction for locked abilities
-                        ElementalButton->Elemental_Attack_Button->SetIsEnabled(bShouldEnable);
-                        ElementalButton->Elemental_Attack_Button->IsFocusable = bShouldEnable;
-
-                        // Set visual state
-                        ElementalButton->SetRenderOpacity(bShouldEnable ? 1.0f : 0.5f);
-
-                        // Also update the hit test invisibility for locked abilities
-                        ElementalButton->SetVisibility(bShouldEnable ? ESlateVisibility::Visible : ESlateVisibility::HitTestInvisible);
+                        if (!bShouldEnable)
+                        {
+                            // Locked (not high enough elemental level)
+                            ElementalButton->Elemental_Attack_Button->SetIsEnabled(false);
+                            ElementalButton->Elemental_Attack_Button->IsFocusable = false;
+                            ElementalButton->SetRenderOpacity(0.5f);
+                            ElementalButton->SetButtonTextColor(FLinearColor::White);  // Normal color
+                        }
+                        else if (bShouldEnable &&
+                            PlayerCharacter->ManaStruct.CurrentMana < ElementalAttack.ManaCost)
+                        {
+                            // Unlocked but not enough mana
+                            ElementalButton->Elemental_Attack_Button->SetIsEnabled(true);
+                            ElementalButton->Elemental_Attack_Button->IsFocusable = true;
+                            ElementalButton->SetRenderOpacity(0.55f);
+                            ElementalButton->SetButtonTextColor(FLinearColor::Red);  // Red color
+                        }
+                        else
+                        {
+                            // Unlocked and enough mana
+                            ElementalButton->Elemental_Attack_Button->SetIsEnabled(true);
+                            ElementalButton->Elemental_Attack_Button->IsFocusable = true;
+                            ElementalButton->SetRenderOpacity(1.0f);
+                            ElementalButton->SetButtonTextColor(FLinearColor::White);  // Normal color
+                        }
                     }
 
                     Elemental_Attack_ScrollBox->AddChild(ElementalButton);

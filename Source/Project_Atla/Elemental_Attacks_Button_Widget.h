@@ -33,7 +33,7 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "UI")
 		UCommand_Menu_Widget* CommandMenuWidget;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		UElemental_Attacks_List_Widget* ParentListWidget;
 
 
@@ -68,8 +68,10 @@ public:
 	UPROPERTY()
 		FSlateBrush CurrentNormalBrush;
 
-	UPROPERTY()  // Add this property
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)  // Add this property
 		FElemental_Struct CurrentElementalAttack;
+
+	void SetButtonTextColor(FLinearColor NewColor);
 
 	virtual void NativeConstruct() override;
 	virtual void NativeOnInitialized() override;
