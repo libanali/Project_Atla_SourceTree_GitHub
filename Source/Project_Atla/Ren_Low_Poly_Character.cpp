@@ -3025,7 +3025,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	//TechniqueStruct.CurrentGauge = 100.0f;
 	TechniqueStruct.MaxGauge = 100.0f;
-	TechniqueStruct.TechniquePoints = 5;
+	TechniqueStruct.TechniquePoints = 2;
 	TechniqueStruct.MaxTechniquePoints = 7;
 
 

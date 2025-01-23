@@ -162,11 +162,6 @@ void UTechnique_List_Widget::PopulateTechniqueList()
                 }
 
                 Technique_ScrollBox->AddChild(TechniqueButton);
-                UE_LOG(LogTemp, Warning, TEXT("Added Technique: %s (Level %d, Unlocked: %s, Points Required: %d)"),
-                    *Technique.TechniqueName,
-                    Technique.RequiredLevel,
-                    Technique.bIsUnlocked ? TEXT("TRUE") : TEXT("FALSE"),
-                    Technique.PointsRequired);
             }
         }
     }
@@ -191,9 +186,8 @@ void UTechnique_List_Widget::PopulateTechniqueList()
             },
             0.01f,
                 false
-                );
+           );
     }
-
 }
 
 

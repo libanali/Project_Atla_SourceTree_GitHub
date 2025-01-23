@@ -31,7 +31,7 @@ public:
     UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "UI")
         UCommand_Menu_Widget* CommandMenuWidget;
 
-    UPROPERTY()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
         UTechnique_List_Widget* ParentListWidget;
 
     UFUNCTION(BlueprintImplementableEvent)
@@ -64,11 +64,15 @@ public:
         FSlateBrush CurrentNormalBrush;
 
 
-    UPROPERTY()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
         FTechnique_Struct CurrentTechnique;
+
 
     UPROPERTY()
         int32 TechniqueIndex;
+
+    void HandleFocusChanged(bool bHasFocus);
+
 
 protected:
     virtual void NativeConstruct() override;

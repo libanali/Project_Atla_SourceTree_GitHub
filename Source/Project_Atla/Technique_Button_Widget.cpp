@@ -11,6 +11,7 @@
 
 
 
+
 void UTechnique_Button_Widget::NativeConstruct()
 {
     Super::NativeConstruct();
@@ -71,6 +72,8 @@ FReply UTechnique_Button_Widget::NativeOnKeyDown(const FGeometry& InGeometry, co
         }
     }
 
+
+
     return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
 }
 
@@ -120,6 +123,44 @@ void UTechnique_Button_Widget::NativeOnFocusLost(const FFocusEvent& InFocusEvent
     Super::NativeOnFocusLost(InFocusEvent);
 
 }
+
+
+
+
+void UTechnique_Button_Widget::HandleFocusChanged(bool bHasFocus)
+{
+
+    if (ParentListWidget && ParentListWidget->DescriptionText)
+    {
+        if (bHasFocus)
+        {
+            ParentListWidget->DescriptionText->SetText(FText::FromString(CurrentTechnique.Description));
+            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Focus Description Updated"));
+
+            // Update button style for focus
+            if (Technique_Button)
+            {
+                FButtonStyle ButtonStyle = Technique_Button->WidgetStyle;
+                ButtonStyle.SetNormal(HoveredBrush);
+                Technique_Button->SetStyle(ButtonStyle);
+            }
+        }
+        else
+        {
+            ParentListWidget->DescriptionText->SetText(FText::GetEmpty());
+
+            // Reset button style when focus is lost
+            if (Technique_Button)
+            {
+                FButtonStyle ButtonStyle = Technique_Button->WidgetStyle;
+                ButtonStyle.SetNormal(CurrentNormalBrush);
+                Technique_Button->SetStyle(ButtonStyle);
+            }
+        }
+    }
+
+}
+
 
 
 
