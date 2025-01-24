@@ -36,6 +36,8 @@ public:
 	// Sets default values for this component's properties
 	UInventory();
 
+    DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryUpdated);
+
 
     // Changed from TArray<TSubclassOf<ABase_Item>> to store quantities
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
@@ -47,7 +49,12 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Inventory")
         bool AddItem(TSubclassOf<ABase_Item> ItemToAdd);
 
+    UPROPERTY(BlueprintAssignable, Category = "Inventory")
+        FOnInventoryUpdated OnInventoryUpdated;
 
+    // Function to use an item
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+        void UseItem(TSubclassOf<ABase_Item> ItemClass);
 
 protected:
 	// Called when the game starts

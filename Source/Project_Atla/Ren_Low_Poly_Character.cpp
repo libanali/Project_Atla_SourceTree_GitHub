@@ -6,6 +6,7 @@
 #include "Kismet/Gameplaystatics.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Enemy_Poly.h"
+#include "Inventory.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/Image.h"
 #include "Command_Menu_Widget.h"
@@ -19,6 +20,7 @@
 #include "Game_Over_Widget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Elemental_Attacks_List_Widget.h"
+
 
 // Sets default values
 ARen_Low_Poly_Character::ARen_Low_Poly_Character()
@@ -61,6 +63,9 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 	PowerUpCamera->SetRelativeLocation(FVector(0.f, 50.f, 150.f)); // Position above the character's head
 	PowerUpCamera->SetRelativeRotation(FRotator(-10.f, 0.f, 0.f)); // Tilt slightly down if needed
+
+	InventoryComponent = CreateDefaultSubobject<UInventory>(TEXT("Inventory Component"));
+
 
 	//Ability
 	bCanUseAbility = false;

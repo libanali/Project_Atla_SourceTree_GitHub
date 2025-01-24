@@ -19,37 +19,36 @@ UInventory::UInventory()
 
 bool UInventory::AddItem(TSubclassOf<ABase_Item> ItemToAdd)
 {
-    // Get the default object to check its properties
     if (!ItemToAdd)
         return false;
 
-    // Get the default object to check its properties
-    ABase_Item* ItemDefault = ItemToAdd.GetDefaultObject();
+    // Get default object to check properties
+    ABase_Item* DefaultItem = ItemToAdd.GetDefaultObject();
 
-    // If item is stackable, try to find existing stack
-    if (ItemDefault->bIsStackable)
+    // Look for existing item in inventory
+    for (FInventoryItem& InvItem : Inventory)
     {
-        int32 ExistingIndex = FindExistingItem(ItemToAdd);
-        if (ExistingIndex != -1)
+        if (InvItem.Item == ItemToAdd)
         {
-            // Found existing stack, check if we can add to it
-            ABase_Item* ExistingItem = Inventory[ExistingIndex].Item.GetDefaultObject();
-            if (Inventory[ExistingIndex].Quantity < ExistingItem->MaxStackSize)
+            if (DefaultItem->bIsStackable)
             {
-                // Add to existing stack
-                Inventory[ExistingIndex].Quantity++;
+                // Increase quantity if stackable
+                InvItem.Quantity++;
+                OnInventoryUpdated.Broadcast();
                 return true;
             }
+            break;
         }
     }
 
-    // If we couldn't stack (or item isn't stackable), try to add to new slot
+    // If we didn't find it or it's not stackable, add new entry
     if (Inventory.Num() < MaxInventorySize)
     {
         FInventoryItem NewItem;
         NewItem.Item = ItemToAdd;
         NewItem.Quantity = 1;
         Inventory.Add(NewItem);
+        OnInventoryUpdated.Broadcast();
         return true;
     }
 
@@ -79,6 +78,35 @@ int32 UInventory::FindExistingItem(TSubclassOf<ABase_Item> ItemToAdd)
 }
 
 
+
+void UInventory::UseItem(TSubclassOf<ABase_Item> ItemClass)
+{
+
+    for (int32 i = 0; i < Inventory.Num(); i++)
+    {
+        if (Inventory[i].Item == ItemClass)
+        {
+            // Spawn temporary item to use its effect
+            if (ABase_Item* Item = GetWorld()->SpawnActor<ABase_Item>(ItemClass))
+            {
+                Item->UseItem(GetOwner());
+                Item->Destroy();
+            }
+
+            // Decrease quantity
+            Inventory[i].Quantity--;
+
+            // Remove item if quantity is 0
+            if (Inventory[i].Quantity <= 0)
+            {
+                Inventory.RemoveAt(i);
+            }
+
+            OnInventoryUpdated.Broadcast();
+            break;
+        }
+    }
+}
 
 // Called when the game starts
 void UInventory::BeginPlay()

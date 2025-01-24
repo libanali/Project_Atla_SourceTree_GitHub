@@ -811,6 +811,10 @@ public:
 	//Command
 
 
+	//Inventory
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
+		class UInventory* InventoryComponent;
+	//Inventory
 
 
 	//Scoring system

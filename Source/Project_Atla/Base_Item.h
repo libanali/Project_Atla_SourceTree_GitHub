@@ -28,14 +28,12 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item Properties")
         int32 MaxStackSize;
 
-    // Components
     UPROPERTY(VisibleAnywhere)
         class USphereComponent* CollisionSphere;
 
     UPROPERTY(VisibleAnywhere)
         class UStaticMeshComponent* ItemMesh;
 
-    // Functions - MODIFIED THIS PART
     UFUNCTION(BlueprintNativeEvent, Category = "Item")
         void UseItem(AActor* User);
 
