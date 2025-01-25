@@ -37,8 +37,14 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
         FInventoryItem CurrentItem;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+        ABase_Item* Item;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
         class ARen_Low_Poly_Character* PlayerCharacter;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Button Style")
+        FSlateBrush HoveredBrush;
 
 
     // Button functions

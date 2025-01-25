@@ -19,6 +19,9 @@ struct FInventoryItem
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
         int32 Quantity;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+        FString ItemDescription;  // Add this line
+
     FInventoryItem()
     {
         Item = nullptr;
@@ -39,6 +42,7 @@ public:
     DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInventoryUpdated);
 
 
+
     // Changed from TArray<TSubclassOf<ABase_Item>> to store quantities
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
         TArray<FInventoryItem> Inventory;
@@ -46,15 +50,23 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
         int32 MaxInventorySize;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
+        bool bIsInventoryEmpty;
+
     UFUNCTION(BlueprintCallable, Category = "Inventory")
         bool AddItem(TSubclassOf<ABase_Item> ItemToAdd);
 
     UPROPERTY(BlueprintAssignable, Category = "Inventory")
         FOnInventoryUpdated OnInventoryUpdated;
 
+
     // Function to use an item
     UFUNCTION(BlueprintCallable, Category = "Inventory")
         void UseItem(TSubclassOf<ABase_Item> ItemClass);
+
+    // Function to use an item
+    UFUNCTION(BlueprintCallable, Category = "Inventory")
+        void CheckCurrentInventory();
 
 protected:
 	// Called when the game starts

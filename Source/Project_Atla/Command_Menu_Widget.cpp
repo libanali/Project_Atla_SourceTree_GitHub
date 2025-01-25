@@ -7,6 +7,7 @@
 #include "Components/TextBlock.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Ren_Low_Poly_Character.h"
+#include "Inventory.h"
 
 
 
@@ -282,6 +283,48 @@ void UCommand_Menu_Widget::OnElementalHovered()
         UpdateInformationText("Use elemental-type attacks.");
 
     
+}
+
+
+
+
+void UCommand_Menu_Widget::CheckInventoryAndSetFocus()
+{
+
+    // Get player character and check inventory
+    ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(GetOwningPlayerPawn());
+    if (!PlayerCharacter || !PlayerCharacter->InventoryComponent)
+        return;
+
+    if (ItemsButton && TechniquesButton)
+    {
+        if (PlayerCharacter->InventoryComponent->bIsInventoryEmpty)
+        {
+            // Inventory is empty
+            ItemsButton->SetRenderOpacity(0.5f);
+            ItemsButton->SetIsEnabled(false);
+            ItemsButton->IsFocusable = false;
+
+            // Focus on Techniques button instead
+            TechniquesButton->SetKeyboardFocus();
+        }
+        else
+        {
+            // Inventory has items
+            ItemsButton->SetRenderOpacity(1.0f);
+            ItemsButton->SetIsEnabled(true);
+            ItemsButton->IsFocusable = true;
+
+            // Set focus to Items button if appropriate
+            if (WidgetSwitcher && WidgetSwitcher->GetActiveWidgetIndex() == 1)  // Main menu index
+            {
+                ItemsButton->SetKeyboardFocus();
+            }
+        }
+    }
+
+
+
 }
 
 

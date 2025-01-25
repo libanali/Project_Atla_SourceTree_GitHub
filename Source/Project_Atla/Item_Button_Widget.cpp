@@ -8,8 +8,13 @@
 #include "Inventory_List_Widget.h"
 #include "Kismet/GameplayStatics.h"
 
+
+
 void UItem_Button_Widget::NativeConstruct()
 {
+
+    Super::NativeConstruct();
+
     if (!Item_Button)
     {
         UE_LOG(LogTemp, Warning, TEXT("Item_Button is nullptr!"));
@@ -40,6 +45,7 @@ void UItem_Button_Widget::OnItemButtonClicked()
         if (UInventory* InventoryComp = PlayerCharacter->FindComponentByClass<UInventory>())
         {
             InventoryComp->UseItem(CurrentItem.Item);
+
             ReturnToGameplay();
         }
     }
@@ -86,22 +92,28 @@ void UItem_Button_Widget::SetupButton(FInventoryItem ItemData, ARen_Low_Poly_Cha
     CurrentItem = ItemData;
     PlayerCharacter = Character;
 
-    // Set up the button text
-    if (Item_Name && CurrentItem.Item)
+    if (CurrentItem.Item)
     {
         ABase_Item* DefaultItem = CurrentItem.Item.GetDefaultObject();
         if (DefaultItem)
         {
-            Item_Name->SetText(FText::FromString(DefaultItem->ItemName));
+            // Set the name
+            if (Item_Name)
+            {
+                Item_Name->SetText(FText::FromString(DefaultItem->ItemName));
+            }
+
+            // Set the quantity
+            if (Item_Quantity)
+            {
+                FString QuantityText = FString::Printf(TEXT("x%d"), CurrentItem.Quantity);
+                Item_Quantity->SetText(FText::FromString(QuantityText));
+            }
+
+            // Store the description
+            CurrentItem.ItemDescription = DefaultItem->Item_Description;
         }
     }
-
-    if (Item_Quantity)
-    {
-        FString QuantityText = FString::Printf(TEXT("x%d"), CurrentItem.Quantity);
-        Item_Quantity->SetText(FText::FromString(QuantityText));
-    }
-
 
 }
 

@@ -25,7 +25,7 @@ public:
     UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
         class UTextBlock* DescriptionText;
 
-    UPROPERTY(EditDefaultsOnly, Category = "UI")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
         TSubclassOf<class UItem_Button_Widget> ItemButtonClass;
 
     void SetupWidget(class ARen_Low_Poly_Character* Character);

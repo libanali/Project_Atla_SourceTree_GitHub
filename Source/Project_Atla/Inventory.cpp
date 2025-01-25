@@ -2,7 +2,7 @@
 
 
 #include "Inventory.h"
-
+#include "Ren_Low_Poly_Character.h"
 // Sets default values for this component's properties
 UInventory::UInventory()
 {
@@ -12,7 +12,7 @@ UInventory::UInventory()
 
 	MaxInventorySize = 20;
 
-
+    bIsInventoryEmpty = true;
 	// ...
 }
 
@@ -34,6 +34,7 @@ bool UInventory::AddItem(TSubclassOf<ABase_Item> ItemToAdd)
             {
                 // Increase quantity if stackable
                 InvItem.Quantity++;
+                CheckCurrentInventory();
                 OnInventoryUpdated.Broadcast();
                 return true;
             }
@@ -49,34 +50,12 @@ bool UInventory::AddItem(TSubclassOf<ABase_Item> ItemToAdd)
         NewItem.Quantity = 1;
         Inventory.Add(NewItem);
         OnInventoryUpdated.Broadcast();
+        CheckCurrentInventory();
         return true;
     }
 
     return false;
 }
-
-
-
-
-
-int32 UInventory::FindExistingItem(TSubclassOf<ABase_Item> ItemToAdd)
-{
-    // Get the default object to check its properties
-    ABase_Item* ItemDefault = ItemToAdd.GetDefaultObject();
-    FString ItemNameToFind = ItemDefault->ItemName;
-
-    // Look through inventory for matching item
-    for (int32 i = 0; i < Inventory.Num(); i++)
-    {
-        ABase_Item* ExistingItem = Inventory[i].Item.GetDefaultObject();
-        if (ExistingItem && ExistingItem->ItemName == ItemNameToFind)
-        {
-            return i;
-        }
-    }
-    return -1;
-}
-
 
 
 void UInventory::UseItem(TSubclassOf<ABase_Item> ItemClass)
@@ -103,10 +82,55 @@ void UInventory::UseItem(TSubclassOf<ABase_Item> ItemClass)
             }
 
             OnInventoryUpdated.Broadcast();
+            CheckCurrentInventory();
             break;
         }
     }
 }
+
+
+
+
+int32 UInventory::FindExistingItem(TSubclassOf<ABase_Item> ItemToAdd)
+{
+    // Get the default object to check its properties
+    ABase_Item* ItemDefault = ItemToAdd.GetDefaultObject();
+    FString ItemNameToFind = ItemDefault->ItemName;
+
+    // Look through inventory for matching item
+    for (int32 i = 0; i < Inventory.Num(); i++)
+    {
+        ABase_Item* ExistingItem = Inventory[i].Item.GetDefaultObject();
+        if (ExistingItem && ExistingItem->ItemName == ItemNameToFind)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+
+
+
+void UInventory::CheckCurrentInventory()
+{
+    bool bWasEmpty = bIsInventoryEmpty;
+    bIsInventoryEmpty = (Inventory.Num() == 0);
+
+    // If the inventory state changed, update UI
+    if (bWasEmpty != bIsInventoryEmpty)
+    {
+        if (ARen_Low_Poly_Character* Character = Cast<ARen_Low_Poly_Character>(GetOwner()))
+        {
+            if (Character->CommandMenuWidget)
+            {
+                Character->CommandMenuWidget->CheckInventoryAndSetFocus();
+            }
+        }
+    }
+}
+
+
 
 // Called when the game starts
 void UInventory::BeginPlay()

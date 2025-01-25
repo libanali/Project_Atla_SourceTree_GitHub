@@ -792,6 +792,8 @@ public:
 
 	void UpdateVisibilityBasedOnIndex(int Index);
 
+	//void UpdateItemsButtonState();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		bool bIsInUIMode;
 
@@ -806,6 +808,8 @@ public:
 	// Track if the Techniques is open
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		bool bIsElementalsOpen = false;
+
+
 
 	UButton* LastFocusedButton;
 	//Command

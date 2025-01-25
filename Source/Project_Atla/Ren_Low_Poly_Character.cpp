@@ -3370,7 +3370,7 @@ void ARen_Low_Poly_Character::SetItemsButtonFocus()
 
 	if (CommandMenuWidget && CommandMenuWidget->ItemsButton && !bIsDead)
 	{
-		if (!bIsInventoryEmpty)
+		if (!InventoryComponent->bIsInventoryEmpty)
 		{
 			CommandMenuWidget->ItemsButton->SetKeyboardFocus(); // Focus on the Items Button
 			UE_LOG(LogTemp, Warning, TEXT("Focus set on Items Button after delay."));
@@ -3382,7 +3382,6 @@ void ARen_Low_Poly_Character::SetItemsButtonFocus()
 		}
 	}
 }
-
 
 
 
@@ -3415,6 +3414,7 @@ void ARen_Low_Poly_Character::ToggleCommandMenu()
 			GetWorldTimerManager().SetTimerForNextTick(this, &ARen_Low_Poly_Character::SetItemsButtonFocus);
 
 			CommandMenuWidget->CheckInventoryAndSetFocus();
+
 
 			SetInputModeForUI();
 			bIsInUIMode = true;
@@ -3528,6 +3528,8 @@ void ARen_Low_Poly_Character::UpdateVisibilityBasedOnIndex(int Index)
 
 
 }
+
+
 
 
 

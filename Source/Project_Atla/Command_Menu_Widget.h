@@ -133,7 +133,7 @@ public:
         void OnElementalHovered();
 
 
-    UFUNCTION(BlueprintImplementableEvent, Category = "Inventory")
+    UFUNCTION(BlueprintCallable)
         void CheckInventoryAndSetFocus();
 
 
