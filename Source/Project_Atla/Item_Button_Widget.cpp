@@ -44,7 +44,8 @@ void UItem_Button_Widget::OnItemButtonClicked()
 
         if (UInventory* InventoryComp = PlayerCharacter->FindComponentByClass<UInventory>())
         {
-            InventoryComp->UseItem(CurrentItem.Item);
+          //  InventoryComp->UseItem(CurrentItem.Item);
+            PlayerCharacter->CurrentItemBeingUsed = CurrentItem;
 
             ReturnToGameplay();
         }

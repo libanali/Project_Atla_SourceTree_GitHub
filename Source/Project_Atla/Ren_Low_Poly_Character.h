@@ -26,6 +26,7 @@
 #include "Weapon_Proficiency_Struct.h"
 #include "Command_Menu_Widget.h"
 #include "Enemy_Detection_Arrow.h"
+#include "Inventory.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
 
@@ -817,6 +818,9 @@ public:
 	//Inventory
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Inventory")
 		class UInventory* InventoryComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
+		FInventoryItem CurrentItemBeingUsed;
 	//Inventory
 
 
