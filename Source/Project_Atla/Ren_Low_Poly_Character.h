@@ -810,7 +810,6 @@ public:
 		bool bIsElementalsOpen = false;
 
 
-
 	UButton* LastFocusedButton;
 	//Command
 
