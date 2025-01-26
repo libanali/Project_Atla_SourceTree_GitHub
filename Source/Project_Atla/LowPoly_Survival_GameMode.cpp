@@ -241,7 +241,7 @@ void ALowPoly_Survival_GameMode::StartNextRound()
 
     bIsPowerUpSpawned = false;
 
-    NextSpawnRound = FMath::RandRange(1, 1);
+    NextSpawnRound = FMath::RandRange(3, 6);
 
 
 }

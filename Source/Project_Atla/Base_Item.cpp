@@ -25,7 +25,7 @@ ABase_Item::ABase_Item()
 
     // Default properties
     bIsStackable = false;
-    MaxStackSize = 1;
+    MaxStackSize = 3;
     ItemName = TEXT("Base Item");
 }
 

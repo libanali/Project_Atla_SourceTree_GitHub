@@ -135,11 +135,6 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 
 
-
-	//WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Sword, FElemental_Proficiency_Struct());
-	//WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Staff, FElemental_Proficiency_Struct());
-
-
 	
 
 	InitialiseDefaultElementalProficiencyValues();

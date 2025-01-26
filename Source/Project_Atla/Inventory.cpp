@@ -10,51 +10,58 @@ UInventory::UInventory()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	MaxInventorySize = 20;
+	//MaxInventorySize = 10;
 
     bIsInventoryEmpty = true;
+
+
+    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
+        FString::Printf(TEXT("Constructor: MaxInventorySize = %d"), MaxInventorySize));
 	// ...
 }
 
 
 bool UInventory::AddItem(TSubclassOf<ABase_Item> ItemToAdd)
 {
+
+    //GEngine->AddOnScreenDebugMessage(-1, 4.5f, FColor::Yellow,
+        //FString::Printf(TEXT("Current Inventory Size: %d/%d"), Inventory.Num(), MaxInventorySize));
+
     if (!ItemToAdd)
         return false;
 
-    // Get default object to check properties
-    ABase_Item* DefaultItem = ItemToAdd.GetDefaultObject();
+    int32 totalItems = 0;
+    for (const FInventoryItem& InvItem : Inventory)
+    {
+        totalItems += InvItem.Quantity;
+    }
 
-    // Look for existing item in inventory
+    if (totalItems >= MaxInventorySize)
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 4.5f, FColor::Red, TEXT("Inventory Full!"));
+        return false;
+    }
+
+    // Check for existing item
     for (FInventoryItem& InvItem : Inventory)
     {
         if (InvItem.Item == ItemToAdd)
         {
-            if (DefaultItem->bIsStackable)
-            {
-                // Increase quantity if stackable
-                InvItem.Quantity++;
-                CheckCurrentInventory();
-                OnInventoryUpdated.Broadcast();
-                return true;
-            }
-            break;
+            InvItem.Quantity++;
+            OnInventoryUpdated.Broadcast();
+            CheckCurrentInventory();
+            return true;
         }
     }
 
-    // If we didn't find it or it's not stackable, add new entry
-    if (Inventory.Num() < MaxInventorySize)
-    {
-        FInventoryItem NewItem;
-        NewItem.Item = ItemToAdd;
-        NewItem.Quantity = 1;
-        Inventory.Add(NewItem);
-        OnInventoryUpdated.Broadcast();
-        CheckCurrentInventory();
-        return true;
-    }
-
-    return false;
+    // If item not found, create new slot
+    FInventoryItem NewItem;
+    NewItem.Item = ItemToAdd;
+    NewItem.Quantity = 1;
+    Inventory.Add(NewItem);
+    OnInventoryUpdated.Broadcast();
+    CheckCurrentInventory();
+    return true;
 }
 
 
@@ -137,7 +144,8 @@ void UInventory::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
+        FString::Printf(TEXT("MaxInventorySize initialized to: %d"), MaxInventorySize));
 	
 }
 
