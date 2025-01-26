@@ -15,9 +15,8 @@ UInventory::UInventory()
     bIsInventoryEmpty = true;
 
 
-    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
-        FString::Printf(TEXT("Constructor: MaxInventorySize = %d"), MaxInventorySize));
-	// ...
+   // GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
+    //    FString::Printf(TEXT("Constructor: MaxInventorySize = %d"), MaxInventorySize));
 }
 
 
