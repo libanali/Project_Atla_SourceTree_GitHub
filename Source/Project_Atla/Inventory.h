@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Base_Item.h"
+#include "Notification_Widget.h"
 #include "Inventory.generated.h"
 
 
@@ -59,6 +60,8 @@ public:
     UPROPERTY(BlueprintAssignable, Category = "Inventory")
         FOnInventoryUpdated OnInventoryUpdated;
 
+    UPROPERTY()
+        UNotification_Widget* NotificationWidget;
 
     // Function to use an item
     UFUNCTION(BlueprintCallable, Category = "Inventory")
@@ -71,6 +74,9 @@ public:
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
+
+
+
 
 private:
 

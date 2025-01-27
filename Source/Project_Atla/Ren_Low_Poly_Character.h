@@ -821,6 +821,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Inventory")
 		FInventoryItem CurrentItemBeingUsed;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+		TSubclassOf<UNotification_Widget> NotificationWidgetClass;
+
+	UPROPERTY()
+		UNotification_Widget* NotificationWidget;
+
+	// Function to create notification widget
+	void CreateNotificationWidget();
 	//Inventory
 
 

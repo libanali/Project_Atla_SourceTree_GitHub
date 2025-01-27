@@ -18,6 +18,7 @@
 #include "Player_Save_Game.h"
 #include "Game_Instance.h"
 #include "Game_Over_Widget.h"
+#include "Notification_Widget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Elemental_Attacks_List_Widget.h"
 
@@ -453,6 +454,34 @@ void ARen_Low_Poly_Character::DisplayGameOverUI()
 }
 
 
+
+void ARen_Low_Poly_Character::CreateNotificationWidget()
+{
+
+	if (NotificationWidgetClass)
+	{
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		if (PC)
+		{
+			NotificationWidget = CreateWidget<UNotification_Widget>(PC, NotificationWidgetClass);
+			if (NotificationWidget)
+			{
+				NotificationWidget->AddToViewport();
+
+				// Get the inventory component and set its notification widget
+				if (UInventory* InventoryComp = FindComponentByClass<UInventory>())
+				{
+					InventoryComp->NotificationWidget = NotificationWidget;
+				}
+			}
+		}
+	}
+
+
+
+
+
+}
 
 void ARen_Low_Poly_Character::AddPoints(int32 Points)
 {
@@ -3003,6 +3032,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	// Initialize Elemental Proficiencies
 	//InitialiseElementalProficiencies();
+
+	CreateNotificationWidget();
 
 
 	LoadHighScore();

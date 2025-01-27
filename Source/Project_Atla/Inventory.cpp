@@ -10,13 +10,11 @@ UInventory::UInventory()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
-	//MaxInventorySize = 10;
+	MaxInventorySize = 10;
 
     bIsInventoryEmpty = true;
 
 
-   // GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
-    //    FString::Printf(TEXT("Constructor: MaxInventorySize = %d"), MaxInventorySize));
 }
 
 
@@ -29,6 +27,12 @@ bool UInventory::AddItem(TSubclassOf<ABase_Item> ItemToAdd)
     if (!ItemToAdd)
         return false;
 
+    // First verify NotificationWidget exists
+    if (!NotificationWidget)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("NotificationWidget is null"));
+    }
+
     int32 totalItems = 0;
     for (const FInventoryItem& InvItem : Inventory)
     {
@@ -37,7 +41,11 @@ bool UInventory::AddItem(TSubclassOf<ABase_Item> ItemToAdd)
 
     if (totalItems >= MaxInventorySize)
     {
-        GEngine->AddOnScreenDebugMessage(-1, 4.5f, FColor::Red, TEXT("Inventory Full!"));
+        // Try just a simple notification here first
+        if (NotificationWidget && IsValid(NotificationWidget))
+        {
+            NotificationWidget->AddNotification(TEXT("Inventory Full!"), 3.0f);
+        }
         return false;
     }
 
@@ -58,6 +66,7 @@ bool UInventory::AddItem(TSubclassOf<ABase_Item> ItemToAdd)
     NewItem.Item = ItemToAdd;
     NewItem.Quantity = 1;
     Inventory.Add(NewItem);
+
     OnInventoryUpdated.Broadcast();
     CheckCurrentInventory();
     return true;
@@ -93,6 +102,8 @@ void UInventory::UseItem(TSubclassOf<ABase_Item> ItemClass)
         }
     }
 }
+
+
 
 
 
