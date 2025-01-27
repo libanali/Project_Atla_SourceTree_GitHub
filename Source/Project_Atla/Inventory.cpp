@@ -67,7 +67,7 @@ bool UInventory::AddItem(TSubclassOf<ABase_Item> ItemToAdd)
             // Show stacked item notification
             if (NotificationWidget && IsValid(NotificationWidget))
             {
-                FString Message = FString::Printf(TEXT("Obtained %s"), *ItemName);
+                FString Message = FString::Printf(TEXT("%s x1"), *ItemName);
                 NotificationWidget->AddNotification(Message, 3.0f);
             }
 
@@ -86,7 +86,7 @@ bool UInventory::AddItem(TSubclassOf<ABase_Item> ItemToAdd)
     // Show new item notification
     if (NotificationWidget && IsValid(NotificationWidget))
     {
-        FString Message = FString::Printf(TEXT("Obtained %s"), *ItemName);
+        FString Message = FString::Printf(TEXT("%s x1"), *ItemName);
         NotificationWidget->AddNotification(Message, 3.0f);
     }
 

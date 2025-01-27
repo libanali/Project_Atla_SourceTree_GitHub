@@ -27,6 +27,7 @@
 #include "Command_Menu_Widget.h"
 #include "Enemy_Detection_Arrow.h"
 #include "Inventory.h"
+#include "Action_Banner_Widget.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
 
@@ -845,7 +846,16 @@ public:
 	//Scoring system
 
 
+	//Action Banner
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+		TSubclassOf<class UAction_Banner_Widget> ActionBannerClass;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UWidgetComponent* ActionBannerWidgetComponent;
 
+	UFUNCTION()
+		void SpawnActionBanner(const FString& Text);
+	//Action Banner
 
 
 	//Enemy Arrow UI

@@ -12,6 +12,7 @@
 #include "Command_Menu_Widget.h"
 #include "Components/Button.h"
 #include "Components/Widget.h"
+#include "Components/WidgetComponent.h"
 #include "Camera/CameraShakeBase.h"
 #include "Technique_Struct.h"
 #include "Enemy_Detection_Arrow.h"
@@ -64,6 +65,11 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 	PowerUpCamera->SetRelativeLocation(FVector(0.f, 50.f, 150.f)); // Position above the character's head
 	PowerUpCamera->SetRelativeRotation(FRotator(-10.f, 0.f, 0.f)); // Tilt slightly down if needed
+
+	ActionBannerWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Action Banner Widget"));
+	ActionBannerWidgetComponent->SetupAttachment(RootComponent);
+	ActionBannerWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
+	ActionBannerWidgetComponent->SetVisibility(false);
 
 	InventoryComponent = CreateDefaultSubobject<UInventory>(TEXT("Inventory Component"));
 
@@ -1037,6 +1043,8 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 			// Log success
 			UE_LOG(LogTemp, Log, TEXT("Technique %s used, %d points deducted."), *SelectedTechnique.TechniqueName, SelectedTechnique.PointsRequired);
 
+			SpawnActionBanner(SelectedTechnique.TechniqueName);
+
 			// Only reset gauge if we still have technique points
 			if (TechniqueStruct.TechniquePoints < TechniqueStruct.MaxTechniquePoints)
 			{
@@ -1161,6 +1169,20 @@ void ARen_Low_Poly_Character::UnlockWeaponTechnique(EWeaponType TheWeaponType, i
 		{
 			// Unlock the technique
 			Technique.bIsUnlocked = true;
+
+			// Create notification message
+			FString WeaponTypeString = UEnum::GetValueAsString(TheWeaponType);
+			// Remove the enumeration prefix if it exists (e.g., "EWeaponType::Sword" -> "Sword")
+			WeaponTypeString.RemoveFromStart(TEXT("EWeaponType::"));
+
+			FString NotificationMessage = FString::Printf(TEXT("%s Level Up! Unlocked: %s"), *WeaponTypeString,	*Technique.TechniqueName);
+
+			if (NotificationWidget)
+			{
+
+				NotificationWidget->AddNotification(NotificationMessage, 6.0f);
+
+			}
 
 			// Log the unlock
 			UE_LOG(LogTemp, Warning, TEXT("=== NEW TECHNIQUE UNLOCKED ==="));
@@ -1494,6 +1516,8 @@ void ARen_Low_Poly_Character::UseElementalAttack(const FElemental_Struct& Attack
 				UE_LOG(LogTemp, Warning, TEXT("Successfully used attack: %s"), *SelectedElementalAttack.ElementalAttackName);
 				UE_LOG(LogTemp, Warning, TEXT("Mana Cost: %.1f, Current Mana: %.1f"),
 					SelectedElementalAttack.ManaCost, ManaStruct.CurrentMana);
+
+				SpawnActionBanner(SelectedElementalAttack.ElementalAttackName);
 			}
 			else
 			{
@@ -1672,6 +1696,11 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 					TEXT("Creates an explosion, burns enemies for longer."));
 				NewAbility.ManaCost = 30.0f;
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.2 Ability for Sword!"));
+
+				if (NotificationWidget)
+				{
+					NotificationWidget->AddNotification(TEXT("Unlocked Fire Lv.2 - Sword"), 3.0f);
+				}
 			}
 			else if (CurrentLevel == 3)
 			{
@@ -1679,6 +1708,11 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 					TEXT("Summons molten spikes, burns enemies for an extended time."));
 				NewAbility.ManaCost = 45.0f;
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.3 Ability for Sword!"));
+
+				if (NotificationWidget)
+				{
+					NotificationWidget->AddNotification(TEXT("Unlocked Fire Lv.3 - Sword"), 3.0f);
+				}
 			}
 			break;
 
@@ -1689,6 +1723,10 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 					TEXT("Summons ice shards, freezing enemies for longer."));
 				NewAbility.ManaCost = 30.0f;
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.2 Ability for Sword!"));
+				if (NotificationWidget)
+				{
+					NotificationWidget->AddNotification(TEXT("Unlocked Ice Lv.2 - Sword"), 3.0f);
+				}
 			}
 			else if (CurrentLevel == 3)
 			{
@@ -1696,6 +1734,10 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 					TEXT("Summons ice spiral, freezing enemies for an extended time."));
 				NewAbility.ManaCost = 45.0f;
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.3 Ability for Sword!"));
+				if (NotificationWidget)
+				{
+					NotificationWidget->AddNotification(TEXT("Unlocked Ice Lv.3 - Sword"), 3.0f);
+				}
 			}
 			break;
 
@@ -1706,6 +1748,11 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 					TEXT("Summons lightning, stunning enemies for longer."));
 				NewAbility.ManaCost = 30.0f;
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.2 Ability for Sword!"));
+				if (NotificationWidget)
+				{
+					NotificationWidget->AddNotification(TEXT("Unlocked Thunder Lv.2 - Sword"), 3.0f);
+
+				}
 			}
 			else if (CurrentLevel == 3)
 			{
@@ -1713,6 +1760,10 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 					TEXT("Summons lightning hoop, stunning enemies for an extended time."));
 				NewAbility.ManaCost = 45.0f;
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.3 Ability for Sword!"));
+				if (NotificationWidget)
+				{
+					NotificationWidget->AddNotification(TEXT("Unlocked Thunder Lv.3 - Sword"), 3.0f);
+				}
 			}
 			break;
 		}
@@ -1728,6 +1779,10 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 					TEXT("Creates a larger explosion, burns enemies for longer."));
 				NewAbility.ManaCost = 25.0f;  // Staff uses less mana
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.2 Ability for Staff!"));
+				if (NotificationWidget)
+				{
+					NotificationWidget->AddNotification(TEXT("Unlocked Fire Lv.2 - Staff"), 3.0f);
+				}
 			}
 			else if (CurrentLevel == 3)
 			{
@@ -1735,6 +1790,10 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 					TEXT("Summons multiple molten spikes, burns enemies for an extended time."));
 				NewAbility.ManaCost = 40.0f;
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Fire Lv.3 Ability for Staff!"));
+				if (NotificationWidget)
+				{
+					NotificationWidget->AddNotification(TEXT("Unlocked Fire Lv.3 - Staff"), 3.0f);
+				}
 			}
 			break;
 
@@ -1745,6 +1804,10 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 					TEXT("Creates a frost nova, freezing multiple enemies."));
 				NewAbility.ManaCost = 25.0f;
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.2 Ability for Staff!"));
+				if (NotificationWidget)
+				{
+					NotificationWidget->AddNotification(TEXT("Unlocked Ice Lv.2 - Staff"), 3.0f);
+				}
 			}
 			else if (CurrentLevel == 3)
 			{
@@ -1752,6 +1815,10 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 					TEXT("Summons an ice storm, freezing all nearby enemies."));
 				NewAbility.ManaCost = 40.0f;
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Ice Lv.3 Ability for Staff!"));
+				if (NotificationWidget)
+				{
+					NotificationWidget->AddNotification(TEXT("Unlocked Ice Lv.3 - Staff"), 3.0f);
+				}
 			}
 			break;
 
@@ -1762,6 +1829,10 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 					TEXT("Calls down chain lightning, stunning multiple enemies."));
 				NewAbility.ManaCost = 25.0f;
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.2 Ability for Staff!"));
+				if (NotificationWidget)
+				{
+					NotificationWidget->AddNotification(TEXT("Unlocked Thunder Lv.2 - Staff"), 3.0f);
+				}
 			}
 			else if (CurrentLevel == 3)
 			{
@@ -1769,6 +1840,10 @@ void ARen_Low_Poly_Character::UnlockElementalAbility(EWeaponType TheWeaponType, 
 					TEXT("Creates a thunder storm, stunning all nearby enemies."));
 				NewAbility.ManaCost = 40.0f;
 				UE_LOG(LogTemp, Warning, TEXT("Unlocked Thunder Lv.3 Ability for Staff!"));
+				if (NotificationWidget)
+				{
+					NotificationWidget->AddNotification(TEXT("Unlocked Thunder Lv.3 - Staff"), 3.0f);
+				}
 			}
 			break;
 		}
@@ -2855,6 +2930,39 @@ void ARen_Low_Poly_Character::CheckAndApplyWeaponLevelUp(EWeaponType TheWeaponTy
 
 
 
+
+
+void ARen_Low_Poly_Character::SpawnActionBanner(const FString& Text)
+{
+
+
+	if (ActionBannerWidgetComponent && ActionBannerClass)
+	{
+		// Set the widget class if not already set
+		ActionBannerWidgetComponent->SetWidgetClass(ActionBannerClass);
+
+		// Get or create the widget instance
+		UAction_Banner_Widget* ActionBannerWidget = Cast<UAction_Banner_Widget>(ActionBannerWidgetComponent->GetUserWidgetObject());
+		if (!ActionBannerWidget)
+		{
+			ActionBannerWidget = Cast<UAction_Banner_Widget>(ActionBannerWidgetComponent->GetWidget());
+		}
+
+		if (ActionBannerWidget)
+		{
+			// Set the text
+			ActionBannerWidget->SetText(Text);
+			// Make sure the widget is visible
+			ActionBannerWidgetComponent->SetVisibility(true);
+		}
+	}
+
+}
+
+
+
+
+
 void ARen_Low_Poly_Character::UpdateEnemyArrows()
 {
 
@@ -3178,7 +3286,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 			Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("Furious multi-strike sword combo."), true, StormStrikeFlurryAnimMontage, 1.6f, 1, 1 });
 			Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("Electrifying ground-slam force field."), false, VoltageBreakerAnimMontage, 1.3f, 2, 2 });
 			Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Rapid flurry of strikes."), false, TempestBarrageAnimMontage, 1.7f, 3, 3 });
-			Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Lightning-infused sword combo."), false, StaticRushAnimMontage, 2.4f, 4, 4 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("Lightning-infused sword combo."), false, StaticRushAnimMontage, 2.8f, 4, 4 });
 			// Create FWeaponTechniques struct and store the techniques
 			FWeaponTechniques SwordTechniques;
 			SwordTechniques.WeaponTechniques = Techniques;
