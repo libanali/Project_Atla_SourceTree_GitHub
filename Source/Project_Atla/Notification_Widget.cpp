@@ -36,9 +36,9 @@ void UNotification_Widget::NativeConstruct()
     SetVisibility(ESlateVisibility::Hidden);
 
 
-    AddNotification("Item Collected 1!", 3.0f);
-    AddNotification("Item Collected 2!", 5.0f);
-    AddNotification("Item Collected 3!", 7.0f);
+   // AddNotification("Item Collected 1!", 3.0f);
+   // AddNotification("Item Collected 2!", 5.0f);
+   // AddNotification("Item Collected 3!", 7.0f);
 
 }
 
@@ -103,6 +103,8 @@ UBorder* UNotification_Widget::CreateNotificationEntry(const FString& Message)
             NewText->SetShadowOffset(NotificationText->GetShadowOffset());
             NewText->SetShadowColorAndOpacity(NotificationText->GetShadowColorAndOpacity());
             NewText->SetJustification(ETextJustify::Center);
+            NewText->SetAutoWrapText(true);
+            NewText->SetWrappingPolicy(ETextWrappingPolicy::AllowPerCharacterWrapping);
             NewText->SetText(FText::FromString(Message));
 
             // Set the TextBlock as the Border's content

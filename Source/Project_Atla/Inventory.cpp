@@ -3,6 +3,7 @@
 
 #include "Inventory.h"
 #include "Ren_Low_Poly_Character.h"
+
 // Sets default values for this component's properties
 UInventory::UInventory()
 {
@@ -39,9 +40,16 @@ bool UInventory::AddItem(TSubclassOf<ABase_Item> ItemToAdd)
         totalItems += InvItem.Quantity;
     }
 
+    // Get item name for notifications
+    FString ItemName = TEXT("Unknown Item");
+    if (ABase_Item* ItemDefault = ItemToAdd.GetDefaultObject())
+    {
+        ItemName = ItemDefault->ItemName;  // Assuming your Base_Item has an ItemName property
+    }
+
     if (totalItems >= MaxInventorySize)
     {
-        // Try just a simple notification here first
+        // Inventory full notification
         if (NotificationWidget && IsValid(NotificationWidget))
         {
             NotificationWidget->AddNotification(TEXT("Inventory Full!"), 3.0f);
@@ -55,6 +63,14 @@ bool UInventory::AddItem(TSubclassOf<ABase_Item> ItemToAdd)
         if (InvItem.Item == ItemToAdd)
         {
             InvItem.Quantity++;
+
+            // Show stacked item notification
+            if (NotificationWidget && IsValid(NotificationWidget))
+            {
+                FString Message = FString::Printf(TEXT("Obtained %s"), *ItemName);
+                NotificationWidget->AddNotification(Message, 3.0f);
+            }
+
             OnInventoryUpdated.Broadcast();
             CheckCurrentInventory();
             return true;
@@ -66,6 +82,13 @@ bool UInventory::AddItem(TSubclassOf<ABase_Item> ItemToAdd)
     NewItem.Item = ItemToAdd;
     NewItem.Quantity = 1;
     Inventory.Add(NewItem);
+
+    // Show new item notification
+    if (NotificationWidget && IsValid(NotificationWidget))
+    {
+        FString Message = FString::Printf(TEXT("Obtained %s"), *ItemName);
+        NotificationWidget->AddNotification(Message, 3.0f);
+    }
 
     OnInventoryUpdated.Broadcast();
     CheckCurrentInventory();
