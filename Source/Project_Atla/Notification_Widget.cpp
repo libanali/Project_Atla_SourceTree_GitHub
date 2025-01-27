@@ -7,6 +7,7 @@
 #include "Components/Border.h"
 #include "Animation/WidgetAnimation.h"
 #include "Blueprint/WidgetTree.h"
+#include "Components/VerticalBoxSlot.h"
 
 
 void UNotification_Widget::NativeConstruct()
@@ -31,13 +32,13 @@ void UNotification_Widget::NativeConstruct()
     }
 
 
-    //SetVisibility(ESlateVisibility::Collapsed);
+
+    SetVisibility(ESlateVisibility::Hidden);
 
 
     AddNotification("Item Collected 1!", 3.0f);
     AddNotification("Item Collected 2!", 5.0f);
     AddNotification("Item Collected 3!", 7.0f);
-
 
 }
 
@@ -89,6 +90,8 @@ UBorder* UNotification_Widget::CreateNotificationEntry(const FString& Message)
         NewBorder->Background = NewBrush;
         NewBorder->SetBrushColor(Border->GetBrushColor());
         NewBorder->SetPadding(Border->GetPadding());
+        NewBorder->SetRenderShear(FVector2D(-16.0f, 0.0f));
+        //NewBorder->SetPadding(FMargin(15.0f));
 
         // Create new TextBlock
         UTextBlock* NewText = NewObject<UTextBlock>(this);
@@ -115,18 +118,28 @@ UBorder* UNotification_Widget::CreateNotificationEntry(const FString& Message)
 
 void UNotification_Widget::AddNotification(const FString& Message, float Duration)
 {
-    // Create new Border containing the styled TextBlock for this notification
     UBorder* NewBorder = CreateNotificationEntry(Message);
     if (NewBorder && NotificationContainer)
     {
-        // Add the Border to the top of the VerticalBox
-        NotificationContainer->AddChildToVerticalBox(NewBorder);
-        // Create and add notification info to our tracking array
+        // Get the slot and set its properties
+        UVerticalBoxSlot* NotificationSlot = Cast<UVerticalBoxSlot>(NotificationContainer->AddChild(NewBorder));
+        if (NotificationSlot)
+        {
+            // First number: Left padding
+            // Second number: Top padding
+            // Third number: Right padding
+            // Fourth number: Bottom padding (this creates the space between notifications)
+            NotificationSlot->SetPadding(FMargin(10.0f, 10.0f, 10.0f, 10.0f));
+
+            // Make sure notification fills the width
+           // NotificationSlot->SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
+        }
+
         FNotificationInfo NewNotification(Message, Duration);
         NewNotification.NotificationBorder = NewBorder;
         ActiveNotifications.Add(NewNotification);
-        SetVisibility(ESlateVisibility::Visible);  // or just Visible if you prefer
 
+        SetVisibility(ESlateVisibility::SelfHitTestInvisible);
     }
 }
 
