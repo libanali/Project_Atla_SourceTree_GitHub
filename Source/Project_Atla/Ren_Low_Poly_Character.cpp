@@ -18,7 +18,6 @@
 #include "Enemy_Detection_Arrow.h"
 #include "Player_Save_Game.h"
 #include "Game_Instance.h"
-#include "Game_Over_Widget.h"
 #include "Notification_Widget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Elemental_Attacks_List_Widget.h"
@@ -354,27 +353,6 @@ void ARen_Low_Poly_Character::IncreaseStats(float AdditionalHealth, float Additi
 
 
 
-void ARen_Low_Poly_Character::SpawnPlayerCharacterForRender()
-{
-	bRenderTarget = true;
-
-	if (bRenderTarget && bIsDead)
-
-	{
-
-		FVector RenderSpawnLocation = FVector(-3249.0, 570.0, 207.0);
-
-		SetActorLocation(RenderSpawnLocation);
-
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Cyan, TEXT("Character Spawned to new location"));
-
-	}
-
-
-}
-
-
-
 
 
 
@@ -403,61 +381,6 @@ void ARen_Low_Poly_Character::UpdateHighScore(int32 NewScore)
 }
 
 
-
-
-void ARen_Low_Poly_Character::DisplayGameOverUI()
-{
-	// Check if the GameOverWidgetInstance already exists, if not create it
-	if (!GameOverWidgetInstance)
-	{
-		GameOverWidgetInstance = CreateWidget<UGame_Over_Widget>(GetWorld(), GameOverWidgetClass);
-	}
-
-	if (GameOverWidgetInstance)
-	{
-		// Use the player's score and high score from the character class
-		int32 FinalScore = PlayerScore;
-
-		// Determine the high score based on the equipped weapon
-		int32 HighScore = (WeaponType == EWeaponType::Sword) ? SwordHighScore : StaffHighScore;
-
-		// Set up the widget with final score and high score
-		GameOverWidgetInstance->SetUpGameOverUI(FinalScore, HighScore);
-
-
-
-		// Trigger the score animation
-		//GameOverWidgetInstance->StartScoreAnimation();
-		if (Results_Camera)
-		{
-
-			GameOverWidgetInstance->Results_Camera = Results_Camera;
-
-		}
-
-		else
-
-		{
-
-			UE_LOG(LogTemp, Error, TEXT("Results_Camera reference is null!"));
-
-		}
-		// Add the widget to the viewport if it's not already there
-		if (!GameOverWidgetInstance->IsInViewport())
-		{
-			GameOverWidgetInstance->AddToViewport();
-		}
-
-		// Update the high score if the final score exceeds it
-	//	UpdateHighScore(FinalScore);
-
-		SaveHighScore();
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to create Game Over Widget!"));
-	}
-}
 
 
 
@@ -504,73 +427,6 @@ void ARen_Low_Poly_Character::AddPoints(int32 Points)
 
 
 
-
-void ARen_Low_Poly_Character::Score_Reaction_Anim()
-{
-
-	// Ensure WeaponType is set correctly
-	if (WeaponType == EWeaponType::Sword)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Using Sword Weapon"));
-	}
-	else if (WeaponType == EWeaponType::Staff)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Using Staff Weapon"));
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("Unknown Weapon Type!"));
-	}
-
-	// Fetch the correct high score based on WeaponType
-	int32 HighScore = (WeaponType == EWeaponType::Sword) ? SwordHighScore : StaffHighScore;
-
-	// Debug log to verify HighScore selection
-	UE_LOG(LogTemp, Warning, TEXT("HighScore selected: %d"), HighScore);
-
-	if (GameOverWidgetInstance)
-	{
-		if (GameOverWidgetInstance->CurrentDisplayedScore > HighScore)
-		{
-			//PlayAnimMontage(VictoryAnim, 1.0f); // Cheer animation
-			UE_LOG(LogTemp, Warning, TEXT("New High Score!"));
-			bIsGreaterThanHighScore = true;
-		}
-		else
-		{
-
-			UE_LOG(LogTemp, Warning, TEXT("Try Harder..."));
-			bIsGreaterThanHighScore = false;
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("GameOverWidgetInstance is null!"));
-	}
-
-}
-
-
-
-void ARen_Low_Poly_Character::FindResultsCamera()
-{
-
-	TArray<AActor*> TaggedActors;
-
-	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("results_camera"), TaggedActors);
-
-	if (TaggedActors.Num() > 0)
-	{
-		Results_Camera = TaggedActors[0]; // Get the first actor with the tag
-		UE_LOG(LogTemp, Log, TEXT("Results Camera found: %s"), *Results_Camera->GetName());
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("No actor found with the tag 'results_camera'!"));
-	}
-
-
-}
 
 
 
@@ -758,8 +614,7 @@ void ARen_Low_Poly_Character::Death()
 	SavePlayerProgress();
 
 	RemoveGameplayUI();
-	// Display Game Over UI only once
-	DisplayGameOverUI();
+
 
 
 }
@@ -3321,9 +3176,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 			// Initialize Staff techniques in the array
 			Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("Fiery meteor devastates nearby enemies."), true, MeteorStrikeAnimMontage, 3.5f, 1, 1 });
-			Techniques.Add(FTechnique_Struct{ TEXT("Stone Rush"), TEXT("Dark earth rises with force."), true, StoneRushAnimMontage, 2.9f, 2, 2 });
-			Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), true, FrostRainAnimMontage, 1.7f, 3, 3 });
-			Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), true, FeudFangAnimMontage, 1.9f, 4, 4 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Stone Rush"), TEXT("Dark earth rises with force."), false, StoneRushAnimMontage, 2.9f, 2, 2 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), false, FrostRainAnimMontage, 1.7f, 3, 3 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), false, FeudFangAnimMontage, 1.9f, 4, 4 });
 
 			// Create FWeaponTechniques struct and store the techniques
 			FWeaponTechniques StaffTechniques;
@@ -3895,7 +3750,7 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 	FString StatsText = FString::Printf(TEXT("Current Attack: %.2f\nCurrent Defense: %.2f\nMax Health: %.2f\nCurrent Health: %.2f\nMax Mana: %f\nCurrent Mana: %f"),
 		BaseAttack, BaseDefence, HealthStruct.MaxHealth, HealthStruct.CurrentHealth, ManaStruct.MaxMana, ManaStruct.CurrentMana);
 
-	//GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green, StatsText);
+	GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green, StatsText);
 
 
 	

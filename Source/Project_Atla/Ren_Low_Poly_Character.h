@@ -215,21 +215,12 @@ public:
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
 		//UAnimMontage* VictoryAnim;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
-		TSubclassOf<UUserWidget> GameOverWidgetClass;
-
-	UPROPERTY()
-		class UGame_Over_Widget* GameOverWidgetInstance;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Camera")
-		AActor* Results_Camera;
 
 	UFUNCTION(BlueprintCallable)
 		void SpawnPlayerCharacterForRender();
 
 	void UpdateHighScore(int32 NewScore);
 
-	void DisplayGameOverUI();
 
 	void Score_Reaction_Anim();
 
