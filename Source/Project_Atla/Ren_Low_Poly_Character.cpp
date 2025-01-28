@@ -886,7 +886,7 @@ void ARen_Low_Poly_Character::UseAbility()
 
 	{
 
-		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("Ability used!"));
+		//GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("Ability used!"));
 		AbilityStruct.CurrentAbilityPoints = 0.0f;
 		bCanUseAbility = false;
 
@@ -1229,7 +1229,7 @@ void ARen_Low_Poly_Character::ToggleSoftLock()
 			bIsSoftLockEnabled = true;
 			NearestEnemy = Actor;
 			NearestTargetDistance = TargetDistance;
-			GEngine->AddOnScreenDebugMessage(1, 1.3f, FColor::Green, TEXT("Soft Lock!"));
+			//GEngine->AddOnScreenDebugMessage(1, 1.3f, FColor::Green, TEXT("Soft Lock!"));
 
 		}
 	}
@@ -3164,7 +3164,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	//TechniqueStruct.CurrentGauge = 100.0f;
 	TechniqueStruct.MaxGauge = 100.0f;
-	TechniqueStruct.TechniquePoints = 2;
+	TechniqueStruct.TechniquePoints = 6;
 	TechniqueStruct.MaxTechniquePoints = 7;
 
 
@@ -3283,10 +3283,10 @@ void ARen_Low_Poly_Character::BeginPlay()
 			Techniques.Empty();
 
 			// Initialize Sword techniques in the array
-			Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("Furious multi-strike sword combo."), true, StormStrikeFlurryAnimMontage, 1.6f, 1, 1 });
-			Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("Electrifying ground-slam force field."), false, VoltageBreakerAnimMontage, 1.3f, 2, 2 });
-			Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Rapid flurry of strikes."), false, TempestBarrageAnimMontage, 1.7f, 3, 3 });
-			Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("Lightning-infused sword combo."), false, StaticRushAnimMontage, 2.8f, 4, 4 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("Furious multi-strike sword combo."), true, StormStrikeFlurryAnimMontage, 1.4f, 1, 1 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("Electrifying ground-slam force field."), false, VoltageBreakerAnimMontage, 1.6f, 2, 2 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Rapid flurry of strikes."), false, TempestBarrageAnimMontage, 1.8f, 3, 3 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("Lightning-infused sword combo."), false, StaticRushAnimMontage, 1.9f, 4, 4 });
 			// Create FWeaponTechniques struct and store the techniques
 			FWeaponTechniques SwordTechniques;
 			SwordTechniques.WeaponTechniques = Techniques;
@@ -3321,9 +3321,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 			// Initialize Staff techniques in the array
 			Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("Fiery meteor devastates nearby enemies."), true, MeteorStrikeAnimMontage, 3.5f, 1, 1 });
-			Techniques.Add(FTechnique_Struct{ TEXT("Stone Rush"), TEXT("Dark earth rises with force."), false, StoneRushAnimMontage, 2.9f, 2, 2 });
-			Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), false, FrostRainAnimMontage, 1.7f, 3, 3 });
-			Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), false, FeudFangAnimMontage, 1.9f, 4, 4 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Stone Rush"), TEXT("Dark earth rises with force."), true, StoneRushAnimMontage, 2.9f, 2, 2 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), true, FrostRainAnimMontage, 1.7f, 3, 3 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), true, FeudFangAnimMontage, 1.9f, 4, 4 });
 
 			// Create FWeaponTechniques struct and store the techniques
 			FWeaponTechniques StaffTechniques;
@@ -3895,7 +3895,7 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 	FString StatsText = FString::Printf(TEXT("Current Attack: %.2f\nCurrent Defense: %.2f\nMax Health: %.2f\nCurrent Health: %.2f\nMax Mana: %f\nCurrent Mana: %f"),
 		BaseAttack, BaseDefence, HealthStruct.MaxHealth, HealthStruct.CurrentHealth, ManaStruct.MaxMana, ManaStruct.CurrentMana);
 
-	GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green, StatsText);
+	//GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green, StatsText);
 
 
 	

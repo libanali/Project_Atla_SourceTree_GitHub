@@ -177,8 +177,8 @@ void UInventory::BeginPlay()
 {
 	Super::BeginPlay();
 
-    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
-        FString::Printf(TEXT("MaxInventorySize initialized to: %d"), MaxInventorySize));
+   // GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
+       // FString::Printf(TEXT("MaxInventorySize initialized to: %d"), MaxInventorySize));
 	
 }
 
