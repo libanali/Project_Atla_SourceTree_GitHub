@@ -2623,11 +2623,7 @@ void ARen_Low_Poly_Character::GenerateStatUpgradeMessages()
 	PreviousMaxHealth = HealthStruct.MaxHealth;
 	PreviousMaxMana = ManaStruct.MaxMana;
 
-	// Send these messages to your UI
-	if (GameOverWidgetInstance)
-	{
-		GameOverWidgetInstance->ShowStatsUpgradeNotification(StatMessages);
-	}
+
 }
 
 
@@ -3004,7 +3000,6 @@ void ARen_Low_Poly_Character::BeginPlay()
 	EnsureAllInitialisation();
 
 
-	FindResultsCamera();
 
 	LogCurrentELementalAttacks();
 

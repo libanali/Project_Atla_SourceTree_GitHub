@@ -216,15 +216,10 @@ public:
 		//UAnimMontage* VictoryAnim;
 
 
-	UFUNCTION(BlueprintCallable)
-		void SpawnPlayerCharacterForRender();
 
 	void UpdateHighScore(int32 NewScore);
 
 
-	void Score_Reaction_Anim();
-
-	void FindResultsCamera();
 	//High score
 
 
