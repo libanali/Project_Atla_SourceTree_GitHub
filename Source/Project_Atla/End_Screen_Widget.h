@@ -89,10 +89,10 @@ protected:
         class UTextBlock* WeaponLevelText;
 
     // Navigation Buttons
-    UPROPERTY(meta = (BindWidget))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UButton* RetryButton;
 
-    UPROPERTY(meta = (BindWidget))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class  UButton* MainMenuButton;
 
     // Animations
