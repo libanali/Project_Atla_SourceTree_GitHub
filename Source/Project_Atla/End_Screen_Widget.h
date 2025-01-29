@@ -4,11 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Results_camera.h"
+#include "Camera/CameraActor.h"
 #include "End_Screen_Widget.generated.h"
 
 /**
  * 
  */
+
+
+
 
 UENUM()
 enum class EGameOverPage : uint8
@@ -95,6 +100,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class  UButton* MainMenuButton;
 
+    UPROPERTY()
+        AResults_camera* Results_Camera;
+
     // Animations
     UPROPERTY(Transient, meta = (BindWidgetAnim))
         class  UWidgetAnimation* BlurAnimation;
@@ -119,6 +127,12 @@ public:
     // Update EXP progress
     void UpdateExpProgress(int32 CurrentLevel, int32 NextLevel, float Progress);
 
+    // Set weapon type
+    void SetWeaponType(const FString& WeaponName);
+
+    // Set results camera
+    void SetResultsCamera(AResults_camera* Camera);
+
 protected:
     // Button callbacks
     UFUNCTION()
@@ -137,10 +151,15 @@ protected:
     UFUNCTION()
         void OnResultsPanelComplete();
 
+    UFUNCTION()
+        void SwitchToResultsCamera();
+
     // Helper functions
     void ShowPage(EGameOverPage Page);
     FText FormatStatText(const FString& StatName, float CurrentValue, float NewValue);
 
 
-	
+    UPROPERTY()
+    FWidgetAnimationDynamicEvent OnAnimationFinishedEvent;
+
 };
