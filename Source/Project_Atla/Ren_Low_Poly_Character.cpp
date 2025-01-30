@@ -3012,7 +3012,6 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 		// Get the current round from game mode
 		ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 		int32 CurrentRound = 1; // Default value
-
 		if (GameMode)
 		{
 			CurrentRound = GameMode->CurrentRound;
@@ -3030,12 +3029,14 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 		{
 			const FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[WeaponType];
 
+			// Set weapon level
+			EndScreenWidget->SetWeaponLevel(Proficiency.WeaponLevel);
+
 			// Update the exp progress
 			if (Proficiency.WeaponProficiencyThresholds.Contains(Proficiency.WeaponLevel))
 			{
 				float EXPToNextLevel = Proficiency.WeaponProficiencyThresholds[Proficiency.WeaponLevel];
 				float Progress = Proficiency.CurrentEXP / EXPToNextLevel;
-
 				EndScreenWidget->UpdateExpProgress(
 					Proficiency.WeaponLevel,
 					Proficiency.WeaponLevel + 1,
@@ -3043,13 +3044,16 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 				);
 			}
 
-			// Update stats display with current and new values
+			// Update stats with initial and current values to show progression
 			EndScreenWidget->UpdateStats(
-				BaseAttack, BaseDefence, BaseElementalAttack, HealthStruct.MaxHealth,
-				BaseAttack + Proficiency.AttackPowerBoost,
-				BaseDefence + Proficiency.DefenseBoost,
-				BaseElementalAttack + Proficiency.ElementalPowerBoost,
-				HealthStruct.MaxHealth + Proficiency.MaxHealthBoost
+				InitialAttack,        // Initial Attack
+				InitialDefense,       // Initial Defense
+				InitialElemental,     // Initial Elemental
+				InitialMaxHealth,     // Initial Health
+				BaseAttack,           // Current Attack
+				BaseDefence,          // Current Defense
+				BaseElementalAttack,  // Current Elemental
+				HealthStruct.MaxHealth // Current Health
 			);
 		}
 
@@ -3059,7 +3063,6 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 			EndScreenWidget->AddToViewport();
 		}
 	}
-
 }
 
 

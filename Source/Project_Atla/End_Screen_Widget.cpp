@@ -99,26 +99,6 @@ void UEnd_Screen_Widget::SetupGameOver(int32 FinalScore, int32 HighScore, int32 
 
 
 
-void UEnd_Screen_Widget::UpdateStats(float Attack, float Defense, float Elemental, float Health, float NewAttack, float NewDefense, float NewElemental, float NewHealth)
-{
-
-    // Update all stat texts with the appropriate format
-    if (AttackText)
-        AttackText->SetText(FormatStatText(TEXT("Attack"), Attack, NewAttack));
-
-    if (DefenseText)
-        DefenseText->SetText(FormatStatText(TEXT("Defense"), Defense, NewDefense));
-
-    if (ElementalText)
-        ElementalText->SetText(FormatStatText(TEXT("Elemental"), Elemental, NewElemental));
-
-    if (HealthText)
-        HealthText->SetText(FormatStatText(TEXT("Health"), Health, NewHealth));
-
-}
-
-
-
 
 void UEnd_Screen_Widget::UpdateExpProgress(int32 CurrentLevel, int32 NextLevel, float Progress)
 {
@@ -155,6 +135,16 @@ void UEnd_Screen_Widget::SetResultsCamera(AResults_camera* Camera)
 {
 
     Results_Camera = Camera;
+
+}
+
+void UEnd_Screen_Widget::SetWeaponLevel(int32 Level)
+{
+
+    if (WeaponLevelText)
+    {
+        WeaponLevelText->SetText(FText::FromString(FString::Printf(TEXT("%d"), Level)));
+    }
 
 }
 
@@ -237,6 +227,9 @@ void UEnd_Screen_Widget::OnBlurComplete()
     }
 
 }
+
+
+
 
 void UEnd_Screen_Widget::OnGameOverTextComplete()
 {
@@ -397,15 +390,111 @@ void UEnd_Screen_Widget::ShowPage(EGameOverPage Page)
 
 
 
+void UEnd_Screen_Widget::UpdateStats(float Attack, float Defense, float Elemental, float Health, float NewAttack, float NewDefense, float NewElemental, float NewHealth)
+{
+
+    // Create a green color for increased stats
+    FSlateColor GreenColor = FSlateColor(FLinearColor(0.0f, 1.0f, 0.0f, 1.0f)); // Pure green
+
+    // Update attack text
+    if (AttackText)
+    {
+        FString ValueText;
+        if (FMath::Abs(Attack - NewAttack) > SMALL_NUMBER)
+        {
+            ValueText = FString::Printf(TEXT("%d > %d"),
+                FMath::RoundToInt(Attack),
+                FMath::RoundToInt(NewAttack));
+            // Set the color of the entire text block to green if there's an increase
+            if (NewAttack > Attack)
+            {
+                AttackText->SetColorAndOpacity(GreenColor);
+            }
+        }
+        else
+        {
+            ValueText = FString::Printf(TEXT("%d"), FMath::RoundToInt(Attack));
+        }
+        AttackText->SetText(FText::FromString(ValueText));
+    }
+
+    // Update defense text
+    if (DefenseText)
+    {
+        FString ValueText;
+        if (FMath::Abs(Defense - NewDefense) > SMALL_NUMBER)
+        {
+            ValueText = FString::Printf(TEXT("%d > %d"),
+                FMath::RoundToInt(Defense),
+                FMath::RoundToInt(NewDefense));
+            if (NewDefense > Defense)
+            {
+                DefenseText->SetColorAndOpacity(GreenColor);
+            }
+        }
+        else
+        {
+            ValueText = FString::Printf(TEXT("%d"), FMath::RoundToInt(Defense));
+        }
+        DefenseText->SetText(FText::FromString(ValueText));
+    }
+
+    // Update elemental text
+    if (ElementalText)
+    {
+        FString ValueText;
+        if (FMath::Abs(Elemental - NewElemental) > SMALL_NUMBER)
+        {
+            ValueText = FString::Printf(TEXT("%d > %d"),
+                FMath::RoundToInt(Elemental),
+                FMath::RoundToInt(NewElemental));
+            if (NewElemental > Elemental)
+            {
+                ElementalText->SetColorAndOpacity(GreenColor);
+            }
+        }
+        else
+        {
+            ValueText = FString::Printf(TEXT("%d"), FMath::RoundToInt(Elemental));
+        }
+        ElementalText->SetText(FText::FromString(ValueText));
+    }
+
+    // Update health text
+    if (HealthText)
+    {
+        FString ValueText;
+        if (FMath::Abs(Health - NewHealth) > SMALL_NUMBER)
+        {
+            ValueText = FString::Printf(TEXT("%d > %d"),
+                FMath::RoundToInt(Health),
+                FMath::RoundToInt(NewHealth));
+            if (NewHealth > Health)
+            {
+                HealthText->SetColorAndOpacity(GreenColor);
+            }
+        }
+        else
+        {
+            ValueText = FString::Printf(TEXT("%d"), FMath::RoundToInt(Health));
+        }
+        HealthText->SetText(FText::FromString(ValueText));
+    }
+}
+
 
 
 FText UEnd_Screen_Widget::FormatStatText(const FString& StatName, float CurrentValue, float NewValue)
 {
+    // If values are different, show the change
     if (FMath::Abs(CurrentValue - NewValue) > SMALL_NUMBER)
     {
-        return FText::FromString(FString::Printf(TEXT("%s %d > %d"),
-            *StatName, FMath::RoundToInt(CurrentValue), FMath::RoundToInt(NewValue)));
+        return FText::FromString(FString::Printf(TEXT("%d > %d"),
+            FMath::RoundToInt(CurrentValue),
+            FMath::RoundToInt(NewValue)));
     }
-    return FText::FromString(FString::Printf(TEXT("%s %d"),
-        *StatName, FMath::RoundToInt(CurrentValue)));
+
+    // Otherwise just show the number
+    return FText::FromString(FString::Printf(TEXT("%d"),
+        FMath::RoundToInt(CurrentValue)));
 }

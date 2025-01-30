@@ -30,6 +30,11 @@ class PROJECT_ATLA_API UEnd_Screen_Widget : public UUserWidget
 {
 	GENERATED_BODY()
 
+public:
+
+
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, meta = (BindWidget))
+        class UTextBlock* WeaponLevelText;
 
 
 protected:
@@ -99,9 +104,6 @@ protected:
     UPROPERTY(meta = (BindWidget))
         class UTextBlock* HealthText;
 
-    UPROPERTY(meta = (BindWidget))
-        class UTextBlock* WeaponLevelText;
-
     // Navigation Buttons
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UButton* RetryButton;
@@ -143,6 +145,8 @@ public:
     void SetResultsCamera(AResults_camera* Camera);
 
 //    void SetCharacterImage(EWeaponType WeaponType);
+
+    void SetWeaponLevel(int32 Level);
 
 protected:
     // Button callbacks
