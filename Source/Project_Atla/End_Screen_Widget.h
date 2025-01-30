@@ -54,6 +54,15 @@ protected:
         class  UImage* CharacterImage;
 
     UPROPERTY(meta = (BindWidget))
+        class  UImage* CharacterImage2;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Character Images")
+       class UTexture2D* SwordCharacterTexture;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Character Images")
+       class UTexture2D* StaffCharacterTexture;
+
+    UPROPERTY(meta = (BindWidget))
         class  UTextBlock* FinalScoreText;
 
     UPROPERTY(meta = (BindWidget))
@@ -133,6 +142,8 @@ public:
     // Set results camera
     void SetResultsCamera(AResults_camera* Camera);
 
+//    void SetCharacterImage(EWeaponType WeaponType);
+
 protected:
     // Button callbacks
     UFUNCTION()
@@ -161,5 +172,7 @@ protected:
 
     UPROPERTY()
     FWidgetAnimationDynamicEvent OnAnimationFinishedEvent;
+
+    EGameOverPage PageEnum;
 
 };

@@ -51,6 +51,29 @@ void UEnd_Screen_Widget::NativeConstruct()
 
     BindToAnimationFinished(BlurAnimation, OnAnimationFinishedEvent);
 
+
+
+    // Debug widget components
+    UE_LOG(LogTemp, Warning, TEXT("NativeConstruct - Checking Components:"));
+    UE_LOG(LogTemp, Warning, TEXT("MainSwitcher valid: %d"), IsValid(MainSwitcher));
+    UE_LOG(LogTemp, Warning, TEXT("ResultsPanel valid: %d"), IsValid(ResultsPanel));
+    UE_LOG(LogTemp, Warning, TEXT("StatsPanel valid: %d"), IsValid(StatsPanel));
+    UE_LOG(LogTemp, Warning, TEXT("StatsPanelAnimation valid: %d"), IsValid(StatsPanelAnimation));
+
+    // Initialize panels
+    if (ResultsPanel)
+        ResultsPanel->SetVisibility(ESlateVisibility::Visible);
+
+    if (StatsPanel)
+    {
+        StatsPanel->SetVisibility(ESlateVisibility::Hidden);
+        UE_LOG(LogTemp, Warning, TEXT("Set StatsPanel to Hidden"));
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("StatsPanel is null in NativeConstruct"));
+    }
+
 }
 
 
@@ -142,6 +165,28 @@ void UEnd_Screen_Widget::SetResultsCamera(AResults_camera* Camera)
 
 
 
+/*
+void UEnd_Screen_Widget::SetCharacterImage(EWeaponType WeaponType)
+{
+
+    UTexture2D* CharacterTexture = (WeaponType == EWeaponType::Sword) ? SwordCharacterTexture : StaffCharacterTexture;
+
+    if (CharacterTexture)
+    {
+        FSlateBrush Brush;
+        Brush.SetResourceObject(CharacterTexture);
+
+        if (CharacterImage)
+            CharacterImage->SetBrush(Brush);
+
+        if (CharacterImage2)
+            CharacterImage2->SetBrush(Brush);
+    }
+
+}
+
+*/
+
 
 void UEnd_Screen_Widget::OnRetryClicked()
 {
@@ -195,8 +240,6 @@ void UEnd_Screen_Widget::OnBlurComplete()
 
 void UEnd_Screen_Widget::OnGameOverTextComplete()
 {
-
-    // Start fading to black
     APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
     if (PlayerController)
     {
@@ -224,9 +267,9 @@ void UEnd_Screen_Widget::SwitchToResultsCamera()
     APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
     if (PlayerController && Results_Camera)
     {
-        // No need for casting since ACameraActor already inherits from AActor
+        // Switch to Results Camera
         PlayerController->SetViewTargetWithBlend(
-            Results_Camera,  // This is fine now since ACameraActor inherits from AActor
+            Results_Camera,
             0.0f,  // Instant switch since we're faded to black
             EViewTargetBlendFunction::VTBlend_Linear
         );
@@ -253,18 +296,49 @@ void UEnd_Screen_Widget::SwitchToResultsCamera()
 }
 
 
+
 void UEnd_Screen_Widget::OnResultsPanelComplete()
 {
+    if (!MainSwitcher)
+    {
+        UE_LOG(LogTemp, Error, TEXT("MainSwitcher is null in OnResultsPanelComplete!"));
+        return;
+    }
 
+    switch (PageEnum)
+    {
+    case EGameOverPage::Results:
+    {
+        // Create a named timer handle
+        FTimerHandle StatsTransitionTimerHandle;
 
-    // After a delay, show the stats page
-    FTimerHandle StatsPageTimer;
-    GetWorld()->GetTimerManager().SetTimer(StatsPageTimer, [this]()
+        // After Results page animation, wait and then transition to Stats
+        GetWorld()->GetTimerManager().SetTimer(
+            StatsTransitionTimerHandle,  // Pass timer handle by reference
+            [this]()
+            {
+                ShowPage(EGameOverPage::Stats);
+            },
+            3.0f, // 3-second delay before showing Stats page
+                false  // Do not loop
+                );
+        break;
+    }
+    case EGameOverPage::Stats:
+        // Set up input mode for Stats page
+        if (APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0))
         {
-            ShowPage(EGameOverPage::Stats);
-        }, 3.0f, false);
-
-
+            FInputModeUIOnly InputMode;
+            InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+            PC->SetInputMode(InputMode);
+            PC->bShowMouseCursor = true;
+            if (RetryButton)
+            {
+                RetryButton->SetKeyboardFocus();
+            }
+        }
+        break;
+    }
 }
 
 
@@ -273,15 +347,24 @@ void UEnd_Screen_Widget::OnResultsPanelComplete()
 
 void UEnd_Screen_Widget::ShowPage(EGameOverPage Page)
 {
+    // Always update PageEnum
+    PageEnum = Page;
 
-    if (!MainSwitcher) return;
+    if (!MainSwitcher)
+    {
+        UE_LOG(LogTemp, Error, TEXT("MainSwitcher is null in ShowPage!"));
+        return;
+    }
 
     switch (Page)
     {
     case EGameOverPage::Results:
+        // Ensure Results page is active
         MainSwitcher->SetActiveWidgetIndex(0);
+
         if (ResultsPanelAnimation)
         {
+            // Bind completion event
             OnAnimationFinishedEvent.BindDynamic(this, &UEnd_Screen_Widget::OnResultsPanelComplete);
             BindToAnimationFinished(ResultsPanelAnimation, OnAnimationFinishedEvent);
             PlayAnimation(ResultsPanelAnimation);
@@ -289,14 +372,20 @@ void UEnd_Screen_Widget::ShowPage(EGameOverPage Page)
         break;
 
     case EGameOverPage::Stats:
+        // Ensure Stats page is active
         MainSwitcher->SetActiveWidgetIndex(1);
+
+        if (StatsPanel)
+        {
+            StatsPanel->SetVisibility(ESlateVisibility::Visible);
+        }
+
         if (StatsPanelAnimation)
         {
             PlayAnimation(StatsPanelAnimation);
         }
         break;
     }
-
 
 }
 
@@ -308,10 +397,10 @@ FText UEnd_Screen_Widget::FormatStatText(const FString& StatName, float CurrentV
     // If values are different, show the change
     if (FMath::Abs(CurrentValue - NewValue) > SMALL_NUMBER)
     {
-        return FText::FromString(FString::Printf(TEXT("%s %d > %d"),
+        return FText::FromString(FString::Printf(TEXT("%d > %d"),
             *StatName, FMath::RoundToInt(CurrentValue), FMath::RoundToInt(NewValue)));
     }
     // Otherwise just show current value
-    return FText::FromString(FString::Printf(TEXT("%s %d"),
+    return FText::FromString(FString::Printf(TEXT("%d"),
         *StatName, FMath::RoundToInt(CurrentValue)));
 }

@@ -21,6 +21,8 @@
 #include "Notification_Widget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Elemental_Attacks_List_Widget.h"
+#include "LowPoly_Survival_GameMode.h"
+#include "End_Screen_Widget.h"
 
 
 // Sets default values
@@ -612,10 +614,15 @@ void ARen_Low_Poly_Character::Death()
 	// Perform any additional death-related tasks, such as saving scores and showing the UI
 	SaveHighScore();
 	SavePlayerProgress();
-
+	DisplayEndScreenWidget();
+	CommandMenuWidget->RemoveFromParent();
 	RemoveGameplayUI();
 
-
+	// Tell the game mode to stop spawning enemies
+	if (ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(UGameplayStatics::GetGameMode(GetWorld())))
+	{
+		GameMode->StopSpawningAndDestroyEnemies();
+	}
 
 }
 
@@ -2957,6 +2964,107 @@ void ARen_Low_Poly_Character::CheckAndDisplayArrow(AActor* Enemy, UEnemy_Detecti
 
 
 
+void ARen_Low_Poly_Character::FindResultsCamera()
+{
+
+	// Find all actors in the level with the tag "results_camera"
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("results_camera"), FoundActors);
+
+	// If we found any actors with the tag, use the first one
+	if (FoundActors.Num() > 0)
+	{
+		Results_Camera = Cast<AResults_camera>(FoundActors[0]);
+		if (Results_Camera)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Results Camera found: %s"), *Results_Camera->GetName());
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Found actor with 'results_camera' tag but failed to cast to AResults_camera"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("No actor found with the tag 'results_camera'!"));
+	}
+
+
+}
+
+void ARen_Low_Poly_Character::DisplayEndScreenWidget()
+{
+
+	if (!EndScreenWidget)
+	{
+		EndScreenWidget = CreateWidget<UEnd_Screen_Widget>(GetWorld(), EndScreenWidgetClass);
+	}
+
+	if (EndScreenWidget)
+	{
+		// Set the results camera reference
+		EndScreenWidget->SetResultsCamera(Results_Camera);
+
+		// Get current values
+		int32 FinalScore = PlayerScore;
+		int32 HighScore = (WeaponType == EWeaponType::Sword) ? SwordHighScore : StaffHighScore;
+
+		// Get the current round from game mode
+		ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+		int32 CurrentRound = 1; // Default value
+
+		if (GameMode)
+		{
+			CurrentRound = GameMode->CurrentRound;
+		}
+
+		// Set up base information
+		EndScreenWidget->SetupGameOver(FinalScore, HighScore, CurrentRound);
+
+		// Set the current weapon type
+		FString WeaponName = (WeaponType == EWeaponType::Sword) ? TEXT("Sword") : TEXT("Staff");
+		EndScreenWidget->SetWeaponType(WeaponName);
+
+		// Get the proficiency data for current weapon
+		if (WeaponProficiencyMap.Contains(WeaponType))
+		{
+			const FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[WeaponType];
+
+			// Update the exp progress
+			if (Proficiency.WeaponProficiencyThresholds.Contains(Proficiency.WeaponLevel))
+			{
+				float EXPToNextLevel = Proficiency.WeaponProficiencyThresholds[Proficiency.WeaponLevel];
+				float Progress = Proficiency.CurrentEXP / EXPToNextLevel;
+
+				EndScreenWidget->UpdateExpProgress(
+					Proficiency.WeaponLevel,
+					Proficiency.WeaponLevel + 1,
+					Progress
+				);
+			}
+
+			// Update stats display with current and new values
+			EndScreenWidget->UpdateStats(
+				BaseAttack, BaseDefence, BaseElementalAttack, HealthStruct.MaxHealth,
+				BaseAttack + Proficiency.AttackPowerBoost,
+				BaseDefence + Proficiency.DefenseBoost,
+				BaseElementalAttack + Proficiency.ElementalPowerBoost,
+				HealthStruct.MaxHealth + Proficiency.MaxHealthBoost
+			);
+		}
+
+		// Add widget to viewport if not already there
+		if (!EndScreenWidget->IsInViewport())
+		{
+			EndScreenWidget->AddToViewport();
+		}
+	}
+
+}
+
+
+
+
 // Called when the game starts or when spawned
 void ARen_Low_Poly_Character::BeginPlay()
 {
@@ -2999,7 +3107,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	LoadPlayerProgress();
 	EnsureAllInitialisation();
 
-
+	FindResultsCamera();
 
 	LogCurrentELementalAttacks();
 

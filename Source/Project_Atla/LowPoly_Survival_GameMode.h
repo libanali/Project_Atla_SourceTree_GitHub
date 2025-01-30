@@ -61,6 +61,10 @@ public:
     UFUNCTION(BlueprintCallable)
         void StopSpawningAndDestroyEnemies();
 
+    // Current round number
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Round")
+        int32 CurrentRound;
+
 
 private:
     FVector GetRandomPointInZone(const FBox& Zone);
@@ -103,10 +107,6 @@ protected:
     // Number of additional enemies per round
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Round")
         int32 AdditionalEnemiesPerRound;
-
-    // Current round number
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Round")
-    int32 CurrentRound;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Round")
         int32 NextSpawnRound;

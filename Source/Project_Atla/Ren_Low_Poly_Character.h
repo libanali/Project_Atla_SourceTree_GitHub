@@ -28,6 +28,7 @@
 #include "Enemy_Detection_Arrow.h"
 #include "Inventory.h"
 #include "Action_Banner_Widget.h"
+#include "End_Screen_Widget.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
 
@@ -860,6 +861,23 @@ public:
 
 	TMap<AEnemy_Poly*, UEnemy_Detection_Arrow*> EnemyArrowMap;
 	//Enemy Arrow UI
+
+
+
+	//Game over
+	UPROPERTY()
+		UEnd_Screen_Widget* EndScreenWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+		TSubclassOf<UUserWidget> EndScreenWidgetClass;
+
+	UPROPERTY()
+		class AResults_camera* Results_Camera;
+
+	void FindResultsCamera();
+
+	void DisplayEndScreenWidget();
+	//Game over
 
 
 
