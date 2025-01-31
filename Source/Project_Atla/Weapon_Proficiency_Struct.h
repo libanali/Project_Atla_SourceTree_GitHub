@@ -24,6 +24,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
         float CurrentEXP;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
+        float TotalEXPEarned;
+
     // Map of level thresholds (similar to elemental system)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon Proficiency")
         TMap<int32, float> WeaponProficiencyThresholds;
@@ -65,6 +68,7 @@ public:
         : WeaponLevel(1)
         , CurrentEXP(0.f)
         , AttackPowerBoost(0.f)
+        , TotalEXPEarned(0.f)
         , DefenseBoost(0.f)
         , ElementalPowerBoost(0.f)
         , MaxHealthBoost(0.f)

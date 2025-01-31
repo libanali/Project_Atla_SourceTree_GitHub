@@ -2656,6 +2656,7 @@ void ARen_Low_Poly_Character::AddWeaponEXP(float ExpAmount)
 
 		// Add EXP
 		Proficiency.CurrentEXP += ExpAmount;
+		Proficiency.TotalEXPEarned += ExpAmount;  // Track total EXP
 
 		UE_LOG(LogTemp, Warning, TEXT("Added %.2f EXP to %s"),
 			ExpAmount,
@@ -3062,7 +3063,7 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 				HealthStruct.MaxHealth // Current Health
 			);
 
-			EndScreenWidget->SetEXPEarned(Proficiency.CurrentEXP);
+			EndScreenWidget->SetEXPEarned(Proficiency.TotalEXPEarned);
 
 		}
 
