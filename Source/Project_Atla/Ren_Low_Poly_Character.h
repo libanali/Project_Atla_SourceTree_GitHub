@@ -196,6 +196,8 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void RemoveGameplayUI();
+
+	int32 InitialWeaponLevel;
 	//Combat
 
 

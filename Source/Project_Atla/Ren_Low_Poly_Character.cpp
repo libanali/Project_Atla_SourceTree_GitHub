@@ -325,13 +325,16 @@ void ARen_Low_Poly_Character::UpdateStatsBasedOnWeapon()
 	if (WeaponProficiencyMap.Contains(WeaponType))
 	{
 		const FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[WeaponType];
+
+		// Ensure weapon level is at least 1
+		int32 CurrentLevel = FMath::Max(1, Proficiency.WeaponLevel);
+
 		BaseAttack += Proficiency.AttackPowerBoost;
 		BaseDefence += Proficiency.DefenseBoost;
 		BaseElementalAttack += Proficiency.ElementalPowerBoost;
 		HealthStruct.MaxHealth += Proficiency.MaxHealthBoost;
 		ManaStruct.MaxMana += Proficiency.MaxManaBoost;
 	}
-
 	
 }
 
@@ -671,8 +674,6 @@ void ARen_Low_Poly_Character::ControlMPFill()
 
 
 }
-
-
 
 
 
@@ -2992,6 +2993,8 @@ void ARen_Low_Poly_Character::FindResultsCamera()
 
 }
 
+
+
 void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 {
 
@@ -3029,8 +3032,11 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 		{
 			const FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[WeaponType];
 
-			// Set weapon level
-			EndScreenWidget->SetWeaponLevel(Proficiency.WeaponLevel);
+			// Set weapon level showing progression only if there's been a change
+			EndScreenWidget->SetWeaponLevel(InitialWeaponLevel, Proficiency.WeaponLevel);
+
+			// Set weapon level with previous and current level to show progression
+			//EndScreenWidget->SetWeaponLevel(Proficiency.WeaponLevel - 1, Proficiency.WeaponLevel);
 
 			// Update the exp progress
 			if (Proficiency.WeaponProficiencyThresholds.Contains(Proficiency.WeaponLevel))
@@ -3055,6 +3061,9 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 				BaseElementalAttack,  // Current Elemental
 				HealthStruct.MaxHealth // Current Health
 			);
+
+			EndScreenWidget->SetEXPEarned(Proficiency.CurrentEXP);
+
 		}
 
 		// Add widget to viewport if not already there
@@ -3097,11 +3106,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	}
 
-	// Initialize Elemental Attacks
-	//InitialiseElementalAttacks();
 
-	// Initialize Elemental Proficiencies
-	//InitialiseElementalProficiencies();
 
 	CreateNotificationWidget();
 
@@ -3149,7 +3154,6 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 			WeaponType = CustomGameInstance->SelectedWeapon;
 
-
 		}
 
 	}
@@ -3180,6 +3184,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	}
 
 
+	/*
 
 	// Initialize any stats if necessary
 	if (WeaponType == EWeaponType::Sword)
@@ -3200,6 +3205,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 		ManaStruct.MaxMana = 95.0f;
 	}
 
+	*/
+
 	// Then, update the stats based on the weapon proficiency
 	UpdateStatsBasedOnWeapon();
 
@@ -3210,6 +3217,12 @@ void ARen_Low_Poly_Character::BeginPlay()
 	InitialElemental = BaseElementalAttack;
 	InitialMaxHealth = HealthStruct.MaxHealth;
 	InitialMaxMana = ManaStruct.MaxMana;
+	// Store initial weapon level
+	if (WeaponProficiencyMap.Contains(WeaponType))
+	{
+		InitialWeaponLevel = WeaponProficiencyMap[WeaponType].WeaponLevel;
+	}
+
 
 	UE_LOG(LogTemp, Log, TEXT("Initial Stats - Attack: %f, Defense: %f, Elemental: %f, MaxHealth: %f, MaxMana: %f"),
 		InitialAttack, InitialDefense, InitialElemental, InitialMaxHealth, InitialMaxMana);

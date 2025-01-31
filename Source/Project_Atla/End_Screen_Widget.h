@@ -104,6 +104,9 @@ protected:
     UPROPERTY(meta = (BindWidget))
         class UTextBlock* HealthText;
 
+    UPROPERTY(meta = (BindWidget))
+        class UTextBlock* EXPEarnedText;
+
     // Navigation Buttons
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UButton* RetryButton;
@@ -146,7 +149,10 @@ public:
 
 //    void SetCharacterImage(EWeaponType WeaponType);
 
-    void SetWeaponLevel(int32 Level);
+    void SetWeaponLevel(int32 OldLevel, int32 NewLevel);
+
+    void SetEXPEarned(float EXPAmount);
+
 
 protected:
     // Button callbacks

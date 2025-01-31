@@ -138,12 +138,44 @@ void UEnd_Screen_Widget::SetResultsCamera(AResults_camera* Camera)
 
 }
 
-void UEnd_Screen_Widget::SetWeaponLevel(int32 Level)
-{
 
+
+void UEnd_Screen_Widget::SetWeaponLevel(int32 OldLevel, int32 NewLevel)
+{
     if (WeaponLevelText)
     {
-        WeaponLevelText->SetText(FText::FromString(FString::Printf(TEXT("%d"), Level)));
+        FSlateColor GreenColor = FSlateColor(FLinearColor(0.0f, 1.0f, 0.0f, 1.0f)); // Pure green
+        FSlateColor DefaultColor = FSlateColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f)); // White
+
+        // Ensure levels are valid (minimum level should be 1)
+        OldLevel = FMath::Max(1, OldLevel);
+        NewLevel = FMath::Max(1, NewLevel);
+
+        // Only show level-up format if it's a genuine level increase and not initial display
+        if (OldLevel != NewLevel && NewLevel > OldLevel && OldLevel > 0)
+        {
+            // Format with the arrow and set color to green for the new level
+            FString ValueText = FString::Printf(TEXT("%d > %d"), OldLevel, NewLevel);
+            WeaponLevelText->SetText(FText::FromString(ValueText));
+            WeaponLevelText->SetColorAndOpacity(GreenColor);
+        }
+        else
+        {
+            // Just show the current level with default color
+            WeaponLevelText->SetText(FText::FromString(FString::Printf(TEXT("%d"), NewLevel)));
+            WeaponLevelText->SetColorAndOpacity(DefaultColor);
+        }
+    }
+}
+
+
+
+void UEnd_Screen_Widget::SetEXPEarned(float EXPAmount)
+{
+
+    if (EXPEarnedText)
+    {
+        EXPEarnedText->SetText(FText::FromString(FString::Printf(TEXT("EXP Earned: %.0f"), EXPAmount)));
     }
 
 }
