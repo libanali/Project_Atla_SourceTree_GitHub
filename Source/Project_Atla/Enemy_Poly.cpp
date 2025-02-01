@@ -145,7 +145,6 @@ void AEnemy_Poly::Death()
 		if (PlayerCharacter)
 		{
 			PlayerCharacter->AddPoints(PointsEarned);
-			PlayerCharacter->UpdateHighScore(PointsEarned);
 			// Award EXP to the player's currently equipped weapon
 			PlayerCharacter->AddWeaponEXP(EXP_Gained);
 

@@ -452,26 +452,33 @@ void ARen_Low_Poly_Character::IncreaseAll()
 void ARen_Low_Poly_Character::SaveHighScore()
 {
 
+	UE_LOG(LogTemp, Warning, TEXT("Attempting to save high scores - Sword: %d, Staff: %d"),
+		SwordHighScore, StaffHighScore);
+
 	UPlayer_Save_Game* SaveGameInstance = Cast<UPlayer_Save_Game>(UGameplayStatics::CreateSaveGameObject(UPlayer_Save_Game::StaticClass()));
 
-	// Check if the SaveGameInstance was created successfully
 	if (SaveGameInstance)
 	{
-		// Set the high score data (Sword and Staff scores)
+		// Set the high score data
 		SaveGameInstance->SwordHighScore = SwordHighScore;
 		SaveGameInstance->StaffHighScore = StaffHighScore;
-		SaveGameInstance->SavedWeaponProficiencyMap = WeaponProficiencyMap;
 
-		UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Player Save Slot"), 0);
+		// Try to save and get the result
+		bool SaveSuccess = UGameplayStatics::SaveGameToSlot(SaveGameInstance, "HighScore", 0);
 
-
-		bool SaveSuccess = UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Player Save Slot"), 0);
-		UE_LOG(LogTemp, Warning, TEXT("Save High Score %s"), SaveSuccess ? TEXT("Succeeded") : TEXT("Failed"));
+		if (SaveSuccess)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Successfully saved - Sword: %d, Staff: %d"),
+				SwordHighScore, StaffHighScore);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Failed to save high scores to slot"));
+		}
 	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("Failed to create SaveGameInstance"));
-
 	}
 
 }
@@ -481,44 +488,32 @@ void ARen_Low_Poly_Character::SaveHighScore()
 void ARen_Low_Poly_Character::LoadHighScore()
 {
 
-	UPlayer_Save_Game* LoadGameInstance = Cast<UPlayer_Save_Game>(UGameplayStatics::LoadGameFromSlot(TEXT("Player Save Slot"), 0));
+	// Store current values for logging
+	int32 PreviousSwordScore = SwordHighScore;
+	int32 PreviousStaffScore = StaffHighScore;
+
+	UE_LOG(LogTemp, Warning, TEXT("Attempting to load high scores..."));
+	UE_LOG(LogTemp, Warning, TEXT("Current values before load - Sword: %d, Staff: %d"),
+		PreviousSwordScore, PreviousStaffScore);
+
+	UPlayer_Save_Game* LoadGameInstance = Cast<UPlayer_Save_Game>(UGameplayStatics::LoadGameFromSlot("HighScore", 0));
 
 	if (LoadGameInstance)
-
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Load game instance found"));
 
+		// Load the values
 		SwordHighScore = LoadGameInstance->SwordHighScore;
 		StaffHighScore = LoadGameInstance->StaffHighScore;
-		WeaponProficiencyMap = LoadGameInstance->SavedWeaponProficiencyMap;
 
-		UE_LOG(LogTemp, Warning, TEXT("Loaded Sword High Score: %d"), SwordHighScore);
-		UE_LOG(LogTemp, Warning, TEXT("Loaded Staff High Score: %d"), StaffHighScore);
-
-		// Debug log for testing
-		for (const TPair<EWeaponType, FWeapon_Proficiency_Struct>& Pair : WeaponProficiencyMap)
-		{
-			const EWeaponType TheWeaponType = Pair.Key;
-			const FWeapon_Proficiency_Struct& Proficiency = Pair.Value;
-			UE_LOG(LogTemp, Log, TEXT("Loaded %s: Level %d, EXP %.2f"),
-				*UEnum::GetValueAsString(TheWeaponType),
-				Proficiency.WeaponLevel,
-				Proficiency.CurrentEXP);
-		}
-
+		UE_LOG(LogTemp, Warning, TEXT("High scores loaded - Sword: %d -> %d, Staff: %d -> %d"),
+			PreviousSwordScore, SwordHighScore,
+			PreviousStaffScore, StaffHighScore);
 	}
-	
 	else
-
 	{
-
-		SwordHighScore = 0;
-		StaffHighScore = 0;
-
-		UE_LOG(LogTemp, Warning, TEXT("No saved data found. Resetting high scores."));
-		UE_LOG(LogTemp, Warning, TEXT("No save game found, using default proficiency values."));
-
+		UE_LOG(LogTemp, Warning, TEXT("No saved game found - Keeping current values"));
 	}
-
 }
 
 
@@ -585,8 +580,7 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 	{
 		// Load the saved data
 		WeaponProficiencyMap = LoadGameInstance->SavedWeaponProficiencyMap;
-		WeaponElementalProficiency.ElementalWeaponProficiencyMap =
-			LoadGameInstance->SavedElementalProficiencyMap;
+		WeaponElementalProficiency.ElementalWeaponProficiencyMap = LoadGameInstance->SavedElementalProficiencyMap;
 		WeaponElementalAttacks = LoadGameInstance->SavedWeaponElementalAttacks;
 		WeaponTechniques = LoadGameInstance->SavedWeaponTechniques;
 
@@ -606,36 +600,47 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 void ARen_Low_Poly_Character::Death()
 {
 
-	if (bIsDead)  // Exit early if already dead
-	{
-		return;
-	}
+	if (bIsDead) return;
 
-	bIsDead = true;  // Mark the player as dead
+	bIsDead = true;
 
 	// Disable player input and overlap events only once
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 	if (PlayerController)
 	{
 		DisableInput(PlayerController);
-
 	}
-
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
 
+	// Get the old high score for comparison
+	int32 OldHighScore = (WeaponType == EWeaponType::Sword) ? SwordHighScore : StaffHighScore;
+
+	// Update the high score if needed
+	if (PlayerScore > OldHighScore)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("New high score! Old: %d, New: %d"),
+			OldHighScore, PlayerScore);
+
+		if (WeaponType == EWeaponType::Sword)
+			SwordHighScore = PlayerScore;
+		else
+			StaffHighScore = PlayerScore;
+	}
+
+	// Save the game state
 	SaveHighScore();
-	UpdateHighScore(PlayerScore);
 	SavePlayerProgress();
+
+	// Show end screen and cleanup UI
 	DisplayEndScreenWidget();
 	CommandMenuWidget->RemoveFromParent();
 	RemoveGameplayUI();
 
-	// Tell the game mode to stop spawning enemies
+	// Stop enemy spawning
 	if (ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(UGameplayStatics::GetGameMode(GetWorld())))
 	{
 		GameMode->StopSpawningAndDestroyEnemies();
 	}
-
 }
 
 
@@ -3007,7 +3012,6 @@ void ARen_Low_Poly_Character::FindResultsCamera()
 
 void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 {
-
 	if (!EndScreenWidget)
 	{
 		EndScreenWidget = CreateWidget<UEnd_Screen_Widget>(GetWorld(), EndScreenWidgetClass);
@@ -3018,9 +3022,9 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 		// Set the results camera reference
 		EndScreenWidget->SetResultsCamera(Results_Camera);
 
-		// Get current values
+		// Get current values and old high score BEFORE updating
 		int32 FinalScore = PlayerScore;
-		int32 HighScore = (WeaponType == EWeaponType::Sword) ? SwordHighScore : StaffHighScore;
+		int32 OldHighScore = (WeaponType == EWeaponType::Sword) ? SwordHighScore : StaffHighScore;
 
 		// Get the current round from game mode
 		ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
@@ -3030,8 +3034,21 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 			CurrentRound = GameMode->CurrentRound;
 		}
 
-		// Set up base information
-		EndScreenWidget->SetupGameOver(FinalScore, HighScore, CurrentRound);
+		// Update high score if needed (but we'll still show the old one for animation)
+		if (FinalScore > OldHighScore)
+		{
+			if (WeaponType == EWeaponType::Sword)
+			{
+				SwordHighScore = FinalScore;
+			}
+			else
+			{
+				StaffHighScore = FinalScore;
+			}
+		}
+
+		// Set up base information with OLD high score for animation
+		EndScreenWidget->SetupGameOver(FinalScore, OldHighScore, CurrentRound);
 
 		// Set the current weapon type
 		FString WeaponName = (WeaponType == EWeaponType::Sword) ? TEXT("Sword") : TEXT("Staff");
@@ -3042,11 +3059,8 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 		{
 			const FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[WeaponType];
 
-			// Set weapon level showing progression only if there's been a change
+			// Set weapon level showing progression
 			EndScreenWidget->SetWeaponLevel(InitialWeaponLevel, Proficiency.WeaponLevel);
-
-			// Set weapon level with previous and current level to show progression
-			//EndScreenWidget->SetWeaponLevel(Proficiency.WeaponLevel - 1, Proficiency.WeaponLevel);
 
 			// Update the exp progress
 			if (Proficiency.WeaponProficiencyThresholds.Contains(Proficiency.WeaponLevel))
@@ -3073,7 +3087,6 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 			);
 
 			EndScreenWidget->SetEXPEarned(Proficiency.TotalEXPEarned);
-
 		}
 
 		// Add widget to viewport if not already there
@@ -3091,6 +3104,9 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 void ARen_Low_Poly_Character::BeginPlay()
 {
 	Super::BeginPlay();
+
+	LoadHighScore();
+	LoadPlayerProgress();
 
 	// Cast to ALowPoly_Survival_GameMode
 	LowPoly_Survival_GameMode = Cast<ALowPoly_Survival_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
@@ -3121,8 +3137,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	CreateNotificationWidget();
 
 
-	LoadHighScore();
-	LoadPlayerProgress();
+
 	EnsureAllInitialisation();
 
 	FindResultsCamera();

@@ -72,36 +72,49 @@ void UEnd_Screen_Widget::NativeConstruct()
 void UEnd_Screen_Widget::SetupGameOver(int32 FinalScore, int32 HighScore, int32 RoundNumber)
 {
     UE_LOG(LogTemp, Warning, TEXT("========== STEP 2: Setting Up Game Over =========="));
-    UE_LOG(LogTemp, Warning, TEXT("Final Score: %d, High Score: %d, Round: %d"),
+    UE_LOG(LogTemp, Warning, TEXT("Final Score: %d, Current High Score: %d, Round: %d"),
         FinalScore, HighScore, RoundNumber);
 
-    // Check for new high score
-    if (FinalScore > HighScore)
-    {
-        bIsNewHighScore = true;
-        // Initial display of old high score
-        if (HighScoreText)
-            HighScoreText->SetText(FText::FromString(FString::Printf(TEXT("%d"), HighScore)));
-
-        // Delay the high score reveal
-        FTimerHandle DelayHandle;
-        GetWorld()->GetTimerManager().SetTimer(DelayHandle, [this, HighScore, FinalScore]() {
-            HandleHighScoreReveal(HighScore, FinalScore);
-            }, 2.0f, false); // 2 second delay before starting reveal
-    }
-    else
-    {
-        // No new high score, display normally
-        if (HighScoreText)
-            HighScoreText->SetText(FText::FromString(FString::Printf(TEXT("%d"), HighScore)));
-    }
-
-    // Update other score texts
+    // Update final score display first
     if (FinalScoreText)
         FinalScoreText->SetText(FText::FromString(FString::Printf(TEXT("%d"), FinalScore)));
 
     if (RoundText)
         RoundText->SetText(FText::FromString(FString::Printf(TEXT("%d"), RoundNumber)));
+
+    // Check for new high score
+    if (FinalScore > HighScore)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("New high score achieved! Starting reveal sequence"));
+        bIsNewHighScore = true;
+
+        // Initial display of old high score
+        if (HighScoreText)
+        {
+            HighScoreText->SetText(FText::FromString(FString::Printf(TEXT("%d"), HighScore)));
+            // Set initial color to default white
+            HighScoreText->SetColorAndOpacity(FSlateColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f)));
+        }
+
+        // Delay the high score reveal
+        FTimerHandle DelayHandle;
+        GetWorld()->GetTimerManager().SetTimer(DelayHandle,
+            [this, HighScore, FinalScore]() {
+                HandleHighScoreReveal(HighScore, FinalScore);
+            },
+            2.0f, false); // 2 second delay before starting reveal
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("No new high score. Displaying current high score."));
+        // No new high score, display normally
+        if (HighScoreText)
+        {
+            HighScoreText->SetText(FText::FromString(FString::Printf(TEXT("%d"), HighScore)));
+            // Set color to default white
+            HighScoreText->SetColorAndOpacity(FSlateColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f)));
+        }
+    }
 
     // Start the game over sequence
     if (BlurAnimation)
@@ -110,6 +123,10 @@ void UEnd_Screen_Widget::SetupGameOver(int32 FinalScore, int32 HighScore, int32 
         OnAnimationFinishedEvent.BindDynamic(this, &UEnd_Screen_Widget::OnBlurComplete);
         BindToAnimationFinished(BlurAnimation, OnAnimationFinishedEvent);
         PlayAnimation(BlurAnimation);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Blur Animation is null!"));
     }
 }
 
