@@ -75,13 +75,30 @@ void UEnd_Screen_Widget::SetupGameOver(int32 FinalScore, int32 HighScore, int32 
     UE_LOG(LogTemp, Warning, TEXT("Final Score: %d, High Score: %d, Round: %d"),
         FinalScore, HighScore, RoundNumber);
 
+    // Check for new high score
+    if (FinalScore > HighScore)
+    {
+        bIsNewHighScore = true;
+        // Initial display of old high score
+        if (HighScoreText)
+            HighScoreText->SetText(FText::FromString(FString::Printf(TEXT("%d"), HighScore)));
 
-    // Update score texts
+        // Delay the high score reveal
+        FTimerHandle DelayHandle;
+        GetWorld()->GetTimerManager().SetTimer(DelayHandle, [this, HighScore, FinalScore]() {
+            HandleHighScoreReveal(HighScore, FinalScore);
+            }, 2.0f, false); // 2 second delay before starting reveal
+    }
+    else
+    {
+        // No new high score, display normally
+        if (HighScoreText)
+            HighScoreText->SetText(FText::FromString(FString::Printf(TEXT("%d"), HighScore)));
+    }
+
+    // Update other score texts
     if (FinalScoreText)
         FinalScoreText->SetText(FText::FromString(FString::Printf(TEXT("%d"), FinalScore)));
-
-    if (HighScoreText)
-        HighScoreText->SetText(FText::FromString(FString::Printf(TEXT("%d"), HighScore)));
 
     if (RoundText)
         RoundText->SetText(FText::FromString(FString::Printf(TEXT("%d"), RoundNumber)));
@@ -94,7 +111,6 @@ void UEnd_Screen_Widget::SetupGameOver(int32 FinalScore, int32 HighScore, int32 
         BindToAnimationFinished(BlurAnimation, OnAnimationFinishedEvent);
         PlayAnimation(BlurAnimation);
     }
-
 }
 
 
@@ -177,6 +193,48 @@ void UEnd_Screen_Widget::SetEXPEarned(float EXPAmount)
     {
         EXPEarnedText->SetText(FText::FromString(FString::Printf(TEXT("EXP Earned: %.0f"), EXPAmount)));
     }
+
+}
+
+
+
+void UEnd_Screen_Widget::HandleHighScoreReveal(int32 OldHighScore, int32 NewHighScore)
+{
+
+    if (HighScoreText)
+    {
+        // Start at old score
+        CurrentDisplayedScore = OldHighScore;
+
+        // Create timer to count up
+        GetWorld()->GetTimerManager().SetTimer(
+            ScoreUpdateTimerHandle,
+            [this, NewHighScore]()
+            {
+                // Increment score
+                CurrentDisplayedScore++;
+
+                // Update text
+                HighScoreText->SetText(FText::FromString(FString::Printf(TEXT("%d"), CurrentDisplayedScore)));
+
+                // Change color to green when counting
+                HighScoreText->SetColorAndOpacity(FSlateColor(FLinearColor(0.0f, 1.0f, 0.0f, 1.0f)));
+
+                // Check if we've reached the new high score
+                if (CurrentDisplayedScore >= NewHighScore)
+                {
+                    // Stop the timer
+                    GetWorld()->GetTimerManager().ClearTimer(ScoreUpdateTimerHandle);
+
+                    // Call blueprint animation event
+                  //  PlayHighScoreAnimation();
+                }
+            },
+            0.05f, // Update every 0.05 seconds
+                true   // Loop until we reach new score
+                );
+    }
+ 
 
 }
 

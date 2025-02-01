@@ -105,6 +105,15 @@ protected:
         class UTextBlock* HealthText;
 
     UPROPERTY(meta = (BindWidget))
+        class UTextBlock* FireProfText;
+
+    UPROPERTY(meta = (BindWidget))
+        class UTextBlock* IceProfText;
+
+    UPROPERTY(meta = (BindWidget))
+        class UTextBlock* ThunderProfText;
+
+    UPROPERTY(meta = (BindWidget))
         class UTextBlock* EXPEarnedText;
 
     // Navigation Buttons
@@ -130,6 +139,9 @@ protected:
     UPROPERTY(Transient, meta = (BindWidgetAnim))
         class  UWidgetAnimation* StatsPanelAnimation;
 
+    UPROPERTY(Transient, meta = (BindWidgetAnim))
+        class  UWidgetAnimation* HighScoreAnimation;
+
 public:
     // Initialize widget with results data
     void SetupGameOver(int32 FinalScore, int32 HighScore, int32 RoundNumber);
@@ -152,6 +164,9 @@ public:
     void SetWeaponLevel(int32 OldLevel, int32 NewLevel);
 
     void SetEXPEarned(float EXPAmount);
+
+    void HandleHighScoreReveal(int32 OldHighScore, int32 NewHighScore);
+
 
 
 protected:
@@ -184,5 +199,9 @@ protected:
     FWidgetAnimationDynamicEvent OnAnimationFinishedEvent;
 
     EGameOverPage PageEnum;
+
+    bool bIsNewHighScore;
+    int32 CurrentDisplayedScore;
+    FTimerHandle ScoreUpdateTimerHandle;
 
 };

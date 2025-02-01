@@ -463,6 +463,15 @@ void ARen_Low_Poly_Character::SaveHighScore()
 		SaveGameInstance->SavedWeaponProficiencyMap = WeaponProficiencyMap;
 
 		UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Player Save Slot"), 0);
+
+
+		bool SaveSuccess = UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("Player Save Slot"), 0);
+		UE_LOG(LogTemp, Warning, TEXT("Save High Score %s"), SaveSuccess ? TEXT("Succeeded") : TEXT("Failed"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to create SaveGameInstance"));
+
 	}
 
 }
@@ -497,7 +506,7 @@ void ARen_Low_Poly_Character::LoadHighScore()
 		}
 
 	}
-
+	
 	else
 
 	{
@@ -614,8 +623,8 @@ void ARen_Low_Poly_Character::Death()
 
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
 
-	// Perform any additional death-related tasks, such as saving scores and showing the UI
 	SaveHighScore();
+	UpdateHighScore(PlayerScore);
 	SavePlayerProgress();
 	DisplayEndScreenWidget();
 	CommandMenuWidget->RemoveFromParent();

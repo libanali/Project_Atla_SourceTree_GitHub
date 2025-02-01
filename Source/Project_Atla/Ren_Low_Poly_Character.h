@@ -29,17 +29,10 @@
 #include "Inventory.h"
 #include "Action_Banner_Widget.h"
 #include "End_Screen_Widget.h"
+#include "GameEnums.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
 
-
-
-UENUM(BlueprintType)
-enum class EWeaponType : uint8
-{
-	Sword UMETA(DisplayName = "Sword"),
-	Staff UMETA(DisplayName = "Staff")
-};
 
 
 UENUM(BlueprintType)
