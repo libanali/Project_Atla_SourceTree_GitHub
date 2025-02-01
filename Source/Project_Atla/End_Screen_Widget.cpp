@@ -203,6 +203,88 @@ void UEnd_Screen_Widget::SetWeaponLevel(int32 OldLevel, int32 NewLevel)
 
 
 
+
+void UEnd_Screen_Widget::SetElementalLevels(int32 FireOldLevel, int32 FireNewLevel,
+    int32 IceOldLevel, int32 IceNewLevel,
+    int32 ThunderOldLevel, int32 ThunderNewLevel)
+{
+
+    UE_LOG(LogTemp, Warning, TEXT("Setting Elemental Levels:"));
+    UE_LOG(LogTemp, Warning, TEXT("Fire: %d -> %d"), FireOldLevel, FireNewLevel);
+    UE_LOG(LogTemp, Warning, TEXT("Ice: %d -> %d"), IceOldLevel, IceNewLevel);
+    UE_LOG(LogTemp, Warning, TEXT("Thunder: %d -> %d"), ThunderOldLevel, ThunderNewLevel);
+
+    FSlateColor GreenColor = FSlateColor(FLinearColor(0.0f, 1.0f, 0.0f, 1.0f)); // Pure green
+    FSlateColor DefaultColor = FSlateColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f)); // White
+
+    // Fire Level
+    if (FireProfText)
+    {
+        FireOldLevel = FMath::Max(1, FireOldLevel);
+        FireNewLevel = FMath::Max(1, FireNewLevel);
+
+        if (FireOldLevel != FireNewLevel && FireNewLevel > FireOldLevel)
+        {
+            FString ValueText = FString::Printf(TEXT("%d > %d"), FireOldLevel, FireNewLevel);
+            FireProfText->SetText(FText::FromString(ValueText));
+            FireProfText->SetColorAndOpacity(GreenColor);
+            UE_LOG(LogTemp, Warning, TEXT("Fire Level increased: %s"), *ValueText);
+        }
+        else
+        {
+            FireProfText->SetText(FText::FromString(FString::Printf(TEXT("%d"), FireNewLevel)));
+            FireProfText->SetColorAndOpacity(DefaultColor);
+        }
+    }
+
+    // Ice Level
+    if (IceProfText)
+    {
+        IceOldLevel = FMath::Max(1, IceOldLevel);
+        IceNewLevel = FMath::Max(1, IceNewLevel);
+
+        if (IceOldLevel != IceNewLevel && IceNewLevel > IceOldLevel)
+        {
+            FString ValueText = FString::Printf(TEXT("%d > %d"), IceOldLevel, IceNewLevel);
+            IceProfText->SetText(FText::FromString(ValueText));
+            IceProfText->SetColorAndOpacity(GreenColor);
+            UE_LOG(LogTemp, Warning, TEXT("Ice Level increased: %s"), *ValueText);
+        }
+        else
+        {
+            IceProfText->SetText(FText::FromString(FString::Printf(TEXT("%d"), IceNewLevel)));
+            IceProfText->SetColorAndOpacity(DefaultColor);
+        }
+    }
+
+    // Thunder Level
+    if (ThunderProfText)
+    {
+        ThunderOldLevel = FMath::Max(1, ThunderOldLevel);
+        ThunderNewLevel = FMath::Max(1, ThunderNewLevel);
+
+        if (ThunderOldLevel != ThunderNewLevel && ThunderNewLevel > ThunderOldLevel)
+        {
+            FString ValueText = FString::Printf(TEXT("%d > %d"), ThunderOldLevel, ThunderNewLevel);
+            ThunderProfText->SetText(FText::FromString(ValueText));
+            ThunderProfText->SetColorAndOpacity(GreenColor);
+            UE_LOG(LogTemp, Warning, TEXT("Thunder Level increased: %s"), *ValueText);
+        }
+        else
+        {
+            ThunderProfText->SetText(FText::FromString(FString::Printf(TEXT("%d"), ThunderNewLevel)));
+            ThunderProfText->SetColorAndOpacity(DefaultColor);
+        }
+    }
+}
+
+
+
+
+
+
+
+
 void UEnd_Screen_Widget::SetEXPEarned(float EXPAmount)
 {
 
@@ -585,6 +667,7 @@ void UEnd_Screen_Widget::UpdateStats(float Attack, float Defense, float Elementa
         {
             ValueText = FString::Printf(TEXT("%d"), FMath::RoundToInt(Health));
         }
+
         HealthText->SetText(FText::FromString(ValueText));
     }
 }

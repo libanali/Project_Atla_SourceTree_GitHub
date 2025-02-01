@@ -549,10 +549,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental Proficiency")
 		FElemental_Proficiency_Struct ElementalProficiency;
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental Attacks")
 		TMap<EWeaponType, FWeaponElementalAttacks> WeaponElementalAttacks;
-
 
 	UFUNCTION()
 		void AddElementalAttackDelayed(const FElemental_Struct& ElementalAttack, EWeaponType TheWeaponType);
@@ -633,6 +631,9 @@ public:
 
 	float PreviousElementalPower;
 	float InitialElemental;
+	int32 InitialFireLevel;
+	int32 InitialIceLevel;
+	int32 InitialThunderLevel;
 	//Elemental Stats
 
 

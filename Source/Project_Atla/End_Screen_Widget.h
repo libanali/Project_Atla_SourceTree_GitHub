@@ -163,9 +163,14 @@ public:
 
     void SetWeaponLevel(int32 OldLevel, int32 NewLevel);
 
+    void SetElementalLevels(int32 FireOldLevel, int32 FireNewLevel,
+        int32 IceOldLevel, int32 IceNewLevel,
+        int32 ThunderOldLevel, int32 ThunderNewLevel);
+
     void SetEXPEarned(float EXPAmount);
 
     void HandleHighScoreReveal(int32 OldHighScore, int32 NewHighScore);
+
 
 
 

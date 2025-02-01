@@ -3089,12 +3089,34 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 			EndScreenWidget->SetEXPEarned(Proficiency.TotalEXPEarned);
 		}
 
-		// Add widget to viewport if not already there
-		if (!EndScreenWidget->IsInViewport())
+
+		// Update elemental proficiency
+		if (WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(WeaponType))
 		{
-			EndScreenWidget->AddToViewport();
+			const FElemental_Proficiency_Struct& TheElementalProficiency =
+				WeaponElementalProficiency.ElementalWeaponProficiencyMap[WeaponType];
+
+			UE_LOG(LogTemp, Warning, TEXT("Setting Elemental Levels for %s:"),
+				*UEnum::GetValueAsString(WeaponType));
+			UE_LOG(LogTemp, Warning, TEXT("Initial Levels - Fire: %d, Ice: %d, Thunder: %d"),
+				InitialFireLevel, InitialIceLevel, InitialThunderLevel);
+			UE_LOG(LogTemp, Warning, TEXT("Current Levels - Fire: %d, Ice: %d, Thunder: %d"),
+				TheElementalProficiency.FireLevel, TheElementalProficiency.IceLevel, TheElementalProficiency.ThunderLevel);
+
+			EndScreenWidget->SetElementalLevels(
+				InitialFireLevel, TheElementalProficiency.FireLevel,
+				InitialIceLevel, TheElementalProficiency.IceLevel,
+				InitialThunderLevel, TheElementalProficiency.ThunderLevel
+			);
+		
+			// Add widget to viewport if not already there
+			if (!EndScreenWidget->IsInViewport())
+			{
+				EndScreenWidget->AddToViewport();
+			}
 		}
 	}
+
 }
 
 
@@ -3247,6 +3269,20 @@ void ARen_Low_Poly_Character::BeginPlay()
 	{
 		InitialWeaponLevel = WeaponProficiencyMap[WeaponType].WeaponLevel;
 	}
+
+	if (WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(WeaponType))
+	{
+		const FElemental_Proficiency_Struct& TheElementalProficiency =
+			WeaponElementalProficiency.ElementalWeaponProficiencyMap[WeaponType];
+
+		InitialFireLevel = TheElementalProficiency.FireLevel;
+		InitialIceLevel = TheElementalProficiency.IceLevel;
+		InitialThunderLevel = TheElementalProficiency.ThunderLevel;
+
+		UE_LOG(LogTemp, Warning, TEXT("Initial Elemental Levels - Fire: %d, Ice: %d, Thunder: %d"),
+			InitialFireLevel, InitialIceLevel, InitialThunderLevel);
+	}
+
 
 
 	UE_LOG(LogTemp, Log, TEXT("Initial Stats - Attack: %f, Defense: %f, Elemental: %f, MaxHealth: %f, MaxMana: %f"),
