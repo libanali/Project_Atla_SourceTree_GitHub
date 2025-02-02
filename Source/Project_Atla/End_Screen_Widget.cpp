@@ -339,6 +339,38 @@ void UEnd_Screen_Widget::HandleHighScoreReveal(int32 OldHighScore, int32 NewHigh
 
 
 
+void UEnd_Screen_Widget::SetCharacterImage(EWeaponType WeaponType)
+{
+
+    if (CharacterImage && CharacterImage2)
+    {
+        UTexture2D* CharacterTexture = (WeaponType == EWeaponType::Sword) ? SwordCharacterTexture : StaffCharacterTexture;
+
+        if (CharacterTexture)
+        {
+            FSlateBrush Brush;
+            Brush.SetResourceObject(CharacterTexture);
+            CharacterImage->SetBrush(Brush);
+            CharacterImage2->SetBrush(Brush);
+
+            UE_LOG(LogTemp, Warning, TEXT("Setting character image for weapon type: %s"),
+                *UEnum::GetValueAsString(WeaponType));
+        }
+        else
+        {
+            UE_LOG(LogTemp, Error, TEXT("Character texture is null for weapon type: %s"),
+                *UEnum::GetValueAsString(WeaponType));
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("CharacterImage widget is null"));
+    }
+
+}
+
+
+
 /*
 void UEnd_Screen_Widget::SetCharacterImage(EWeaponType WeaponType)
 {

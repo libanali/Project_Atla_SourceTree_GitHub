@@ -2976,10 +2976,6 @@ void ARen_Low_Poly_Character::CheckAndDisplayArrow(AActor* Enemy, UEnemy_Detecti
 
 
 
-
-
-
-
 void ARen_Low_Poly_Character::FindResultsCamera()
 {
 
@@ -3016,11 +3012,11 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 	{
 		EndScreenWidget = CreateWidget<UEnd_Screen_Widget>(GetWorld(), EndScreenWidgetClass);
 	}
-
 	if (EndScreenWidget)
 	{
 		// Set the results camera reference
 		EndScreenWidget->SetResultsCamera(Results_Camera);
+		EndScreenWidget->SetCharacterImage(WeaponType);
 
 		// Get current values and old high score BEFORE updating
 		int32 FinalScore = PlayerScore;
@@ -3062,15 +3058,40 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 			// Set weapon level showing progression
 			EndScreenWidget->SetWeaponLevel(InitialWeaponLevel, Proficiency.WeaponLevel);
 
-			// Update the exp progress
-			if (Proficiency.WeaponProficiencyThresholds.Contains(Proficiency.WeaponLevel))
+			// Calculate EXP threshold for next level
+			if (Proficiency.WeaponLevel < 30)  // Only show progress if not max level
 			{
-				float EXPToNextLevel = Proficiency.WeaponProficiencyThresholds[Proficiency.WeaponLevel];
+				float EXPToNextLevel = 100.0f; // Default threshold
+				if (Proficiency.WeaponProficiencyThresholds.Contains(Proficiency.WeaponLevel))
+				{
+					EXPToNextLevel = Proficiency.WeaponProficiencyThresholds[Proficiency.WeaponLevel];
+				}
+				else
+				{
+					// For levels beyond thresholds, calculate based on a multiplier
+					float LastThreshold = 100.0f;
+					for (int32 Level = 1; Level <= Proficiency.WeaponLevel; Level++)
+					{
+						LastThreshold *= 1.25f;
+					}
+					EXPToNextLevel = LastThreshold;
+				}
+
+				// Update the exp progress
 				float Progress = Proficiency.CurrentEXP / EXPToNextLevel;
 				EndScreenWidget->UpdateExpProgress(
 					Proficiency.WeaponLevel,
 					Proficiency.WeaponLevel + 1,
 					Progress
+				);
+			}
+			else
+			{
+				// At max level, show full progress
+				EndScreenWidget->UpdateExpProgress(
+					30,     // Max level
+					30,     // Same as current since we're at max
+					1.0f    // Full progress
 				);
 			}
 
@@ -3088,7 +3109,6 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 
 			EndScreenWidget->SetEXPEarned(Proficiency.TotalEXPEarned);
 		}
-
 
 		// Update elemental proficiency
 		if (WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(WeaponType))
@@ -3108,15 +3128,14 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 				InitialIceLevel, TheElementalProficiency.IceLevel,
 				InitialThunderLevel, TheElementalProficiency.ThunderLevel
 			);
-		
-			// Add widget to viewport if not already there
-			if (!EndScreenWidget->IsInViewport())
-			{
-				EndScreenWidget->AddToViewport();
-			}
+		}
+
+		// Add widget to viewport if not already there
+		if (!EndScreenWidget->IsInViewport())
+		{
+			EndScreenWidget->AddToViewport();
 		}
 	}
-
 }
 
 

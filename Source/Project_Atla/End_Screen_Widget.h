@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "Results_camera.h"
 #include "Camera/CameraActor.h"
+#include "GameEnums.h"
 #include "End_Screen_Widget.generated.h"
 
 /**
@@ -61,10 +62,10 @@ protected:
     UPROPERTY(meta = (BindWidget))
         class  UImage* CharacterImage2;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Character Images")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Images")
        class UTexture2D* SwordCharacterTexture;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Character Images")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Images")
        class UTexture2D* StaffCharacterTexture;
 
     UPROPERTY(meta = (BindWidget))
@@ -171,6 +172,7 @@ public:
 
     void HandleHighScoreReveal(int32 OldHighScore, int32 NewHighScore);
 
+    void SetCharacterImage(EWeaponType WeaponType);
 
 
 
