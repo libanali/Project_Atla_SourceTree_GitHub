@@ -23,7 +23,7 @@ class PROJECT_ATLA_API UGame_Instance : public UGameInstance
 
 public:
     // Store the selected weapon type
-    UPROPERTY(BlueprintReadWrite, Category = "Weapons")
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapons")
         EWeaponType SelectedWeapon;
 
 	
