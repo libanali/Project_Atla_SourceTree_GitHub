@@ -2893,29 +2893,51 @@ void ARen_Low_Poly_Character::UpdateEnemyArrows()
 }
 
 
+void ARen_Low_Poly_Character::AddEnemyArrow(AEnemy_Poly* Enemy)
+{
+
+	if (!Enemy || EnemyArrowMap.Contains(Enemy)) return;
+
+	if (!EnemyArrowWidgetClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("EnemyArrowWidgetClass is not set in the Character Blueprint!"));
+		return;
+	}
+
+	UEnemy_Detection_Arrow* ArrowWidget = CreateWidget<UEnemy_Detection_Arrow>(GetWorld(), EnemyArrowWidgetClass);
+	if (ArrowWidget)
+	{
+		EnemyArrowMap.Add(Enemy, ArrowWidget);
+		ArrowWidget->AddToViewport();
+		Enemy->OnDestroyed.AddDynamic(this, &ARen_Low_Poly_Character::OnEnemyDestroyed);
+	}
+
+}
+
+
+
+void ARen_Low_Poly_Character::OnEnemyDestroyed(AActor* DestroyedActor)
+{
+
+	AEnemy_Poly* DestroyedEnemy = Cast<AEnemy_Poly>(DestroyedActor);
+	if (!DestroyedEnemy) return;
+
+	if (UEnemy_Detection_Arrow* ArrowWidget = EnemyArrowMap.FindRef(DestroyedEnemy))
+	{
+		ArrowWidget->RemoveFromParent();
+		EnemyArrowMap.Remove(DestroyedEnemy);
+	}
+
+}
+
+
+
+
 
 void ARen_Low_Poly_Character::CheckAndDisplayArrow(AActor* Enemy, UEnemy_Detection_Arrow* ArrowWidget)
 {
-	// Check if ArrowWidget is valid
-	if (!ArrowWidget)
+	if (!ArrowWidget || !Enemy)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("ArrowWidget is null!"));
-		return;
-	}
-
-	// Check if Enemy is valid
-	if (!Enemy)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Enemy is null!"));
-		return;
-	}
-
-	// Safely cast the enemy to AEnemy_Poly to access its properties
-	AEnemy_Poly* EnemyPoly = Cast<AEnemy_Poly>(Enemy);
-	if (!EnemyPoly)
-	{
-		// Log the class name of the enemy to identify why the cast failed
-		UE_LOG(LogTemp, Warning, TEXT("Enemy is not of type AEnemy_Poly! Actual class: %s"), *Enemy->GetClass()->GetName());
 		return;
 	}
 
@@ -2928,64 +2950,54 @@ void ARen_Low_Poly_Character::CheckAndDisplayArrow(AActor* Enemy, UEnemy_Detecti
 	GetWorld()->GetFirstPlayerController()->GetViewportSize(ViewportWidth, ViewportHeight);
 	FVector2D ViewportSize(ViewportWidth, ViewportHeight);
 
-	// Check if the enemy is off-screen
-	bool bOffScreen = ScreenPosition.X < 0 || ScreenPosition.X > ViewportSize.X || ScreenPosition.Y < 0 || ScreenPosition.Y > ViewportSize.Y;
+	// Check if enemy is off-screen
+	bool bOffScreen = ScreenPosition.X < 0 || ScreenPosition.X > ViewportSize.X ||
+		ScreenPosition.Y < 0 || ScreenPosition.Y > ViewportSize.Y;
 
-	// If the enemy is off-screen, show the arrow
 	if (bOffScreen)
 	{
 		ArrowWidget->SetVisibility(ESlateVisibility::Visible);
 
-		// Calculate the rotation of the arrow to point towards the enemy
-		FVector PlayerLocation = GetActorLocation();
-		FVector EnemyLocation = EnemyPoly->GetActorLocation();
-		FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(PlayerLocation, EnemyLocation);
-
-		// Calculate the direction from the center of the screen to the enemy
-		FVector2D Direction = ScreenPosition - FVector2D(ViewportSize.X / 2, ViewportSize.Y / 2);
+		// Calculate direction from screen center to enemy
+		FVector2D ScreenCenter = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 2);
+		FVector2D Direction = ScreenPosition - ScreenCenter;
 		Direction.Normalize();
 
-		FVector2D EdgePosition = FVector2D(0, 0);  // Position along the edge
-		float EdgePadding = 10.0f;
+		float EdgePadding = 100.0f; // Increased padding to ensure arrow is visible at screen edge
+		FVector2D EdgePosition;
 
-		// Determine if the arrow should be on the top/bottom or left/right
+		// Calculate intersection with screen edge
+		float Slope = Direction.Y / Direction.X;
+		float HalfWidth = ViewportSize.X / 2;
+		float HalfHeight = ViewportSize.Y / 2;
+
 		if (FMath::Abs(Direction.X) > FMath::Abs(Direction.Y))
 		{
-			// Place on the left or right edge
-			if (Direction.X < 0)
-			{
-				EdgePosition.X = EdgePadding;  // Left edge
-			}
-			else
-			{
-				EdgePosition.X = ViewportSize.X - EdgePadding;  // Right edge
-			}
-
-			EdgePosition.Y = ViewportSize.Y / 2 + (Direction.Y * (ViewportSize.Y / 2 - EdgePadding)); // Center vertically along the edge
+			// Intersect with left or right edge
+			float X = (Direction.X > 0) ? ViewportSize.X - EdgePadding : EdgePadding;
+			float Y = ScreenCenter.Y + (X - ScreenCenter.X) * Slope;
+			// Clamp Y to screen bounds
+			Y = FMath::Clamp(Y, EdgePadding, ViewportSize.Y - EdgePadding);
+			EdgePosition = FVector2D(X, Y);
 		}
 		else
 		{
-			// Place on the top or bottom edge
-			if (Direction.Y < 0)
-			{
-				EdgePosition.Y = EdgePadding;  // Top edge
-			}
-			else
-			{
-				EdgePosition.Y = ViewportSize.Y - EdgePadding;  // Bottom edge
-			}
-			EdgePosition.X = ViewportSize.X / 2 + (Direction.X * (ViewportSize.X / 2 - EdgePadding)); // Center horizontally along the edge
+			// Intersect with top or bottom edge
+			float Y = (Direction.Y > 0) ? ViewportSize.Y - EdgePadding : EdgePadding;
+			float X = ScreenCenter.X + (Y - ScreenCenter.Y) / Slope;
+			// Clamp X to screen bounds
+			X = FMath::Clamp(X, EdgePadding, ViewportSize.X - EdgePadding);
+			EdgePosition = FVector2D(X, Y);
 		}
 
-		// Set the arrow widget position to the calculated edge position
 		ArrowWidget->SetPositionInViewport(EdgePosition);
 
-		// Update the rotation of the arrow widget to face the enemy
-		ArrowWidget->UpdateArrowRotation(LookAtRotation.Yaw);
+		// Calculate angle between direction vector and right vector (1,0)
+		float Angle = FMath::RadiansToDegrees(FMath::Atan2(Direction.Y, Direction.X));
+		ArrowWidget->UpdateArrowRotation(Angle);
 	}
 	else
 	{
-		// If the enemy is on-screen, hide the arrow
 		ArrowWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 }

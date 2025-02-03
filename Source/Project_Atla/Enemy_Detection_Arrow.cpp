@@ -10,8 +10,8 @@ void UEnemy_Detection_Arrow::UpdateArrowRotation(float RotationAngle)
 
     if (ArrowImage)
     {
-        FRotator NewRotation = FRotator(0.f, 0.f, RotationAngle);
-        ArrowImage->SetRenderTransformAngle(RotationAngle);
+        float ScreenAngle = RotationAngle + 90.0f; // Add 90 degrees to align arrow properly
+        ArrowImage->SetRenderTransformAngle(ScreenAngle);
     }
 
 }

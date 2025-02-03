@@ -123,68 +123,39 @@ float AEnemy_Poly::ApplyDamage(float DamageAmount, const FHitResult& HitInfo, AC
 
 void AEnemy_Poly::Death()
 {
-	if (bIsDead)
-	{
-		return;
-	}
+	if (bIsDead) return;
 
 	bIsDead = true;
-
-	// Log enemy death for debugging purposes
 	UE_LOG(LogTemp, Warning, TEXT("Enemy %s has died"), *GetName());
 
-	// Get reference to the game mode to handle enemy removal and score calculation
 	ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
 	if (GameMode)
 	{
-		// Calculate points for this enemy
 		int32 PointsEarned = GameMode->CalculatePointsForEnemy(Enemy_Score);
 
-		// Award points to the player
 		ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 		if (PlayerCharacter)
 		{
 			PlayerCharacter->AddPoints(PointsEarned);
-			// Award EXP to the player's currently equipped weapon
 			PlayerCharacter->AddWeaponEXP(EXP_Gained);
-
-			// Remove the arrow widget for this enemy (check and cleanup)
-			if (PlayerCharacter->EnemyArrowMap.Contains(this))
-			{
-				UEnemy_Detection_Arrow* ArrowWidget = PlayerCharacter->EnemyArrowMap[this];
-				if (ArrowWidget)
-				{
-					ArrowWidget->RemoveFromViewport();  // Remove from screen
-					ArrowWidget = nullptr;
-				}
-				PlayerCharacter->EnemyArrowMap.Remove(this);  // Remove from the map
-			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("ArrowWidget not found for this enemy!"));
-			}
 		}
 
-		// Remove enemy from any game mode lists
 		GameMode->SpawnedEnemies.Remove(this);
 
-		// Handle the AI controller and its removal from active enemies
 		AEnemy_AIController* AIController = Cast<AEnemy_AIController>(GetController());
 		if (AIController)
 		{
 			GameMode->ActiveEnemies.Remove(AIController);
-		}
 
-		// Ensure the game mode attack cycle is reset if this enemy was attacking
-		if (GameMode->CurrentAttacker == AIController)
-		{
-			GameMode->ResetAttackCycle();
-			GameMode->CycleToNextEnemy();
+			if (GameMode->CurrentAttacker == AIController)
+			{
+				GameMode->ResetAttackCycle();
+				GameMode->CycleToNextEnemy();
+			}
 		}
 	}
 
-	// Finally, destroy the enemy and attempt item drop if applicable
-	Destroy(true); //delay this when you implement the death animation
+	Destroy(true);
 	AttemptItemDrop();
 }
 
