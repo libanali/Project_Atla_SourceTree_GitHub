@@ -103,7 +103,7 @@ void ALowPoly_Survival_GameMode::BeginPlay()
 
     CurrentAttacker = nullptr;
 
-    SpecialEventInterval = FMath::RandRange(1, 1);
+    SpecialEventInterval = FMath::RandRange(1, 3);
     // Find all actors in the level with the tag "SpawnZone"
     TArray<AActor*> FoundActors;
     UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Spawn Zone"), FoundActors);

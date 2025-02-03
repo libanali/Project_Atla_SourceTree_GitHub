@@ -75,46 +75,25 @@ void UEnd_Screen_Widget::SetupGameOver(int32 FinalScore, int32 HighScore, int32 
     UE_LOG(LogTemp, Warning, TEXT("Final Score: %d, Current High Score: %d, Round: %d"),
         FinalScore, HighScore, RoundNumber);
 
-    // Update final score display first
-    if (FinalScoreText)
-        FinalScoreText->SetText(FText::FromString(FString::Printf(TEXT("%d"), FinalScore)));
+    // Store the target values
+    TargetScore = FinalScore;
+    TargetHighScore = HighScore;
+    TargetRound = RoundNumber;
 
+    // Initialize current values and animation flags
+    CurrentDisplayedRound = 0;
+    CurrentDisplayedScore = 0;
+    bIsAnimatingRound = false;
+    bIsAnimatingScore = false;
+    bIsAnimatingHighScore = false;
+
+    // Set initial text values to 0
     if (RoundText)
-        RoundText->SetText(FText::FromString(FString::Printf(TEXT("%d"), RoundNumber)));
-
-    // Check for new high score
-    if (FinalScore > HighScore)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("New high score achieved! Starting reveal sequence"));
-        bIsNewHighScore = true;
-
-        // Initial display of old high score
-        if (HighScoreText)
-        {
-            HighScoreText->SetText(FText::FromString(FString::Printf(TEXT("%d"), HighScore)));
-            // Set initial color to default white
-            HighScoreText->SetColorAndOpacity(FSlateColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f)));
-        }
-
-        // Delay the high score reveal
-        FTimerHandle DelayHandle;
-        GetWorld()->GetTimerManager().SetTimer(DelayHandle,
-            [this, HighScore, FinalScore]() {
-                HandleHighScoreReveal(HighScore, FinalScore);
-            },
-            2.0f, false); // 2 second delay before starting reveal
-    }
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("No new high score. Displaying current high score."));
-        // No new high score, display normally
-        if (HighScoreText)
-        {
-            HighScoreText->SetText(FText::FromString(FString::Printf(TEXT("%d"), HighScore)));
-            // Set color to default white
-            HighScoreText->SetColorAndOpacity(FSlateColor(FLinearColor(1.0f, 1.0f, 1.0f, 1.0f)));
-        }
-    }
+        RoundText->SetText(FText::FromString("0"));
+    if (FinalScoreText)
+        FinalScoreText->SetText(FText::FromString("0"));
+    if (HighScoreText)
+        HighScoreText->SetText(FText::FromString("0"));
 
     // Start the game over sequence
     if (BlurAnimation)
@@ -123,10 +102,6 @@ void UEnd_Screen_Widget::SetupGameOver(int32 FinalScore, int32 HighScore, int32 
         OnAnimationFinishedEvent.BindDynamic(this, &UEnd_Screen_Widget::OnBlurComplete);
         BindToAnimationFinished(BlurAnimation, OnAnimationFinishedEvent);
         PlayAnimation(BlurAnimation);
-    }
-    else
-    {
-        UE_LOG(LogTemp, Error, TEXT("Blur Animation is null!"));
     }
 }
 
@@ -297,43 +272,38 @@ void UEnd_Screen_Widget::SetEXPEarned(float EXPAmount)
 
 
 
-void UEnd_Screen_Widget::HandleHighScoreReveal(int32 OldHighScore, int32 NewHighScore)
+void UEnd_Screen_Widget::HandleHighScoreReveal(int32 StartValue, int32 EndValue)
 {
 
-    if (HighScoreText)
+    if (HighScoreText && !bIsAnimatingHighScore)
     {
-        // Start at old score
-        CurrentDisplayedScore = OldHighScore;
+        bIsAnimatingHighScore = true;
+        CurrentDisplayedScore = StartValue;
+        int32 ScoreIncrement = FMath::Max(1, (EndValue - StartValue) / 50);
 
-        // Create timer to count up
         GetWorld()->GetTimerManager().SetTimer(
-            ScoreUpdateTimerHandle,
-            [this, NewHighScore]()
+            HighScoreUpdateTimerHandle,
+            [this, EndValue, ScoreIncrement]()
             {
-                // Increment score
-                CurrentDisplayedScore++;
+                CurrentDisplayedScore = FMath::Min(CurrentDisplayedScore + ScoreIncrement, EndValue);
+                HighScoreText->SetText(FText::AsNumber(CurrentDisplayedScore));
 
-                // Update text
-                HighScoreText->SetText(FText::FromString(FString::Printf(TEXT("%d"), CurrentDisplayedScore)));
-
-                // Change color to green when counting
-                HighScoreText->SetColorAndOpacity(FSlateColor(FLinearColor(0.0f, 1.0f, 0.0f, 1.0f)));
-
-                // Check if we've reached the new high score
-                if (CurrentDisplayedScore >= NewHighScore)
+                if (TargetScore > TargetHighScore)
                 {
-                    // Stop the timer
-                    GetWorld()->GetTimerManager().ClearTimer(ScoreUpdateTimerHandle);
+                    HighScoreText->SetColorAndOpacity(FSlateColor(FLinearColor(0.0f, 1.0f, 0.0f, 1.0f)));
+                }
 
-                    // Call blueprint animation event
-                  //  PlayHighScoreAnimation();
+                if (CurrentDisplayedScore >= EndValue)
+                {
+                    GetWorld()->GetTimerManager().ClearTimer(HighScoreUpdateTimerHandle);
+                    bIsAnimatingHighScore = false;
+                    OnHighScoreAnimationComplete();
                 }
             },
-            0.05f, // Update every 0.05 seconds
-                true   // Loop until we reach new score
-                );
+            0.02f,
+                true
+             );
     }
- 
 
 }
 
@@ -502,19 +472,7 @@ void UEnd_Screen_Widget::SwitchToResultsCamera()
 void UEnd_Screen_Widget::OnResultsPanelComplete()
 {
     UE_LOG(LogTemp, Warning, TEXT("========== STEP 6: Results Panel Complete =========="));
-    UE_LOG(LogTemp, Warning, TEXT("Starting timer for Stats Page"));
-
-    FTimerHandle StatsPageTimer;
-    GetWorld()->GetTimerManager().SetTimer(
-        StatsPageTimer,
-        [this]()
-        {
-            UE_LOG(LogTemp, Warning, TEXT("Timer complete, showing stats page"));
-            ShowPage(EGameOverPage::Stats);
-        },
-        3.0f,
-            false
-            );
+    StartResultsSequence();
 }
 
 
@@ -697,4 +655,121 @@ FText UEnd_Screen_Widget::FormatStatText(const FString& StatName, float CurrentV
     // Otherwise just show the number
     return FText::FromString(FString::Printf(TEXT("%d"),
         FMath::RoundToInt(CurrentValue)));
+}
+
+void UEnd_Screen_Widget::StartResultsSequence()
+{
+    // Start with round animation
+    AnimateRoundCount();
+
+}
+
+void UEnd_Screen_Widget::AnimateRoundCount()
+{
+    if (!bIsAnimatingRound && RoundText)
+    {
+        bIsAnimatingRound = true;
+        GetWorld()->GetTimerManager().SetTimer(
+            RoundUpdateTimerHandle,
+            [this]()
+            {
+                CurrentDisplayedRound++;
+                RoundText->SetText(FText::AsNumber(CurrentDisplayedRound));
+
+                if (CurrentDisplayedRound >= TargetRound)
+                {
+                    GetWorld()->GetTimerManager().ClearTimer(RoundUpdateTimerHandle);
+                    OnRoundAnimationComplete();
+                }
+            },
+            0.05f,
+                true
+                );
+    }
+
+}
+
+void UEnd_Screen_Widget::AnimateScoreCount()
+{
+
+    if (!bIsAnimatingScore && FinalScoreText)
+    {
+        bIsAnimatingScore = true;
+        int32 ScoreIncrement = FMath::Max(1, TargetScore / 50);
+
+        GetWorld()->GetTimerManager().SetTimer(
+            ScoreUpdateTimerHandle,
+            [this, ScoreIncrement]()
+            {
+                CurrentDisplayedScore = FMath::Min(CurrentDisplayedScore + ScoreIncrement, TargetScore);
+                FinalScoreText->SetText(FText::AsNumber(CurrentDisplayedScore));
+
+                if (CurrentDisplayedScore >= TargetScore)
+                {
+                    GetWorld()->GetTimerManager().ClearTimer(ScoreUpdateTimerHandle);
+                    OnScoreAnimationComplete();
+                }
+            },
+            0.02f,
+                true
+                );
+    }
+
+
+}
+
+void UEnd_Screen_Widget::OnRoundAnimationComplete()
+{
+
+    bIsAnimatingRound = false;
+    // Start score animation after a short delay
+    FTimerHandle DelayTimer;
+    GetWorld()->GetTimerManager().SetTimer(
+        DelayTimer,
+        [this]() { AnimateScoreCount(); },
+        0.5f,
+        false
+    );
+
+
+}
+
+void UEnd_Screen_Widget::OnScoreAnimationComplete()
+{
+
+    bIsAnimatingScore = false;
+    // Start high score animation after a delay
+    FTimerHandle DelayTimer;
+    GetWorld()->GetTimerManager().SetTimer(
+        DelayTimer,
+        [this]()
+        {
+            if (TargetScore > TargetHighScore)
+            {
+                HandleHighScoreReveal(TargetHighScore, TargetScore);
+            }
+            else
+            {
+                HandleHighScoreReveal(0, TargetHighScore);
+            }
+        },
+        0.5f,
+            false
+            );
+
+
+}
+
+
+void UEnd_Screen_Widget::OnHighScoreAnimationComplete()
+{
+
+    // Wait and then show stats page
+    GetWorld()->GetTimerManager().SetTimer(
+        StatsPageTimerHandle,
+        [this]() { ShowPage(EGameOverPage::Stats); },
+        2.0f,
+        false
+    );
+
 }

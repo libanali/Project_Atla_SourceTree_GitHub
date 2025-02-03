@@ -169,7 +169,7 @@ public:
 
     void SetEXPEarned(float EXPAmount);
 
-    void HandleHighScoreReveal(int32 OldHighScore, int32 NewHighScore);
+    void HandleHighScoreReveal(int32 StartValue, int32 EndValue);
 
     void SetCharacterImage(EWeaponType WeaponType);
 
@@ -208,6 +208,29 @@ protected:
 
     bool bIsNewHighScore;
     int32 CurrentDisplayedScore;
-    FTimerHandle ScoreUpdateTimerHandle;
+   // FTimerHandle ScoreUpdateTimerHandle;
 
+private:
+
+
+    // Animation sequence control
+    int32 TargetRound;
+    int32 CurrentDisplayedRound;
+    int32 TargetScore;
+    int32 TargetHighScore;
+    bool bIsAnimatingRound;
+    bool bIsAnimatingScore;
+    bool bIsAnimatingHighScore;
+    FTimerHandle RoundUpdateTimerHandle;
+    FTimerHandle ScoreUpdateTimerHandle;
+    FTimerHandle HighScoreUpdateTimerHandle;
+    FTimerHandle StatsPageTimerHandle;
+
+    // Animation functions
+    void StartResultsSequence();
+    void AnimateRoundCount();
+    void AnimateScoreCount();
+    void OnRoundAnimationComplete();
+    void OnScoreAnimationComplete();
+    void OnHighScoreAnimationComplete();
 };
