@@ -143,6 +143,7 @@ protected:
     UPROPERTY(Transient, meta = (BindWidgetAnim))
         class  UWidgetAnimation* HighScoreAnimation;
 
+
 public:
     // Initialize widget with results data
     void SetupGameOver(int32 FinalScore, int32 HighScore, int32 RoundNumber);
@@ -159,8 +160,6 @@ public:
 
     // Set results camera
     void SetResultsCamera(AResults_camera* Camera);
-
-//    void SetCharacterImage(EWeaponType WeaponType);
 
     void SetWeaponLevel(int32 OldLevel, int32 NewLevel);
 

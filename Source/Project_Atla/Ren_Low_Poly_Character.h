@@ -706,11 +706,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental Attacks")
 		TMap<EWeaponType, FWeaponTechniques> WeaponTechniques;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental Attacks")
+		bool bLevelUp;
+
 	void GenerateStatUpgradeMessages();
 
 	// Function to add EXP to the current weapon (called when an enemy is defeated)
 	UFUNCTION(BlueprintCallable)
 		void AddWeaponEXP(float ExpAmount);
+
+	UFUNCTION(BlueprintImplementableEvent)
+		void ActivateLevelUpVFX();
 
 	UFUNCTION(BlueprintCallable, Category = "Weapon Proficiency")
 		void CheckAndApplyWeaponLevelUp(EWeaponType TheWeaponType);
@@ -722,6 +728,7 @@ public:
 		void UnlockWeaponTechnique(EWeaponType TheWeaponType, int32 CurrentLevel);
 
 	TArray<float> QueuedEXP;
+
 	//Level & Weapon Proficiency
 
 
@@ -809,7 +816,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 		TSubclassOf<UNotification_Widget> NotificationWidgetClass;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 		UNotification_Widget* NotificationWidget;
 
 	// Function to create notification widget

@@ -371,28 +371,6 @@ void UEnd_Screen_Widget::SetCharacterImage(EWeaponType WeaponType)
 
 
 
-/*
-void UEnd_Screen_Widget::SetCharacterImage(EWeaponType WeaponType)
-{
-
-    UTexture2D* CharacterTexture = (WeaponType == EWeaponType::Sword) ? SwordCharacterTexture : StaffCharacterTexture;
-
-    if (CharacterTexture)
-    {
-        FSlateBrush Brush;
-        Brush.SetResourceObject(CharacterTexture);
-
-        if (CharacterImage)
-            CharacterImage->SetBrush(Brush);
-
-        if (CharacterImage2)
-            CharacterImage2->SetBrush(Brush);
-    }
-
-}
-
-*/
-
 
 void UEnd_Screen_Widget::OnRetryClicked()
 {
@@ -424,7 +402,7 @@ void UEnd_Screen_Widget::OnMainMenuClicked()
         PC->bShowMouseCursor = false;
     }
 
-    UGameplayStatics::OpenLevel(GetWorld(), TEXT("MainMenu"));
+    UGameplayStatics::OpenLevel(GetWorld(), TEXT("Main_Menu_Level"));
 
 }
 

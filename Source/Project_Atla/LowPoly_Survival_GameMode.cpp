@@ -103,7 +103,7 @@ void ALowPoly_Survival_GameMode::BeginPlay()
 
     CurrentAttacker = nullptr;
 
-    SpecialEventInterval = FMath::RandRange(3, 5);
+    SpecialEventInterval = FMath::RandRange(1, 1);
     // Find all actors in the level with the tag "SpawnZone"
     TArray<AActor*> FoundActors;
     UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Spawn Zone"), FoundActors);
@@ -317,6 +317,12 @@ void ALowPoly_Survival_GameMode::CheckIfCanPowerUp()
 void ALowPoly_Survival_GameMode::ActivateRandomPowerUp()
 {
 
+    // First check if player character exists and is alive
+    ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(this, 0));
+    if (!PlayerCharacter || PlayerCharacter->bIsDead)
+    {
+        return;
+    }
 
     // Ensure the power-up hasn't been spawned yet in the current round
     if (bIsPowerUpSpawned) return;
@@ -324,25 +330,22 @@ void ALowPoly_Survival_GameMode::ActivateRandomPowerUp()
     // Set the power-up as spawned
     bIsPowerUpSpawned = true;
 
-
     // Randomly pick a power-up from the enum
     ESpecialPowerUp RandomPowerUp = static_cast<ESpecialPowerUp>(FMath::RandRange(0, static_cast<int32>(ESpecialPowerUp::Max) - 1));
-
-
-
 
     // Log the power-up activation for debugging
     UE_LOG(LogTemp, Warning, TEXT("Activating Power-Up: %s"), *UEnum::GetValueAsString(RandomPowerUp));
 
-    // Apply the power-up to the player character
-    ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(this, 0));
-    if (PlayerCharacter)
+    // Add notification for power-up activation
+    if (PlayerCharacter->NotificationWidget)
     {
-        PlayerCharacter->ApplyPowerUp(RandomPowerUp); // Call the existing ApplyPowerUp method in the character class
-        PlayerCharacter->ActivatePowerUpVFX();
+        FString NotificationMessage = FString::Printf(TEXT("Power-Up Activated: %s!"),
+            *UEnum::GetValueAsString(RandomPowerUp));
+        PlayerCharacter->NotificationWidget->AddNotification(NotificationMessage, 3.0f);
     }
 
-
+    PlayerCharacter->ApplyPowerUp(RandomPowerUp);
+    PlayerCharacter->ActivatePowerUpVFX();
 }
 
 
