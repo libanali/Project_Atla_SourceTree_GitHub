@@ -13,6 +13,7 @@
 #include "UObject/ScriptDelegates.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Components/WidgetSwitcher.h"
+#include "Ren_Low_Poly_Character.h"
 #include "Kismet/Gameplaystatics.h"
 
 
@@ -764,12 +765,41 @@ void UEnd_Screen_Widget::OnScoreAnimationComplete()
 void UEnd_Screen_Widget::OnHighScoreAnimationComplete()
 {
 
-    // Wait and then show stats page
-    GetWorld()->GetTimerManager().SetTimer(
-        StatsPageTimerHandle,
-        [this]() { ShowPage(EGameOverPage::Stats); },
-        2.0f,
-        false
-    );
+    if (TargetScore > TargetHighScore)
+    {
+        // Print debug message for new high score
+        UE_LOG(LogTemp, Warning, TEXT("NEW HIGH SCORE ACHIEVED! Old: %d, New: %d"),
+            TargetHighScore, TargetScore);
+
+        // Update and save the high score after the animation
+        if (ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)))
+        {
+            PlayerCharacter->UpdateHighScore();
+        }
+
+        PlayAnimation(HighScoreAnimation);
+
+        // Wait a bit longer to show stats page
+        GetWorld()->GetTimerManager().SetTimer(
+            StatsPageTimerHandle,
+            [this]() { ShowPage(EGameOverPage::Stats); },
+            3.0f,
+            false
+        );
+    }
+    else
+    {
+        // No new high score
+        UE_LOG(LogTemp, Warning, TEXT("No new high score. Current High Score: %d, Score: %d"),
+            TargetHighScore, TargetScore);
+
+        // Proceed normally to stats page
+        GetWorld()->GetTimerManager().SetTimer(
+            StatsPageTimerHandle,
+            [this]() { ShowPage(EGameOverPage::Stats); },
+            2.0f,
+            false
+        );
+    }
 
 }

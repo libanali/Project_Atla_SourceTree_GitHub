@@ -213,9 +213,9 @@ public:
 
 
 
-	void UpdateHighScore(int32 NewScore);
+	void UpdateHighScore();
 
-
+	int32 OldHighScoreValue;
 	//High score
 
 

@@ -363,28 +363,21 @@ void ARen_Low_Poly_Character::IncreaseStats(float AdditionalHealth, float Additi
 
 
 
-void ARen_Low_Poly_Character::UpdateHighScore(int32 NewScore)
+void ARen_Low_Poly_Character::UpdateHighScore()
 {
-	// Check which weapon type the player is using and compare the score
-	if (WeaponType == EWeaponType::Sword)
+	// Use the stored old high score value
+	if (PlayerScore > OldHighScoreValue)
 	{
-		if (NewScore > SwordHighScore)
-		{
-			SwordHighScore = NewScore;
-			UE_LOG(LogTemp, Warning, TEXT("New Sword High Score: %d"), SwordHighScore);
-		}
-	}
-	else if (WeaponType == EWeaponType::Staff)
-	{
-		if (NewScore > StaffHighScore)
-		{
-			StaffHighScore = NewScore;
-			UE_LOG(LogTemp, Warning, TEXT("New Staff High Score: %d"), StaffHighScore);
-		}
-	}
+		UE_LOG(LogTemp, Warning, TEXT("Updating high score! Old: %d, New: %d"),
+			OldHighScoreValue, PlayerScore);
 
-	// After updating the high score, save it
-	SaveHighScore();
+		if (WeaponType == EWeaponType::Sword)
+			SwordHighScore = PlayerScore;
+		else
+			StaffHighScore = PlayerScore;
+
+		SaveHighScore();
+	}
 }
 
 
@@ -611,23 +604,17 @@ void ARen_Low_Poly_Character::Death()
 	}
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
 
-	// Get the old high score for comparison
-	int32 OldHighScore = (WeaponType == EWeaponType::Sword) ? SwordHighScore : StaffHighScore;
+	// Store the old high score but don't update it yet
+	OldHighScoreValue = (WeaponType == EWeaponType::Sword) ? SwordHighScore : StaffHighScore;
 
-	// Update the high score if needed
-	if (PlayerScore > OldHighScore)
+	if (PlayerScore > OldHighScoreValue)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("New high score! Old: %d, New: %d"),
-			OldHighScore, PlayerScore);
-
-		if (WeaponType == EWeaponType::Sword)
-			SwordHighScore = PlayerScore;
-		else
-			StaffHighScore = PlayerScore;
+		UE_LOG(LogTemp, Warning, TEXT("Potential new high score! Current: %d, Score: %d"),
+			OldHighScoreValue, PlayerScore);
 	}
 
 	// Save the game state
-	SaveHighScore();
+//	SaveHighScore();
 	SavePlayerProgress();
 
 	// Show end screen and cleanup UI
