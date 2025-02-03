@@ -2725,11 +2725,14 @@ void ARen_Low_Poly_Character::CheckAndApplyWeaponLevelUp(EWeaponType TheWeaponTy
 		// Add level up notification
 		if (NotificationWidget)
 		{
+
 			FString NotificationMessage = FString::Printf(TEXT("%s Level Up! [Level %d]"),
 				*UEnum::GetValueAsString(WeaponType),
 				Proficiency.WeaponLevel);
 
-			NotificationWidget->AddNotification(NotificationMessage, 3.0f);
+			NotificationMessage.RemoveFromStart(TEXT("EWeaponType::"));
+
+			NotificationWidget->AddNotification(NotificationMessage, 6.0f);
 		}
 
 		
@@ -2788,6 +2791,7 @@ void ARen_Low_Poly_Character::CheckAndApplyWeaponLevelUp(EWeaponType TheWeaponTy
 		else
 		{
 			CurrentThreshold *= 1.25f;
+			Proficiency.WeaponProficiencyThresholds.Add(Proficiency.WeaponLevel, CurrentThreshold);  // Store new threshold
 		}
 
 		// Update total stats
@@ -3960,8 +3964,8 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 
 	
 
-	FString StatsText = FString::Printf(TEXT("Current Attack: %.2f\nCurrent Defense: %.2f\nMax Health: %.2f\nCurrent Health: %.2f\nMax Mana: %f\nCurrent Mana: %f"),
-		BaseAttack, BaseDefence, HealthStruct.MaxHealth, HealthStruct.CurrentHealth, ManaStruct.MaxMana, ManaStruct.CurrentMana);
+	FString StatsText = FString::Printf(TEXT("Current Attack: %.2f\nCurrent Defense: %.2f\nMax Health: %.2f\nCurrent Health: %.2f\nMax Mana: %f\nCurrent Mana: %f\nCurrent Level: %d"),
+		BaseAttack, BaseDefence, HealthStruct.MaxHealth, HealthStruct.CurrentHealth, ManaStruct.MaxMana, ManaStruct.CurrentMana, WeaponProficiencyMap[WeaponType].WeaponLevel);
 
 	GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green, StatsText);
 

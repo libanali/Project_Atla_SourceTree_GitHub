@@ -68,7 +68,7 @@ public:
 
 private:
     FVector GetRandomPointInZone(const FBox& Zone);
-
+    bool bIsGameOver;
 
 protected:
     virtual void BeginPlay() override;

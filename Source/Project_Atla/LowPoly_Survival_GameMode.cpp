@@ -74,6 +74,7 @@ void ALowPoly_Survival_GameMode::StopSpawningAndDestroyEnemies()
 
     // Set the flag to stop further spawning
     bStopSpawning = true;
+    bIsGameOver = true;  // Add this line
 
     // Destroy all spawned enemies
     for (AEnemy_Poly* Enemy : SpawnedEnemies)
@@ -85,9 +86,6 @@ void ALowPoly_Survival_GameMode::StopSpawningAndDestroyEnemies()
     }
 
     SpawnedEnemies.Empty();
-
-    UE_LOG(LogTemp, Warning, TEXT("All enemies destroyed, and spawning stopped."));
-
 
 }
 
@@ -231,17 +229,15 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
 
 void ALowPoly_Survival_GameMode::StartNextRound()
 {
-    // Clear the list of spawned enemies
+    // Reset game over flag
+    bIsGameOver = false;
+
+    // Rest of your existing code...
     SpawnedEnemies.Empty();
-
-    // Start the spawning timer for the next round
     GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALowPoly_Survival_GameMode::SpawnEnemies, RoundDelay, false);
-
     bIsSpawningEnemies = true;
-
     bIsPowerUpSpawned = false;
-
-    NextSpawnRound = FMath::RandRange(3, 6);
+    NextSpawnRound = FMath::RandRange(1, 1);
 
 
 }
@@ -284,28 +280,24 @@ void ALowPoly_Survival_GameMode::CheckIfCanPowerUp()
 {
 
 
+    // Don't activate power-ups if the game is over
+    if (bIsGameOver)
+    {
+        return;
+    }
+
     // Check if it's time to activate a power-up
     if (CurrentRound % NextSpawnRound == 0)
     {
         ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
         APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
-
-        if (PlayerCharacter && PlayerController)
-
+        if (PlayerCharacter && PlayerController && !PlayerCharacter->bIsDead)  // Add death check
         {
-
             PlayerController->SetViewTargetWithBlend(PlayerCharacter->PowerUpCamera->GetChildActor(), 0.6f, EViewTargetBlendFunction::VTBlend_Linear, 0.0, false);
-
             PlayerController->DisableInput(PlayerController);
-
             GetWorld()->GetTimerManager().SetTimer(PowerUpAnimTimer, this, &ALowPoly_Survival_GameMode::PlayPowerUpAnim, 1.0f, false, 1.0f);
-
-
-
         }
-
-
     }
 
 
@@ -341,7 +333,10 @@ void ALowPoly_Survival_GameMode::ActivateRandomPowerUp()
     {
         FString NotificationMessage = FString::Printf(TEXT("Power-Up Activated: %s!"),
             *UEnum::GetValueAsString(RandomPowerUp));
-        PlayerCharacter->NotificationWidget->AddNotification(NotificationMessage, 3.0f);
+
+        NotificationMessage.RemoveFromStart(TEXT("ESpecialPowerUp::"));
+
+        PlayerCharacter->NotificationWidget->AddNotification(NotificationMessage, 5.0f);
     }
 
     PlayerCharacter->ApplyPowerUp(RandomPowerUp);
