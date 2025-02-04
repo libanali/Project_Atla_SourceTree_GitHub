@@ -5,6 +5,16 @@
 #include "Components/Image.h"
 
 
+void UEnemy_Detection_Arrow::NativeConstruct()
+{
+
+    Super::NativeConstruct();
+
+    SetVisibility(ESlateVisibility::Hidden);
+
+
+}
+
 void UEnemy_Detection_Arrow::UpdateArrowRotation(float RotationAngle)
 {
 
