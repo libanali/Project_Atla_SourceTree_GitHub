@@ -331,7 +331,7 @@ void ALowPoly_Survival_GameMode::ActivateRandomPowerUp()
     // Add notification for power-up activation
     if (PlayerCharacter->NotificationWidget)
     {
-        FString NotificationMessage = FString::Printf(TEXT("Power-Up Activated: %s!"),
+        FString NotificationMessage = FString::Printf(TEXT("%s!"),
             *UEnum::GetValueAsString(RandomPowerUp));
 
         NotificationMessage.RemoveFromStart(TEXT("ESpecialPowerUp::"));
@@ -402,11 +402,6 @@ void ALowPoly_Survival_GameMode::ReturnCamera()
 
 
 }
-
-
-
-
-
 
 
 

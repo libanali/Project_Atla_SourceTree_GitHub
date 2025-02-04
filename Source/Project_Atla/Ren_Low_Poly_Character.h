@@ -40,7 +40,7 @@ enum class ESpecialPowerUp : uint8
 {
 	Berserk      UMETA(DisplayName = "Berserk"),
 	Invulnerability UMETA(DisplayName = "Invulnerability"),
-	HealthRegen     UMETA(DisplayName = "Health Regen"),
+	HealthRegen     UMETA(DisplayName = "Health-Regen"),
 	DoublePoints UMETA(DisplayName = "Double Points"),
 
 	Max UMETA(Hidden)

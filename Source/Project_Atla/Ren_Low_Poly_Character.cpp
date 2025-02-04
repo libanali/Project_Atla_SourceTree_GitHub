@@ -2910,6 +2910,9 @@ void ARen_Low_Poly_Character::AddEnemyArrow(AEnemy_Poly* Enemy)
 		EnemyArrowMap.Add(Enemy, ArrowWidget);
 		ArrowWidget->AddToViewport();
 		Enemy->OnDestroyed.AddDynamic(this, &ARen_Low_Poly_Character::OnEnemyDestroyed);
+
+		// Set initial position and visibility immediately
+		CheckAndDisplayArrow(Enemy, ArrowWidget);
 	}
 
 }
@@ -2963,36 +2966,50 @@ void ARen_Low_Poly_Character::CheckAndDisplayArrow(AActor* Enemy, UEnemy_Detecti
 		FVector2D Direction = ScreenPosition - ScreenCenter;
 		Direction.Normalize();
 
-		float EdgePadding = 100.0f; // Increased padding to ensure arrow is visible at screen edge
+		float EdgePadding = 20.0f;
+		float RightEdgePadding = EdgePadding * 3;  // Increased padding for right edge
+		float BottomEdgePadding = EdgePadding * 3; // Similar padding for bottom edge
 		FVector2D EdgePosition;
 
-		// Calculate intersection with screen edge
-		float Slope = Direction.Y / Direction.X;
-		float HalfWidth = ViewportSize.X / 2;
-		float HalfHeight = ViewportSize.Y / 2;
-
-		if (FMath::Abs(Direction.X) > FMath::Abs(Direction.Y))
+		if (Direction.X > 0 && FMath::Abs(Direction.X) > FMath::Abs(Direction.Y))
 		{
-			// Intersect with left or right edge
-			float X = (Direction.X > 0) ? ViewportSize.X - EdgePadding : EdgePadding;
-			float Y = ScreenCenter.Y + (X - ScreenCenter.X) * Slope;
-			// Clamp Y to screen bounds
-			Y = FMath::Clamp(Y, EdgePadding, ViewportSize.Y - EdgePadding);
-			EdgePosition = FVector2D(X, Y);
+			// Right edge
+			EdgePosition.X = ViewportSize.X - RightEdgePadding;
+			float t = (EdgePosition.X - ScreenCenter.X) / Direction.X;
+			EdgePosition.Y = ScreenCenter.Y + Direction.Y * t;
+			EdgePosition.Y = FMath::Clamp(EdgePosition.Y, EdgePadding, ViewportSize.Y - BottomEdgePadding);
+		}
+		else if (FMath::Abs(Direction.X) > FMath::Abs(Direction.Y))
+		{
+			// Left edge
+			EdgePosition.X = EdgePadding;
+			float t = (EdgePosition.X - ScreenCenter.X) / Direction.X;
+			EdgePosition.Y = ScreenCenter.Y + Direction.Y * t;
+			EdgePosition.Y = FMath::Clamp(EdgePosition.Y, EdgePadding, ViewportSize.Y - BottomEdgePadding);
+		}
+		else if (Direction.Y > 0)
+		{
+			// Bottom edge
+			EdgePosition.Y = ViewportSize.Y - BottomEdgePadding;
+			float t = (EdgePosition.Y - ScreenCenter.Y) / Direction.Y;
+			EdgePosition.X = ScreenCenter.X + Direction.X * t;
+			EdgePosition.X = FMath::Clamp(EdgePosition.X, EdgePadding, ViewportSize.X - RightEdgePadding);
 		}
 		else
 		{
-			// Intersect with top or bottom edge
-			float Y = (Direction.Y > 0) ? ViewportSize.Y - EdgePadding : EdgePadding;
-			float X = ScreenCenter.X + (Y - ScreenCenter.Y) / Slope;
-			// Clamp X to screen bounds
-			X = FMath::Clamp(X, EdgePadding, ViewportSize.X - EdgePadding);
-			EdgePosition = FVector2D(X, Y);
+			// Top edge
+			EdgePosition.Y = EdgePadding;
+			float t = (EdgePosition.Y - ScreenCenter.Y) / Direction.Y;
+			EdgePosition.X = ScreenCenter.X + Direction.X * t;
+			EdgePosition.X = FMath::Clamp(EdgePosition.X, EdgePadding, ViewportSize.X - RightEdgePadding);
 		}
+
+		// Final safety clamp with adjusted padding for right and bottom edges
+		EdgePosition.X = FMath::Clamp(EdgePosition.X, EdgePadding, ViewportSize.X - RightEdgePadding);
+		EdgePosition.Y = FMath::Clamp(EdgePosition.Y, EdgePadding, ViewportSize.Y - BottomEdgePadding);
 
 		ArrowWidget->SetPositionInViewport(EdgePosition);
 
-		// Calculate angle between direction vector and right vector (1,0)
 		float Angle = FMath::RadiansToDegrees(FMath::Atan2(Direction.Y, Direction.X));
 		ArrowWidget->UpdateArrowRotation(Angle);
 	}
