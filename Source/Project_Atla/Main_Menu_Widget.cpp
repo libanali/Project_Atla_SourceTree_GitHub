@@ -374,8 +374,16 @@ void UMain_Menu_Widget::UpdateWeaponStats(EWeaponType WeaponType)
     }
 }
 
+void UMain_Menu_Widget::InitializeCanvasPanels()
+{
+}
 
 
+
+
+void UMain_Menu_Widget::UpdateCanvasVisibility(int32 ActiveIndex)
+{
+}
 
 void UMain_Menu_Widget::UpdateWeaponStatsText(float Attack, float Defense, float ElementalAttack, int32 WeaponLevel)
 {

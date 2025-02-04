@@ -28,6 +28,23 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UWidgetSwitcher* WidgetSwitcher;
 
+	//canvas panels
+	UPROPERTY(meta = (BindWidget))
+		class UCanvasPanel* TitleCanvas;
+
+	UPROPERTY(meta = (BindWidget))
+		class UCanvasPanel* MainMenuCanvas;
+
+	UPROPERTY(meta = (BindWidget))
+		class UCanvasPanel* WeaponSelectCanvas;
+
+	UPROPERTY(meta = (BindWidget))
+		class UCanvasPanel* SettingsCanvas;
+
+	UPROPERTY(meta = (BindWidget))
+		class UCanvasPanel* CreditsCanvas;
+
+
 	// Buttons
 	UPROPERTY(meta = (BindWidget))
 		class UButton* PlayButton;
@@ -87,16 +104,6 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* ThunderProficiencyLevel;
 
-	UPROPERTY(meta = (BindWidget))
-		class UProgressBar* FireProficiencyBar;
-
-	UPROPERTY(meta = (BindWidget))
-		class UProgressBar* IceProficiencyBar;
-
-	UPROPERTY(meta = (BindWidget))
-		class UProgressBar* ThunderProficiencyBar;
-
-
 	// Animation for fading in and out
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 		class UWidgetAnimation* FadeAnimation;
@@ -145,6 +152,13 @@ protected:
 	UFUNCTION()
 		void UpdateWeaponStats(EWeaponType WeaponType);
 
+	// Canvas Panel helper functions
+	UFUNCTION()
+		void InitializeCanvasPanels();
+
+
+	UFUNCTION()
+		void UpdateCanvasVisibility(int32 ActiveIndex);
 
 	void UpdateWeaponStatsText(float Attack, float Defense, float ElementalAttack, int32 WeaponLevel);
 
@@ -163,7 +177,7 @@ private:
 	bool bIsOnTitleScreen;
 	bool bHasSetFocusForSwordButton;
 	ARen_Low_Poly_Character* GetPlayerCharacter();
-
+	TArray<UCanvasPanel*> MenuCanvases;
 };
 
 
