@@ -70,15 +70,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UButton* StaffButton;
 
+
+
 	// "Press Any Button" Text Block
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* PressAnyButtonText;
 
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* LegalText;
-
-	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* WeaponSelectTitle;
 
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* WeaponDescription;
@@ -106,8 +105,11 @@ protected:
 
 	// Animation for fading in and out
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
-		class UWidgetAnimation* FadeAnimation;
+		class UWidgetAnimation* PressAnyButtonFadeAnimation;
 
+	//images
+	UPROPERTY(meta = (BindWidget))
+		class UImage* CharacterWeaponRender;
 
 	// Store the selected weapon type
 	UPROPERTY(BlueprintReadWrite, Category = "Weapons")
