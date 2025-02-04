@@ -294,9 +294,17 @@ void ALowPoly_Survival_GameMode::CheckIfCanPowerUp()
 
         if (PlayerCharacter && PlayerController && !PlayerCharacter->bIsDead)  // Add death check
         {
-            PlayerController->SetViewTargetWithBlend(PlayerCharacter->PowerUpCamera->GetChildActor(), 0.6f, EViewTargetBlendFunction::VTBlend_Linear, 0.0, false);
+            // First, force close the command menu if it's open
+            if (PlayerCharacter->CommandMenuWidget && PlayerCharacter->CommandMenuWidget->WidgetSwitcher)
+            {
+                PlayerCharacter->CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(0);
+                PlayerCharacter->bIsInUIMode = false;
+                PlayerCharacter->SetInputModeForGameplay();
+            }
+
             PlayerController->DisableInput(PlayerController);
-            GetWorld()->GetTimerManager().SetTimer(PowerUpAnimTimer, this, &ALowPoly_Survival_GameMode::PlayPowerUpAnim, 1.0f, false, 1.0f);
+            PlayerController->SetViewTargetWithBlend(PlayerCharacter->PowerUpCamera->GetChildActor(), 0.6f, EViewTargetBlendFunction::VTBlend_Linear, 0.0, false);
+            GetWorld()->GetTimerManager().SetTimer(PowerUpAnimTimer, this, &ALowPoly_Survival_GameMode::PlayPowerUpAnim, 1.0f, false, 0.5f);
         }
     }
 
@@ -355,10 +363,18 @@ void ALowPoly_Survival_GameMode::PlayPowerUpAnim()
 
     if (PlayerCharacter)
     {
-        if (PlayerCharacter->PowerUpAnim) // Ensure the animation montage is valid
+        // Freeze all spawned enemies
+        for (AEnemy_Poly* Enemy : SpawnedEnemies)
         {
-            PlayerCharacter->PlayAnimMontage(PlayerCharacter->PowerUpAnim); // Play the animation
+            if (Enemy && !Enemy->bIsDead)
+            {
+                Enemy->CustomTimeDilation = 0.0f;
+            }
+        }
 
+        if (PlayerCharacter->PowerUpAnim)
+        {
+            PlayerCharacter->PlayAnimMontage(PlayerCharacter->PowerUpAnim);
         }
         else
         {
@@ -370,11 +386,7 @@ void ALowPoly_Survival_GameMode::PlayPowerUpAnim()
         UE_LOG(LogTemp, Warning, TEXT("Failed to cast to ARen_Low_Poly_Character."));
     }
 
-
-    
-
     GetWorld()->GetTimerManager().SetTimer(PowerUpAnimTimer, this, &ALowPoly_Survival_GameMode::ReturnCamera, 3.0f, false);
-
 
 }
 
@@ -385,7 +397,14 @@ void ALowPoly_Survival_GameMode::PlayPowerUpAnim()
 void ALowPoly_Survival_GameMode::ReturnCamera()
 {
 
-
+    // Unfreeze all enemies
+    for (AEnemy_Poly* Enemy : SpawnedEnemies)
+    {
+        if (Enemy && !Enemy->bIsDead)
+        {
+            Enemy->CustomTimeDilation = 1.0f;
+        }
+    }
 
     //add set view target with blend function here and then add a delay to call the playpowerupanim() using a settimer.
     ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
@@ -398,7 +417,6 @@ void ALowPoly_Survival_GameMode::ReturnCamera()
         PlayerController->SetViewTargetWithBlend(PlayerCharacter, 0.6f, EViewTargetBlendFunction::VTBlend_Linear, 0.0f, false);
 
     }
-
 
 
 }
