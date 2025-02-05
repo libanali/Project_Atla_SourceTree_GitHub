@@ -8,6 +8,7 @@
 #include "Components/ProgressBar.h"
 #include "Kismet/Gameplaystatics.h"
 #include "Components/WidgetSwitcher.h"
+#include "Components/CanvasPanel.h"
 #include "Game_Instance.h"
 #include "Ren_Low_Poly_Character.h"
 #include "Kismet/GameplayStatics.h"
@@ -17,16 +18,18 @@
 void UMain_Menu_Widget::NativeConstruct()
 {
 
+
+    Super::NativeConstruct();
+
+
+    InitializeCanvasPanels();
+    UpdateCanvasVisibility(0);
+
+
     // Bind buttons to functions
     if (PlayButton)
     {
         PlayButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnPlayClicked);
-    }
-
-
-    if (BackButton)
-    {
-        BackButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnBackClicked);
     }
 
 
@@ -48,7 +51,14 @@ void UMain_Menu_Widget::NativeConstruct()
     if (PressAnyButtonText)
 
     {
-        PlayAnimation(FadeAnimation, 1.0f, 0);
+        PlayAnimation(PressAnyButtonFadeAnimation, 1.0f, 0);
+    }
+
+
+    if (TitleCanvas && TitleCanvasAnimation)
+    {
+
+        PlayAnimation(TitleCanvasAnimation);
     }
 
 
@@ -101,33 +111,20 @@ void UMain_Menu_Widget::OnPlayClicked()
 
     if (WidgetSwitcher)
     {
-        // Switch to Weapon Select (index 2)
         WidgetSwitcher->SetActiveWidgetIndex(2);
-    }
+        UpdateCanvasVisibility(2);
 
-
-}
-
-
-
-
-void UMain_Menu_Widget::OnBackClicked()
-{
-
-    if (WidgetSwitcher)
-    {
-        int32 CurrentIndex = WidgetSwitcher->GetActiveWidgetIndex();
-
-        // Logic to go back to the previous menu
-        if (CurrentIndex > 0)
+        // Set focus on SwordButton instead of PlayButton since we're in weapon select
+        if (SwordButton)
         {
-            WidgetSwitcher->SetActiveWidgetIndex(CurrentIndex - 1);
+            SwordButton->SetKeyboardFocus();
         }
     }
 
-
-
 }
+
+
+
 
 void UMain_Menu_Widget::OnSwordButtonClicked()
 {
@@ -374,8 +371,46 @@ void UMain_Menu_Widget::UpdateWeaponStats(EWeaponType WeaponType)
     }
 }
 
+
+
+
 void UMain_Menu_Widget::InitializeCanvasPanels()
 {
+
+
+    // Initialize the array of canvas panels in the order they appear in the widget switcher
+    MenuCanvases = {
+         TitleCanvas,
+    MainMenuCanvas,
+    WeaponSelectCanvas,
+    CreditsCanvas,
+    SettingsCanvas,
+    TutorialCanvas
+    };
+
+    // Initially hide all canvas panels
+    for (UCanvasPanel* Canvas : MenuCanvases)
+    {
+        if (Canvas)
+        {
+            Canvas->SetVisibility(ESlateVisibility::Hidden);
+        }
+    }
+
+    // Show the title screen canvas initially
+    if (TitleCanvas)
+    {
+        TitleCanvas->SetVisibility(ESlateVisibility::Visible);
+        if (TitleCanvasAnimation)
+        {
+            PlayAnimation(TitleCanvasAnimation);
+        }
+        if (PressAnyButtonFadeAnimation)
+        {
+            PlayAnimation(PressAnyButtonFadeAnimation);
+        }
+
+    }
 }
 
 
@@ -383,7 +418,63 @@ void UMain_Menu_Widget::InitializeCanvasPanels()
 
 void UMain_Menu_Widget::UpdateCanvasVisibility(int32 ActiveIndex)
 {
+
+
+    // Validate index
+    if (ActiveIndex < 0 || ActiveIndex >= MenuCanvases.Num())
+    {
+        return;
+    }
+
+    // Hide all canvases first
+    for (UCanvasPanel* Canvas : MenuCanvases)
+    {
+        if (Canvas)
+        {
+            Canvas->SetVisibility(ESlateVisibility::Hidden);
+        }
+    }
+
+    // Show the active canvas and play its animation
+    if (UCanvasPanel* ActiveCanvas = MenuCanvases[ActiveIndex])
+    {
+        ActiveCanvas->SetVisibility(ESlateVisibility::Visible);
+
+        // Play the appropriate animation based on the active index
+        switch (ActiveIndex)
+        {
+        case 0: // Title
+            if (TitleCanvasAnimation)
+                PlayAnimation(TitleCanvasAnimation);
+            break;
+        case 1: // Main Menu
+            if (MainMenuCanvasAnimation)
+                PlayAnimation(MainMenuCanvasAnimation);
+            break;
+        case 2: // Weapon Select
+            if (WeaponSelectCanvasAnimation)
+                PlayAnimation(WeaponSelectCanvasAnimation);
+            break;
+        case 3: // Credits
+            if (CreditsCanvasAnimation)
+                PlayAnimation(CreditsCanvasAnimation);
+            break;
+        case 4: // Settings
+            if (SettingsCanvasAnimation)
+                PlayAnimation(SettingsCanvasAnimation);
+            break;
+        case 5: // Tutorial
+            if (TutorialCanvasAnimation)
+                PlayAnimation(TutorialCanvasAnimation);
+            break;
+        }
+    }
+
+
 }
+
+
+
 
 void UMain_Menu_Widget::UpdateWeaponStatsText(float Attack, float Defense, float ElementalAttack, int32 WeaponLevel)
 {
@@ -449,6 +540,7 @@ void UMain_Menu_Widget::HandleGoBack()
         if (CurrentIndex > 1)
         {
             WidgetSwitcher->SetActiveWidgetIndex(CurrentIndex - 1);
+            UpdateCanvasVisibility(CurrentIndex - 1); // Add this line
 
             // Check if switching back to Main Menu (index 1)
             if (WidgetSwitcher->GetActiveWidgetIndex() == 1 && PlayButton)
@@ -473,6 +565,7 @@ void UMain_Menu_Widget::HandleGoBack()
 
 
 
+
 void UMain_Menu_Widget::SwitchToMainMenu()
 {
 
@@ -480,6 +573,7 @@ void UMain_Menu_Widget::SwitchToMainMenu()
 
     {
         WidgetSwitcher->SetActiveWidgetIndex(1); // Switch to Main Menu (index 1)
+        UpdateCanvasVisibility(1); // Add this line
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Main Menu!"));
 
 
@@ -596,6 +690,7 @@ void UMain_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
         OnWeaponButtonHovered("A mystical staff that boosts elemental power.");
  
     }
+
 
     else if (StaffButton && StaffButton->IsHovered())
 

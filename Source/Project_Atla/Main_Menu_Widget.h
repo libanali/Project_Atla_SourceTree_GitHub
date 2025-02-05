@@ -36,6 +36,9 @@ protected:
 		class UCanvasPanel* MainMenuCanvas;
 
 	UPROPERTY(meta = (BindWidget))
+		class UCanvasPanel* TutorialCanvas;
+
+	UPROPERTY(meta = (BindWidget))
 		class UCanvasPanel* WeaponSelectCanvas;
 
 	UPROPERTY(meta = (BindWidget))
@@ -46,23 +49,20 @@ protected:
 
 
 	// Buttons
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UButton* PlayButton;
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UButton* TutorialButton;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UButton* SettingsButton;
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UButton* CreditsButton;
 
-	UPROPERTY(meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UButton* QuitButton;
-
-	UPROPERTY(meta = (BindWidget))
-		class UButton* BackButton;
-
-	UPROPERTY(meta = (BindWidget))
-		class UBorder* BackgroundImage;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UButton* SwordButton;
@@ -107,6 +107,25 @@ protected:
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 		class UWidgetAnimation* PressAnyButtonFadeAnimation;
 
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+		class UWidgetAnimation* TitleCanvasAnimation;
+
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+		class UWidgetAnimation* MainMenuCanvasAnimation;
+
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+		class UWidgetAnimation* TutorialCanvasAnimation;
+
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+		class UWidgetAnimation* WeaponSelectCanvasAnimation;
+
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+		class UWidgetAnimation* CreditsCanvasAnimation;
+
+	UPROPERTY(meta = (BindWidgetAnim), Transient)
+		class UWidgetAnimation* SettingsCanvasAnimation;
+
+
 	//images
 	UPROPERTY(meta = (BindWidget))
 		class UImage* CharacterWeaponRender;
@@ -120,9 +139,6 @@ protected:
 	// Functions for button click events
 	UFUNCTION()
 		void OnPlayClicked();
-
-	UFUNCTION()
-		void OnBackClicked();
 
 	UFUNCTION()
 		void OnSwordButtonClicked();
