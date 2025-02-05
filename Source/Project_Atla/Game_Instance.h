@@ -33,6 +33,12 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Save Data")
         void LoadPlayerProgress();
 
+    UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Save Data")
+        FWeaponElementalProficiencyMap WeaponElementalProficiency;
+
+    UPROPERTY(BlueprintReadWrite, VisibleAnywhere, Category = "Save Data")
+        TMap<EWeaponType, FWeaponElementalAttacks> WeaponElementalAttacks;
+
 
     UPROPERTY(BlueprintReadWrite, Category = "Weapon Stats")
         float CurrentAttack;
@@ -51,4 +57,6 @@ public:
 
 
     bool GetWeaponBaseStats(EWeaponType WeaponType, float& OutAttack, float& OutDefense, float& OutElementalAttack, int32& OutWeaponLevel) const;
+    bool GetElementalProficiencyLevels(EWeaponType WeaponType, int32& OutFireLevel, int32& OutIceLevel, int32& OutThunderLevel) const;
+
 };

@@ -9,6 +9,7 @@
 #include "Kismet/Gameplaystatics.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/CanvasPanel.h"
+#include "Components/Image.h"
 #include "Game_Instance.h"
 #include "Ren_Low_Poly_Character.h"
 #include "Kismet/GameplayStatics.h"
@@ -172,16 +173,35 @@ void UMain_Menu_Widget::OnSwordButtonHovered()
             WeaponLevelStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), SwordStats.WeaponLevel)));
             UE_LOG(LogTemp, Log, TEXT("Updated WeaponLevelStat with Sword Level: %d"), SwordStats.WeaponLevel);
         }
-        else
+
+        // Update elemental levels
+        if (GameInstance->WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Sword))
         {
-            UE_LOG(LogTemp, Error, TEXT("WeaponLevelStat is null!"));
+            const FElemental_Proficiency_Struct& ElementalStats =
+                GameInstance->WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword];
+
+            if (FireProficiencyLevel)
+                FireProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ElementalStats.FireLevel)));
+
+            if (IceProficiencyLevel)
+                IceProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ElementalStats.IceLevel)));
+
+            if (ThunderProficiencyLevel)
+                ThunderProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ElementalStats.ThunderLevel)));
+
+            UE_LOG(LogTemp, Log, TEXT("Updated Sword Elemental Levels - Fire: %d, Ice: %d, Thunder: %d"),
+                ElementalStats.FireLevel, ElementalStats.IceLevel, ElementalStats.ThunderLevel);
         }
     }
-    else
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Sword not found in WeaponProficiencyMap!"));
-    }
 
+
+    if (CharacterWeaponRender && SwordCharacterTexture)
+
+    {
+
+        CharacterWeaponRender->SetBrushFromTexture(SwordCharacterTexture);
+
+    }
 }
 
 
@@ -211,14 +231,35 @@ void UMain_Menu_Widget::OnSwordButtonFocused()
             WeaponLevelStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), SwordStats.WeaponLevel)));
             UE_LOG(LogTemp, Log, TEXT("Updated WeaponLevelStat with Sword Level: %d"), SwordStats.WeaponLevel);
         }
-        else
+       
+
+        // Update elemental levels
+        if (GameInstance->WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Sword))
         {
-            UE_LOG(LogTemp, Error, TEXT("WeaponLevelStat is null!"));
+            const FElemental_Proficiency_Struct& ElementalStats =
+                GameInstance->WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword];
+
+            if (FireProficiencyLevel)
+                FireProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ElementalStats.FireLevel)));
+
+            if (IceProficiencyLevel)
+                IceProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ElementalStats.IceLevel)));
+
+            if (ThunderProficiencyLevel)
+                ThunderProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ElementalStats.ThunderLevel)));
+
+            UE_LOG(LogTemp, Log, TEXT("Updated Sword Elemental Levels - Fire: %d, Ice: %d, Thunder: %d"),
+                ElementalStats.FireLevel, ElementalStats.IceLevel, ElementalStats.ThunderLevel);
         }
     }
-    else
+
+
+    if (CharacterWeaponRender && SwordCharacterTexture)
+
     {
-        UE_LOG(LogTemp, Warning, TEXT("Sword not found in WeaponProficiencyMap!"));
+
+        CharacterWeaponRender->SetBrushFromTexture(SwordCharacterTexture);
+
     }
 
 }
@@ -271,14 +312,33 @@ void UMain_Menu_Widget::OnStaffButtonHovered()
             WeaponLevelStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), SwordStats.WeaponLevel)));
             UE_LOG(LogTemp, Log, TEXT("Updated WeaponLevelStat with Staff Level: %d"), SwordStats.WeaponLevel);
         }
-        else
+        // Update elemental levels
+        if (GameInstance->WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Staff))
         {
-            UE_LOG(LogTemp, Error, TEXT("WeaponLevelStat is null!"));
+            const FElemental_Proficiency_Struct& ElementalStats =
+                GameInstance->WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Staff];
+
+            if (FireProficiencyLevel)
+                FireProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ElementalStats.FireLevel)));
+
+            if (IceProficiencyLevel)
+                IceProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ElementalStats.IceLevel)));
+
+            if (ThunderProficiencyLevel)
+                ThunderProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ElementalStats.ThunderLevel)));
+
+            UE_LOG(LogTemp, Log, TEXT("Updated Staff Elemental Levels - Fire: %d, Ice: %d, Thunder: %d"),
+                ElementalStats.FireLevel, ElementalStats.IceLevel, ElementalStats.ThunderLevel);
         }
     }
-    else
+
+
+    if (CharacterWeaponRender && StaffCharacterTexture)
+
     {
-        UE_LOG(LogTemp, Warning, TEXT("Staff not found in WeaponProficiencyMap!"));
+
+        CharacterWeaponRender->SetBrushFromTexture(StaffCharacterTexture);
+
     }
 
 }
@@ -313,14 +373,33 @@ void UMain_Menu_Widget::OnStaffButtonFocused()
             WeaponLevelStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), SwordStats.WeaponLevel)));
             UE_LOG(LogTemp, Log, TEXT("Updated WeaponLevelStat with Sword Level: %d"), SwordStats.WeaponLevel);
         }
-        else
+        // Update elemental levels
+        if (GameInstance->WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Staff))
         {
-            UE_LOG(LogTemp, Error, TEXT("WeaponLevelStat is null!"));
+            const FElemental_Proficiency_Struct& ElementalStats =
+                GameInstance->WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Staff];
+
+            if (FireProficiencyLevel)
+                FireProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ElementalStats.FireLevel)));
+
+            if (IceProficiencyLevel)
+                IceProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ElementalStats.IceLevel)));
+
+            if (ThunderProficiencyLevel)
+                ThunderProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ElementalStats.ThunderLevel)));
+
+            UE_LOG(LogTemp, Log, TEXT("Updated Staff Elemental Levels - Fire: %d, Ice: %d, Thunder: %d"),
+                ElementalStats.FireLevel, ElementalStats.IceLevel, ElementalStats.ThunderLevel);
         }
     }
-    else
+
+
+    if (CharacterWeaponRender && StaffCharacterTexture)
+
     {
-        UE_LOG(LogTemp, Warning, TEXT("Sword not found in WeaponProficiencyMap!"));
+
+        CharacterWeaponRender->SetBrushFromTexture(StaffCharacterTexture);
+
     }
 }
 
@@ -364,6 +443,7 @@ void UMain_Menu_Widget::UpdateWeaponStats(EWeaponType WeaponType)
     {
         // Update the UI with the retrieved stats
         UpdateWeaponStatsText(UpdatedAttack, UpdatedDefense, UpdatedElementalAttack, UpdatedWeaponLevel);
+        UpdateElementalProficiencyText(WeaponType);  // Add this line
     }
     else
     {
@@ -527,6 +607,65 @@ void UMain_Menu_Widget::UpdateWeaponStatsText(float Attack, float Defense, float
 
 
 
+void UMain_Menu_Widget::UpdateElementalProficiencyText(EWeaponType WeaponType)
+{
+
+    UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
+    if (!GameInstance)
+    {
+        UE_LOG(LogTemp, Error, TEXT("GameInstance is null in UpdateElementalProficiencyText!"));
+        return;
+    }
+
+    int32 FireLevel = 1;
+    int32 IceLevel = 1;
+    int32 ThunderLevel = 1;
+
+    if (GameInstance->GetElementalProficiencyLevels(WeaponType, FireLevel, IceLevel, ThunderLevel))
+    {
+        if (FireProficiencyLevel)
+        {
+            FireProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), FireLevel)));
+            UE_LOG(LogTemp, Warning, TEXT("FireProficiencyLevel updated with: %d"), FireLevel);
+        }
+
+        if (IceProficiencyLevel)
+        {
+            IceProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), IceLevel)));
+            UE_LOG(LogTemp, Warning, TEXT("IceProficiencyLevel updated with: %d"), IceLevel);
+        }
+
+        if (ThunderProficiencyLevel)
+        {
+            ThunderProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ThunderLevel)));
+            UE_LOG(LogTemp, Warning, TEXT("ThunderProficiencyLevel updated with: %d"), ThunderLevel);
+        }
+    }
+
+
+
+}
+
+
+void UMain_Menu_Widget::UpdateCharacterImage()
+{
+
+    if (!CharacterWeaponRender) return;
+
+    if (SwordButton && SwordButton->HasKeyboardFocus() && SwordCharacterTexture)
+    {
+        CharacterWeaponRender->SetBrushFromTexture(SwordCharacterTexture);
+    }
+    else if (StaffButton && StaffButton->HasKeyboardFocus() && StaffCharacterTexture)
+    {
+        CharacterWeaponRender->SetBrushFromTexture(StaffCharacterTexture);
+    }
+
+}
+
+
+
+
 
 
 void UMain_Menu_Widget::HandleGoBack()
@@ -666,7 +805,7 @@ void UMain_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 
 
     SwitchToWeaponSelectMenu();
-
+    UpdateCharacterImage();
 
     // Check if the sword button has keyboard focus and update stats
     if (SwordButton && SwordButton->HasKeyboardFocus())

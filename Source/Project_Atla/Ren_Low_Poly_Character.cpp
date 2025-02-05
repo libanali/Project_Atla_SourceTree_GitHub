@@ -308,19 +308,19 @@ void ARen_Low_Poly_Character::UpdateStatsBasedOnWeapon()
 	// Reset to base stats
 	if (WeaponType == EWeaponType::Sword)
 	{
-		BaseAttack = 3.0f;
-		BaseDefence = 2.0f;
+		BaseAttack = 8.0f;
+		BaseDefence = 5.0f;
 		BaseElementalAttack = 4.0f;
 		HealthStruct.MaxHealth = 140.0f;
 		ManaStruct.MaxMana = 60.0f;
 	}
 	else if (WeaponType == EWeaponType::Staff)
 	{
-		BaseAttack = 20.0f;
-		BaseDefence = 2.0f;
+		BaseAttack = 4.0f;
+		BaseDefence = 3.0f;
 		BaseElementalAttack = 10.0f;
-		HealthStruct.MaxHealth = 130.0f;
-		ManaStruct.MaxMana = 95.0f;
+		HealthStruct.MaxHealth = 120.0f;
+		ManaStruct.MaxMana = 85.0f;
 	}
 
 	// Apply proficiency boosts

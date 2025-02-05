@@ -130,6 +130,12 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UImage* CharacterWeaponRender;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Images")
+		class UTexture2D* SwordCharacterTexture;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character Images")
+		class UTexture2D* StaffCharacterTexture;
+
 	// Store the selected weapon type
 	UPROPERTY(BlueprintReadWrite, Category = "Weapons")
 		EWeaponType Weapon;
@@ -179,6 +185,8 @@ protected:
 		void UpdateCanvasVisibility(int32 ActiveIndex);
 
 	void UpdateWeaponStatsText(float Attack, float Defense, float ElementalAttack, int32 WeaponLevel);
+	void UpdateElementalProficiencyText(EWeaponType WeaponType);
+	void UpdateCharacterImage();
 
 
 	UFUNCTION()
