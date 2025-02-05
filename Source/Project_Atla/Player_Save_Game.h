@@ -7,6 +7,7 @@
 #include "Weapon_Proficiency_Struct.h"  // Include the struct definition
 #include "Elemental_Proficiency_Struct.h"
 #include "Ren_Low_Poly_Character.h"
+#include "Game_Instance.h"
 #include "Player_Save_Game.generated.h"
 
 /**
@@ -33,9 +34,6 @@ public:
     UPROPERTY(BlueprintReadWrite, Category = "Elemental Proficiency")
         TMap<EWeaponType, FElemental_Proficiency_Struct> SavedElementalProficiencyMap;
 
-   // UPROPERTY(BlueprintReadWrite, Category = "Elemental Attacks")
-     //   TArray<FElemental_Struct> SavedElementalAttacks;
-
     UPROPERTY(BlueprintReadWrite, Category = "Elemental Attacks") 
         TMap<EWeaponType, FWeaponElementalAttacks> SavedWeaponElementalAttacks;
 
@@ -51,6 +49,11 @@ public:
 
     UPROPERTY(BlueprintReadWrite, Category = "Elemental Usage")
         float ThunderElementalUsage;
+
+    UPROPERTY()
+        FGameSettings GameSettings;
+
+
 
     // Constructor to initialize defaults (optional)
     UPlayer_Save_Game()

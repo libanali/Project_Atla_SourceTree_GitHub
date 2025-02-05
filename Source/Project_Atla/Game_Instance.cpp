@@ -45,6 +45,44 @@ void UGame_Instance::LoadPlayerProgress()
 
 }
 
+
+
+
+
+
+
+void UGame_Instance::SaveSettings()
+{
+    USaveGame* SaveGameInstance = UGameplayStatics::CreateSaveGameObject(UPlayer_Save_Game::StaticClass());
+    UPlayer_Save_Game* SaveData = Cast<UPlayer_Save_Game>(SaveGameInstance);
+
+    if (SaveData)
+    {
+        SaveData->GameSettings = GameSettings;
+        UGameplayStatics::SaveGameToSlot(SaveData, TEXT("Settings"), 0);
+    }
+}
+
+
+
+void UGame_Instance::LoadSettings()
+{
+
+
+    UPlayer_Save_Game* LoadedData = Cast<UPlayer_Save_Game>(UGameplayStatics::LoadGameFromSlot(TEXT("Settings"), 0));
+
+    if (LoadedData)
+    {
+        GameSettings = LoadedData->GameSettings;
+    }
+
+
+}
+
+
+
+
+
 bool UGame_Instance::GetWeaponBaseStats(EWeaponType WeaponType, float& OutAttack, float& OutDefense, float& OutElementalAttack, int32& OutWeaponLevel) const
 {
     // Initialize outputs

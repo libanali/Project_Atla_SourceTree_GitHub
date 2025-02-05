@@ -70,6 +70,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UButton* StaffButton;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UButton* MasterAudioButton;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UButton* ScreenShakeToggleButton;
 
 
 	// "Press Any Button" Text Block
@@ -151,6 +156,9 @@ protected:
 	// Functions for button click events
 	UFUNCTION()
 		void OnPlayClicked();
+
+	UFUNCTION()
+		void OnSettingsClicked();
 
 	UFUNCTION()
 		void OnSwordButtonClicked();

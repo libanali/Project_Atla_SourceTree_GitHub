@@ -15,6 +15,36 @@
 //class ARen_Low_Poly_Character;
 
 
+
+USTRUCT()
+struct FGameSettings
+{
+    GENERATED_BODY()
+
+        // Audio
+        UPROPERTY()
+        float MasterVolume = 1.0f;
+
+    // Visual
+    UPROPERTY()
+        bool bScreenShakeEnabled = true;
+    UPROPERTY()
+        float Brightness = 1.0f;
+
+    // Controls
+    UPROPERTY()
+        bool bGamepadEnabled = false;
+    UPROPERTY()
+        bool bVibrationEnabled = true;
+
+    // Language
+    UPROPERTY()
+        FString CurrentLanguage = TEXT("English");
+};
+
+
+
+
 UCLASS()
 class PROJECT_ATLA_API UGame_Instance : public UGameInstance
 {
@@ -53,6 +83,14 @@ public:
         float CurrentElementalAttack;
 
 
+    UPROPERTY()
+        FGameSettings GameSettings;
+
+    UFUNCTION()
+        void SaveSettings();
+
+    UFUNCTION()
+        void LoadSettings();
 
 
 

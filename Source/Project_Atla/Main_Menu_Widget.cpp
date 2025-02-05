@@ -10,6 +10,7 @@
 #include "Components/WidgetSwitcher.h"
 #include "Components/CanvasPanel.h"
 #include "Components/Image.h"
+#include "Components/Slider.h"
 #include "Game_Instance.h"
 #include "Ren_Low_Poly_Character.h"
 #include "Kismet/GameplayStatics.h"
@@ -26,6 +27,19 @@ void UMain_Menu_Widget::NativeConstruct()
     InitializeCanvasPanels();
     UpdateCanvasVisibility(0);
 
+
+
+    if (MasterVolumeSlider)
+    {
+        MasterVolumeSlider->OnValueChanged.AddDynamic(this, &UMain_Menu_Widget::OnMasterVolumeChanged);
+
+        // Load initial value
+        if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+        {
+            MasterVolumeSlider->SetValue(GameInstance->GameSettings.MasterVolume);
+            UpdateVolumeText(GameInstance->GameSettings.MasterVolume);
+        }
+    }
 
 
     // Get player controller and set focus
@@ -56,6 +70,12 @@ void UMain_Menu_Widget::NativeConstruct()
     {
         StaffButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnStaffButtonClicked);
         StaffButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnStaffButtonHovered);
+    }
+
+
+    if (SettingsButton)
+    {
+        SettingsButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnSettingsClicked);
     }
 
 
@@ -135,6 +155,24 @@ void UMain_Menu_Widget::OnPlayClicked()
 
 }
 
+
+
+
+
+void UMain_Menu_Widget::OnSettingsClicked()
+{
+
+    if (WidgetSwitcher)
+    {
+        WidgetSwitcher->SetActiveWidgetIndex(4); // Settings is index 4
+        UpdateCanvasVisibility(4);
+        if (SettingsButton)
+        {
+            MasterAudioButton->SetKeyboardFocus();
+        }
+    }
+
+}
 
 
 
@@ -504,12 +542,34 @@ void UMain_Menu_Widget::InitializeCanvasPanels()
     }
 }
 
+
+
+
+
 void UMain_Menu_Widget::UpdateVolumeText(float Volume)
 {
+
+    if (VolumePercentageText)
+    {
+        int32 VolumePercent = FMath::RoundToInt(Volume * 100.0f);
+        VolumePercentageText->SetText(FText::FromString(FString::Printf(TEXT("%d%%"), VolumePercent)));
+    }
+
 }
+
+
 
 void UMain_Menu_Widget::OnMasterVolumeChanged(float Value)
 {
+
+    UpdateVolumeText(Value);
+
+    if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+    {
+        GameInstance->GameSettings.MasterVolume = Value;
+        GameInstance->SaveSettings();
+    }
+
 }
 
 
@@ -623,10 +683,6 @@ void UMain_Menu_Widget::UpdateWeaponStatsText(float Attack, float Defense, float
     }
 }
 
-void UMain_Menu_Widget::SaveAudioSettings()
-{
-}
-
 
 
 
@@ -671,10 +727,20 @@ void UMain_Menu_Widget::UpdateElementalProficiencyText(EWeaponType WeaponType)
 
 
 
+void UMain_Menu_Widget::SaveAudioSettings()
+{
+
+   
+
+}
+
+
+
+
 void UMain_Menu_Widget::LoadAudioSettings()
 {
 
-
+   
 
 }
 
