@@ -103,6 +103,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* ThunderProficiencyLevel;
 
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* VolumePercentageText;
+
 	// Animation for fading in and out
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 		class UWidgetAnimation* PressAnyButtonFadeAnimation;
@@ -124,6 +127,9 @@ protected:
 
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 		class UWidgetAnimation* SettingsCanvasAnimation;
+
+	UPROPERTY(meta = (BindWidget))
+		class USlider* MasterVolumeSlider;
 
 
 	//images
@@ -180,9 +186,24 @@ protected:
 	UFUNCTION()
 		void InitializeCanvasPanels();
 
-
 	UFUNCTION()
 		void UpdateCanvasVisibility(int32 ActiveIndex);
+
+	
+	UFUNCTION()
+		void OnMasterVolumeChanged(float Value);
+
+	UFUNCTION()
+		void UpdateVolumeText(float Volume);
+
+	// Save/Load settings
+	UFUNCTION()
+		void SaveAudioSettings();
+
+	UFUNCTION()
+		void LoadAudioSettings();
+
+
 
 	void UpdateWeaponStatsText(float Attack, float Defense, float ElementalAttack, int32 WeaponLevel);
 	void UpdateElementalProficiencyText(EWeaponType WeaponType);

@@ -27,6 +27,17 @@ void UMain_Menu_Widget::NativeConstruct()
     UpdateCanvasVisibility(0);
 
 
+
+    // Get player controller and set focus
+    if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0))
+    {
+        PlayerController->SetInputMode(FInputModeUIOnly());
+        PlayerController->bShowMouseCursor = true;
+        this->SetUserFocus(PlayerController);
+    }
+
+
+
     // Bind buttons to functions
     if (PlayButton)
     {
@@ -493,6 +504,14 @@ void UMain_Menu_Widget::InitializeCanvasPanels()
     }
 }
 
+void UMain_Menu_Widget::UpdateVolumeText(float Volume)
+{
+}
+
+void UMain_Menu_Widget::OnMasterVolumeChanged(float Value)
+{
+}
+
 
 
 
@@ -604,6 +623,10 @@ void UMain_Menu_Widget::UpdateWeaponStatsText(float Attack, float Defense, float
     }
 }
 
+void UMain_Menu_Widget::SaveAudioSettings()
+{
+}
+
 
 
 
@@ -641,6 +664,15 @@ void UMain_Menu_Widget::UpdateElementalProficiencyText(EWeaponType WeaponType)
             UE_LOG(LogTemp, Warning, TEXT("ThunderProficiencyLevel updated with: %d"), ThunderLevel);
         }
     }
+
+
+
+}
+
+
+
+void UMain_Menu_Widget::LoadAudioSettings()
+{
 
 
 
@@ -774,8 +806,7 @@ FReply UMain_Menu_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKe
     // Get the pressed key
     FKey PressedKey = InKeyEvent.GetKey();
 
-    // Check for specific keys (e.g., "Gamepad Face Button Right" for PS4/5 circle or "Escape" for keyboard back)
-    if (PressedKey == EKeys::Gamepad_FaceButton_Right || PressedKey == EKeys::J)
+    if (PressedKey == EKeys::Gamepad_FaceButton_Right || PressedKey == EKeys::J || PressedKey == EKeys::RightMouseButton)
     {
         HandleGoBack(); // Handle the back button logic
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Back!"));
@@ -784,7 +815,7 @@ FReply UMain_Menu_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKe
 
 
     // Check for "Any Key" or "Gamepad Face Button Bottom" for switching to the main menu
-    if (PressedKey == EKeys::SpaceBar || PressedKey == EKeys::Gamepad_FaceButton_Bottom)
+    if (PressedKey == EKeys::AnyKey || PressedKey == EKeys::LeftMouseButton || PressedKey == EKeys::Gamepad_FaceButton_Bottom || PressedKey == EKeys::Gamepad_FaceButton_Top || PressedKey == EKeys::Gamepad_FaceButton_Left || PressedKey == EKeys::Gamepad_FaceButton_Right || PressedKey == EKeys::Gamepad_Special_Right)
     {
         SwitchToMainMenu(); // Handle switching to the main menu
         return FReply::Handled();
