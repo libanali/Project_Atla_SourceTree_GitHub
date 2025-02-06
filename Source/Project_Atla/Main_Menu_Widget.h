@@ -242,6 +242,13 @@ protected:
 	UFUNCTION()
 		void OnApplyChangesClicked();
 
+	UFUNCTION()
+		void AdjustMasterVolume(bool bIncrease);
+
+	// Optional function to handle when audio button is focused
+	UFUNCTION()
+		void OnMasterAudioButtonFocused();
+
 	void ResetSettingsToDefault();
 
 
@@ -256,7 +263,7 @@ protected:
 
 
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
-
+	virtual FNavigationReply NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply) override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
 
 private:

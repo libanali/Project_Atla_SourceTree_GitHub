@@ -29,6 +29,11 @@ void UMain_Menu_Widget::NativeConstruct()
     UpdateCanvasVisibility(0);
 
 
+    if (MasterAudioButton)
+    {
+        MasterAudioButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnMasterAudioButtonFocused);
+    }
+
 
     if (MasterVolumeSlider)
     {
@@ -1016,8 +1021,56 @@ void UMain_Menu_Widget::OnApplyChangesClicked()
 
     GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Settings Applied"));
 
+}
+
+
+
+
+void UMain_Menu_Widget::AdjustMasterVolume(bool bIncrease)
+{
+
+    if (MasterVolumeSlider)
+    {
+        float CurrentValue = MasterVolumeSlider->GetValue();
+        float Step = 0.05f; // 10% increment
+
+        if (bIncrease)
+        {
+            CurrentValue = FMath::Min(CurrentValue + Step, 1.0f);
+        }
+        else
+        {
+            CurrentValue = FMath::Max(CurrentValue - Step, 0.0f);
+        }
+
+        MasterVolumeSlider->SetValue(CurrentValue);
+        UpdateVolumeText(CurrentValue);
+    }
 
 }
+
+
+
+
+void UMain_Menu_Widget::OnMasterAudioButtonFocused()
+{
+
+
+    if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+    {
+        // Optional: Update the UI to show current volume
+        if (MasterVolumeSlider)
+        {
+            UpdateVolumeText(MasterVolumeSlider->GetValue());
+        }
+
+        // Debug message to confirm button is focused
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Master Audio Button Focused"));
+    }
+
+
+}
+
 
 
 
@@ -1097,6 +1150,26 @@ FReply UMain_Menu_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKe
     }
 
 
+    // Master Audio Controls
+    if (MasterAudioButton && MasterAudioButton->HasKeyboardFocus())
+    {
+        if (PressedKey == EKeys::Gamepad_DPad_Left ||
+            PressedKey == EKeys::Gamepad_LeftStick_Left ||
+            PressedKey == EKeys::A)
+        {
+            AdjustMasterVolume(false);
+            return FReply::Handled();
+        }
+        else if (PressedKey == EKeys::Gamepad_DPad_Right ||
+            PressedKey == EKeys::Gamepad_LeftStick_Right ||
+            PressedKey == EKeys::D)
+        {
+            AdjustMasterVolume(true);
+            return FReply::Handled();
+        }
+    }
+
+
 
     // Optionally: Handle other keys here if needed
     return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
@@ -1104,6 +1177,32 @@ FReply UMain_Menu_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKe
 
 
 }
+
+
+
+FNavigationReply UMain_Menu_Widget::NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply)
+{
+    EUINavigation Direction = InNavigationEvent.GetNavigationType();
+
+    // Handle Master Audio navigation
+    if (MasterAudioButton && MasterAudioButton->HasKeyboardFocus())
+    {
+        if (Direction == EUINavigation::Left)
+        {
+            AdjustMasterVolume(false);
+            return FNavigationReply::Explicit(nullptr);
+        }
+        else if (Direction == EUINavigation::Right)
+        {
+            AdjustMasterVolume(true);
+            return FNavigationReply::Explicit(nullptr);
+        }
+    }
+
+    return Super::NativeOnNavigation(MyGeometry, InNavigationEvent, InDefaultReply);
+}
+
+
 
 
 void UMain_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
