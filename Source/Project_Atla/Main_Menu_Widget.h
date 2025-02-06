@@ -73,6 +73,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UButton* MasterAudioButton;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UButton* ResetToDefaultButton;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UButton* ApplyChangesButton;
+
+
 
 
 	// "Press Any Button" Text Block
@@ -228,6 +235,14 @@ protected:
 
 	UFUNCTION()
 		void OnLanguageValueChanged(const FString& NewValue);
+
+	UFUNCTION()
+		void OnResetToDefaultClicked();
+
+	UFUNCTION()
+		void OnApplyChangesClicked();
+
+	void ResetSettingsToDefault();
 
 
 	void UpdateWeaponStatsText(float Attack, float Defense, float ElementalAttack, int32 WeaponLevel);

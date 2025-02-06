@@ -95,7 +95,15 @@ void UMain_Menu_Widget::NativeConstruct()
         }
     }
 
+    if (ResetToDefaultButton)
+    {
+        ResetToDefaultButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnResetToDefaultClicked);
+    }
 
+    if (ApplyChangesButton)
+    {
+        ApplyChangesButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnApplyChangesClicked);
+    }
 
         // Get player controller and set focus
       //  if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0))
@@ -971,6 +979,90 @@ void UMain_Menu_Widget::OnLanguageValueChanged(const FString& NewValue)
         // Debug message
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
             FString::Printf(TEXT("Language Changed to: %s"), *NewValue));
+    }
+
+
+
+}
+
+
+
+void UMain_Menu_Widget::OnResetToDefaultClicked()
+{
+
+    ResetSettingsToDefault();
+
+    // Save settings
+    if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+    {
+        GameInstance->SaveSettings();
+    }
+
+    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Settings Reset to Default"));
+
+
+}
+
+
+
+
+void UMain_Menu_Widget::OnApplyChangesClicked()
+{
+
+    if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+    {
+        GameInstance->SaveSettings();
+    }
+
+    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Settings Applied"));
+
+
+}
+
+
+
+
+void UMain_Menu_Widget::ResetSettingsToDefault()
+{
+
+    // Reset Master Volume
+    if (MasterVolumeSlider)
+    {
+        MasterVolumeSlider->SetValue(1.0f);  // 100%
+        UpdateVolumeText(1.0f);
+    }
+
+    // Reset Screen Shake
+    if (ScreenShakeToggle)
+    {
+        ScreenShakeToggle->CurrentIndex = 0;  // ON
+        ScreenShakeToggle->UpdateDisplay();
+        if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+        {
+            GameInstance->GameSettings.bScreenShakeEnabled = true;
+        }
+    }
+
+    // Reset Vibration
+    if (VibrationToggle)
+    {
+        VibrationToggle->CurrentIndex = 0;  // ON
+        VibrationToggle->UpdateDisplay();
+        if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+        {
+            GameInstance->GameSettings.bVibrationEnabled = true;
+        }
+    }
+
+    // Reset Language
+    if (LanguageToggle)
+    {
+        LanguageToggle->CurrentIndex = 0;  // English
+        LanguageToggle->UpdateDisplay();
+        if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+        {
+            GameInstance->GameSettings.CurrentLanguage = "English";
+        }
     }
 
 
