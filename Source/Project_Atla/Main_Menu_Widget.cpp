@@ -79,6 +79,12 @@ void UMain_Menu_Widget::NativeConstruct()
     }
 
 
+    if (ScreenShakeToggleButton)
+    {
+        ScreenShakeToggleButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnScreenShakeButtonFocused);
+    }
+
+
 
     if (PressAnyButtonText)
 
@@ -861,6 +867,47 @@ void UMain_Menu_Widget::SwitchToWeaponSelectMenu()
 }
 
 
+void UMain_Menu_Widget::OnScreenShakeButtonFocused()
+{
+
+    if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+    {
+        bool IsEnabled = GameInstance->GameSettings.bScreenShakeEnabled;
+        UpdateScreenShakeText(IsEnabled);
+    }
+
+}
+
+
+
+void UMain_Menu_Widget::ToggleScreenShake(bool bNext)
+{
+
+
+    if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+    {
+        // Toggle the value
+        GameInstance->GameSettings.bScreenShakeEnabled = !GameInstance->GameSettings.bScreenShakeEnabled;
+        UpdateScreenShakeText(GameInstance->GameSettings.bScreenShakeEnabled);
+        GameInstance->SaveSettings();
+    }
+
+
+}
+
+
+
+
+void UMain_Menu_Widget::UpdateScreenShakeText(bool IsEnabled)
+{
+
+    if (ScreenShakeValueText)
+    {
+        ScreenShakeValueText->SetText(FText::FromString(IsEnabled ? TEXT("ON") : TEXT("OFF")));
+    }
+
+
+}
 
 
 
@@ -886,6 +933,32 @@ FReply UMain_Menu_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKe
         SwitchToMainMenu(); // Handle switching to the main menu
         return FReply::Handled();
     }
+
+
+    // Add this before checking keys to ensure focus
+    if (!ScreenShakeToggleButton || !ScreenShakeToggleButton->HasKeyboardFocus())
+    {
+        return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
+    }
+
+    if (PressedKey == EKeys::A || PressedKey == EKeys::Gamepad_DPad_Left ||
+        PressedKey == EKeys::Gamepad_LeftStick_Left)
+    {
+        ToggleScreenShake(false);
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Left Pressed"));
+        return FReply::Handled();
+    }
+    else if (PressedKey == EKeys::D || PressedKey == EKeys::Gamepad_DPad_Right ||
+        PressedKey == EKeys::Gamepad_LeftStick_Right)
+    {
+        ToggleScreenShake(true);
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Right Pressed"));
+        return FReply::Handled();
+    }
+
+
+
+
 
 
     // Optionally: Handle other keys here if needed
@@ -935,7 +1008,16 @@ void UMain_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 
     }
 
+
+    // Add this with your other button checks
+    if (ScreenShakeToggleButton && (ScreenShakeToggleButton->HasKeyboardFocus()))
+    {
+        OnScreenShakeButtonFocused();
+    }
+
 }
+
+
 
 ARen_Low_Poly_Character* UMain_Menu_Widget::GetPlayerCharacter()
 {
