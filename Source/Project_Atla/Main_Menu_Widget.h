@@ -148,6 +148,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class USlider* MasterVolumeSlider;
 
+	UPROPERTY(meta = (BindWidget))
+		class UCarousel_Button_Widget* ScreenShakeToggle;
+
 
 	//images
 	UPROPERTY(meta = (BindWidget))
@@ -232,6 +235,8 @@ protected:
 	UFUNCTION()
 		void LoadAudioSettings();
 
+	UFUNCTION()
+		void OnScreenShakeValueChanged(const FString& NewValue);
 
 
 	void UpdateWeaponStatsText(float Attack, float Defense, float ElementalAttack, int32 WeaponLevel);

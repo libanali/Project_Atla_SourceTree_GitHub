@@ -15,6 +15,7 @@
 #include "Ren_Low_Poly_Character.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player_Save_Game.h"
+#include "Carousel_Button_Widget.h"
 
 
 void UMain_Menu_Widget::NativeConstruct()
@@ -41,102 +42,113 @@ void UMain_Menu_Widget::NativeConstruct()
         }
     }
 
-
-    // Get player controller and set focus
-    if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0))
+    // Screen Shake Toggle setup
+    if (ScreenShakeToggle)
     {
-        PlayerController->SetInputMode(FInputModeUIOnly());
-        PlayerController->bShowMouseCursor = true;
-        this->SetUserFocus(PlayerController);
-    }
+        ScreenShakeToggle->PossibleValues = { "ON", "OFF" };
+        ScreenShakeToggle->OnValueChanged.AddDynamic(this, &UMain_Menu_Widget::OnScreenShakeValueChanged);
+        ScreenShakeToggle->SetLabel("Screen Shake");
 
-
-
-    // Bind buttons to functions
-    if (PlayButton)
-    {
-        PlayButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnPlayClicked);
-    }
-
-
-    if (SwordButton)
-    {
-        SwordButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnSwordButtonClicked);
-        SwordButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnSwordButtonHovered);
-    }
-
-
-    if (StaffButton)
-    {
-        StaffButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnStaffButtonClicked);
-        StaffButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnStaffButtonHovered);
-    }
-
-
-    if (SettingsButton)
-    {
-        SettingsButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnSettingsClicked);
-    }
-
-
-    if (ScreenShakeToggleButton)
-    {
-        ScreenShakeToggleButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnScreenShakeButtonFocused);
-    }
-
-
-
-    if (PressAnyButtonText)
-
-    {
-        PlayAnimation(PressAnyButtonFadeAnimation, 1.0f, 0);
-    }
-
-
-    if (TitleCanvas && TitleCanvasAnimation)
-    {
-
-        PlayAnimation(TitleCanvasAnimation);
-    }
-
-
-   
-   APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-    if (PlayerController)
-
-
-    {
-
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("player controller active!"));
-
-
-    }
-
-
-    this->SetIsFocusable(true);
-
-//    SwitchToWeaponSelectMenu();
-    
-    bIsOnTitleScreen = true;
-    bHasSetFocusForSwordButton = false;
-
-
-    // Get the custom game instance
-    UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
-    if (GameInstance)
-    {
-        // Load the player progress
-        GameInstance->LoadPlayerProgress();
-
-        // Example: Use the loaded data to update the UI or set weapon selection
-        if (GameInstance->WeaponProficiencyMap.Contains(EWeaponType::Sword))
+        if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
         {
-            const FWeapon_Proficiency_Struct& SwordStats = GameInstance->WeaponProficiencyMap[EWeaponType::Sword];
-            UE_LOG(LogTemp, Log, TEXT("Sword Level: %d, Sword EXP: %.2f"), SwordStats.WeaponLevel, SwordStats.CurrentEXP);
+            bool IsEnabled = GameInstance->GameSettings.bScreenShakeEnabled;
+            ScreenShakeToggle->CurrentIndex = IsEnabled ? 0 : 1;
         }
     }
 
+        // Get player controller and set focus
+        if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0))
+        {
+            PlayerController->SetInputMode(FInputModeUIOnly());
+            PlayerController->bShowMouseCursor = true;
+            this->SetUserFocus(PlayerController);
+        }
 
+
+
+        // Bind buttons to functions
+        if (PlayButton)
+        {
+            PlayButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnPlayClicked);
+        }
+
+
+        if (SwordButton)
+        {
+            SwordButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnSwordButtonClicked);
+            SwordButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnSwordButtonHovered);
+        }
+
+
+        if (StaffButton)
+        {
+            StaffButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnStaffButtonClicked);
+            StaffButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnStaffButtonHovered);
+        }
+
+
+        if (SettingsButton)
+        {
+            SettingsButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnSettingsClicked);
+        }
+
+
+        if (ScreenShakeToggleButton)
+        {
+            ScreenShakeToggleButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnScreenShakeButtonFocused);
+        }
+
+
+
+        if (PressAnyButtonText)
+
+        {
+            PlayAnimation(PressAnyButtonFadeAnimation, 1.0f, 0);
+        }
+
+
+        if (TitleCanvas && TitleCanvasAnimation)
+        {
+
+            PlayAnimation(TitleCanvasAnimation);
+        }
+
+
+
+        APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+        if (PlayerController)
+
+
+        {
+
+            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("player controller active!"));
+
+
+        }
+
+
+        this->SetIsFocusable(true);
+
+        //    SwitchToWeaponSelectMenu();
+
+        bIsOnTitleScreen = true;
+        bHasSetFocusForSwordButton = false;
+
+
+        // Get the custom game instance
+        UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
+        if (GameInstance)
+        {
+            // Load the player progress
+            GameInstance->LoadPlayerProgress();
+
+            // Example: Use the loaded data to update the UI or set weapon selection
+            if (GameInstance->WeaponProficiencyMap.Contains(EWeaponType::Sword))
+            {
+                const FWeapon_Proficiency_Struct& SwordStats = GameInstance->WeaponProficiencyMap[EWeaponType::Sword];
+                UE_LOG(LogTemp, Log, TEXT("Sword Level: %d, Sword EXP: %.2f"), SwordStats.WeaponLevel, SwordStats.CurrentEXP);
+            }
+        }
 }
 
 
@@ -895,6 +907,25 @@ void UMain_Menu_Widget::ToggleScreenShake(bool bNext)
 
 }
 
+void UMain_Menu_Widget::OnScreenShakeValueChanged(const FString& NewValue)
+{
+
+    if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+    {
+        // Update the game setting
+        GameInstance->GameSettings.bScreenShakeEnabled = (NewValue == "ON");
+
+        // Save settings
+        GameInstance->SaveSettings();
+
+        // Debug message
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
+            FString::Printf(TEXT("Screen Shake: %s"), *NewValue));
+    }
+
+
+}
+
 
 
 
@@ -935,31 +966,32 @@ FReply UMain_Menu_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKe
     }
 
 
-    // Add this before checking keys to ensure focus
     if (!ScreenShakeToggleButton || !ScreenShakeToggleButton->HasKeyboardFocus())
     {
         return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
     }
 
-    if (PressedKey == EKeys::A || PressedKey == EKeys::Gamepad_DPad_Left ||
-        PressedKey == EKeys::Gamepad_LeftStick_Left)
+
+    // Now check for key presses
+    if (PressedKey == EKeys::A ||
+        PressedKey == EKeys::Gamepad_DPad_Left ||
+        PressedKey == EKeys::Gamepad_LeftStick_Left)  // Added this
     {
         ToggleScreenShake(false);
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Left Pressed"));
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red,
+            FString::Printf(TEXT("Left Pressed: %s"), *PressedKey.ToString()));
         return FReply::Handled();
     }
-    else if (PressedKey == EKeys::D || PressedKey == EKeys::Gamepad_DPad_Right ||
-        PressedKey == EKeys::Gamepad_LeftStick_Right)
+    else if (PressedKey == EKeys::D ||
+        PressedKey == EKeys::Gamepad_DPad_Right ||
+        PressedKey == EKeys::Gamepad_LeftStick_Right)  // Added this
     {
         ToggleScreenShake(true);
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Right Pressed"));
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red,
+            FString::Printf(TEXT("Right Pressed: %s"), *PressedKey.ToString()));
         return FReply::Handled();
+
     }
-
-
-
-
-
 
     // Optionally: Handle other keys here if needed
     return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
