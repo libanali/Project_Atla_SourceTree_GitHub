@@ -17,6 +17,12 @@ void UCarousel_Button_Widget::NativeConstruct()
     // Set initial value text
     if (ValueText && PossibleValues.Num() > 0)
     {
+        // Make sure CurrentIndex is valid
+        if (!PossibleValues.IsValidIndex(CurrentIndex))
+        {
+            CurrentIndex = 0;
+        }
+        // Update the text display
         ValueText->SetText(FText::FromString(PossibleValues[CurrentIndex]));
     }
 
@@ -81,6 +87,22 @@ void UCarousel_Button_Widget::SetLabel(const FString& NewLabel)
     {
         LabelText->SetText(FText::FromString(NewLabel));
     }
+
+}
+
+
+
+
+void UCarousel_Button_Widget::UpdateDisplay()
+{
+
+
+    if (ValueText && PossibleValues.IsValidIndex(CurrentIndex))
+    {
+        ValueText->SetText(FText::FromString(PossibleValues[CurrentIndex]));
+    }
+
+
 
 }
 

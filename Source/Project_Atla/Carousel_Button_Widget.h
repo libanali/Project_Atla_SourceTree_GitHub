@@ -61,10 +61,14 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Carousel")
         void SetLabel(const FString& NewLabel);
 
+    // Set label text
+    UFUNCTION(BlueprintCallable, Category = "Carousel")
+        void UpdateDisplay();
+
 protected:
 
     virtual void NativeConstruct() override;
-    virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
+  //  virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
     virtual FNavigationReply NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply) override;
 
 };

@@ -139,6 +139,12 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UCarousel_Button_Widget* ScreenShakeToggle;
 
+	UPROPERTY(meta = (BindWidget))
+		class UCarousel_Button_Widget* VibrationToggle;
+
+	UPROPERTY(meta = (BindWidget))
+		class UCarousel_Button_Widget* LanguageToggle;
+
 
 	//images
 	UPROPERTY(meta = (BindWidget))
@@ -216,6 +222,12 @@ protected:
 
 	UFUNCTION()
 		void OnScreenShakeValueChanged(const FString& NewValue);
+
+	UFUNCTION()
+		void OnVibrationValueChanged(const FString& NewValue);
+
+	UFUNCTION()
+		void OnLanguageValueChanged(const FString& NewValue);
 
 
 	void UpdateWeaponStatsText(float Attack, float Defense, float ElementalAttack, int32 WeaponLevel);

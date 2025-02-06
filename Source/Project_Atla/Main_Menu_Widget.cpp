@@ -42,6 +42,27 @@ void UMain_Menu_Widget::NativeConstruct()
         }
     }
 
+    if (LanguageToggle)
+    {
+        LanguageToggle->PossibleValues = { "English", "French", "German", "Spanish", "Japanese" };
+        LanguageToggle->OnValueChanged.AddDynamic(this, &UMain_Menu_Widget::OnLanguageValueChanged);
+        LanguageToggle->SetLabel("Language");
+        if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+        {
+            LanguageToggle->CurrentIndex = 0;  // Default to English
+            if (!GameInstance->GameSettings.CurrentLanguage.IsEmpty())
+            {
+                int32 CurrentIndex = LanguageToggle->PossibleValues.Find(GameInstance->GameSettings.CurrentLanguage);
+                if (CurrentIndex != INDEX_NONE)
+                {
+                    LanguageToggle->CurrentIndex = CurrentIndex;
+                }
+            }
+            // Force update the display
+            LanguageToggle->UpdateDisplay();  // You'll need to add this function
+        }
+    }
+
     // Screen Shake Toggle setup
     if (ScreenShakeToggle)
     {
@@ -56,14 +77,33 @@ void UMain_Menu_Widget::NativeConstruct()
         }
     }
 
-        // Get player controller and set focus
-        if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0))
-        {
-            PlayerController->SetInputMode(FInputModeUIOnly());
-            PlayerController->bShowMouseCursor = true;
-            this->SetUserFocus(PlayerController);
-        }
 
+    if (VibrationToggle)
+    {
+        // Set up possible values
+        VibrationToggle->PossibleValues = { "ON", "OFF" };
+        VibrationToggle->OnValueChanged.AddDynamic(this, &UMain_Menu_Widget::OnVibrationValueChanged);
+
+        // Set the label
+        VibrationToggle->SetLabel("Vibration");
+
+        // Set initial value based on game settings
+        if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+        {
+            bool IsEnabled = GameInstance->GameSettings.bVibrationEnabled;
+            VibrationToggle->CurrentIndex = IsEnabled ? 0 : 1;  // 0 for ON, 1 for OFF
+        }
+    }
+
+
+
+        // Get player controller and set focus
+      //  if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0))
+      //  {
+      //      PlayerController->SetInputMode(FInputModeUIOnly());
+       //     PlayerController->bShowMouseCursor = true;
+       //     this->SetUserFocus(PlayerController);
+     //   }
 
 
         // Bind buttons to functions
@@ -890,6 +930,49 @@ void UMain_Menu_Widget::OnScreenShakeValueChanged(const FString& NewValue)
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
             FString::Printf(TEXT("Screen Shake: %s"), *NewValue));
     }
+
+
+}
+
+
+void UMain_Menu_Widget::OnVibrationValueChanged(const FString& NewValue)
+{
+
+    if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+    {
+        // Update the game setting
+        GameInstance->GameSettings.bVibrationEnabled = (NewValue == "ON");
+
+        // Save settings
+        GameInstance->SaveSettings();
+
+        // Debug message
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
+            FString::Printf(TEXT("Vibration: %s"), *NewValue));
+    }
+
+
+
+}
+
+
+void UMain_Menu_Widget::OnLanguageValueChanged(const FString& NewValue)
+{
+
+
+    if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+    {
+        // Update the game setting
+        GameInstance->GameSettings.CurrentLanguage = NewValue;
+
+        // Save settings
+        GameInstance->SaveSettings();
+
+        // Debug message
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
+            FString::Printf(TEXT("Language Changed to: %s"), *NewValue));
+    }
+
 
 
 }
