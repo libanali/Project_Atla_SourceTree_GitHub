@@ -73,8 +73,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UButton* MasterAudioButton;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-		class UButton* ScreenShakeToggleButton;
 
 
 	// "Press Any Button" Text Block
@@ -111,17 +109,7 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* VolumePercentageText;
 
-	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* ScreenShakeLabelText;  // For "Screen Shake"
 
-	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* ScreenShakeValueText;   // For "ON"/"OFF"
-
-	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* LeftArrowText;  // For "<"
-
-	UPROPERTY(meta = (BindWidget))
-		class UTextBlock* RightArrowText; // For ">"
 
 	// Animation for fading in and out
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
@@ -218,15 +206,6 @@ protected:
 
 	UFUNCTION()
 		void UpdateVolumeText(float Volume);
-
-	UFUNCTION()
-		void OnScreenShakeButtonFocused();
-
-	UFUNCTION()
-		void ToggleScreenShake(bool bNext);
-
-	UFUNCTION()
-		void UpdateScreenShakeText(bool IsEnabled);
 
 	// Save/Load settings
 	UFUNCTION()

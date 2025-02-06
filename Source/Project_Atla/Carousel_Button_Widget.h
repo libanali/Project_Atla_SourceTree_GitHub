@@ -21,6 +21,9 @@ class PROJECT_ATLA_API UCarousel_Button_Widget : public UUserWidget
 
 public:
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Carousel")
+        class UButton* CarouselButton;
+
     // Array of possible values
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Carousel")
         TArray<FString> PossibleValues;
@@ -62,5 +65,6 @@ protected:
 
     virtual void NativeConstruct() override;
     virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
-	
+    virtual FNavigationReply NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply) override;
+
 };

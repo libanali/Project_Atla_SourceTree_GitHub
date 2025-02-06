@@ -85,7 +85,7 @@ void UCarousel_Button_Widget::SetLabel(const FString& NewLabel)
 }
 
 
-
+/*
 FReply UCarousel_Button_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
     FKey PressedKey = InKeyEvent.GetKey();
@@ -105,6 +105,27 @@ FReply UCarousel_Button_Widget::NativeOnKeyDown(const FGeometry& InGeometry, con
     }
 
     return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
+}
+
+*/
+
+
+FNavigationReply UCarousel_Button_Widget::NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply)
+{
+    EUINavigation Direction = InNavigationEvent.GetNavigationType();
+
+    if (Direction == EUINavigation::Left)
+    {
+        CycleValue(false);
+        return FNavigationReply::Explicit(nullptr);
+    }
+    else if (Direction == EUINavigation::Right)
+    {
+        CycleValue(true);
+        return FNavigationReply::Explicit(nullptr);
+    }
+
+    return Super::NativeOnNavigation(MyGeometry, InNavigationEvent, InDefaultReply);
 }
 
 
