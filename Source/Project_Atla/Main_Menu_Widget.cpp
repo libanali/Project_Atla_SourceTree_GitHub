@@ -30,12 +30,23 @@ void UMain_Menu_Widget::NativeConstruct()
     UpdateCanvasVisibility(0);
 
 
+    // Initialize panels and visibility
+    InitializeCanvasPanels();
+    UpdateCanvasVisibility(0);
+
+    // Load saved settings first
+    if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+    {
+        GameInstance->LoadSettings();
+        GameInstance->LoadPlayerProgress();
+    }
+
+    // Setup background music
     if (MenuMusic)
     {
         BackgroundMusic = UGameplayStatics::SpawnSound2D(GetWorld(), MenuMusic);
         if (BackgroundMusic)
         {
-            // Initial volume state
             float InitialVolume = 1.0f;
             if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
             {
@@ -45,184 +56,132 @@ void UMain_Menu_Widget::NativeConstruct()
             GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
                 FString::Printf(TEXT("Playing Music at Volume: %.2f"), InitialVolume));
         }
-        else
+    }
+
+    // Initialize settings controls
+    InitializeSettingsControls();
+
+    // Initialize menu buttons
+    InitializeMenuButtons();
+
+    // Set widget as focusable
+    this->SetIsFocusable(true);
+    bIsOnTitleScreen = true;
+    bHasSetFocusForSwordButton = false;
+}
+
+
+
+void UMain_Menu_Widget::InitializeMenuButtons()
+{
+
+    if (PlayButton)
+    {
+        PlayButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnPlayClicked);
+    }
+
+    if (SwordButton)
+    {
+        SwordButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnSwordButtonClicked);
+        SwordButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnSwordButtonHovered);
+    }
+
+    if (StaffButton)
+    {
+        StaffButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnStaffButtonClicked);
+        StaffButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnStaffButtonHovered);
+    }
+
+    if (SettingsButton)
+    {
+        SettingsButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnSettingsClicked);
+    }
+
+    // Setup animations
+    if (PressAnyButtonText)
+    {
+        PlayAnimation(PressAnyButtonFadeAnimation, 1.0f, 0);
+    }
+
+    if (TitleCanvas && TitleCanvasAnimation)
+    {
+        PlayAnimation(TitleCanvasAnimation);
+    }
+
+
+
+
+}
+
+
+
+void UMain_Menu_Widget::InitializeSettingsControls()
+{
+
+    if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+    {
+        // Master Audio setup
+        if (MasterAudioButton)
         {
-            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Failed to create audio component"));
+            MasterAudioButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnMasterAudioButtonFocused);
         }
-    }
-    else
-    {
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("No MenuMusic set in Blueprint"));
-    }
 
-
-    if (MasterAudioButton)
-    {
-        MasterAudioButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnMasterAudioButtonFocused);
-    }
-
-
-    if (MasterVolumeSlider)
-    {
-        MasterVolumeSlider->OnValueChanged.AddDynamic(this, &UMain_Menu_Widget::OnMasterVolumeChanged);
-
-        // Load initial value
-        if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+        if (MasterVolumeSlider)
         {
+            MasterVolumeSlider->OnValueChanged.AddDynamic(this, &UMain_Menu_Widget::OnMasterVolumeChanged);
             MasterVolumeSlider->SetValue(GameInstance->GameSettings.MasterVolume);
             UpdateVolumeText(GameInstance->GameSettings.MasterVolume);
         }
-    }
 
-    if (LanguageToggle)
-    {
-        LanguageToggle->PossibleValues = { "English", "French", "German", "Spanish", "Japanese" };
-        LanguageToggle->OnValueChanged.AddDynamic(this, &UMain_Menu_Widget::OnLanguageValueChanged);
-        LanguageToggle->SetLabel("Language");
-        if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+        // Language Toggle setup
+        if (LanguageToggle)
         {
-            LanguageToggle->CurrentIndex = 0;  // Default to English
-            if (!GameInstance->GameSettings.CurrentLanguage.IsEmpty())
-            {
-                int32 CurrentIndex = LanguageToggle->PossibleValues.Find(GameInstance->GameSettings.CurrentLanguage);
-                if (CurrentIndex != INDEX_NONE)
-                {
-                    LanguageToggle->CurrentIndex = CurrentIndex;
-                }
-            }
-            // Force update the display
-            LanguageToggle->UpdateDisplay();  // You'll need to add this function
+            LanguageToggle->PossibleValues = { "English", "French", "German", "Spanish", "Japanese" };
+            LanguageToggle->OnValueChanged.AddDynamic(this, &UMain_Menu_Widget::OnLanguageValueChanged);
+            LanguageToggle->SetLabel("Language");
+
+            int32 LangIndex = LanguageToggle->PossibleValues.Find(GameInstance->GameSettings.CurrentLanguage);
+            LanguageToggle->CurrentIndex = (LangIndex != INDEX_NONE) ? LangIndex : 0;
+            LanguageToggle->UpdateDisplay();
+        }
+
+        // Screen Shake Toggle setup
+        if (ScreenShakeToggle)
+        {
+            ScreenShakeToggle->PossibleValues = { "ON", "OFF" };
+            ScreenShakeToggle->OnValueChanged.AddDynamic(this, &UMain_Menu_Widget::OnScreenShakeValueChanged);
+            ScreenShakeToggle->SetLabel("Screen Shake");
+            ScreenShakeToggle->CurrentIndex = GameInstance->GameSettings.bScreenShakeEnabled ? 0 : 1;
+            ScreenShakeToggle->UpdateDisplay();
+        }
+
+        // Vibration Toggle setup
+        if (VibrationToggle)
+        {
+            VibrationToggle->PossibleValues = { "ON", "OFF" };
+            VibrationToggle->OnValueChanged.AddDynamic(this, &UMain_Menu_Widget::OnVibrationValueChanged);
+            VibrationToggle->SetLabel("Vibration");
+            VibrationToggle->CurrentIndex = GameInstance->GameSettings.bVibrationEnabled ? 0 : 1;
+            VibrationToggle->UpdateDisplay();
+        }
+
+        // Settings buttons
+        if (ResetToDefaultButton)
+        {
+            ResetToDefaultButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnResetToDefaultClicked);
+        }
+
+        if (ApplyChangesButton)
+        {
+            ApplyChangesButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnApplyChangesClicked);
         }
     }
 
-    // Screen Shake Toggle setup
-    if (ScreenShakeToggle)
-    {
-        ScreenShakeToggle->PossibleValues = { "ON", "OFF" };
-        ScreenShakeToggle->OnValueChanged.AddDynamic(this, &UMain_Menu_Widget::OnScreenShakeValueChanged);
-        ScreenShakeToggle->SetLabel("Screen Shake");
-
-        if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
-        {
-            bool IsEnabled = GameInstance->GameSettings.bScreenShakeEnabled;
-            ScreenShakeToggle->CurrentIndex = IsEnabled ? 0 : 1;
-        }
-    }
-
-
-    if (VibrationToggle)
-    {
-        // Set up possible values
-        VibrationToggle->PossibleValues = { "ON", "OFF" };
-        VibrationToggle->OnValueChanged.AddDynamic(this, &UMain_Menu_Widget::OnVibrationValueChanged);
-
-        // Set the label
-        VibrationToggle->SetLabel("Vibration");
-
-        // Set initial value based on game settings
-        if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
-        {
-            bool IsEnabled = GameInstance->GameSettings.bVibrationEnabled;
-            VibrationToggle->CurrentIndex = IsEnabled ? 0 : 1;  // 0 for ON, 1 for OFF
-        }
-    }
-
-    if (ResetToDefaultButton)
-    {
-        ResetToDefaultButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnResetToDefaultClicked);
-    }
-
-    if (ApplyChangesButton)
-    {
-        ApplyChangesButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnApplyChangesClicked);
-    }
-
-        // Get player controller and set focus
-      //  if (APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0))
-      //  {
-      //      PlayerController->SetInputMode(FInputModeUIOnly());
-       //     PlayerController->bShowMouseCursor = true;
-       //     this->SetUserFocus(PlayerController);
-     //   }
-
-
-        // Bind buttons to functions
-        if (PlayButton)
-        {
-            PlayButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnPlayClicked);
-        }
-
-
-        if (SwordButton)
-        {
-            SwordButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnSwordButtonClicked);
-            SwordButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnSwordButtonHovered);
-        }
-
-
-        if (StaffButton)
-        {
-            StaffButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnStaffButtonClicked);
-            StaffButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnStaffButtonHovered);
-        }
-
-
-        if (SettingsButton)
-        {
-            SettingsButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnSettingsClicked);
-        }
-
-
-        if (PressAnyButtonText)
-
-        {
-            PlayAnimation(PressAnyButtonFadeAnimation, 1.0f, 0);
-        }
-
-
-        if (TitleCanvas && TitleCanvasAnimation)
-        {
-
-            PlayAnimation(TitleCanvasAnimation);
-        }
 
 
 
-        APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-        if (PlayerController)
-
-
-        {
-
-            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("player controller active!"));
-
-
-        }
-
-
-        this->SetIsFocusable(true);
-
-        //    SwitchToWeaponSelectMenu();
-
-        bIsOnTitleScreen = true;
-        bHasSetFocusForSwordButton = false;
-
-
-        // Get the custom game instance
-        UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
-        if (GameInstance)
-        {
-            // Load the player progress
-            GameInstance->LoadPlayerProgress();
-
-            // Example: Use the loaded data to update the UI or set weapon selection
-            if (GameInstance->WeaponProficiencyMap.Contains(EWeaponType::Sword))
-            {
-                const FWeapon_Proficiency_Struct& SwordStats = GameInstance->WeaponProficiencyMap[EWeaponType::Sword];
-                UE_LOG(LogTemp, Log, TEXT("Sword Level: %d, Sword EXP: %.2f"), SwordStats.WeaponLevel, SwordStats.CurrentEXP);
-            }
-        }
 }
+
 
 
 
@@ -652,28 +611,28 @@ void UMain_Menu_Widget::UpdateVolumeText(float Volume)
 
 void UMain_Menu_Widget::OnMasterVolumeChanged(float Value)
 {
-
     UpdateVolumeText(Value);
 
     if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
     {
         GameInstance->GameSettings.MasterVolume = Value;
 
-        // More robust volume control
-        if (MasterSoundMix && MasterSoundClass)
+        // Update both the global sound and the background music
+        UGameplayStatics::SetSoundMixClassOverride(GetWorld(), nullptr, nullptr, Value, 1.0f, 0.0f);
+
+        // Also update background music directly
+        if (BackgroundMusic)
         {
-            UGameplayStatics::SetSoundMixClassOverride(
-                GetWorld(),
-                MasterSoundMix,   // Your master sound mix
-                MasterSoundClass, // Your master sound class
-                Value,            // Volume multiplier
-                1.0f,             // Pitch multiplier
-                0.0f              // Fade in time
-            );
+            // If volume was 0 and is now being increased, make sure audio is playing
+            if (Value > 0.0f && !BackgroundMusic->IsPlaying())
+            {
+                BackgroundMusic->Play();
+            }
+            BackgroundMusic->SetVolumeMultiplier(Value);
         }
 
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow,
-            FString::Printf(TEXT("Master Volume Changed to: %.2f"), Value));
+            FString::Printf(TEXT("Volume Changed: %.2f"), Value));
     }
 }
 
@@ -1073,7 +1032,7 @@ void UMain_Menu_Widget::AdjustMasterVolume(bool bIncrease)
     if (MasterVolumeSlider)
     {
         float CurrentValue = MasterVolumeSlider->GetValue();
-        float Step = 0.05f; // 10% increment
+        float Step = 0.05f;
 
         if (bIncrease)
         {
@@ -1087,8 +1046,16 @@ void UMain_Menu_Widget::AdjustMasterVolume(bool bIncrease)
         MasterVolumeSlider->SetValue(CurrentValue);
         UpdateVolumeText(CurrentValue);
 
+        // Apply volume changes
+        if (BackgroundMusic)
+        {
+            if (CurrentValue > 0.0f && !BackgroundMusic->IsPlaying())
+            {
+                BackgroundMusic->Play();
+            }
+            BackgroundMusic->SetVolumeMultiplier(CurrentValue);
+        }
 
-        // Apply volume change immediately using UGameplayStatics
         UGameplayStatics::SetSoundMixClassOverride(GetWorld(), nullptr, nullptr, CurrentValue, 1.0f, 0.0f);
     }
 

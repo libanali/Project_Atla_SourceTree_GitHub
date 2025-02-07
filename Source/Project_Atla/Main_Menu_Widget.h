@@ -19,7 +19,8 @@ class PROJECT_ATLA_API UMain_Menu_Widget : public UUserWidget
 public:
 
 	virtual void NativeConstruct() override;
-
+	void InitializeMenuButtons();
+	void InitializeSettingsControls();
 
 
 
