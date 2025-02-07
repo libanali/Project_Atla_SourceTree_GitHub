@@ -152,6 +152,19 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UCarousel_Button_Widget* LanguageToggle;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+		USoundBase* MenuMusic;
+
+	UPROPERTY()
+		class UAudioComponent* BackgroundMusic;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+		class USoundMix* MasterSoundMix;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+		class USoundClass* MasterSoundClass;
+
+
 
 	//images
 	UPROPERTY(meta = (BindWidget))

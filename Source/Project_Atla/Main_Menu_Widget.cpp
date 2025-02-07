@@ -16,17 +16,44 @@
 #include "Kismet/GameplayStatics.h"
 #include "Player_Save_Game.h"
 #include "Carousel_Button_Widget.h"
+#include "Components/AudioComponent.h"
+
 
 
 void UMain_Menu_Widget::NativeConstruct()
 {
-
 
     Super::NativeConstruct();
 
 
     InitializeCanvasPanels();
     UpdateCanvasVisibility(0);
+
+
+    if (MenuMusic)
+    {
+        BackgroundMusic = UGameplayStatics::SpawnSound2D(GetWorld(), MenuMusic);
+        if (BackgroundMusic)
+        {
+            // Initial volume state
+            float InitialVolume = 1.0f;
+            if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+            {
+                InitialVolume = GameInstance->GameSettings.MasterVolume;
+            }
+            BackgroundMusic->Play();
+            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
+                FString::Printf(TEXT("Playing Music at Volume: %.2f"), InitialVolume));
+        }
+        else
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Failed to create audio component"));
+        }
+    }
+    else
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("No MenuMusic set in Blueprint"));
+    }
 
 
     if (MasterAudioButton)
@@ -631,9 +658,23 @@ void UMain_Menu_Widget::OnMasterVolumeChanged(float Value)
     if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
     {
         GameInstance->GameSettings.MasterVolume = Value;
-        GameInstance->SaveSettings();
-    }
 
+        // More robust volume control
+        if (MasterSoundMix && MasterSoundClass)
+        {
+            UGameplayStatics::SetSoundMixClassOverride(
+                GetWorld(),
+                MasterSoundMix,   // Your master sound mix
+                MasterSoundClass, // Your master sound class
+                Value,            // Volume multiplier
+                1.0f,             // Pitch multiplier
+                0.0f              // Fade in time
+            );
+        }
+
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow,
+            FString::Printf(TEXT("Master Volume Changed to: %.2f"), Value));
+    }
 }
 
 
@@ -837,14 +878,14 @@ void UMain_Menu_Widget::HandleGoBack()
     {
         int32 CurrentIndex = WidgetSwitcher->GetActiveWidgetIndex();
 
-        // Only go back if the current index is greater than 1
+        // If we're on weapon select (index 2), go back to main menu
+        // Or if we're on any other page (settings, credits, etc.), also go back to main menu
         if (CurrentIndex > 1)
         {
-            WidgetSwitcher->SetActiveWidgetIndex(CurrentIndex - 1);
-            UpdateCanvasVisibility(CurrentIndex - 1); // Add this line
+            WidgetSwitcher->SetActiveWidgetIndex(1);  // Always go back to main menu (index 1)
+            UpdateCanvasVisibility(1);
 
-            // Check if switching back to Main Menu (index 1)
-            if (WidgetSwitcher->GetActiveWidgetIndex() == 1 && PlayButton)
+            if (PlayButton)
             {
                 PlayButton->SetKeyboardFocus();
                 GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Focused on Play Button"));
@@ -852,7 +893,6 @@ void UMain_Menu_Widget::HandleGoBack()
         }
         else
         {
-            // Optionally log or handle the case when trying to go back from the main menu
             UE_LOG(LogTemp, Warning, TEXT("Cannot go back further from the main menu!"));
         }
     }
@@ -860,6 +900,7 @@ void UMain_Menu_Widget::HandleGoBack()
     {
         UE_LOG(LogTemp, Error, TEXT("WidgetSwitcher is null!"));
     }
+
 }
 
 
@@ -937,7 +978,7 @@ void UMain_Menu_Widget::OnScreenShakeValueChanged(const FString& NewValue)
         GameInstance->GameSettings.bScreenShakeEnabled = (NewValue == "ON");
 
         // Save settings
-        GameInstance->SaveSettings();
+      //  GameInstance->SaveSettings();
 
         // Debug message
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
@@ -957,7 +998,7 @@ void UMain_Menu_Widget::OnVibrationValueChanged(const FString& NewValue)
         GameInstance->GameSettings.bVibrationEnabled = (NewValue == "ON");
 
         // Save settings
-        GameInstance->SaveSettings();
+       // GameInstance->SaveSettings();
 
         // Debug message
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
@@ -979,7 +1020,7 @@ void UMain_Menu_Widget::OnLanguageValueChanged(const FString& NewValue)
         GameInstance->GameSettings.CurrentLanguage = NewValue;
 
         // Save settings
-        GameInstance->SaveSettings();
+        //GameInstance->SaveSettings();
 
         // Debug message
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
@@ -1045,6 +1086,10 @@ void UMain_Menu_Widget::AdjustMasterVolume(bool bIncrease)
 
         MasterVolumeSlider->SetValue(CurrentValue);
         UpdateVolumeText(CurrentValue);
+
+
+        // Apply volume change immediately using UGameplayStatics
+        UGameplayStatics::SetSoundMixClassOverride(GetWorld(), nullptr, nullptr, CurrentValue, 1.0f, 0.0f);
     }
 
 }
