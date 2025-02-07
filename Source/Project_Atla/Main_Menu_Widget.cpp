@@ -506,6 +506,36 @@ void UMain_Menu_Widget::OnStaffButtonFocused()
 
 
 
+void UMain_Menu_Widget::PlayNavigationSound()
+{
+
+
+    if (NavigationSound)
+    {
+        UGameplayStatics::PlaySound2D(GetWorld(), NavigationSound);
+    }
+
+
+}
+
+
+
+
+void UMain_Menu_Widget::PlayBackSound()
+{
+
+    if (BackSound)
+    {
+        UGameplayStatics::PlaySound2D(GetWorld(), BackSound);
+    }
+
+
+}
+
+
+
+
+
 void UMain_Menu_Widget::OnWeaponButtonHovered(const FString& Description)
 {
 
@@ -833,6 +863,7 @@ void UMain_Menu_Widget::UpdateCharacterImage()
 void UMain_Menu_Widget::HandleGoBack()
 {
 
+
     if (WidgetSwitcher)
     {
         int32 CurrentIndex = WidgetSwitcher->GetActiveWidgetIndex();
@@ -1150,6 +1181,7 @@ FReply UMain_Menu_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKe
     {
         HandleGoBack(); // Handle the back button logic
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Back!"));
+        PlayBackSound();
         return FReply::Handled();
     }
 
@@ -1182,6 +1214,8 @@ FReply UMain_Menu_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKe
     }
 
 
+   
+
 
     // Optionally: Handle other keys here if needed
     return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
@@ -1210,6 +1244,16 @@ FNavigationReply UMain_Menu_Widget::NativeOnNavigation(const FGeometry& MyGeomet
             return FNavigationReply::Explicit(nullptr);
         }
     }
+
+    // Play sound for navigation keys
+    if (Direction == EUINavigation::Left ||
+        Direction == EUINavigation::Right ||
+        Direction == EUINavigation::Up ||
+        Direction == EUINavigation::Down)
+    {
+        PlayNavigationSound();
+    }
+
 
     return Super::NativeOnNavigation(MyGeometry, InNavigationEvent, InDefaultReply);
 }

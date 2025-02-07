@@ -2574,19 +2574,18 @@ void ARen_Low_Poly_Character::DecreaseHealth(int amount)
 void ARen_Low_Poly_Character::TriggerCameraShake()
 {
 
-
-	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
-
-
-	if (PlayerController)
-
+	if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
 	{
-
-		PlayerController->ClientStartCameraShake(MyCameraShakeClass, 1.0f);
-
+		// Only trigger camera shake if enabled in settings
+		if (GameInstance->GameSettings.bScreenShakeEnabled)
+		{
+			APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+			if (PlayerController)
+			{
+				PlayerController->ClientStartCameraShake(MyCameraShakeClass, 1.0f);
+			}
+		}
 	}
-
-
 
 }
 

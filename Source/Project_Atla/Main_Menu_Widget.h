@@ -165,7 +165,11 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
 		class USoundClass* MasterSoundClass;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+		USoundBase* NavigationSound;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+		USoundBase* BackSound;
 
 	//images
 	UPROPERTY(meta = (BindWidget))
@@ -270,6 +274,9 @@ protected:
 	void UpdateElementalProficiencyText(EWeaponType WeaponType);
 	void UpdateCharacterImage();
 
+
+	void PlayNavigationSound();
+	void PlayBackSound();
 
 	UFUNCTION()
 		void OnWeaponButtonHovered(const FString& Description);
