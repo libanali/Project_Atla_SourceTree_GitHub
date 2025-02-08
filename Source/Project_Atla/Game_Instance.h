@@ -43,6 +43,30 @@ struct FGameSettings
 };
 
 
+USTRUCT(BlueprintType)
+struct FLocalizedText
+{
+    GENERATED_BODY()
+
+        UPROPERTY(EditAnywhere, BlueprintReadWrite)
+        FString English;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+        FString French;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+        FString German;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+        FString Spanish;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+        FString Japanese;
+};
+
+
+
+
 
 
 UCLASS()
@@ -92,6 +116,28 @@ public:
     UFUNCTION()
         void LoadSettings();
 
+    UFUNCTION(BlueprintCallable, Category = "Localization")
+        FString GetLocalizedText(const FLocalizedText& TextData) const
+
+
+    {
+
+        if (GameSettings.CurrentLanguage == "French")
+            return TextData.French;
+        else if (GameSettings.CurrentLanguage == "German")
+            return TextData.German;
+        else if (GameSettings.CurrentLanguage == "Spanish")
+            return TextData.Spanish;
+        else if (GameSettings.CurrentLanguage == "Japanese")
+            return TextData.Japanese;
+
+        // Default to English
+        return TextData.English;
+
+    }
+
+    UPROPERTY()
+        TMap<FString, FLocalizedText> LocalizedTextMap;
 
 
     bool GetWeaponBaseStats(EWeaponType WeaponType, float& OutAttack, float& OutDefense, float& OutElementalAttack, int32& OutWeaponLevel) const;
