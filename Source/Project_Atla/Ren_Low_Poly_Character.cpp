@@ -3192,21 +3192,32 @@ void ARen_Low_Poly_Character::TriggerVibration(float Intensity, float Duration, 
 
 	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
-	if (PC)
-	{
-		// For small motor vibration (high frequency)
-		float SmallMotorIntensity = bLeftLarge ? 0.0f : Intensity;
-		// For large motor vibration (low frequency)
-		float LargeMotorIntensity = bRightLarge ? Intensity : 0.0f;
 
-		PC->PlayDynamicForceFeedback(
-			Intensity,  // Intensity between 0.0f and 1.0f
-			Duration,   // Duration in seconds
-			bLeftLarge, // Whether to use the left large motor
-			bRightLarge,// Whether to use the right large motor
-			SmallMotorIntensity != 0, // Left small motor intensity
-			LargeMotorIntensity != 0  // Right large motor intensity
-		);
+
+	if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+	{
+		// Only trigger camera shake if enabled in settings
+		if (GameInstance->GameSettings.bVibrationEnabled)
+
+		{
+
+			if (PC)
+			{
+				// For small motor vibration (high frequency)
+				float SmallMotorIntensity = bLeftLarge ? 0.0f : Intensity;
+				// For large motor vibration (low frequency)
+				float LargeMotorIntensity = bRightLarge ? Intensity : 0.0f;
+
+				PC->PlayDynamicForceFeedback(
+					Intensity,  // Intensity between 0.0f and 1.0f
+					Duration,   // Duration in seconds
+					bLeftLarge, // Whether to use the left large motor
+					bRightLarge,// Whether to use the right large motor
+					SmallMotorIntensity != 0, // Left small motor intensity
+					LargeMotorIntensity != 0  // Right large motor intensity
+				);
+			}
+		}
 	}
 
 }
