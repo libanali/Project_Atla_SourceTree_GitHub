@@ -885,6 +885,10 @@ public:
 	//Game over
 
 
+	//Force Feedback
+	UFUNCTION(BlueprintCallable, Category = "Feedback")
+		void TriggerVibration(float Intensity, float Duration, bool bLeftLarge = true, bool bRightLarge = true);
+
 
 protected:
 	// Called when the game starts or when spawned
