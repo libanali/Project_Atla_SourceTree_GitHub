@@ -293,6 +293,7 @@ private:
 	bool bHasSetFocusForSwordButton;
 	ARen_Low_Poly_Character* GetPlayerCharacter();
 	TArray<UCanvasPanel*> MenuCanvases;
+	class UButton* LastFocusedButton;
 };
 
 

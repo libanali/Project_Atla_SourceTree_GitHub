@@ -860,6 +860,7 @@ public:
 	void UpdateEnemyArrows();
 	void AddEnemyArrow(AEnemy_Poly* Enemy);
 	void OnEnemyDestroyed(AActor* DestroyedActor);
+	void RemoveAllEnemyArrows();
 
 	// Helper function to check if enemy is off-screen and update the arrow
 	void CheckAndDisplayArrow(AActor* Enemy, UEnemy_Detection_Arrow* ArrowWidget);

@@ -41,13 +41,15 @@ void UItem_Button_Widget::OnItemButtonClicked()
 
     if (PlayerCharacter && CurrentItem.Item)
     {
-
         if (UInventory* InventoryComp = PlayerCharacter->FindComponentByClass<UInventory>())
         {
-          //  InventoryComp->UseItem(CurrentItem.Item);
-            PlayerCharacter->CurrentItemBeingUsed = CurrentItem;
-
-            ReturnToGameplay();
+            // Get the default object to access its properties
+            if (ABase_Item* DefaultItem = CurrentItem.Item.GetDefaultObject())
+            {
+                PlayerCharacter->CurrentItemBeingUsed = CurrentItem;
+                PlayerCharacter->SpawnActionBanner(DefaultItem->ItemName);  // Use the ItemName property
+                ReturnToGameplay();
+            }
         }
     }
 

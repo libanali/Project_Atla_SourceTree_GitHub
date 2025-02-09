@@ -200,6 +200,7 @@ void UMain_Menu_Widget::OnPlayClicked()
         if (SwordButton)
         {
             SwordButton->SetKeyboardFocus();
+            LastFocusedButton = PlayButton;
         }
     }
 
@@ -219,6 +220,7 @@ void UMain_Menu_Widget::OnSettingsClicked()
         if (SettingsButton)
         {
             MasterAudioButton->SetKeyboardFocus();
+            LastFocusedButton = SettingsButton;
         }
     }
 
@@ -862,23 +864,21 @@ void UMain_Menu_Widget::UpdateCharacterImage()
 
 void UMain_Menu_Widget::HandleGoBack()
 {
-
-
     if (WidgetSwitcher)
     {
         int32 CurrentIndex = WidgetSwitcher->GetActiveWidgetIndex();
 
-        // If we're on weapon select (index 2), go back to main menu
-        // Or if we're on any other page (settings, credits, etc.), also go back to main menu
         if (CurrentIndex > 1)
         {
-            WidgetSwitcher->SetActiveWidgetIndex(1);  // Always go back to main menu (index 1)
+            WidgetSwitcher->SetActiveWidgetIndex(1);  // Go back to main menu
             UpdateCanvasVisibility(1);
 
-            if (PlayButton)
+            // Restore focus to the last focused button
+            if (LastFocusedButton)
             {
-                PlayButton->SetKeyboardFocus();
-                GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Focused on Play Button"));
+                LastFocusedButton->SetKeyboardFocus();
+                GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow,
+                    FString::Printf(TEXT("Focus restored to: %s"), *LastFocusedButton->GetName()));
             }
         }
         else
@@ -907,7 +907,7 @@ void UMain_Menu_Widget::SwitchToMainMenu()
         WidgetSwitcher->SetActiveWidgetIndex(1); // Switch to Main Menu (index 1)
         UpdateCanvasVisibility(1); // Add this line
         GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Main Menu!"));
-
+        LastFocusedButton = nullptr;
 
         if (PlayButton)
 

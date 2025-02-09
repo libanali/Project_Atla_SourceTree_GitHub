@@ -595,7 +595,7 @@ void ARen_Low_Poly_Character::Death()
 	if (bIsDead) return;
 
 	bIsDead = true;
-
+	RemoveAllEnemyArrows();
 	// Disable player input and overlap events only once
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 	if (PlayerController)
@@ -2929,6 +2929,24 @@ void ARen_Low_Poly_Character::OnEnemyDestroyed(AActor* DestroyedActor)
 		ArrowWidget->RemoveFromParent();
 		EnemyArrowMap.Remove(DestroyedEnemy);
 	}
+
+}
+
+
+
+void ARen_Low_Poly_Character::RemoveAllEnemyArrows()
+{
+
+	// Loop through all arrow widgets and remove them
+	for (auto& Pair : EnemyArrowMap)
+	{
+		if (UEnemy_Detection_Arrow* ArrowWidget = Pair.Value)
+		{
+			ArrowWidget->RemoveFromParent();
+		}
+	}
+	// Clear the map
+	EnemyArrowMap.Empty();
 
 }
 
