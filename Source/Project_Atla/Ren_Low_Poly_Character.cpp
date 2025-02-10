@@ -3205,6 +3205,68 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 
 
 
+void ARen_Low_Poly_Character::HandlePauseGame()
+{
+	// Get the player controller
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC)
+		return;
+
+	// If the widget doesn't exist or has been garbage collected, create a new one
+	if (!IsValid(PauseMenuWidget) && PauseMenuClass)
+	{
+		PauseMenuWidget = CreateWidget<UPause_Menu_Widget>(PC, PauseMenuClass);
+	}
+
+	// Only proceed if we have a valid widget
+	if (IsValid(PauseMenuWidget))
+	{
+		if (!PauseMenuWidget->IsInViewport())
+		{
+			PauseMenuWidget->ShowPauseMenu();
+			SetGamePaused(true);
+		}
+		else
+		{
+			PauseMenuWidget->HidePauseMenu();
+			SetGamePaused(false);
+		}
+	}
+}
+
+void ARen_Low_Poly_Character::SetGamePaused(bool bPaused)
+{
+
+	// Get the player controller
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (!PC)
+		return;
+
+	if (bPaused)
+	{
+
+
+		UGameplayStatics::SetGamePaused(GetWorld(), true);
+	}
+	else
+	{
+		UGameplayStatics::SetGamePaused(GetWorld(), false);
+	}
+}
+
+
+
+bool ARen_Low_Poly_Character::IsGamePaused() const
+{
+
+	return PauseMenuWidget && PauseMenuWidget->IsInViewport();
+}
+
+
+
+
+
+
 void ARen_Low_Poly_Character::TriggerVibration(float Intensity, float Duration, bool bLeftLarge, bool bRightLarge)
 {
 
@@ -4070,7 +4132,10 @@ void ARen_Low_Poly_Character::SetupPlayerInputComponent(UInputComponent* PlayerI
 	PlayerInputComponent->BindAxis("MoveRight", this, &ARen_Low_Poly_Character::MoveRight);
 
 
+
 	PlayerInputComponent->BindAction("Ability", IE_Pressed, this, &ARen_Low_Poly_Character::UseAbility);
 	PlayerInputComponent->BindAction("Roll Dodge or Back", IE_Pressed, this, &ARen_Low_Poly_Character::HandleBackInput);
+	PlayerInputComponent->BindAction("PauseGame", IE_Pressed, this, &ARen_Low_Poly_Character::HandlePauseGame);
+
 
 }

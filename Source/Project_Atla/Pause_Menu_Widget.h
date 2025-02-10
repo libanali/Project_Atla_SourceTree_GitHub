@@ -17,34 +17,42 @@ class PROJECT_ATLA_API UPause_Menu_Widget : public UUserWidget
 
 protected:
     virtual void NativeConstruct() override;
+    virtual void NativeDestruct() override;
 
-    UPROPERTY(meta = (BindWidget))
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UWidgetSwitcher* MenuSwitcher;
 
-    UPROPERTY(meta = (BindWidget))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UButton* ResumeButton;
 
-    UPROPERTY(meta = (BindWidget))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UButton* QuitButton;
 
-    UPROPERTY(meta = (BindWidget))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UCanvasPanel* MainPauseCanvas;
 
-    UPROPERTY(meta = (BindWidget))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UCanvasPanel* ConfirmQuitCanvas;
 
-    UPROPERTY(meta = (BindWidget))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UButton* ConfirmYesButton;
 
-    UPROPERTY(meta = (BindWidget))
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UButton* ConfirmNoButton;
+
+    UPROPERTY()
+        UButton* LastFocusedButton;
 
     // Animation properties
     UPROPERTY(Transient, meta = (BindWidgetAnim))
-        UWidgetAnimation* MainMenuAnimation;
+        UWidgetAnimation* PauseMenuAnimation;
 
     UPROPERTY(Transient, meta = (BindWidgetAnim))
-        UWidgetAnimation* ConfirmMenuAnimation;
+        UWidgetAnimation* QuitConfirmAnimation;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+        USoundBase* BackSound;
 
     UFUNCTION()
         void OnResumeClicked();
@@ -58,8 +66,18 @@ protected:
     UFUNCTION()
         void OnConfirmQuitNo();
 
+    UFUNCTION()
+        void PlayBackSound();
+
+
+    virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
+
+
 public:
     void ShowPauseMenu();
     void HidePauseMenu();
-	
+    void HandleGoBack();
+    void UpdateMenuState(int32 ActiveIndex);
+
+
 };

@@ -29,6 +29,7 @@
 #include "Inventory.h"
 #include "Action_Banner_Widget.h"
 #include "End_Screen_Widget.h"
+#include "Pause_Menu_Widget.h"
 #include "GameEnums.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
@@ -884,6 +885,29 @@ public:
 
 	void DisplayEndScreenWidget();
 	//Game over
+
+
+
+	//Pause Menu
+	 // Pause menu widget class reference
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+		TSubclassOf<UPause_Menu_Widget> PauseMenuClass;
+
+	// Pause menu widget instance
+	UPROPERTY()
+		UPause_Menu_Widget* PauseMenuWidget;
+
+	// Function to handle pause input
+	UFUNCTION()
+		void HandlePauseGame();
+
+	// Helper function to set game pause state
+	void SetGamePaused(bool bPaused);
+
+	UFUNCTION(BlueprintPure, Category = "Pause")
+		bool IsGamePaused() const;
+
+	//Pause Menu
 
 
 	//Force Feedback
