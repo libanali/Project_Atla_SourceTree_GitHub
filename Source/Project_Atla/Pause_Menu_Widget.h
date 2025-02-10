@@ -17,7 +17,7 @@ class PROJECT_ATLA_API UPause_Menu_Widget : public UUserWidget
 
 protected:
     virtual void NativeConstruct() override;
-    virtual void NativeDestruct() override;
+ //   virtual void NativeDestruct() override;
 
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
@@ -74,6 +74,8 @@ protected:
 
 
 public:
+    void BindDelegates();
+    void UnbindDelegates();
     void ShowPauseMenu();
     void HidePauseMenu();
     void HandleGoBack();

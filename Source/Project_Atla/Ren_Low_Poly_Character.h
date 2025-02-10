@@ -802,6 +802,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		bool bIsElementalsOpen = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+		USoundBase* BackSound;
 
 	UButton* LastFocusedButton;
 	//Command
@@ -906,13 +908,13 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Pause")
 		bool IsGamePaused() const;
-
 	//Pause Menu
 
 
 	//Force Feedback
 	UFUNCTION(BlueprintCallable, Category = "Feedback")
 		void TriggerVibration(float Intensity, float Duration, bool bLeftLarge = true, bool bRightLarge = true);
+	//Force Feedback
 
 
 protected:

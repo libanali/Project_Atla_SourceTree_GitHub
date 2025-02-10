@@ -193,13 +193,12 @@ void UPause_Menu_Widget::OnQuitClicked()
 void UPause_Menu_Widget::OnConfirmQuitYes()
 {
 
+    UGameplayStatics::OpenLevel(GetWorld(), FName("Main_Menu_Level"));
+
     if (ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(UGameplayStatics::GetGameMode(GetWorld())))
     {
         GameMode->StopSpawningAndDestroyEnemies();
-        GameMode->SpawnZones.Empty(); // Clear spawn zones before level change
     }
-
-    UGameplayStatics::OpenLevel(GetWorld(), FName("Main_Menu_Level"));
 }
 
 

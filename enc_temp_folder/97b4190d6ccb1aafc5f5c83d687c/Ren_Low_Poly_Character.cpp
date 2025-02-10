@@ -3979,7 +3979,7 @@ void ARen_Low_Poly_Character::HandleBackInput()
 {
 	UE_LOG(LogTemp, Warning, TEXT("Back button pressed!"));
 	
-	if (BackSound && bIsInUIMode)
+	if (BackSound)
 	{
 		UGameplayStatics::PlaySound2D(this, BackSound);
 	}
