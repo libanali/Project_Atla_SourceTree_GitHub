@@ -16,7 +16,7 @@ void UPause_Menu_Widget::NativeConstruct()
    // BindDelegates();
 
   // Check for valid buttons
-    if (!ResumeButton || !QuitButton || !ConfirmYesButton || !ConfirmNoButton)
+    if (!ResumeButton)
     {
         UE_LOG(LogTemp, Warning, TEXT("One or more buttons are nullptr in Pause Menu!"));
         return;
@@ -24,16 +24,11 @@ void UPause_Menu_Widget::NativeConstruct()
 
     // Clear existing delegates
     ResumeButton->OnClicked.Clear();
-    QuitButton->OnClicked.Clear();
-    ConfirmYesButton->OnClicked.Clear();
-    ConfirmNoButton->OnClicked.Clear();
+   
 
     // Bind new delegates
     ResumeButton->OnClicked.AddDynamic(this, &UPause_Menu_Widget::OnResumeClicked);
-    QuitButton->OnClicked.AddDynamic(this, &UPause_Menu_Widget::OnQuitClicked);
-    ConfirmYesButton->OnClicked.AddDynamic(this, &UPause_Menu_Widget::OnConfirmQuitYes);
-    ConfirmNoButton->OnClicked.AddDynamic(this, &UPause_Menu_Widget::OnConfirmQuitNo);
-
+  
     // Set initial widget switcher index
     if (MenuSwitcher)
     {
@@ -55,15 +50,7 @@ void UPause_Menu_Widget::BindDelegates()
     if (IsValid(ResumeButton))
         ResumeButton->OnClicked.AddDynamic(this, &UPause_Menu_Widget::OnResumeClicked);
 
-    if (IsValid(QuitButton))
-        QuitButton->OnClicked.AddDynamic(this, &UPause_Menu_Widget::OnQuitClicked);
-
-    if (IsValid(ConfirmYesButton))
-        ConfirmYesButton->OnClicked.AddDynamic(this, &UPause_Menu_Widget::OnConfirmQuitYes);
-
-    if (IsValid(ConfirmNoButton))
-        ConfirmNoButton->OnClicked.AddDynamic(this, &UPause_Menu_Widget::OnConfirmQuitNo);
-
+  
 }
 
 
@@ -73,15 +60,6 @@ void UPause_Menu_Widget::UnbindDelegates()
 
     if (IsValid(ResumeButton))
         ResumeButton->OnClicked.RemoveAll(this);
-
-    if (IsValid(QuitButton))
-        QuitButton->OnClicked.RemoveAll(this);
-
-    if (IsValid(ConfirmYesButton))
-        ConfirmYesButton->OnClicked.RemoveAll(this);
-
-    if (IsValid(ConfirmNoButton))
-        ConfirmNoButton->OnClicked.RemoveAll(this);
 
 }
 
@@ -96,21 +74,7 @@ void UPause_Menu_Widget::ShowPauseMenu()
         ResumeButton->OnClicked.RemoveAll(this);
         ResumeButton->OnClicked.AddDynamic(this, &UPause_Menu_Widget::OnResumeClicked);
     }
-    if (QuitButton)
-    {
-        QuitButton->OnClicked.RemoveAll(this);
-        QuitButton->OnClicked.AddDynamic(this, &UPause_Menu_Widget::OnQuitClicked);
-    }
-    if (ConfirmYesButton)
-    {
-        ConfirmYesButton->OnClicked.RemoveAll(this);
-        ConfirmYesButton->OnClicked.AddDynamic(this, &UPause_Menu_Widget::OnConfirmQuitYes);
-    }
-    if (ConfirmNoButton)
-    {
-        ConfirmNoButton->OnClicked.RemoveAll(this);
-        ConfirmNoButton->OnClicked.AddDynamic(this, &UPause_Menu_Widget::OnConfirmQuitNo);
-    }
+  
 
     AddToViewport();
 
@@ -139,18 +103,7 @@ void UPause_Menu_Widget::HidePauseMenu()
     {
         ResumeButton->OnClicked.RemoveAll(this);
     }
-    if (QuitButton)
-    {
-        QuitButton->OnClicked.RemoveAll(this);
-    }
-    if (ConfirmYesButton)
-    {
-        ConfirmYesButton->OnClicked.RemoveAll(this);
-    }
-    if (ConfirmNoButton)
-    {
-        ConfirmNoButton->OnClicked.RemoveAll(this);
-    }
+   
 
     RemoveFromParent();
 
@@ -175,45 +128,6 @@ void UPause_Menu_Widget::OnResumeClicked()
 
 
 
-
-void UPause_Menu_Widget::OnQuitClicked()
-{
-    if (MenuSwitcher)
-    {
-        // Store the last focused button
-        LastFocusedButton = QuitButton;
-
-        // Update menu state to show quit confirmation
-        UpdateMenuState(1);
-    }
-}
-
-
-
-void UPause_Menu_Widget::OnConfirmQuitYes()
-{
-
-    if (ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(UGameplayStatics::GetGameMode(GetWorld())))
-    {
-        GameMode->StopSpawningAndDestroyEnemies();
-        GameMode->SpawnZones.Empty(); // Clear spawn zones before level change
-    }
-
-    UGameplayStatics::OpenLevel(GetWorld(), FName("Main_Menu_Level"));
-}
-
-
-
-
-void UPause_Menu_Widget::OnConfirmQuitNo()
-{
-
-    if (MenuSwitcher)
-    {
-        UpdateMenuState(0);
-    }
-
-}
 
 
 
@@ -276,24 +190,12 @@ void UPause_Menu_Widget::UpdateMenuState(int32 ActiveIndex)
                 ResumeButton->SetKeyboardFocus();
             }
             break;
-
-        case 1: // Quit Confirmation
-            if (QuitConfirmAnimation)
-            {
-              //  PlayAnimation(QuitConfirmAnimation);
-            }
-            // Set focus on No button
-            if (ConfirmNoButton)
-            {
-                ConfirmNoButton->SetKeyboardFocus();
-            }
-            break;
         }
-    }
+    
+     }
+ }
 
 
-
-}
 
 
 

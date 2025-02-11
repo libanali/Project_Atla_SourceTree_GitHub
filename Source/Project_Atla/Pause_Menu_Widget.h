@@ -27,19 +27,9 @@ protected:
         class UButton* ResumeButton;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-        class UButton* QuitButton;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UCanvasPanel* MainPauseCanvas;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-        class UCanvasPanel* ConfirmQuitCanvas;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-        class UButton* ConfirmYesButton;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-        class UButton* ConfirmNoButton;
 
     UPROPERTY()
         UButton* LastFocusedButton;
@@ -48,23 +38,13 @@ protected:
     UPROPERTY(Transient, meta = (BindWidgetAnim))
         UWidgetAnimation* PauseMenuAnimation;
 
-    UPROPERTY(Transient, meta = (BindWidgetAnim))
-        UWidgetAnimation* QuitConfirmAnimation;
+ 
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
         USoundBase* BackSound;
 
     UFUNCTION()
         void OnResumeClicked();
-
-    UFUNCTION()
-        void OnQuitClicked();
-
-    UFUNCTION()
-        void OnConfirmQuitYes();
-
-    UFUNCTION()
-        void OnConfirmQuitNo();
 
     UFUNCTION()
         void PlayBackSound();

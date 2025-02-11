@@ -178,8 +178,6 @@ void UMain_Menu_Widget::InitializeSettingsControls()
     }
 
 
-
-
 }
 
 

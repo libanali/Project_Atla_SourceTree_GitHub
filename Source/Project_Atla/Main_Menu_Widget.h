@@ -10,6 +10,11 @@
 /**
  * 
  */
+
+
+
+
+
 UCLASS()
 class PROJECT_ATLA_API UMain_Menu_Widget : public UUserWidget
 {
@@ -79,6 +84,16 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UButton* ApplyChangesButton;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UButton* ControlsButton;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UButton* GameplayButton;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UButton* LevellingUpButton;
+
 
 
 
