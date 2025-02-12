@@ -216,6 +216,15 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UVerticalBox* ControlsContainer;
 
+	//Scrollbox
+	UPROPERTY(meta = (BindWidget))
+		class UScrollBox* TutorialScrollBox;
+
+
+
+
+
+
 
 
 	// Functions for button click events
@@ -344,9 +353,12 @@ protected:
 	UFUNCTION()
 	void UpdateTutorialContent(const FText& Title, const FText& Description);
 
+	UFUNCTION()
+	void ScrollTutorialContent(float Value);
 
 
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
+	virtual FReply NativeOnAnalogValueChanged(const FGeometry& InGeometry, const FAnalogInputEvent& InAnalogInputEvent) override;
 	virtual FNavigationReply NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply) override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
 

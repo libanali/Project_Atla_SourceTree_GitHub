@@ -14,6 +14,7 @@
 #include "Components/VerticalBox.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
+#include "Components/ScrollBox.h"
 #include "Game_Instance.h"
 #include "Ren_Low_Poly_Character.h"
 #include "Kismet/GameplayStatics.h"
@@ -663,7 +664,14 @@ void UMain_Menu_Widget::OnGameplayButtonHovered()
 
     UpdateTutorialContent(
         FText::FromString("Gameplay"),
-        FText::FromString("Combat System:\n- Deal damage with weapons and magic\n- Block to reduce incoming damage\n- Use items to restore health\n\nExploration:\n- Find hidden treasures\n- Complete side quests\n- Discover new abilities")
+        FText::FromString("Objective:\nYour goal is to survive wave after wave of enemies. Stay alert, defeat as many foes as possible, and aim for a new high score.\n\n"
+            "Combat Basics:\n"
+            "- Use basic attacks to quickly take down enemies\n"
+            "- Exploit enemy weaknesses with elemental attacks (Fire, Ice, or Thunder)\n"
+            "- As you use these attacks, your Elemental attribute increases, unlocking more powerful moves\n\n"
+            "- Using Techniques:\nWhen your weapon levels up, new techniques become available. These special moves help you inflict heavy damage and keep enemies at bay.\n\n"
+            "- Abilities:\nUse your abilities strategically during battle. When timed correctly, they can turn the tide by maximizing damage and controlling enemy movement.\n\n"
+            "- End of Battle:\nThe game continues until your Health runs out. At that point, you'll see an end screen displaying your final score, your best high score, and a summary of your attributes, including your Weapon Level and Elemental proficiency.")
     );
 
 }
@@ -681,7 +689,10 @@ void UMain_Menu_Widget::OnLevellingUpButtonHovered()
 
     UpdateTutorialContent(
         FText::FromString("Levelling Up"),
-        FText::FromString("Experience Points:\n- Gain EXP from defeating enemies\n- Level up to increase stats\n- Unlock new abilities\n\nWeapon Proficiency:\n- Use weapons to increase mastery\n- Higher levels unlock weapon skills\n- Each weapon has unique abilities")
+        FText::FromString("Earn Experience:\nDefeat enemies to gain experience points for your chosen weapon.\n\n"
+            "Increase Your Weapon Level:\nWhen you collect enough experience, your weapon will level up. Leveling up unlocks new combat techniques that help you deal more damage.\n\n"
+            "Boost Your Elemental Proficiency:\nUse elemental attacks (Fire, Ice, or Thunder) during battle. Each use increases your Elemental attribute for that weapon.\n\n"
+            "Unlock Powerful Attacks:\nAs your elemental proficiency grows, you'll gain access to stronger elemental moves. Keep using a specific element to make its attacks even more effective.")
     );
 
 }
@@ -698,7 +709,11 @@ void UMain_Menu_Widget::OnAttributesButtonHovered()
 
     UpdateTutorialContent(
         FText::FromString("Attributes"),
-        FText::FromString("Core Stats:\n- HP: Your health points\n- Attack: Physical damage dealt\n- Defense: Damage reduction\n- Magic: Spell power\n\nElemental Stats:\n- Fire: Fire magic power\n- Ice: Ice magic power\n- Thunder: Lightning power")
+        FText::FromString("Health:\nYour Health (HP) shows how much damage you can take. Taking damage in battle reduces your Health. When your Health reaches zero, it's game over.\n\n"
+            "Attack:\nThe Attack attribute determines how much damage you deal to enemies. Increasing this attribute means you can defeat foes more quickly.\n\n"
+            "Defence:\nYour Defence attribute reduces the damage you take from enemy attacks. A higher Defence helps you withstand more hits during combat.\n\n"
+            "Elemental:\nThis attribute measures your proficiency with elemental attacks (Fire, Ice, and Thunder). As you use these attacks, your Elemental attribute improves, unlocking even more potent moves.\n\n"
+            "Weapon Level:\nYour Weapon Level reflects the experience you've earned with your chosen weapon. As the level increases, new techniques and abilities become available, enhancing your combat options.")
     );
 
 }
@@ -761,6 +776,28 @@ void UMain_Menu_Widget::UpdateTutorialContent(const FText& Title, const FText& D
     if (TutorialDescriptionText)
     {
         TutorialDescriptionText->SetText(Description);
+    }
+
+
+}
+
+
+
+void UMain_Menu_Widget::ScrollTutorialContent(float Value)
+{
+
+    if (TutorialScrollBox)
+    {
+        // Adjust this multiplier to control scroll speed
+        const float ScrollSpeed = 20.0f;
+        float CurrentOffset = TutorialScrollBox->GetScrollOffset();
+        float NewOffset = CurrentOffset + (Value * ScrollSpeed);
+
+        // Clamp the offset between 0 and the maximum scroll
+        float MaxScroll = TutorialScrollBox->GetScrollOffsetOfEnd();
+        NewOffset = FMath::Clamp(NewOffset, 0.0f, MaxScroll);
+
+        TutorialScrollBox->SetScrollOffset(NewOffset);
     }
 
 
@@ -1074,6 +1111,7 @@ void UMain_Menu_Widget::UpdateCharacterImage()
     }
 
 }
+
 
 
 
@@ -1440,6 +1478,24 @@ FReply UMain_Menu_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKe
 
 
 
+}
+
+FReply UMain_Menu_Widget::NativeOnAnalogValueChanged(const FGeometry& InGeometry, const FAnalogInputEvent& InAnalogInputEvent)
+{
+    if (TutorialScrollBox)
+    {
+        // Check if it's the right stick's Y-axis
+        if (InAnalogInputEvent.GetUserIndex() == 0 &&
+            (InAnalogInputEvent.GetKey() == EKeys::Gamepad_RightY))
+        {
+            // Invert the value because positive Y means stick down
+            float ScrollValue = -InAnalogInputEvent.GetAnalogValue();
+            ScrollTutorialContent(ScrollValue);
+            return FReply::Handled();
+        }
+    }
+
+    return Super::NativeOnAnalogValueChanged(InGeometry, InAnalogInputEvent);
 }
 
 
