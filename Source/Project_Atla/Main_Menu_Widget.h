@@ -166,9 +166,6 @@ protected:
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 		class UWidgetAnimation* SettingsCanvasAnimation;
 
-	UPROPERTY(Transient, meta = (BindWidgetAnim))
-		class UWidgetAnimation* TutorialFadeAnimation;
-
 	UPROPERTY(meta = (BindWidget))
 		class USlider* MasterVolumeSlider;
 
@@ -310,26 +307,41 @@ protected:
 	void UpdateWeaponStatsText(float Attack, float Defense, float ElementalAttack, int32 WeaponLevel);
 	void UpdateElementalProficiencyText(EWeaponType WeaponType);
 	void UpdateCharacterImage();
-
-
 	void PlayNavigationSound();
 	void PlayBackSound();
+
 
 	UFUNCTION()
 		void OnWeaponButtonHovered(const FString& Description);
 
-
+	UFUNCTION()
 	void OnControlsButtonHovered();
+
+	UFUNCTION()
 	void OnControlsButtonUnhovered();
+
+	UFUNCTION()
 	void OnGameplayButtonHovered();
+
+	UFUNCTION()
 	void OnLevellingUpButtonHovered();
+
+	UFUNCTION()
 	void OnAttributesButtonHovered();
 
+	UFUNCTION()
 	void OnControlsButtonFocused();
+
+	UFUNCTION()
 	void OnGameplayButtonFocused();
+
+	UFUNCTION()
 	void OnLevellingUpButtonFocused();
+
+	UFUNCTION()
 	void OnAttributesButtonFocused();
 
+	UFUNCTION()
 	void UpdateTutorialContent(const FText& Title, const FText& Description);
 
 

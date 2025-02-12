@@ -249,10 +249,10 @@ void UMain_Menu_Widget::OnTutorialClicked()
         UpdateCanvasVisibility(5);
 
         // Set focus on SwordButton instead of PlayButton since we're in weapon select
-        if (SwordButton)
+        if (ControlsButton)
         {
             ControlsButton->SetKeyboardFocus();
-            LastFocusedButton = PlayButton;
+            LastFocusedButton = TutorialButton;
         }
     }
 
@@ -611,7 +611,7 @@ void UMain_Menu_Widget::OnControlsButtonHovered()
     // Update title and description
     UpdateTutorialContent(
         FText::FromString("Controls"),
-        FText::FromString("Movement:\n- Controller: Left Stick\n- Keyboard: W/A/S/D or Arrow Keys\n\nActions:\n- Attack: Square (PS) / X (Xbox) / Z (KB)\n- Evade: Circle (PS) / B (Xbox) / P (KB)\n- Commands Menu: Cross (PS) / A (Xbox) / Space (KB)\n- Special Attack: Triangle (PS) / Y (Xbox) / E (KB)\n- Pause: Options (PS) / Menu (Xbox) / Escape (KB)")
+        FText::FromString("")
     );
 
     // Show the controls container
