@@ -11,7 +11,10 @@
  * 
  */
 
-
+class UHorizontalBox;
+class UTextBlock;
+class UImage;
+class UTexture2D;
 
 
 
@@ -26,7 +29,6 @@ public:
 	virtual void NativeConstruct() override;
 	void InitializeMenuButtons();
 	void InitializeSettingsControls();
-
 
 
 protected:
@@ -94,7 +96,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UButton* LevellingUpButton;
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+		class UButton* AttributesButton;
 
 
 
@@ -132,6 +135,13 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* VolumePercentageText;
 
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* TutorialTitleText;
+
+	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* TutorialDescriptionText;
+
+
 
 
 	// Animation for fading in and out
@@ -156,6 +166,9 @@ protected:
 	UPROPERTY(meta = (BindWidgetAnim), Transient)
 		class UWidgetAnimation* SettingsCanvasAnimation;
 
+	UPROPERTY(Transient, meta = (BindWidgetAnim))
+		class UWidgetAnimation* TutorialFadeAnimation;
+
 	UPROPERTY(meta = (BindWidget))
 		class USlider* MasterVolumeSlider;
 
@@ -170,6 +183,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
 		USoundBase* MenuMusic;
+
 
 	UPROPERTY()
 		class UAudioComponent* BackgroundMusic;
@@ -201,10 +215,18 @@ protected:
 		EWeaponType Weapon;
 
 
+	//Containers
+	UPROPERTY(meta = (BindWidget))
+		class UVerticalBox* ControlsContainer;
+
+
 
 	// Functions for button click events
 	UFUNCTION()
 		void OnPlayClicked();
+
+	UFUNCTION()
+		void OnTutorialClicked();
 
 	UFUNCTION()
 		void OnSettingsClicked();
@@ -295,6 +317,20 @@ protected:
 
 	UFUNCTION()
 		void OnWeaponButtonHovered(const FString& Description);
+
+
+	void OnControlsButtonHovered();
+	void OnControlsButtonUnhovered();
+	void OnGameplayButtonHovered();
+	void OnLevellingUpButtonHovered();
+	void OnAttributesButtonHovered();
+
+	void OnControlsButtonFocused();
+	void OnGameplayButtonFocused();
+	void OnLevellingUpButtonFocused();
+	void OnAttributesButtonFocused();
+
+	void UpdateTutorialContent(const FText& Title, const FText& Description);
 
 
 

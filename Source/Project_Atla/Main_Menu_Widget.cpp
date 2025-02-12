@@ -11,6 +11,9 @@
 #include "Components/CanvasPanel.h"
 #include "Components/Image.h"
 #include "Components/Slider.h"
+#include "Components/VerticalBox.h"
+#include "Components/HorizontalBox.h"
+#include "Components/HorizontalBoxSlot.h"
 #include "Game_Instance.h"
 #include "Ren_Low_Poly_Character.h"
 #include "Kismet/GameplayStatics.h"
@@ -68,6 +71,10 @@ void UMain_Menu_Widget::NativeConstruct()
     this->SetIsFocusable(true);
     bIsOnTitleScreen = true;
     bHasSetFocusForSwordButton = false;
+
+
+
+
 }
 
 
@@ -97,6 +104,12 @@ void UMain_Menu_Widget::InitializeMenuButtons()
         SettingsButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnSettingsClicked);
     }
 
+    if (TutorialButton)
+
+    {
+        TutorialButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnTutorialClicked);
+    }
+
     // Setup animations
     if (PressAnyButtonText)
     {
@@ -109,7 +122,27 @@ void UMain_Menu_Widget::InitializeMenuButtons()
     }
 
 
+    if (ControlsButton)
+    {
+        ControlsButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnControlsButtonHovered);
+        ControlsButton->OnUnhovered.AddDynamic(this, &UMain_Menu_Widget::OnControlsButtonUnhovered);
 
+    }
+
+    if (GameplayButton)
+    {
+        GameplayButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnGameplayButtonHovered);
+    }
+
+    if (LevellingUpButton)
+    {
+        LevellingUpButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnLevellingUpButtonHovered);
+    }
+
+    if (AttributesButton)
+    {
+        AttributesButton->OnHovered.AddDynamic(this, &UMain_Menu_Widget::OnAttributesButtonHovered);
+    }
 
 }
 
@@ -186,6 +219,7 @@ void UMain_Menu_Widget::InitializeSettingsControls()
 
 
 
+
 void UMain_Menu_Widget::OnPlayClicked()
 {
 
@@ -201,6 +235,27 @@ void UMain_Menu_Widget::OnPlayClicked()
             LastFocusedButton = PlayButton;
         }
     }
+
+}
+
+
+
+void UMain_Menu_Widget::OnTutorialClicked()
+{
+
+    if (WidgetSwitcher)
+    {
+        WidgetSwitcher->SetActiveWidgetIndex(5);
+        UpdateCanvasVisibility(5);
+
+        // Set focus on SwordButton instead of PlayButton since we're in weapon select
+        if (SwordButton)
+        {
+            ControlsButton->SetKeyboardFocus();
+            LastFocusedButton = PlayButton;
+        }
+    }
+
 
 }
 
@@ -543,6 +598,171 @@ void UMain_Menu_Widget::OnWeaponButtonHovered(const FString& Description)
     {
         WeaponDescription->SetText(FText::FromString(Description));
     }
+
+}
+
+
+
+void UMain_Menu_Widget::OnControlsButtonHovered()
+{
+
+    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Controls Button Hovered"));
+
+    // Update title and description
+    UpdateTutorialContent(
+        FText::FromString("Controls"),
+        FText::FromString("Movement:\n- Controller: Left Stick\n- Keyboard: W/A/S/D or Arrow Keys\n\nActions:\n- Attack: Square (PS) / X (Xbox) / Z (KB)\n- Evade: Circle (PS) / B (Xbox) / P (KB)\n- Commands Menu: Cross (PS) / A (Xbox) / Space (KB)\n- Special Attack: Triangle (PS) / Y (Xbox) / E (KB)\n- Pause: Options (PS) / Menu (Xbox) / Escape (KB)")
+    );
+
+    // Show the controls container
+    if (ControlsContainer)
+    {
+        ControlsContainer->SetVisibility(ESlateVisibility::Visible);
+        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Controls Container Shown"));
+    }
+    else
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Controls Container is null!"));
+    }
+}
+
+
+
+
+void UMain_Menu_Widget::OnControlsButtonUnhovered()
+{
+
+    // Hide the container when no longer hovering
+    if (ControlsContainer)
+    {
+        ControlsContainer->SetVisibility(ESlateVisibility::Hidden);
+        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Controls Container Hidden"));
+    }
+    else
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Controls Container is null!"));
+    }
+
+    // Clear the title and description when unhovered
+    UpdateTutorialContent(
+        FText::FromString(""),
+        FText::FromString("")
+    );
+}
+
+
+
+void UMain_Menu_Widget::OnGameplayButtonHovered()
+{
+
+    // Hide controls container if visible
+    if (ControlsContainer)
+    {
+        ControlsContainer->SetVisibility(ESlateVisibility::Hidden);
+    }
+
+    UpdateTutorialContent(
+        FText::FromString("Gameplay"),
+        FText::FromString("Combat System:\n- Deal damage with weapons and magic\n- Block to reduce incoming damage\n- Use items to restore health\n\nExploration:\n- Find hidden treasures\n- Complete side quests\n- Discover new abilities")
+    );
+
+}
+
+
+
+void UMain_Menu_Widget::OnLevellingUpButtonHovered()
+{
+
+    // Hide controls container if visible
+    if (ControlsContainer)
+    {
+        ControlsContainer->SetVisibility(ESlateVisibility::Hidden);
+    }
+
+    UpdateTutorialContent(
+        FText::FromString("Levelling Up"),
+        FText::FromString("Experience Points:\n- Gain EXP from defeating enemies\n- Level up to increase stats\n- Unlock new abilities\n\nWeapon Proficiency:\n- Use weapons to increase mastery\n- Higher levels unlock weapon skills\n- Each weapon has unique abilities")
+    );
+
+}
+
+
+
+void UMain_Menu_Widget::OnAttributesButtonHovered()
+{
+    // Hide controls container if visible
+    if (ControlsContainer)
+    {
+        ControlsContainer->SetVisibility(ESlateVisibility::Hidden);
+    }
+
+    UpdateTutorialContent(
+        FText::FromString("Attributes"),
+        FText::FromString("Core Stats:\n- HP: Your health points\n- Attack: Physical damage dealt\n- Defense: Damage reduction\n- Magic: Spell power\n\nElemental Stats:\n- Fire: Fire magic power\n- Ice: Ice magic power\n- Thunder: Lightning power")
+    );
+
+}
+
+
+
+void UMain_Menu_Widget::OnControlsButtonFocused()
+{
+
+    OnControlsButtonHovered();
+
+}
+
+
+
+
+void UMain_Menu_Widget::OnGameplayButtonFocused()
+{
+
+
+    OnGameplayButtonHovered();
+
+
+
+}
+
+
+
+void UMain_Menu_Widget::OnLevellingUpButtonFocused()
+{
+
+
+    OnLevellingUpButtonHovered();
+
+
+
+}
+
+
+
+
+void UMain_Menu_Widget::OnAttributesButtonFocused()
+{
+
+    OnAttributesButtonHovered();
+
+
+}
+
+
+
+void UMain_Menu_Widget::UpdateTutorialContent(const FText& Title, const FText& Description)
+{
+
+
+    if (TutorialTitleText)
+    {
+        TutorialTitleText->SetText(Title);
+    }
+    if (TutorialDescriptionText)
+    {
+        TutorialDescriptionText->SetText(Description);
+    }
+
 
 }
 
@@ -1261,6 +1481,7 @@ FNavigationReply UMain_Menu_Widget::NativeOnNavigation(const FGeometry& MyGeomet
 
 void UMain_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
+
     Super::NativeTick(MyGeometry, InDeltaTime);
 
 
@@ -1296,6 +1517,27 @@ void UMain_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
     {
         UpdateWeaponStats(EWeaponType::Staff);
 
+    }
+
+
+    if (ControlsButton && ControlsButton->HasKeyboardFocus())
+    {
+        OnControlsButtonHovered();
+    }
+
+    else if (GameplayButton && GameplayButton->HasKeyboardFocus())
+    {
+        OnGameplayButtonHovered();
+    }
+
+    else if (LevellingUpButton && LevellingUpButton->HasKeyboardFocus())
+    {
+        OnLevellingUpButtonHovered();
+    }
+
+    else if (AttributesButton && AttributesButton->HasKeyboardFocus())
+    {
+        OnAttributesButtonHovered();
     }
 
 
