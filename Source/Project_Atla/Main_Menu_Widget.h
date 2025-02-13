@@ -238,6 +238,12 @@ protected:
 		void OnSettingsClicked();
 
 	UFUNCTION()
+		void OnCreditsClicked();
+
+	UFUNCTION()
+		void OnQuitClicked();
+
+	UFUNCTION()
 		void OnSwordButtonClicked();
 
 	UFUNCTION()
@@ -351,7 +357,7 @@ protected:
 	void OnAttributesButtonFocused();
 
 	UFUNCTION()
-	void UpdateTutorialContent(const FText& Title, const FText& Description);
+	void UpdateTutorialContent(const FText& Title, const FText& Description, UMediaSource* VideoSource = nullptr);
 
 	UFUNCTION()
 	void ScrollTutorialContent(float Value);

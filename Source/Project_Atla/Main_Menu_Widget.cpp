@@ -34,9 +34,7 @@ void UMain_Menu_Widget::NativeConstruct()
     UpdateCanvasVisibility(0);
 
 
-    // Initialize panels and visibility
-    InitializeCanvasPanels();
-    UpdateCanvasVisibility(0);
+ 
 
     // Load saved settings first
     if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
@@ -109,6 +107,19 @@ void UMain_Menu_Widget::InitializeMenuButtons()
 
     {
         TutorialButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnTutorialClicked);
+    }
+
+    if (CreditsButton)
+
+    {
+        CreditsButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnCreditsClicked);
+    }
+
+    if (QuitButton)
+
+    {
+        QuitButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnQuitClicked);
+        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Quit Button Initialized"));
     }
 
     // Setup animations
@@ -277,6 +288,46 @@ void UMain_Menu_Widget::OnSettingsClicked()
             LastFocusedButton = SettingsButton;
         }
     }
+
+}
+
+
+
+void UMain_Menu_Widget::OnCreditsClicked()
+{
+
+
+    if (WidgetSwitcher)
+    {
+        WidgetSwitcher->SetActiveWidgetIndex(3); // Settings is index 4
+        UpdateCanvasVisibility(3);
+        if (SettingsButton)
+        {
+          //  MasterAudioButton->SetKeyboardFocus();
+          //  LastFocusedButton = SettingsButton;
+        }
+    }
+
+
+}
+
+
+void UMain_Menu_Widget::OnQuitClicked()
+{
+   
+        UWorld* World = GetWorld();
+        if (World)
+        {
+            APlayerController* PlayerController = World->GetFirstPlayerController();
+            if (PlayerController)
+            {
+                // Quit the game
+                PlayerController->ConsoleCommand("quit");
+                GEngine->AddOnScreenDebugMessage(-1, 3.4f, FColor::Blue, TEXT("quit"));
+            }
+        }
+
+        GEngine->AddOnScreenDebugMessage(-1, 3.4f, FColor::Blue, TEXT("quit"));
 
 }
 
@@ -765,7 +816,7 @@ void UMain_Menu_Widget::OnAttributesButtonFocused()
 
 
 
-void UMain_Menu_Widget::UpdateTutorialContent(const FText& Title, const FText& Description)
+void UMain_Menu_Widget::UpdateTutorialContent(const FText& Title, const FText& Description, UMediaSource* VideoSource)
 {
 
 
