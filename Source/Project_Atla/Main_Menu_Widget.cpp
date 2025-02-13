@@ -71,8 +71,31 @@ void UMain_Menu_Widget::NativeConstruct()
     bIsOnTitleScreen = true;
     bHasSetFocusForSwordButton = false;
 
+    if (!TutorialMediaPlayer)
+    {
+        TutorialMediaPlayer = NewObject<UMediaPlayer>(this);
+        if (TutorialMediaPlayer)
+        {
+            TutorialMediaPlayer->SetLooping(true);
+        }
+    }
 
+    if (!TutorialMediaTexture)
+    {
+        TutorialMediaTexture = NewObject<UMediaTexture>(this);
+        if (TutorialMediaTexture && TutorialMediaPlayer)
+        {
+            TutorialMediaTexture->SetMediaPlayer(TutorialMediaPlayer);
+            TutorialMediaTexture->UpdateResource();
+        }
+    }
 
+    if (TutorialVideoImage && TutorialMediaTexture)
+    {
+        FSlateBrush Brush;
+        Brush.SetResourceObject(TutorialMediaTexture);
+        TutorialVideoImage->SetBrush(Brush);
+    }
 
 }
 
@@ -658,7 +681,7 @@ void UMain_Menu_Widget::OnWeaponButtonHovered(const FString& Description)
 void UMain_Menu_Widget::OnControlsButtonHovered()
 {
 
-    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Controls Button Hovered"));
+   // GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Controls Button Hovered"));
 
     // Update title and description
     UpdateTutorialContent(
@@ -698,7 +721,8 @@ void UMain_Menu_Widget::OnControlsButtonUnhovered()
     // Clear the title and description when unhovered
     UpdateTutorialContent(
         FText::FromString(""),
-        FText::FromString("")
+        FText::FromString(""),
+        ControlsVideo
     );
 }
 
@@ -722,7 +746,7 @@ void UMain_Menu_Widget::OnGameplayButtonHovered()
             "- As you use these attacks, your Elemental attribute increases, unlocking more powerful moves\n\n"
             "- Using Techniques:\nWhen your weapon levels up, new techniques become available. These special moves help you inflict heavy damage and keep enemies at bay.\n\n"
             "- Abilities:\nUse your abilities strategically during battle. When timed correctly, they can turn the tide by maximizing damage and controlling enemy movement.\n\n"
-            "- End of Battle:\nThe game continues until your Health runs out. At that point, you'll see an end screen displaying your final score, your best high score, and a summary of your attributes, including your Weapon Level and Elemental proficiency.")
+            "- End of Battle:\nThe game continues until your Health runs out. At that point, you'll see an end screen displaying your final score, your best high score, and a summary of your attributes, including your Weapon Level and Elemental proficiency."), GameplayVideo
     );
 
 }
@@ -743,7 +767,7 @@ void UMain_Menu_Widget::OnLevellingUpButtonHovered()
         FText::FromString("Earn Experience:\nDefeat enemies to gain experience points for your chosen weapon.\n\n"
             "Increase Your Weapon Level:\nWhen you collect enough experience, your weapon will level up. Leveling up unlocks new combat techniques that help you deal more damage.\n\n"
             "Boost Your Elemental Proficiency:\nUse elemental attacks (Fire, Ice, or Thunder) during battle. Each use increases your Elemental attribute for that weapon.\n\n"
-            "Unlock Powerful Attacks:\nAs your elemental proficiency grows, you'll gain access to stronger elemental moves. Keep using a specific element to make its attacks even more effective.")
+            "Unlock Powerful Attacks:\nAs your elemental proficiency grows, you'll gain access to stronger elemental moves. Keep using a specific element to make its attacks even more effective."), LevellingUpVideo
     );
 
 }
@@ -764,7 +788,7 @@ void UMain_Menu_Widget::OnAttributesButtonHovered()
             "Attack:\nThe Attack attribute determines how much damage you deal to enemies. Increasing this attribute means you can defeat foes more quickly.\n\n"
             "Defence:\nYour Defence attribute reduces the damage you take from enemy attacks. A higher Defence helps you withstand more hits during combat.\n\n"
             "Elemental:\nThis attribute measures your proficiency with elemental attacks (Fire, Ice, and Thunder). As you use these attacks, your Elemental attribute improves, unlocking even more potent moves.\n\n"
-            "Weapon Level:\nYour Weapon Level reflects the experience you've earned with your chosen weapon. As the level increases, new techniques and abilities become available, enhancing your combat options.")
+            "Weapon Level:\nYour Weapon Level reflects the experience you've earned with your chosen weapon. As the level increases, new techniques and abilities become available, enhancing your combat options."), AttributesVideo
     );
 
 }
@@ -819,7 +843,6 @@ void UMain_Menu_Widget::OnAttributesButtonFocused()
 void UMain_Menu_Widget::UpdateTutorialContent(const FText& Title, const FText& Description, UMediaSource* VideoSource)
 {
 
-
     if (TutorialTitleText)
     {
         TutorialTitleText->SetText(Title);
@@ -829,7 +852,35 @@ void UMain_Menu_Widget::UpdateTutorialContent(const FText& Title, const FText& D
         TutorialDescriptionText->SetText(Description);
     }
 
+    // Handle video playback
+    if (VideoSource && TutorialMediaPlayer && TutorialVideoImage)
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Video Source Found"));
 
+        // Stop any currently playing video
+        TutorialMediaPlayer->Close();
+
+        // Open and play the new video
+        if (TutorialMediaPlayer->OpenSource(VideoSource))
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Video Source Opened Successfully"));
+            TutorialVideoImage->SetVisibility(ESlateVisibility::Visible);
+            TutorialMediaPlayer->SetLooping(true);
+            TutorialMediaPlayer->Play();
+        }
+        else
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Failed to Open Video Source"));
+        }
+    }
+    else
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red,
+            FString::Printf(TEXT("Missing Components: VideoSource: %d, MediaPlayer: %d, VideoImage: %d"),
+                VideoSource != nullptr,
+                TutorialMediaPlayer != nullptr,
+                TutorialVideoImage != nullptr));
+    }
 }
 
 

@@ -5,6 +5,9 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Ren_Low_Poly_Character.h"
+#include "MediaPlayer.h"
+#include "MediaTexture.h"
+#include "MediaSource.h"
 #include "Main_Menu_Widget.generated.h"
 
 /**
@@ -222,6 +225,31 @@ protected:
 
 
 
+
+	// Media Player Components
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Media")
+		class UMediaPlayer* TutorialMediaPlayer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Media")
+		class UMediaTexture* TutorialMediaTexture;
+
+	// Video Display
+	UPROPERTY(meta = (BindWidget))
+		class UImage* TutorialVideoImage;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Videos")
+		class UMediaSource* ControlsVideo;
+
+	// Video Sources for each section
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Videos")
+		class UMediaSource* GameplayVideo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Videos")
+		class UMediaSource* LevellingUpVideo;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Videos")
+		class UMediaSource* AttributesVideo;
 
 
 
