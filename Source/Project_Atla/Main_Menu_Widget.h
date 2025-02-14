@@ -224,32 +224,15 @@ protected:
 		class UScrollBox* TutorialScrollBox;
 
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Icons")
+		UTexture2D* FireIcon;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Icons")
+		UTexture2D* IceIcon;
 
-	// Media Player Components
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Media")
-		class UMediaPlayer* TutorialMediaPlayer;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Icons")
+		UTexture2D* ThunderIcon;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Media")
-		class UMediaTexture* TutorialMediaTexture;
-
-	// Video Display
-	UPROPERTY(meta = (BindWidget))
-		class UImage* TutorialVideoImage;
-
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Videos")
-		class UMediaSource* ControlsVideo;
-
-	// Video Sources for each section
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Videos")
-		class UMediaSource* GameplayVideo;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Videos")
-		class UMediaSource* LevellingUpVideo;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Videos")
-		class UMediaSource* AttributesVideo;
 
 
 
@@ -385,7 +368,7 @@ protected:
 	void OnAttributesButtonFocused();
 
 	UFUNCTION()
-	void UpdateTutorialContent(const FText& Title, const FText& Description, UMediaSource* VideoSource = nullptr);
+	void UpdateTutorialContent(const FText& Title, const FText& Description);
 
 	UFUNCTION()
 	void ScrollTutorialContent(float Value);

@@ -71,31 +71,7 @@ void UMain_Menu_Widget::NativeConstruct()
     bIsOnTitleScreen = true;
     bHasSetFocusForSwordButton = false;
 
-    if (!TutorialMediaPlayer)
-    {
-        TutorialMediaPlayer = NewObject<UMediaPlayer>(this);
-        if (TutorialMediaPlayer)
-        {
-            TutorialMediaPlayer->SetLooping(true);
-        }
-    }
-
-    if (!TutorialMediaTexture)
-    {
-        TutorialMediaTexture = NewObject<UMediaTexture>(this);
-        if (TutorialMediaTexture && TutorialMediaPlayer)
-        {
-            TutorialMediaTexture->SetMediaPlayer(TutorialMediaPlayer);
-            TutorialMediaTexture->UpdateResource();
-        }
-    }
-
-    if (TutorialVideoImage && TutorialMediaTexture)
-    {
-        FSlateBrush Brush;
-        Brush.SetResourceObject(TutorialMediaTexture);
-        TutorialVideoImage->SetBrush(Brush);
-    }
+    
 
 }
 
@@ -721,8 +697,7 @@ void UMain_Menu_Widget::OnControlsButtonUnhovered()
     // Clear the title and description when unhovered
     UpdateTutorialContent(
         FText::FromString(""),
-        FText::FromString(""),
-        ControlsVideo
+        FText::FromString("")
     );
 }
 
@@ -739,14 +714,14 @@ void UMain_Menu_Widget::OnGameplayButtonHovered()
 
     UpdateTutorialContent(
         FText::FromString("Gameplay"),
-        FText::FromString("Objective:\nYour goal is to survive wave after wave of enemies. Stay alert, defeat as many foes as possible, and aim for a new high score.\n\n"
+        FText::FromString("Objective:\n-Your goal is to survive wave after wave of enemies. Stay alert, defeat as many foes as possible, and aim for a new high score.\n\n"
             "Combat Basics:\n"
-            "- Use basic attacks to quickly take down enemies\n"
-            "- Exploit enemy weaknesses with elemental attacks (Fire, Ice, or Thunder)\n"
-            "- As you use these attacks, your Elemental attribute increases, unlocking more powerful moves\n\n"
-            "- Using Techniques:\nWhen your weapon levels up, new techniques become available. These special moves help you inflict heavy damage and keep enemies at bay.\n\n"
-            "- Abilities:\nUse your abilities strategically during battle. When timed correctly, they can turn the tide by maximizing damage and controlling enemy movement.\n\n"
-            "- End of Battle:\nThe game continues until your Health runs out. At that point, you'll see an end screen displaying your final score, your best high score, and a summary of your attributes, including your Weapon Level and Elemental proficiency."), GameplayVideo
+            "-Use basic attacks to quickly take down enemies\n"
+            "-Exploit enemy weaknesses with elemental attacks (Fire, Ice, or Thunder)\n"
+            "-As you use these attacks, your Elemental attribute increases, unlocking more powerful moves\n\n"
+            "Using Techniques:\n-When your weapon levels up, new techniques become available. These special moves help you inflict heavy damage and keep enemies at bay.\n\n"
+            "Abilities:\n-Use your abilities strategically during battle. When timed correctly, they can turn the tide by maximizing damage and controlling enemy movement.\n\n"
+            "End of Battle:\n-The game continues until your Health runs out. At that point, you'll see an end screen displaying your final score, your best high score, and a summary of your attributes, including your Weapon Level and Elemental proficiency.")
     );
 
 }
@@ -764,11 +739,13 @@ void UMain_Menu_Widget::OnLevellingUpButtonHovered()
 
     UpdateTutorialContent(
         FText::FromString("Levelling Up"),
-        FText::FromString("Earn Experience:\nDefeat enemies to gain experience points for your chosen weapon.\n\n"
-            "Increase Your Weapon Level:\nWhen you collect enough experience, your weapon will level up. Leveling up unlocks new combat techniques that help you deal more damage.\n\n"
-            "Boost Your Elemental Proficiency:\nUse elemental attacks (Fire, Ice, or Thunder) during battle. Each use increases your Elemental attribute for that weapon.\n\n"
-            "Unlock Powerful Attacks:\nAs your elemental proficiency grows, you'll gain access to stronger elemental moves. Keep using a specific element to make its attacks even more effective."), LevellingUpVideo
+        FText::FromString("Earn Experience:\n-Defeat enemies to gain experience points for your chosen weapon.\n\n"
+            "Increase Your Weapon Level:\n-When you collect enough experience, your weapon will level up. Leveling up unlocks new combat techniques that help you deal more damage.\n\n"
+            "Boost Your Elemental Proficiency:\n-Use elemental attacks (Fire, Ice, or Thunder) during battle. Each use increases your Elemental attribute for that weapon.\n\n"
+            "Unlock Powerful Attacks:\n-As your elemental proficiency grows, you'll gain access to stronger elemental moves. Keep using a specific element to make its attacks even more effective.")
     );
+
+
 
 }
 
@@ -784,11 +761,11 @@ void UMain_Menu_Widget::OnAttributesButtonHovered()
 
     UpdateTutorialContent(
         FText::FromString("Attributes"),
-        FText::FromString("Health:\nYour Health (HP) shows how much damage you can take. Taking damage in battle reduces your Health. When your Health reaches zero, it's game over.\n\n"
-            "Attack:\nThe Attack attribute determines how much damage you deal to enemies. Increasing this attribute means you can defeat foes more quickly.\n\n"
-            "Defence:\nYour Defence attribute reduces the damage you take from enemy attacks. A higher Defence helps you withstand more hits during combat.\n\n"
-            "Elemental:\nThis attribute measures your proficiency with elemental attacks (Fire, Ice, and Thunder). As you use these attacks, your Elemental attribute improves, unlocking even more potent moves.\n\n"
-            "Weapon Level:\nYour Weapon Level reflects the experience you've earned with your chosen weapon. As the level increases, new techniques and abilities become available, enhancing your combat options."), AttributesVideo
+        FText::FromString("Health:\n-Your Health (HP) shows how much damage you can take. Taking damage in battle reduces your Health. When your Health reaches zero, it's game over.\n\n"
+            "Attack:\n-The Attack attribute determines how much damage you deal to enemies. Increasing this attribute means you can defeat foes more quickly.\n\n"
+            "Defence:\n-Your Defence attribute reduces the damage you take from enemy attacks. A higher Defence helps you withstand more hits during combat.\n\n"
+            "Elemental:\n-This attribute measures your proficiency with elemental attacks (Fire, Ice, and Thunder). As you use these attacks, your Elemental attribute improves, unlocking even more potent moves.\n\n"
+            "Weapon Level:\n-Your Weapon Level reflects the experience you've earned with your chosen weapon. As the level increases, new techniques and abilities become available, enhancing your combat options.")
     );
 
 }
@@ -840,7 +817,7 @@ void UMain_Menu_Widget::OnAttributesButtonFocused()
 
 
 
-void UMain_Menu_Widget::UpdateTutorialContent(const FText& Title, const FText& Description, UMediaSource* VideoSource)
+void UMain_Menu_Widget::UpdateTutorialContent(const FText& Title, const FText& Description)
 {
 
     if (TutorialTitleText)
@@ -852,35 +829,7 @@ void UMain_Menu_Widget::UpdateTutorialContent(const FText& Title, const FText& D
         TutorialDescriptionText->SetText(Description);
     }
 
-    // Handle video playback
-    if (VideoSource && TutorialMediaPlayer && TutorialVideoImage)
-    {
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Video Source Found"));
-
-        // Stop any currently playing video
-        TutorialMediaPlayer->Close();
-
-        // Open and play the new video
-        if (TutorialMediaPlayer->OpenSource(VideoSource))
-        {
-            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Video Source Opened Successfully"));
-            TutorialVideoImage->SetVisibility(ESlateVisibility::Visible);
-            TutorialMediaPlayer->SetLooping(true);
-            TutorialMediaPlayer->Play();
-        }
-        else
-        {
-            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Failed to Open Video Source"));
-        }
-    }
-    else
-    {
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red,
-            FString::Printf(TEXT("Missing Components: VideoSource: %d, MediaPlayer: %d, VideoImage: %d"),
-                VideoSource != nullptr,
-                TutorialMediaPlayer != nullptr,
-                TutorialVideoImage != nullptr));
-    }
+  
 }
 
 

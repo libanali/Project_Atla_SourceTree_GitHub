@@ -736,10 +736,8 @@ public:
 
 	//Camera Shake
 	UFUNCTION(BlueprintCallable)
-		void TriggerCameraShake();
+		void TriggerCameraShake(float ShakeIntensity = 1.0f, float ShakeDuration = 1.0f);
 
-	UPROPERTY(EditDefaultsOnly, Category = "Camera")
-		TSubclassOf<UCameraShakeBase> MyCameraShakeClass;
 	//Camera Shake
 
 
@@ -916,6 +914,10 @@ public:
 		void TriggerVibration(float Intensity, float Duration, bool bLeftLarge = true, bool bRightLarge = true);
 	//Force Feedback
 
+
+	//CamShake
+	//UPROPERTY(EditAnywhere, Category = "Camera")
+		//TSubclassOf<UCamera_Shake> MyCameraShakeClass;
 
 protected:
 	// Called when the game starts or when spawned
