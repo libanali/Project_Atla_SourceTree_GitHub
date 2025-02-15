@@ -2562,35 +2562,17 @@ void ARen_Low_Poly_Character::DecreaseHealth(int amount)
 
 
 
-
-
-
-
-
-
-
-
-
-void ARen_Low_Poly_Character::TriggerCameraShake(float ShakeIntensity, float ShakeDuration)
+void ARen_Low_Poly_Character::TriggerCameraShake()
 {
 	if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
 	{
+		// Only trigger camera shake if enabled in settings
 		if (GameInstance->GameSettings.bScreenShakeEnabled)
 		{
-			if (APlayerController* PlayerController = Cast<APlayerController>(GetController()))
+			APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
+			if (PlayerController)
 			{
-				if (APlayerCameraManager* CameraManager = PlayerController->PlayerCameraManager)
-				{
-					float FinalIntensity = FMath::Clamp(ShakeIntensity, 0.1f, 1000.0f);
-					float FinalDuration = FMath::Clamp(ShakeDuration, 0.1f, 5.0f);
-
-					// Start the camera shake using the camera manager directly
-				//	CameraManager->StartCameraShake(MyCameraShakeClass, FinalIntensity);
-
-					GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
-						FString::Printf(TEXT("Camera Shake - Intensity: %.2f, Duration: %.2f"),
-							FinalIntensity, FinalDuration));
-				}
+				PlayerController->ClientStartCameraShake(MyCameraShakeClass, 10.0f);
 			}
 		}
 	}

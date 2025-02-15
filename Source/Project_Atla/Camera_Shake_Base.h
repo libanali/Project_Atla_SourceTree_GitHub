@@ -16,4 +16,6 @@ class PROJECT_ATLA_API UCamera_Shake_Base : public UCameraShakeBase
 
 public:    // Add this line! Constructor needs to be public
  
+
+
 };

@@ -30,6 +30,9 @@
 #include "Action_Banner_Widget.h"
 #include "End_Screen_Widget.h"
 #include "Pause_Menu_Widget.h"
+#include "Camera/PlayerCameraManager.h"  // Add this
+#include "Camera_Shake_Base.h"
+#include "Camera/CameraModifier_CameraShake.h"
 #include "GameEnums.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
@@ -736,7 +739,7 @@ public:
 
 	//Camera Shake
 	UFUNCTION(BlueprintCallable)
-		void TriggerCameraShake(float ShakeIntensity = 1.0f, float ShakeDuration = 1.0f);
+		void TriggerCameraShake();
 
 	//Camera Shake
 
@@ -916,8 +919,8 @@ public:
 
 
 	//CamShake
-	//UPROPERTY(EditAnywhere, Category = "Camera")
-		//TSubclassOf<UCamera_Shake> MyCameraShakeClass;
+	UPROPERTY(EditAnywhere, Category = "Camera")
+		TSubclassOf<UCamera_Shake_Base> MyCameraShakeClass;
 
 protected:
 	// Called when the game starts or when spawned
