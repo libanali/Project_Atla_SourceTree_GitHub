@@ -16,7 +16,7 @@
 
 
 
-USTRUCT()
+USTRUCT(BlueprintType)
 struct FGameSettings
 {
     GENERATED_BODY()
@@ -26,14 +26,16 @@ struct FGameSettings
         float MasterVolume = 1.0f;
 
     // Visual
-    UPROPERTY()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
         bool bScreenShakeEnabled = true;
+
     UPROPERTY()
         float Brightness = 1.0f;
 
     // Controls
     UPROPERTY()
         bool bGamepadEnabled = false;
+
     UPROPERTY()
         bool bVibrationEnabled = true;
 
@@ -107,7 +109,7 @@ public:
         float CurrentElementalAttack;
 
 
-    UPROPERTY()
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Settings")
         FGameSettings GameSettings;
 
     UFUNCTION()
