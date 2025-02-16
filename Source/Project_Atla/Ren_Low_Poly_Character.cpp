@@ -162,17 +162,15 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 void ARen_Low_Poly_Character::MoveForward(float Axis)
 {
 
-	if (!bIsDead)
-
+	// Check both conditions - not dead AND can perform action
+	if (!bIsDead && CanPerformCombatAction())
 	{
-
 		const FRotator Rotation = GetController()->GetControlRotation();
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 		const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-
 		AddMovementInput(Direction, Axis);
-
 	}
+
 }
 
 
@@ -181,7 +179,7 @@ void ARen_Low_Poly_Character::MoveForward(float Axis)
 void ARen_Low_Poly_Character::MoveRight(float Axis)
 {
 
-	if (!bIsDead)
+	if (!bIsDead && CanPerformCombatAction())
 
 	{
 
@@ -3294,6 +3292,25 @@ void ARen_Low_Poly_Character::TriggerVibration(float Intensity, float Duration, 
 
 
 
+void ARen_Low_Poly_Character::SetInvulnerabilityState(bool bInvulnerable)
+{
+
+	bIsInvulnerable = bInvulnerable;
+
+	// Handle collision changes (what your current anim notify does)
+	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
+	if (CapsuleComp)
+	{
+		CapsuleComp->SetGenerateOverlapEvents(!bInvulnerable);
+	}
+
+
+}
+
+
+
+
+
 // Called when the game starts or when spawned
 void ARen_Low_Poly_Character::BeginPlay()
 {
@@ -3696,6 +3713,24 @@ void ARen_Low_Poly_Character::BeginPlay()
 		UE_LOG(LogTemp, Warning, TEXT("Staff proficiency not found!"));
 
 	}
+
+}
+
+
+
+
+bool ARen_Low_Poly_Character::CanPerformCombatAction() const
+{
+	return !bIsInCombatAction && !bIsDead && !bIsInUIMode;
+}
+
+
+void ARen_Low_Poly_Character::SetCombatActionState(bool bInCombatAction)
+{
+
+
+	bIsInCombatAction = bInCombatAction;
+
 
 }
 	

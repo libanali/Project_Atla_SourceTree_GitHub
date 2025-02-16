@@ -922,6 +922,23 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Camera")
 		TSubclassOf<UCamera_Shake_Base> MyCameraShakeClass;
 
+
+	// Expose this for animation blueprint
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+		void SetInvulnerabilityState(bool bInvulnerable);
+
+	// Flags for combat state
+	bool bIsInCombatAction = false;    // True during attacks, dodges, etc
+	bool bIsInvulnerable = false;      // True during iframe windows
+
+	// Function to handle specific input blocks
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	bool CanPerformCombatAction() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+	void SetCombatActionState(bool bInCombatAction);
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -936,5 +953,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Projectile")
 		USceneComponent* StaffFireProjectile;
 	//Character Components
+
+
+
+
 
 };
