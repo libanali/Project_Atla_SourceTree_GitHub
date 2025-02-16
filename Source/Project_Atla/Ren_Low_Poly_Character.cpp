@@ -143,7 +143,10 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	bPowerUpActive = false;
 
 
-
+	// Initialize our new state variables
+	bIsInCombatAction = false;    // Start not in combat action
+	bCanAccessMenus = true;       // Start with menu access enabled
+	bIsInvulnerable = false;      // Start vulnerable
 
 	
 
@@ -3194,6 +3197,12 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 
 void ARen_Low_Poly_Character::HandlePauseGame()
 {
+
+	// Check if we can access menus
+	if (!CanAccessMenus())
+		return;
+
+
 	// Get the player controller
 	APlayerController* PC = Cast<APlayerController>(GetController());
 	if (!PC)
@@ -3721,16 +3730,34 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 bool ARen_Low_Poly_Character::CanPerformCombatAction() const
 {
-	return !bIsInCombatAction && !bIsDead && !bIsInUIMode;
+	return !bIsInCombatAction &&  // General combat action state
+		!Attacking &&          // Not in attack animation
+		!Rolling &&            // Not in roll animation
+		!bIsDead &&
+		!bIsInUIMode;
+}
+
+
+bool ARen_Low_Poly_Character::CanAccessMenus() const
+{
+	return !bIsDead;
 }
 
 
 void ARen_Low_Poly_Character::SetCombatActionState(bool bInCombatAction)
 {
 
-
 	bIsInCombatAction = bInCombatAction;
 
+	// Handle invulnerability separately
+	if (bInCombatAction)
+	{
+		SetInvulnerabilityState(true);
+	}
+	else
+	{
+		SetInvulnerabilityState(false);
+	}
 
 }
 	
@@ -3768,6 +3795,11 @@ void ARen_Low_Poly_Character::SetItemsButtonFocus()
 
 void ARen_Low_Poly_Character::ToggleCommandMenu()
 {
+
+	if (!CanAccessMenus())
+		return;
+
+
 	if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher && !bIsDead)
 	{
 		int CurrentIndex = CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex();

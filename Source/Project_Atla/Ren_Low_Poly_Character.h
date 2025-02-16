@@ -929,11 +929,15 @@ public:
 
 	// Flags for combat state
 	bool bIsInCombatAction = false;    // True during attacks, dodges, etc
+	bool bCanAccessMenus;       // For menu access
 	bool bIsInvulnerable = false;      // True during iframe windows
 
 	// Function to handle specific input blocks
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	bool CanPerformCombatAction() const;
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+		bool CanAccessMenus() const;
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void SetCombatActionState(bool bInCombatAction);
