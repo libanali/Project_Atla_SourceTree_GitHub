@@ -171,6 +171,9 @@ public:
 		bool Rolling;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		bool bPerformingTechnique;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		bool isAttackedFromBehind;
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
@@ -193,6 +196,15 @@ public:
 
 	UFUNCTION(BlueprintImplementableEvent)
 		void RemoveGameplayUI();
+
+	UPROPERTY()
+		FTimerHandle TechniqueTimerHandle;
+
+	UFUNCTION(BlueprintCallable)
+		void OnTechniqueBegin();
+
+	UFUNCTION(BlueprintCallable)
+		void OnTechniqueEnd();
 
 	int32 InitialWeaponLevel;
 	//Combat

@@ -147,6 +147,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	bIsInCombatAction = false;    // Start not in combat action
 	bCanAccessMenus = true;       // Start with menu access enabled
 	bIsInvulnerable = false;      // Start vulnerable
+	bPerformingTechnique = false;
 
 	
 
@@ -357,6 +358,9 @@ void ARen_Low_Poly_Character::IncreaseStats(float AdditionalHealth, float Additi
 
 
 }
+
+
+
 
 
 
@@ -894,41 +898,55 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 	if (TechniqueIndex >= 0 && TechniqueIndex < Techniques.Num())
 	{
 		FTechnique_Struct& SelectedTechnique = Techniques[TechniqueIndex];
-
 		// Ensure weapon type matches and other conditions are met
 		if (SelectedTechnique.bIsUnlocked && TechniqueStruct.TechniquePoints >= SelectedTechnique.PointsRequired)
 		{
+			// Call technique begin
+			OnTechniqueBegin();
+
 			// Deduct the required points
 			TechniqueStruct.TechniquePoints -= SelectedTechnique.PointsRequired;
 
 			// Play the animation for the technique
-			PlayAnimMontage(SelectedTechnique.TechniqueAnimation);
+			UAnimMontage* TechniqueAnim = SelectedTechnique.TechniqueAnimation;
+			if (TechniqueAnim)
+			{
+				float AnimDuration = PlayAnimMontage(TechniqueAnim);
+				// Set a timer to end the technique when animation completes
+				GetWorld()->GetTimerManager().SetTimer(
+					TechniqueTimerHandle,
+					this,
+					&ARen_Low_Poly_Character::OnTechniqueEnd,
+					AnimDuration,
+					false
+				);
+			}
 
 			// Log success
-			UE_LOG(LogTemp, Log, TEXT("Technique %s used, %d points deducted."), *SelectedTechnique.TechniqueName, SelectedTechnique.PointsRequired);
+			UE_LOG(LogTemp, Log, TEXT("Technique %s used, %d points deducted."),
+				*SelectedTechnique.TechniqueName,
+				SelectedTechnique.PointsRequired);
 
 			SpawnActionBanner(SelectedTechnique.TechniqueName);
 
 			// Only reset gauge if we still have technique points
 			if (TechniqueStruct.TechniquePoints < TechniqueStruct.MaxTechniquePoints)
 			{
-				TechniqueStruct.CurrentGauge = 0.0f; // Reset gauge only if technique points are not maxed out
+				TechniqueStruct.CurrentGauge = 0.0f;
 			}
 			else
 			{
-				TechniqueStruct.CurrentGauge = TechniqueStruct.MaxGauge; // Keep the gauge visually full
+				TechniqueStruct.CurrentGauge = TechniqueStruct.MaxGauge;
 			}
 		}
 		else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Technique is locked or insufficient technique points!"));
-
 			if (NotificationWidget)
 			{
 				FString NotificationMessage = FString::Printf(TEXT("Cannot perform %s - Required technique points: %.0f"),
 					*SelectedTechnique.TechniqueName,
 					SelectedTechnique.PointsRequired);
-
 				NotificationWidget->AddNotification(NotificationMessage, 3.0f);
 			}
 		}
@@ -937,6 +955,25 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 
 
 
+void ARen_Low_Poly_Character::OnTechniqueBegin()
+{
+
+	bPerformingTechnique = true;
+	bIsInCombatAction = true;
+	SetCombatActionState(true);
+
+}
+
+
+void ARen_Low_Poly_Character::OnTechniqueEnd()
+{
+
+	bPerformingTechnique = false;
+	bIsInCombatAction = false;
+	SetCombatActionState(false);
+	GetWorld()->GetTimerManager().ClearTimer(TechniqueTimerHandle);
+
+}
 
 
 
@@ -3730,9 +3767,10 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 bool ARen_Low_Poly_Character::CanPerformCombatAction() const
 {
-	return !bIsInCombatAction &&  // General combat action state
-		!Attacking &&          // Not in attack animation
-		!Rolling &&            // Not in roll animation
+	return !bIsInCombatAction &&
+		!Attacking &&
+		!Rolling &&
+		!bPerformingTechnique &&  // Add check for technique
 		!bIsDead &&
 		!bIsInUIMode;
 }
@@ -3749,15 +3787,6 @@ void ARen_Low_Poly_Character::SetCombatActionState(bool bInCombatAction)
 
 	bIsInCombatAction = bInCombatAction;
 
-	// Handle invulnerability separately
-	if (bInCombatAction)
-	{
-		SetInvulnerabilityState(true);
-	}
-	else
-	{
-		SetInvulnerabilityState(false);
-	}
 
 }
 	
