@@ -357,12 +357,12 @@ void ALowPoly_Survival_GameMode::ActivateRandomPowerUp()
 void ALowPoly_Survival_GameMode::PlayPowerUpAnim()
 {
 
-
     ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-   // APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
-
     if (PlayerCharacter)
     {
+        // Set powering up state
+        PlayerCharacter->bIsPoweringUp = true;
+
         // Freeze all spawned enemies
         for (AEnemy_Poly* Enemy : SpawnedEnemies)
         {
@@ -374,7 +374,21 @@ void ALowPoly_Survival_GameMode::PlayPowerUpAnim()
 
         if (PlayerCharacter->PowerUpAnim)
         {
-            PlayerCharacter->PlayAnimMontage(PlayerCharacter->PowerUpAnim);
+            float AnimDuration = PlayerCharacter->PlayAnimMontage(PlayerCharacter->PowerUpAnim);
+
+            // Set timer to clear the state after animation
+            GetWorld()->GetTimerManager().SetTimer(
+                PowerUpStateTimer,  // Add this FTimerHandle to your GameMode header
+                [PlayerCharacter]()
+                {
+                    if (PlayerCharacter)
+                    {
+                        PlayerCharacter->bIsPoweringUp = false;
+                    }
+                },
+                AnimDuration,
+                    false
+                    );
         }
         else
         {
@@ -387,7 +401,6 @@ void ALowPoly_Survival_GameMode::PlayPowerUpAnim()
     }
 
     GetWorld()->GetTimerManager().SetTimer(PowerUpAnimTimer, this, &ALowPoly_Survival_GameMode::ReturnCamera, 3.0f, false);
-
 }
 
 

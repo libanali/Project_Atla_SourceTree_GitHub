@@ -68,7 +68,11 @@ public:
 
 private:
     FVector GetRandomPointInZone(const FBox& Zone);
+
     bool bIsGameOver;
+
+    UPROPERTY()
+        FTimerHandle PowerUpStateTimer;
 
 protected:
     virtual void BeginPlay() override;
