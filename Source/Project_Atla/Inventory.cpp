@@ -22,8 +22,6 @@ UInventory::UInventory()
 bool UInventory::AddItem(TSubclassOf<ABase_Item> ItemToAdd)
 {
 
-    //GEngine->AddOnScreenDebugMessage(-1, 4.5f, FColor::Yellow,
-        //FString::Printf(TEXT("Current Inventory Size: %d/%d"), Inventory.Num(), MaxInventorySize));
 
     if (!ItemToAdd)
         return false;

@@ -3298,6 +3298,8 @@ void ARen_Low_Poly_Character::HandlePauseGame()
 	}
 }
 
+
+
 void ARen_Low_Poly_Character::SetGamePaused(bool bPaused)
 {
 
@@ -3824,9 +3826,6 @@ void ARen_Low_Poly_Character::SetCombatActionState(bool bInCombatAction)
 
 
 
-
-
-
 void ARen_Low_Poly_Character::SetItemsButtonFocus()
 {
 
@@ -3845,8 +3844,6 @@ void ARen_Low_Poly_Character::SetItemsButtonFocus()
 		}
 	}
 }
-
-
 
 
 

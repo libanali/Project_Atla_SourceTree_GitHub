@@ -679,6 +679,9 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Power-Ups")
 		bool bPowerUpActive;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power-Ups")
+		bool bIsPoweringUp;
+
 	// Function to apply the selected power-up
 	UFUNCTION(BlueprintCallable, Category = "Power-Ups")
 		void ApplyPowerUp(ESpecialPowerUp PowerUp);
@@ -810,7 +813,6 @@ public:
 
 	void UpdateVisibilityBasedOnIndex(int Index);
 
-	//void UpdateItemsButtonState();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 		bool bIsInUIMode;
@@ -846,6 +848,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
 		UNotification_Widget* NotificationWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "UI")
+		UAnimMontage* ItemUseAnimaiton;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		bool bUsingItem;
 
 	// Function to create notification widget
 	void CreateNotificationWidget();
@@ -883,7 +891,7 @@ public:
 	// Class reference for the Enemy Arrow Widget
 	UPROPERTY(EditAnywhere, Category = "UI")
 		TSubclassOf<UUserWidget> EnemyArrowWidgetClass;
-
+	//Enemy Arrow UI
 
 	void UpdateEnemyArrows();
 	void AddEnemyArrow(AEnemy_Poly* Enemy);
@@ -967,6 +975,7 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void SetCombatActionState(bool bInCombatAction);
+	// Flags for combat state
 
 
 protected:

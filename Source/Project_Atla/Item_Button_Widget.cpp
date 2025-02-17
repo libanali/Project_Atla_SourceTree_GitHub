@@ -46,8 +46,29 @@ void UItem_Button_Widget::OnItemButtonClicked()
             // Get the default object to access its properties
             if (ABase_Item* DefaultItem = CurrentItem.Item.GetDefaultObject())
             {
+                PlayerCharacter->bUsingItem = true;
                 PlayerCharacter->CurrentItemBeingUsed = CurrentItem;
                 PlayerCharacter->SpawnActionBanner(DefaultItem->ItemName);  // Use the ItemName property
+                //PlayerCharacter->PlayAnimMontage(PlayerCharacter->ItemUseAnimaiton, 1.0f);
+                 // Play animation and get its duration
+                float AnimDuration = PlayerCharacter->PlayAnimMontage(PlayerCharacter->ItemUseAnimaiton, 1.0f);
+
+                // Set timer to clear state after animation
+                FTimerHandle ItemStateTimer;
+                GetWorld()->GetTimerManager().SetTimer(
+                    ItemStateTimer,
+                    [this]()
+                    {
+                        if (PlayerCharacter)
+                        {
+                            PlayerCharacter->bUsingItem = false;
+                        }
+                    },
+                    AnimDuration,
+                        false
+                        );
+
+
                 ReturnToGameplay();
             }
         }
