@@ -206,7 +206,13 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void OnTechniqueEnd();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		bool bPerformingAbility;
+
 	int32 InitialWeaponLevel;
+
+	UPROPERTY()
+		FTimerHandle AbilityTimerHandle;
 	//Combat
 
 
@@ -940,7 +946,9 @@ public:
 		void SetInvulnerabilityState(bool bInvulnerable);
 
 	// Flags for combat state
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Scoring")
 	bool bIsInCombatAction = false;    // True during attacks, dodges, etc
+
 	bool bCanAccessMenus;       // For menu access
 	bool bIsInvulnerable = false;      // True during iframe windows
 

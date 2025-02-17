@@ -750,31 +750,42 @@ void ARen_Low_Poly_Character::IncreaseAbilityPoints(float Amount)
 void ARen_Low_Poly_Character::UseAbility()
 {
 
-	if (bCanUseAbility && !bIsDead)
-
+	// Check if we can use ability and not in other uninterruptible states
+	if (bCanUseAbility && !bIsDead && !bPerformingTechnique && !Rolling && !Attacking)
 	{
+		// Set ability state
+		bIsInCombatAction = true;  // Prevent other actions
 
-		//GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("Ability used!"));
+		// Reset ability points and flag
 		AbilityStruct.CurrentAbilityPoints = 0.0f;
 		bCanUseAbility = false;
 
-
+		// Play appropriate animation
+		UAnimMontage* AbilityAnim = nullptr;
 		if (WeaponType == EWeaponType::Sword)
-
 		{
-
-			PlayAnimMontage(AbilitySwordAnimation, 1.0f);
-
+			AbilityAnim = AbilitySwordAnimation;
 		}
-
 		else if (WeaponType == EWeaponType::Staff)
-
 		{
-
-				PlayAnimMontage(AbilityStaffAnimation, 1.0f);
-
+			AbilityAnim = AbilityStaffAnimation;
 		}
 
+		if (AbilityAnim)
+		{
+			float Duration = PlayAnimMontage(AbilityAnim, 1.0f);
+
+			// Set a timer to clear the combat state when animation ends
+			GetWorld()->GetTimerManager().SetTimer(
+				AbilityTimerHandle,
+				[this]()
+				{
+					bIsInCombatAction = false;
+				},
+				Duration,
+					false
+					);
+		}
 	}
 
 }
