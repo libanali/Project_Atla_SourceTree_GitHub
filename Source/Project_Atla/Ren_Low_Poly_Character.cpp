@@ -747,14 +747,15 @@ void ARen_Low_Poly_Character::IncreaseAbilityPoints(float Amount)
 
 
 
+
 void ARen_Low_Poly_Character::UseAbility()
 {
 
 	// Check if we can use ability and not in other uninterruptible states
-	if (bCanUseAbility && !bIsDead && !bPerformingTechnique && !Rolling && !Attacking)
+	if (bCanUseAbility && !bIsDead && !bPerformingTechnique && !Rolling)
 	{
 		// Set ability state
-		bIsInCombatAction = true;  // Prevent other actions
+		bPerformingAbility = true;  // New state flag
 
 		// Reset ability points and flag
 		AbilityStruct.CurrentAbilityPoints = 0.0f;
@@ -775,20 +776,20 @@ void ARen_Low_Poly_Character::UseAbility()
 		{
 			float Duration = PlayAnimMontage(AbilityAnim, 1.0f);
 
-			// Set a timer to clear the combat state when animation ends
+			// Set a timer to clear the ability state when animation ends
 			GetWorld()->GetTimerManager().SetTimer(
 				AbilityTimerHandle,
 				[this]()
 				{
-					bIsInCombatAction = false;
+					bPerformingAbility = false;
 				},
 				Duration,
 					false
 					);
 		}
 	}
-
 }
+
 
 
 
@@ -1381,6 +1382,12 @@ void ARen_Low_Poly_Character::SpawnElementalGround(FVector SpawnLocation, FRotat
 
 void ARen_Low_Poly_Character::UseElementalAttack(const FElemental_Struct& Attack)
 {
+	// Only allow if not in other uninterruptible states
+	if (bPerformingTechnique || bPerformingAbility || bPerformingElemental)
+	{
+		return;
+	}
+
 	FWeaponElementalAttacks* WeaponAttacks = WeaponElementalAttacks.Find(WeaponType);
 	if (!WeaponAttacks)
 	{
@@ -1422,11 +1429,29 @@ void ARen_Low_Poly_Character::UseElementalAttack(const FElemental_Struct& Attack
 
 			if (bHasRequiredLevel && ManaStruct.CurrentMana >= SelectedElementalAttack.ManaCost)
 			{
+				// Set elemental state
+				bPerformingElemental = true;
+
 				// Deduct mana
 				ManaStruct.CurrentMana -= SelectedElementalAttack.ManaCost;
 
 				// Play the animation for the attack
-				PlayAnimMontage(SelectedElementalAttack.Elemental_Attack_Animation);
+				UAnimMontage* ElementalAnim = SelectedElementalAttack.Elemental_Attack_Animation;
+				if (ElementalAnim)
+				{
+					float Duration = PlayAnimMontage(ElementalAnim);
+
+					// Set timer to clear state when animation ends
+					GetWorld()->GetTimerManager().SetTimer(
+						ElementalTimerHandle,
+						[this]()
+						{
+							bPerformingElemental = false;
+						},
+						Duration,
+							false
+							);
+				}
 
 				// Set the current elemental attack type
 				CurrentElementalAttackType = SelectedElementalAttack.ElementalType;
@@ -1442,9 +1467,6 @@ void ARen_Low_Poly_Character::UseElementalAttack(const FElemental_Struct& Attack
 			}
 			else
 			{
-
-
-
 				UE_LOG(LogTemp, Warning, TEXT("Cannot use %s - Has Required Level: %s, Has Enough Mana: %s"),
 					*SelectedElementalAttack.ElementalAttackName,
 					bHasRequiredLevel ? TEXT("True") : TEXT("False"),
@@ -1455,14 +1477,12 @@ void ARen_Low_Poly_Character::UseElementalAttack(const FElemental_Struct& Attack
 					FString NotificationMessage = FString::Printf(TEXT("Cannot use %s - Required mana: %.0f"),
 						*SelectedElementalAttack.ElementalAttackName,
 						SelectedElementalAttack.ManaCost);
-
 					NotificationWidget->AddNotification(NotificationMessage, 3.0f);
 				}
 			}
 			return;
 		}
 	}
-
 	UE_LOG(LogTemp, Warning, TEXT("Attack not found in weapon attacks array"));
 }
 

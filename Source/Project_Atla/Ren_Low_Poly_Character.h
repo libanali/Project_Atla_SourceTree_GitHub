@@ -209,6 +209,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		bool bPerformingAbility;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		bool bPerformingElemental;
+
+	UPROPERTY()
+		FTimerHandle ElementalTimerHandle;
+
 	int32 InitialWeaponLevel;
 
 	UPROPERTY()
