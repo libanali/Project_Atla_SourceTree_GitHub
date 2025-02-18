@@ -30,6 +30,9 @@ public:
 
     void UpdateEnemyNumbers();
 
+    UFUNCTION(BlueprintCallable)
+        void PlayPowerUpAnim();
+
     AEnemy_AIController* CurrentAttacker;
 
     void CycleToNextEnemy();
@@ -166,8 +169,6 @@ protected:
     UFUNCTION(BlueprintCallable)
         void ActivateRandomPowerUp();
 
-    UFUNCTION(BlueprintCallable)
-        void PlayPowerUpAnim();
     
     UFUNCTION(BlueprintCallable)
         void ReturnCamera();

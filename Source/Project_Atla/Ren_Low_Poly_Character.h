@@ -110,6 +110,34 @@ struct FWeaponTechniques
 };
 
 
+
+USTRUCT(BlueprintType)
+struct FQueuedAction
+{
+	GENERATED_BODY()
+
+		UPROPERTY()
+		EQueuedActionType ActionType;
+
+	// Data for different action types
+	UPROPERTY()
+		int32 TechniqueIndex;
+
+	UPROPERTY()
+		FElemental_Struct ElementalAttack;
+
+	UPROPERTY()
+		FInventoryItem ItemToUse;
+
+	// Constructor
+	FQueuedAction()
+		: ActionType(EQueuedActionType::None)
+		, TechniqueIndex(-1)
+	{}
+};
+
+
+
 class AEnemy_Poly;
 class AResults_camera;
 
@@ -976,6 +1004,29 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 	void SetCombatActionState(bool bInCombatAction);
 	// Flags for combat state
+
+
+
+	//Action queueing system
+	// Add these to your character class public section
+	UPROPERTY()
+		TArray<FQueuedAction> ActionQueue;
+
+	UFUNCTION()
+		void ProcessNextAction();
+
+	UFUNCTION()
+		bool IsPlayingAnyAction() const;
+
+	UFUNCTION()
+		void OnMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	UFUNCTION()
+		void ClearCurrentAction();
+
+	UFUNCTION()
+		bool CanInterruptCurrentAction(EQueuedActionType NewAction);
+	//Action queueing system
 
 
 protected:

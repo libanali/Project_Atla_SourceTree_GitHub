@@ -750,42 +750,33 @@ void ARen_Low_Poly_Character::IncreaseAbilityPoints(float Amount)
 
 void ARen_Low_Poly_Character::UseAbility()
 {
-
-	// Check if we can use ability and not in other uninterruptible states
-	if (bCanUseAbility && !bIsDead && !bPerformingTechnique && !Rolling)
+	// If already performing an action, queue this one
+	if (IsPlayingAnyAction())
 	{
-		// Set ability state
-		bPerformingAbility = true;  // New state flag
+		FQueuedAction NewAction;
+		NewAction.ActionType = EQueuedActionType::Ability;
+		ActionQueue.Add(NewAction);
+		return;
+	}
 
-		// Reset ability points and flag
+	if (bCanUseAbility && !bIsDead)
+	{
+		bPerformingAbility = true;
 		AbilityStruct.CurrentAbilityPoints = 0.0f;
 		bCanUseAbility = false;
 
-		// Play appropriate animation
-		UAnimMontage* AbilityAnim = nullptr;
-		if (WeaponType == EWeaponType::Sword)
-		{
-			AbilityAnim = AbilitySwordAnimation;
-		}
-		else if (WeaponType == EWeaponType::Staff)
-		{
-			AbilityAnim = AbilityStaffAnimation;
-		}
+		UAnimMontage* AbilityAnim = (WeaponType == EWeaponType::Sword) ?
+			AbilitySwordAnimation : AbilityStaffAnimation;
 
 		if (AbilityAnim)
 		{
-			float Duration = PlayAnimMontage(AbilityAnim, 1.0f);
-
-			// Set a timer to clear the ability state when animation ends
-			GetWorld()->GetTimerManager().SetTimer(
-				AbilityTimerHandle,
-				[this]()
-				{
-					bPerformingAbility = false;
-				},
-				Duration,
-					false
-					);
+			if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+			{
+				FOnMontageEnded EndDelegate;
+				EndDelegate.BindUObject(this, &ARen_Low_Poly_Character::OnMontageEnded);
+				AnimInstance->Montage_Play(AbilityAnim);
+				AnimInstance->Montage_SetEndDelegate(EndDelegate, AbilityAnim);
+			}
 		}
 	}
 }
@@ -907,41 +898,38 @@ void ARen_Low_Poly_Character::ControlTechniqueGaugeFill()
 
 void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 {
+	// If already performing an action, queue this one
+	if (IsPlayingAnyAction())
+	{
+		FQueuedAction NewAction;
+		NewAction.ActionType = EQueuedActionType::Technique;
+		NewAction.TechniqueIndex = TechniqueIndex;
+		ActionQueue.Add(NewAction);
+		return;
+	}
+
 	if (TechniqueIndex >= 0 && TechniqueIndex < Techniques.Num())
 	{
 		FTechnique_Struct& SelectedTechnique = Techniques[TechniqueIndex];
-		// Ensure weapon type matches and other conditions are met
 		if (SelectedTechnique.bIsUnlocked && TechniqueStruct.TechniquePoints >= SelectedTechnique.PointsRequired)
 		{
-			// Call technique begin
-			OnTechniqueBegin();
-
-			// Deduct the required points
+			bPerformingTechnique = true;
 			TechniqueStruct.TechniquePoints -= SelectedTechnique.PointsRequired;
 
-			// Play the animation for the technique
 			UAnimMontage* TechniqueAnim = SelectedTechnique.TechniqueAnimation;
 			if (TechniqueAnim)
 			{
-				float AnimDuration = PlayAnimMontage(TechniqueAnim);
-				// Set a timer to end the technique when animation completes
-				GetWorld()->GetTimerManager().SetTimer(
-					TechniqueTimerHandle,
-					this,
-					&ARen_Low_Poly_Character::OnTechniqueEnd,
-					AnimDuration,
-					false
-				);
+				if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+				{
+					FOnMontageEnded EndDelegate;
+					EndDelegate.BindUObject(this, &ARen_Low_Poly_Character::OnMontageEnded);
+					AnimInstance->Montage_Play(TechniqueAnim);
+					AnimInstance->Montage_SetEndDelegate(EndDelegate, TechniqueAnim);
+				}
 			}
-
-			// Log success
-			UE_LOG(LogTemp, Log, TEXT("Technique %s used, %d points deducted."),
-				*SelectedTechnique.TechniqueName,
-				SelectedTechnique.PointsRequired);
 
 			SpawnActionBanner(SelectedTechnique.TechniqueName);
 
-			// Only reset gauge if we still have technique points
 			if (TechniqueStruct.TechniquePoints < TechniqueStruct.MaxTechniquePoints)
 			{
 				TechniqueStruct.CurrentGauge = 0.0f;
@@ -953,7 +941,6 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Technique is locked or insufficient technique points!"));
 			if (NotificationWidget)
 			{
 				FString NotificationMessage = FString::Printf(TEXT("Cannot perform %s - Required technique points: %.0f"),
@@ -1382,34 +1369,28 @@ void ARen_Low_Poly_Character::SpawnElementalGround(FVector SpawnLocation, FRotat
 
 void ARen_Low_Poly_Character::UseElementalAttack(const FElemental_Struct& Attack)
 {
-	// Only allow if not in other uninterruptible states
-	if (bPerformingTechnique || bPerformingAbility || bPerformingElemental)
+	// If already performing an action, queue this one
+	if (IsPlayingAnyAction())
 	{
+		FQueuedAction NewAction;
+		NewAction.ActionType = EQueuedActionType::Elemental;
+		NewAction.ElementalAttack = Attack;
+		ActionQueue.Add(NewAction);
 		return;
 	}
 
 	FWeaponElementalAttacks* WeaponAttacks = WeaponElementalAttacks.Find(WeaponType);
 	if (!WeaponAttacks)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("No weapon attacks found for current weapon type"));
 		return;
 	}
 
-	// Find the attack in the array
 	for (FElemental_Struct& SelectedElementalAttack : WeaponAttacks->ElementalAttacks)
 	{
 		if (SelectedElementalAttack.ElementalAttackName == Attack.ElementalAttackName &&
 			SelectedElementalAttack.ElementalType == Attack.ElementalType &&
 			SelectedElementalAttack.ElementalLevel == Attack.ElementalLevel)
 		{
-			// Add debug logging
-			UE_LOG(LogTemp, Warning, TEXT("Attempting to use attack: %s"), *SelectedElementalAttack.ElementalAttackName);
-			UE_LOG(LogTemp, Warning, TEXT("Attack status - Unlocked: %s, Current Mana: %.1f, Required Mana: %.1f"),
-				SelectedElementalAttack.bIsUnlocked ? TEXT("True") : TEXT("False"),
-				ManaStruct.CurrentMana,
-				SelectedElementalAttack.ManaCost);
-
-			// Check proficiency level requirement
 			bool bHasRequiredLevel = false;
 			const FElemental_Proficiency_Struct& ProficiencyStruct =
 				WeaponElementalProficiency.ElementalWeaponProficiencyMap[WeaponType];
@@ -1429,49 +1410,27 @@ void ARen_Low_Poly_Character::UseElementalAttack(const FElemental_Struct& Attack
 
 			if (bHasRequiredLevel && ManaStruct.CurrentMana >= SelectedElementalAttack.ManaCost)
 			{
-				// Set elemental state
 				bPerformingElemental = true;
-
-				// Deduct mana
 				ManaStruct.CurrentMana -= SelectedElementalAttack.ManaCost;
 
-				// Play the animation for the attack
-				UAnimMontage* ElementalAnim = SelectedElementalAttack.Elemental_Attack_Animation;
-				if (ElementalAnim)
+				if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 				{
-					float Duration = PlayAnimMontage(ElementalAnim);
-
-					// Set timer to clear state when animation ends
-					GetWorld()->GetTimerManager().SetTimer(
-						ElementalTimerHandle,
-						[this]()
-						{
-							bPerformingElemental = false;
-						},
-						Duration,
-							false
-							);
+					UAnimMontage* ElementalAnim = SelectedElementalAttack.Elemental_Attack_Animation;
+					if (ElementalAnim)
+					{
+						FOnMontageEnded EndDelegate;
+						EndDelegate.BindUObject(this, &ARen_Low_Poly_Character::OnMontageEnded);
+						AnimInstance->Montage_Play(ElementalAnim);
+						AnimInstance->Montage_SetEndDelegate(EndDelegate, ElementalAnim);
+					}
 				}
 
-				// Set the current elemental attack type
 				CurrentElementalAttackType = SelectedElementalAttack.ElementalType;
-
-				// Add experience
 				AddExperienceToElementalProfiency(WeaponType, SelectedElementalAttack.ElementalType, 90.0f);
-
-				UE_LOG(LogTemp, Warning, TEXT("Successfully used attack: %s"), *SelectedElementalAttack.ElementalAttackName);
-				UE_LOG(LogTemp, Warning, TEXT("Mana Cost: %.1f, Current Mana: %.1f"),
-					SelectedElementalAttack.ManaCost, ManaStruct.CurrentMana);
-
 				SpawnActionBanner(SelectedElementalAttack.ElementalAttackName);
 			}
 			else
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Cannot use %s - Has Required Level: %s, Has Enough Mana: %s"),
-					*SelectedElementalAttack.ElementalAttackName,
-					bHasRequiredLevel ? TEXT("True") : TEXT("False"),
-					(ManaStruct.CurrentMana >= SelectedElementalAttack.ManaCost) ? TEXT("True") : TEXT("False"));
-
 				if (NotificationWidget)
 				{
 					FString NotificationMessage = FString::Printf(TEXT("Cannot use %s - Required mana: %.0f"),
@@ -1483,7 +1442,6 @@ void ARen_Low_Poly_Character::UseElementalAttack(const FElemental_Struct& Attack
 			return;
 		}
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Attack not found in weapon attacks array"));
 }
 
 
@@ -3820,6 +3778,269 @@ void ARen_Low_Poly_Character::SetCombatActionState(bool bInCombatAction)
 
 	bIsInCombatAction = bInCombatAction;
 
+}
+
+
+
+void ARen_Low_Poly_Character::ProcessNextAction()
+{
+	if (ActionQueue.Num() == 0 || IsPlayingAnyAction())
+	{
+		return;
+	}
+
+	FQueuedAction NextAction = ActionQueue[0];
+	ActionQueue.RemoveAt(0);
+
+	switch (NextAction.ActionType)
+	{
+	case EQueuedActionType::Technique:
+	{
+		if (NextAction.TechniqueIndex >= 0 && NextAction.TechniqueIndex < Techniques.Num())
+		{
+			FTechnique_Struct& SelectedTechnique = Techniques[NextAction.TechniqueIndex];
+			if (SelectedTechnique.bIsUnlocked && TechniqueStruct.TechniquePoints >= SelectedTechnique.PointsRequired)
+			{
+				bPerformingTechnique = true;
+				TechniqueStruct.TechniquePoints -= SelectedTechnique.PointsRequired;
+
+				if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+				{
+					FOnMontageEnded EndDelegate;
+					EndDelegate.BindUObject(this, &ARen_Low_Poly_Character::OnMontageEnded);
+					if (UAnimMontage* TechAnim = SelectedTechnique.TechniqueAnimation)
+					{
+						AnimInstance->Montage_Play(TechAnim);
+						AnimInstance->Montage_SetEndDelegate(EndDelegate, TechAnim);
+					}
+				}
+
+				SpawnActionBanner(SelectedTechnique.TechniqueName);
+
+				if (TechniqueStruct.TechniquePoints < TechniqueStruct.MaxTechniquePoints)
+				{
+					TechniqueStruct.CurrentGauge = 0.0f;
+				}
+				else
+				{
+					TechniqueStruct.CurrentGauge = TechniqueStruct.MaxGauge;
+				}
+			}
+		}
+		break;
+	}
+
+	case EQueuedActionType::Item:
+	{
+		if (NextAction.ItemToUse.Item)
+		{
+			UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+			if (AnimInstance)
+			{
+				bUsingItem = true;
+				CurrentItemBeingUsed = NextAction.ItemToUse;
+				if (ABase_Item* DefaultItem = CurrentItemBeingUsed.Item.GetDefaultObject())
+				{
+					SpawnActionBanner(DefaultItem->ItemName);
+				}
+
+				if (ItemUseAnimaiton)
+				{
+					FOnMontageEnded EndDelegate;
+					EndDelegate.BindUObject(this, &ARen_Low_Poly_Character::OnMontageEnded);
+					AnimInstance->Montage_Play(ItemUseAnimaiton);
+					AnimInstance->Montage_SetEndDelegate(EndDelegate, ItemUseAnimaiton);
+				}
+			}
+		}
+		break;
+	}
+
+	case EQueuedActionType::Elemental:
+	{
+		FWeaponElementalAttacks* WeaponAttacks = WeaponElementalAttacks.Find(WeaponType);
+		if (WeaponAttacks)
+		{
+			for (FElemental_Struct& SelectedElementalAttack : WeaponAttacks->ElementalAttacks)
+			{
+				if (SelectedElementalAttack.ElementalAttackName == NextAction.ElementalAttack.ElementalAttackName &&
+					SelectedElementalAttack.ElementalType == NextAction.ElementalAttack.ElementalType &&
+					SelectedElementalAttack.ElementalLevel == NextAction.ElementalAttack.ElementalLevel)
+				{
+					bool bHasRequiredLevel = false;
+					const FElemental_Proficiency_Struct& ProficiencyStruct =
+						WeaponElementalProficiency.ElementalWeaponProficiencyMap[WeaponType];
+
+					switch (SelectedElementalAttack.ElementalType)
+					{
+					case EElementalAttackType::Fire:
+						bHasRequiredLevel = SelectedElementalAttack.ElementalLevel <= ProficiencyStruct.FireLevel;
+						break;
+					case EElementalAttackType::Ice:
+						bHasRequiredLevel = SelectedElementalAttack.ElementalLevel <= ProficiencyStruct.IceLevel;
+						break;
+					case EElementalAttackType::Thunder:
+						bHasRequiredLevel = SelectedElementalAttack.ElementalLevel <= ProficiencyStruct.ThunderLevel;
+						break;
+					}
+
+					if (bHasRequiredLevel && ManaStruct.CurrentMana >= SelectedElementalAttack.ManaCost)
+					{
+						bPerformingElemental = true;
+						ManaStruct.CurrentMana -= SelectedElementalAttack.ManaCost;
+
+						if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+						{
+							UAnimMontage* ElementalAnim = SelectedElementalAttack.Elemental_Attack_Animation;
+							if (ElementalAnim)
+							{
+								FOnMontageEnded EndDelegate;
+								EndDelegate.BindUObject(this, &ARen_Low_Poly_Character::OnMontageEnded);
+								AnimInstance->Montage_Play(ElementalAnim);
+								AnimInstance->Montage_SetEndDelegate(EndDelegate, ElementalAnim);
+							}
+						}
+
+						CurrentElementalAttackType = SelectedElementalAttack.ElementalType;
+						AddExperienceToElementalProfiency(WeaponType, SelectedElementalAttack.ElementalType, 90.0f);
+						SpawnActionBanner(SelectedElementalAttack.ElementalAttackName);
+					}
+					break;
+				}
+			}
+		}
+		break;
+	}
+
+	case EQueuedActionType::PowerUp:
+	{
+		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+		{
+			bIsPoweringUp = true;
+			FOnMontageEnded EndDelegate;
+			EndDelegate.BindUObject(this, &ARen_Low_Poly_Character::OnMontageEnded);
+			if (PowerUpAnim)
+			{
+				AnimInstance->Montage_Play(PowerUpAnim);
+				AnimInstance->Montage_SetEndDelegate(EndDelegate, PowerUpAnim);
+			}
+		}
+		break;
+	}
+
+	case EQueuedActionType::Ability:
+	{
+		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+		{
+			bPerformingAbility = true;
+			AbilityStruct.CurrentAbilityPoints = 0.0f;
+			bCanUseAbility = false;
+
+			UAnimMontage* AbilityAnim = (WeaponType == EWeaponType::Sword) ?
+				AbilitySwordAnimation : AbilityStaffAnimation;
+
+			if (AbilityAnim)
+			{
+				FOnMontageEnded EndDelegate;
+				EndDelegate.BindUObject(this, &ARen_Low_Poly_Character::OnMontageEnded);
+				AnimInstance->Montage_Play(AbilityAnim);
+				AnimInstance->Montage_SetEndDelegate(EndDelegate, AbilityAnim);
+			}
+		}
+		break;
+	}
+
+	}
+}
+
+
+
+bool ARen_Low_Poly_Character::IsPlayingAnyAction() const
+{
+	return bPerformingTechnique || bPerformingAbility ||
+		bPerformingElemental || bUsingItem || bIsPoweringUp || Attacking || Rolling;
+}
+
+
+
+
+void ARen_Low_Poly_Character::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+
+	if (bInterrupted)
+	{
+		ClearCurrentAction();
+	}
+	else
+	{
+		if (bUsingItem)
+		{
+			if (UInventory* InventoryComp = FindComponentByClass<UInventory>())
+			{
+				InventoryComp->UseItem(CurrentItemBeingUsed.Item);
+			}
+			bUsingItem = false;
+		}
+		else if (bPerformingTechnique)
+		{
+			bPerformingTechnique = false;
+		}
+		else if (bPerformingElemental)
+		{
+			bPerformingElemental = false;
+		}
+		else if (bPerformingAbility)
+		{
+			bPerformingAbility = false;
+			AbilityStruct.CurrentAbilityPoints = 0.0f;
+			bCanUseAbility = false;
+		}
+		else if (bIsPoweringUp)
+		{
+			bIsPoweringUp = false;
+		}
+
+		ProcessNextAction();
+	}
+
+
+
+
+
+}
+
+
+
+void ARen_Low_Poly_Character::ClearCurrentAction()
+{
+
+	bUsingItem = false;
+	bPerformingTechnique = false;
+	bPerformingElemental = false;
+	bPerformingAbility = false;
+	bIsPoweringUp = false;
+
+	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+	{
+		AnimInstance->Montage_Stop(0.25f);
+	}
+
+}
+
+
+
+
+bool ARen_Low_Poly_Character::CanInterruptCurrentAction(EQueuedActionType NewAction)
+{
+
+	// If any action is currently being performed, don't allow interruption
+	if (bUsingItem || bPerformingTechnique || bPerformingElemental ||
+		bPerformingAbility || bIsPoweringUp)
+	{
+		return false;
+	}
+
+	return true;
 
 }
 	

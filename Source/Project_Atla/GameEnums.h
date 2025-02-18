@@ -11,3 +11,14 @@ enum class EWeaponType : uint8
 	Sword UMETA(DisplayName = "Sword"),
 	Staff UMETA(DisplayName = "Staff")
 };
+
+UENUM(BlueprintType)
+enum class EQueuedActionType : uint8
+{
+    None,
+    Technique,
+    Ability,
+    Elemental,
+    Item,
+    PowerUp
+};

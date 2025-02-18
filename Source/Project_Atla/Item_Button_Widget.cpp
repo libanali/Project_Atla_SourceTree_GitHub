@@ -38,42 +38,34 @@ void UItem_Button_Widget::NativeConstruct()
 void UItem_Button_Widget::OnItemButtonClicked()
 {
 
-
     if (PlayerCharacter && CurrentItem.Item)
     {
-        if (UInventory* InventoryComp = PlayerCharacter->FindComponentByClass<UInventory>())
+        if (PlayerCharacter->IsPlayingAnyAction())
         {
-            // Get the default object to access its properties
-            if (ABase_Item* DefaultItem = CurrentItem.Item.GetDefaultObject())
+            FQueuedAction NewAction;
+            NewAction.ActionType = EQueuedActionType::Item;
+            NewAction.ItemToUse = CurrentItem;
+            PlayerCharacter->ActionQueue.Add(NewAction);
+            ReturnToGameplay();
+            return;
+        }
+
+        if (UAnimInstance* AnimInstance = PlayerCharacter->GetMesh()->GetAnimInstance())
+        {
+            PlayerCharacter->bUsingItem = true;
+            PlayerCharacter->CurrentItemBeingUsed = CurrentItem;
+            PlayerCharacter->SpawnActionBanner(CurrentItem.Item.GetDefaultObject()->ItemName);
+
+            if (PlayerCharacter->ItemUseAnimaiton)
             {
-                PlayerCharacter->bUsingItem = true;
-                PlayerCharacter->CurrentItemBeingUsed = CurrentItem;
-                PlayerCharacter->SpawnActionBanner(DefaultItem->ItemName);  // Use the ItemName property
-                //PlayerCharacter->PlayAnimMontage(PlayerCharacter->ItemUseAnimaiton, 1.0f);
-                 // Play animation and get its duration
-                float AnimDuration = PlayerCharacter->PlayAnimMontage(PlayerCharacter->ItemUseAnimaiton, 1.0f);
-
-                // Set timer to clear state after animation
-                FTimerHandle ItemStateTimer;
-                GetWorld()->GetTimerManager().SetTimer(
-                    ItemStateTimer,
-                    [this]()
-                    {
-                        if (PlayerCharacter)
-                        {
-                            PlayerCharacter->bUsingItem = false;
-                        }
-                    },
-                    AnimDuration,
-                        false
-                        );
-
-
-                ReturnToGameplay();
+                FOnMontageEnded EndDelegate;
+                EndDelegate.BindUObject(PlayerCharacter, &ARen_Low_Poly_Character::OnMontageEnded);
+                AnimInstance->Montage_Play(PlayerCharacter->ItemUseAnimaiton);
+                AnimInstance->Montage_SetEndDelegate(EndDelegate, PlayerCharacter->ItemUseAnimaiton);
             }
         }
+        ReturnToGameplay();
     }
-
 
 }
 

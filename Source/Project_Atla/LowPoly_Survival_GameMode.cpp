@@ -360,6 +360,15 @@ void ALowPoly_Survival_GameMode::PlayPowerUpAnim()
     ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
     if (PlayerCharacter)
     {
+        // If already performing an action, queue this one
+        if (PlayerCharacter->IsPlayingAnyAction())
+        {
+            FQueuedAction NewAction;
+            NewAction.ActionType = EQueuedActionType::PowerUp;
+            PlayerCharacter->ActionQueue.Add(NewAction);
+            return;
+        }
+
         // Set powering up state
         PlayerCharacter->bIsPoweringUp = true;
 
@@ -374,21 +383,33 @@ void ALowPoly_Survival_GameMode::PlayPowerUpAnim()
 
         if (PlayerCharacter->PowerUpAnim)
         {
-            float AnimDuration = PlayerCharacter->PlayAnimMontage(PlayerCharacter->PowerUpAnim);
-
-            // Set timer to clear the state after animation
-            GetWorld()->GetTimerManager().SetTimer(
-                PowerUpStateTimer,  // Add this FTimerHandle to your GameMode header
-                [PlayerCharacter]()
-                {
-                    if (PlayerCharacter)
+            if (UAnimInstance* AnimInstance = PlayerCharacter->GetMesh()->GetAnimInstance())
+            {
+                FOnMontageEnded EndDelegate;
+                EndDelegate.BindLambda([this, PlayerCharacter](UAnimMontage* Montage, bool bInterrupted)
                     {
-                        PlayerCharacter->bIsPoweringUp = false;
-                    }
-                },
-                AnimDuration,
-                    false
-                    );
+                        if (PlayerCharacter)
+                        {
+                            PlayerCharacter->bIsPoweringUp = false;
+                            PlayerCharacter->ProcessNextAction();
+
+                            // Return camera after animation ends
+                            this->ReturnCamera();
+
+                            // Unfreeze enemies
+                            for (AEnemy_Poly* Enemy : SpawnedEnemies)
+                            {
+                                if (Enemy && !Enemy->bIsDead)
+                                {
+                                    Enemy->CustomTimeDilation = 1.0f;
+                                }
+                            }
+                        }
+                    });
+
+                AnimInstance->Montage_Play(PlayerCharacter->PowerUpAnim);
+                AnimInstance->Montage_SetEndDelegate(EndDelegate, PlayerCharacter->PowerUpAnim);
+            }
         }
         else
         {
@@ -399,8 +420,6 @@ void ALowPoly_Survival_GameMode::PlayPowerUpAnim()
     {
         UE_LOG(LogTemp, Warning, TEXT("Failed to cast to ARen_Low_Poly_Character."));
     }
-
-    GetWorld()->GetTimerManager().SetTimer(PowerUpAnimTimer, this, &ALowPoly_Survival_GameMode::ReturnCamera, 3.0f, false);
 }
 
 

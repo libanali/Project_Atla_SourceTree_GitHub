@@ -66,7 +66,7 @@ public:
     void SetupButton(FInventoryItem ItemData, class ARen_Low_Poly_Character* Character);
     void SetParentList(class UInventory_List_Widget* InParentList);
 
-
+    FTimerHandle ItemStateTimer;
 
 protected:
     virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
