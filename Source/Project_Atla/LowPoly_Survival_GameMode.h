@@ -192,6 +192,7 @@ private:
     // Timer for updating enemy numbers
     FTimerHandle NumberUpdateTimer;
 
+    FTimerHandle PowerUpCheckTimer;
 
 	
 };

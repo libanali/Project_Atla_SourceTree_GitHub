@@ -750,6 +750,12 @@ void ARen_Low_Poly_Character::IncreaseAbilityPoints(float Amount)
 
 void ARen_Low_Poly_Character::UseAbility()
 {
+	// First check if we can even use the ability
+	if (!bCanUseAbility || bIsDead)
+	{
+		return;
+	}
+
 	// If already performing an action, queue this one
 	if (IsPlayingAnyAction())
 	{
@@ -3928,28 +3934,32 @@ void ARen_Low_Poly_Character::ProcessNextAction()
 		break;
 	}
 
+
 	case EQueuedActionType::Ability:
 	{
-		if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+		// Double check we can still use ability when it comes time to execute
+		if (bCanUseAbility && !bIsDead)
 		{
-			bPerformingAbility = true;
-			AbilityStruct.CurrentAbilityPoints = 0.0f;
-			bCanUseAbility = false;
-
-			UAnimMontage* AbilityAnim = (WeaponType == EWeaponType::Sword) ?
-				AbilitySwordAnimation : AbilityStaffAnimation;
-
-			if (AbilityAnim)
+			if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 			{
-				FOnMontageEnded EndDelegate;
-				EndDelegate.BindUObject(this, &ARen_Low_Poly_Character::OnMontageEnded);
-				AnimInstance->Montage_Play(AbilityAnim);
-				AnimInstance->Montage_SetEndDelegate(EndDelegate, AbilityAnim);
+				bPerformingAbility = true;
+				AbilityStruct.CurrentAbilityPoints = 0.0f;
+				bCanUseAbility = false;
+
+				UAnimMontage* AbilityAnim = (WeaponType == EWeaponType::Sword) ?
+					AbilitySwordAnimation : AbilityStaffAnimation;
+
+				if (AbilityAnim)
+				{
+					FOnMontageEnded EndDelegate;
+					EndDelegate.BindUObject(this, &ARen_Low_Poly_Character::OnMontageEnded);
+					AnimInstance->Montage_Play(AbilityAnim);
+					AnimInstance->Montage_SetEndDelegate(EndDelegate, AbilityAnim);
+				}
 			}
 		}
 		break;
 	}
-
 	}
 }
 

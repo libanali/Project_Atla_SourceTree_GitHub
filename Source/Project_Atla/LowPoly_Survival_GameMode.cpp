@@ -358,69 +358,101 @@ void ALowPoly_Survival_GameMode::PlayPowerUpAnim()
 {
 
     ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-    if (PlayerCharacter)
+    APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+    if (!PlayerCharacter || !PlayerController)
     {
-        // If already performing an action, queue this one
-        if (PlayerCharacter->IsPlayingAnyAction())
+        UE_LOG(LogTemp, Warning, TEXT("Failed to get PlayerCharacter or PlayerController"));
+        return;
+    }
+
+    // Clear any current animations and states
+    if (UAnimInstance* AnimInstance = PlayerCharacter->GetMesh()->GetAnimInstance())
+    {
+        AnimInstance->Montage_Stop(0.1f); // Quick stop of any current animation
+    }
+    PlayerCharacter->ClearCurrentAction(); // Clear any current action states
+
+    // Disable input immediately
+    PlayerController->DisableInput(PlayerController);
+
+    // Set powering up state
+    PlayerCharacter->bIsPoweringUp = true;
+
+    // Empty the action queue since we're interrupting everything
+    PlayerCharacter->ActionQueue.Empty();
+
+    // Freeze all spawned enemies
+    for (AEnemy_Poly* Enemy : SpawnedEnemies)
+    {
+        if (Enemy && !Enemy->bIsDead)
         {
-            FQueuedAction NewAction;
-            NewAction.ActionType = EQueuedActionType::PowerUp;
-            PlayerCharacter->ActionQueue.Add(NewAction);
-            return;
+            Enemy->CustomTimeDilation = 0.0f;
         }
+    }
 
-        // Set powering up state
-        PlayerCharacter->bIsPoweringUp = true;
-
-        // Freeze all spawned enemies
-        for (AEnemy_Poly* Enemy : SpawnedEnemies)
+    if (PlayerCharacter->PowerUpAnim)
+    {
+        if (UAnimInstance* AnimInstance = PlayerCharacter->GetMesh()->GetAnimInstance())
         {
-            if (Enemy && !Enemy->bIsDead)
-            {
-                Enemy->CustomTimeDilation = 0.0f;
-            }
-        }
-
-        if (PlayerCharacter->PowerUpAnim)
-        {
-            if (UAnimInstance* AnimInstance = PlayerCharacter->GetMesh()->GetAnimInstance())
-            {
-                FOnMontageEnded EndDelegate;
-                EndDelegate.BindLambda([this, PlayerCharacter](UAnimMontage* Montage, bool bInterrupted)
+            FOnMontageEnded EndDelegate;
+            EndDelegate.BindLambda([this, PlayerCharacter, PlayerController](UAnimMontage* Montage, bool bInterrupted)
+                {
+                    if (!PlayerCharacter)
                     {
-                        if (PlayerCharacter)
+                        return;
+                    }
+
+                    PlayerCharacter->bIsPoweringUp = false;
+
+                    // Return camera after animation ends
+                    this->ReturnCamera();
+
+                    // Unfreeze enemies
+                    for (AEnemy_Poly* Enemy : SpawnedEnemies)
+                    {
+                        if (Enemy && !Enemy->bIsDead)
                         {
-                            PlayerCharacter->bIsPoweringUp = false;
-                            PlayerCharacter->ProcessNextAction();
-
-                            // Return camera after animation ends
-                            this->ReturnCamera();
-
-                            // Unfreeze enemies
-                            for (AEnemy_Poly* Enemy : SpawnedEnemies)
-                            {
-                                if (Enemy && !Enemy->bIsDead)
-                                {
-                                    Enemy->CustomTimeDilation = 1.0f;
-                                }
-                            }
+                            Enemy->CustomTimeDilation = 1.0f;
                         }
-                    });
+                    }
 
-                AnimInstance->Montage_Play(PlayerCharacter->PowerUpAnim);
+                    // Re-enable input after camera transition
+                    FTimerHandle InputTimerHandle;
+                    GetWorld()->GetTimerManager().SetTimer(
+                        InputTimerHandle,
+                        [PlayerController]()
+                        {
+                            if (PlayerController)
+                            {
+                                PlayerController->EnableInput(PlayerController);
+                            }
+                        },
+                        0.7f,
+                            false
+                            );
+                });
+
+            // Play the power up animation immediately
+            float Duration = AnimInstance->Montage_Play(PlayerCharacter->PowerUpAnim);
+            if (Duration > 0.0f)
+            {
                 AnimInstance->Montage_SetEndDelegate(EndDelegate, PlayerCharacter->PowerUpAnim);
             }
-        }
-        else
-        {
-            UE_LOG(LogTemp, Warning, TEXT("PowerUpAnimMontage is not set on PlayerCharacter!"));
+            else
+            {
+                UE_LOG(LogTemp, Warning, TEXT("Failed to play PowerUpAnim"));
+                PlayerController->EnableInput(PlayerController);
+            }
         }
     }
     else
     {
-        UE_LOG(LogTemp, Warning, TEXT("Failed to cast to ARen_Low_Poly_Character."));
+        UE_LOG(LogTemp, Warning, TEXT("PowerUpAnimMontage is not set on PlayerCharacter!"));
+        PlayerController->EnableInput(PlayerController);
     }
 }
+
 
 
 

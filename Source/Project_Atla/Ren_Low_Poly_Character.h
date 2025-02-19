@@ -1012,7 +1012,7 @@ public:
 	UPROPERTY()
 		TArray<FQueuedAction> ActionQueue;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void ProcessNextAction();
 
 	UFUNCTION()
