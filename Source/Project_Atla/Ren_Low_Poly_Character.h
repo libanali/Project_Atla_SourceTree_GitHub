@@ -1026,6 +1026,8 @@ public:
 
 	UFUNCTION()
 		bool CanInterruptCurrentAction(EQueuedActionType NewAction);
+
+	void InterruptCurrentAnimation();
 	//Action queueing system
 
 

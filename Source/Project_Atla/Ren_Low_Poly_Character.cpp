@@ -600,7 +600,10 @@ void ARen_Low_Poly_Character::Death()
 	if (bIsDead) return;
 
 	bIsDead = true;
+	InterruptCurrentAnimation();
 	RemoveAllEnemyArrows();
+
+
 	// Disable player input and overlap events only once
 	APlayerController* PlayerController = UGameplayStatics::GetPlayerController(this, 0);
 	if (PlayerController)
@@ -1170,7 +1173,10 @@ void ARen_Low_Poly_Character::TakeDamage(float DamageAmount)
 	// If the health is <= 0, call the Death function
 	if (HealthStruct.CurrentHealth <= 0.0f && !bIsDead)
 	{
+
+		InterruptCurrentAnimation();
 		Death();  // Call Death only once
+		return;
 	}
 
 	// If damage amount is greater than zero, apply calculated damage
@@ -1182,7 +1188,6 @@ void ARen_Low_Poly_Character::TakeDamage(float DamageAmount)
 
 	}
 
-	
 
 }
 
@@ -4051,6 +4056,32 @@ bool ARen_Low_Poly_Character::CanInterruptCurrentAction(EQueuedActionType NewAct
 	}
 
 	return true;
+
+}
+
+
+void ARen_Low_Poly_Character::InterruptCurrentAnimation()
+{
+
+	// Get animation instance
+	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
+	{
+		// Stop any playing montages with a short blend out time
+		AnimInstance->Montage_Stop(0.1f);
+
+		// Clear any animation-related states
+		bPerformingTechnique = false;
+		bPerformingElemental = false;
+		bPerformingAbility = false;
+		bUsingItem = false;
+		bIsPoweringUp = false;
+		Attacking = false;
+		Rolling = false;
+
+		// Clear the action queue
+		ActionQueue.Empty();
+	}
+
 
 }
 	
