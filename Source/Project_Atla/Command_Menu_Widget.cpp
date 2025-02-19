@@ -7,6 +7,7 @@
 #include "Components/TextBlock.h"
 #include "Framework/Application/SlateApplication.h"
 #include "Ren_Low_Poly_Character.h"
+#include "Animation/WidgetAnimation.h"
 #include "Inventory.h"
 
 
@@ -387,6 +388,7 @@ void UCommand_Menu_Widget::UpdateVisibilityBasedOnIndex(int CurrentIndex)
 
 
 
+
 void UCommand_Menu_Widget::UpdateInformationText(const FString& NewText)
 {
 
@@ -403,6 +405,9 @@ void UCommand_Menu_Widget::UpdateInformationText(const FString& NewText)
 
 
 }
+
+
+
 
 
 
@@ -456,7 +461,7 @@ void UCommand_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDelta
             UpdateInformationText("Use elemental-type attacks.");
         }
     }
-
+    
 }
 
 

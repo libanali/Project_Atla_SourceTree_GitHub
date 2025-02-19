@@ -4141,6 +4141,7 @@ void ARen_Low_Poly_Character::ToggleCommandMenu()
 			GetWorldTimerManager().SetTimerForNextTick(this, &ARen_Low_Poly_Character::SetItemsButtonFocus);
 
 			CommandMenuWidget->CheckInventoryAndSetFocus();
+			EnterCommandMode();
 
 
 			SetInputModeForUI();
@@ -4258,6 +4259,57 @@ void ARen_Low_Poly_Character::UpdateVisibilityBasedOnIndex(int Index)
 
 
 
+void ARen_Low_Poly_Character::EnterCommandMode()
+{
+	if (!bIsInCommandMode)
+	{
+		bIsInCommandMode = true;
+
+		// Slow down the game world
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), CommandModeTimeDilation);
+
+		// Set a custom timer to update our UI elements at normal speed
+		if (CommandMenuWidget)
+		{
+			// Calculate the update rate we need to maintain normal UI speed
+			float UpdateRate = FMath::Max(0.0f, CommandModeTimeDilation / 60.0f); // 60 FPS target
+			GetWorld()->GetTimerManager().SetTimer(
+				UIUpdateTimerHandle,
+				FTimerDelegate::CreateUObject(this, &ARen_Low_Poly_Character::UpdateUIInCommandMode),
+				UpdateRate,
+				true
+			);
+		}
+	}
+}
+
+
+
+void ARen_Low_Poly_Character::ExitCommandMode()
+{
+	if (bIsInCommandMode)
+	{
+		bIsInCommandMode = false;
+
+		// Restore normal game speed
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
+
+		// Clear the UI update timer
+		GetWorld()->GetTimerManager().ClearTimer(UIUpdateTimerHandle);
+	}
+}
+
+void ARen_Low_Poly_Character::UpdateUIInCommandMode()
+
+{ // This function will be called at normal speed even during slow motion
+	if (CommandMenuWidget)
+	{
+		// Update any UI animations or time-sensitive UI elements here
+		CommandMenuWidget->NativeTick(FGeometry(), GetWorld()->GetDeltaSeconds());
+	}
+}
+
+
 
 
 
@@ -4340,13 +4392,7 @@ void ARen_Low_Poly_Character::OpenElementalAttacks()
 	SetInputModeForUI();
 	bIsInUIMode = true; // Track UI mode for elemental menu
 
-
-
-
 }
-
-
-
 
 
 
@@ -4370,6 +4416,8 @@ void ARen_Low_Poly_Character::HandleBackInput()
 			CommandMenuWidget->PlayAnimationReverse(CommandMenuWidget->CommandMenu_FadeAnim);
 			SetInputModeForGameplay();
 			bIsInUIMode = false; // Return to gameplay
+			ExitCommandMode();
+
 		}
 		else if (CurrentIndex == 2 || CurrentIndex == 3 || CurrentIndex == 4) // If in inventory, techniques, or elementals
 		{

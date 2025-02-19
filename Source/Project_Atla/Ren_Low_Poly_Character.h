@@ -861,6 +861,24 @@ public:
 		USoundBase* BackSound;
 
 	UButton* LastFocusedButton;
+
+	const float CommandModeTimeDilation = 0.2f;
+
+	bool bIsInCommandMode = false;
+
+	// Command mode functions
+	UFUNCTION(BlueprintCallable, Category = "Command System")
+		void EnterCommandMode();
+
+	UFUNCTION(BlueprintCallable, Category = "Command System")
+		void ExitCommandMode();
+
+	UFUNCTION(BlueprintCallable, Category = "Command System")
+		bool IsInCommandMode() const { return bIsInCommandMode; }
+
+	void UpdateUIInCommandMode();
+
+	FTimerHandle UIUpdateTimerHandle;
 	//Command
 
 

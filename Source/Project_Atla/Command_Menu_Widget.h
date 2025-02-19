@@ -150,9 +150,8 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
     EInputMode CurrentInputMode;
 
-
-
-
+    UPROPERTY()
+        float CustomUpdateRate = 1.0f;
 
     virtual void Tick(float DeltaTime);
 
