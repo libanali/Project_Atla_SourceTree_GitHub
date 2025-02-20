@@ -150,7 +150,8 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	bIsInvulnerable = false;      // Start vulnerable
 	bPerformingTechnique = false;
 
-
+	//PPV
+	PPVTransitionSpeed = 25.0f;
 
 	InitialiseDefaultElementalProficiencyValues();
 
@@ -3463,39 +3464,38 @@ void ARen_Low_Poly_Character::BeginPlay()
 	// Find the command menu post process volume
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APostProcessVolume::StaticClass(), FoundActors);
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
+		FString::Printf(TEXT("Found %d Post Process Volumes"), FoundActors.Num()));
+
+	bool bFoundCommandPPV = false;
 	for (AActor* Actor : FoundActors)
 	{
 		if (Actor->ActorHasTag(FName("Command Post Process")))
 		{
 			CommandMenuPPV = Cast<APostProcessVolume>(Actor);
+			bFoundCommandPPV = true;
+			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green,
+				TEXT("Found Command PPV with tag!"));
 			break;
 		}
+	}
+
+	if (!bFoundCommandPPV)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red,
+			TEXT("Failed to find PPV with 'Command Post Process' tag!"));
 	}
 
 	// If we found the volume, set it up
 	if (CommandMenuPPV)
 	{
 		CommandMenuPPV->bEnabled = false;
+		CurrentPPVWeight = 0.0f;
+		TargetPPVWeight = 0.0f;
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green,
+			TEXT("Command PPV initialized and disabled"));
 	}
-
-	// Set up timeline if we have a curve
-	if (PPVCurve)
-	{
-		FOnTimelineFloat TimelineCallback;
-		TimelineCallback.BindUFunction(this, FName("UpdatePPVWeight"));
-
-		FOnTimelineEvent TimelineFinishedCallback;
-		TimelineFinishedCallback.BindUFunction(this, FName("OnPPVTimelineFinished"));
-
-		PPVTimeline.AddInterpFloat(PPVCurve, TimelineCallback);
-		PPVTimeline.SetTimelineFinishedFunc(TimelineFinishedCallback);
-	}
-
-
-
-
-
-
 
 
 
@@ -4383,31 +4383,37 @@ void ARen_Low_Poly_Character::ExitCommandMode()
 
 void ARen_Low_Poly_Character::EnablePPV()
 {
-	if (CommandMenuPPV && PPVCurve)
+	GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Yellow, TEXT("EnablePPV Called"));
+
+	if (CommandMenuPPV)
 	{
 		CommandMenuPPV->bEnabled = true;
-		PPVTimeline.PlayFromStart();
-		GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Cyan, TEXT("PPV Acitvated!"));
+		TargetPPVWeight = 1.0f; // Target full intensity
+		GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Green,
+			FString::Printf(TEXT("PPV Activated! Reference Valid: %s"),
+				CommandMenuPPV ? TEXT("YES") : TEXT("NO")));
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Red, TEXT("PPV Reference is NULL!"));
 	}
 }
 
 
 void ARen_Low_Poly_Character::DisablePPV()
 {
-	if (CommandMenuPPV && PPVCurve)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Reversing PPV Timeline"));
-		PPVTimeline.Reverse();
-		CommandMenuPPV->bEnabled = false;
+	GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Yellow, TEXT("DisablePPV Called"));
 
+	if (CommandMenuPPV)
+	{
+		TargetPPVWeight = 0.0f; // Target zero intensity
+		GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Red,
+			FString::Printf(TEXT("PPV Deactivating! Current Weight: %.2f"), CurrentPPVWeight));
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Failed to reverse: CommandMenuPPV=%s, PPVCurve=%s"),
-			CommandMenuPPV ? TEXT("Valid") : TEXT("Invalid"),
-			PPVCurve ? TEXT("Valid") : TEXT("Invalid"));
+		GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Red, TEXT("PPV Reference is NULL!"));
 	}
-
 }
 
 
@@ -4687,6 +4693,35 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 	}
 	
 
+	// Handle PPV weight transition
+	if (CurrentPPVWeight != TargetPPVWeight)
+	{
+		// Interpolate towards target
+		float OldWeight = CurrentPPVWeight;
+		CurrentPPVWeight = FMath::FInterpTo(CurrentPPVWeight, TargetPPVWeight,
+			DeltaTime, PPVTransitionSpeed);
+
+		if (CommandMenuPPV)
+		{
+			// Apply the new weight
+			CommandMenuPPV->BlendWeight = CurrentPPVWeight;
+
+			// Only log occasionally to avoid spam
+			if (FMath::Abs(OldWeight - CurrentPPVWeight) > 0.05f)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Cyan,
+					FString::Printf(TEXT("PPV Weight: %.2f -> %.2f"), OldWeight, CurrentPPVWeight));
+			}
+
+			// If we're close enough to zero and heading down, disable completely
+			if (FMath::IsNearlyZero(CurrentPPVWeight, 0.01f) && TargetPPVWeight == 0.0f)
+			{
+				CommandMenuPPV->bEnabled = false;
+				CurrentPPVWeight = 0.0f; // Force to exactly 0
+				GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Blue, TEXT("PPV Fully Disabled"));
+			}
+		}
+	}
 }
 
 

@@ -890,7 +890,7 @@ public:
 	void UpdateUIInCommandMode();
 
 	// Post Process Volume reference
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Command Menu")
 		class APostProcessVolume* CommandMenuPPV;
 
 	// Timeline for smooth transitions
@@ -904,6 +904,14 @@ public:
 	void UpdatePPVWeight(float Value);
 	void OnPPVTimelineFinished();
 
+	UPROPERTY()
+		float CurrentPPVWeight = 0.0f;
+
+	UPROPERTY()
+		float TargetPPVWeight = 0.0f;
+
+	UPROPERTY(EditAnywhere, Category = "Command Menu")
+		float PPVTransitionSpeed;
 
 	FTimerHandle UIUpdateTimerHandle;
 	//Command
