@@ -13,6 +13,7 @@
 #include "Components/ChildActorComponent.h"
 #include "GameFramework/Controller.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Components/TimelineComponent.h"
 #include "Health_Struct.h"
 #include "Mana_Struct.h"
 #include "Ability_Struct.h"
@@ -880,7 +881,29 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Command System")
 		bool IsInCommandMode() const { return bIsInCommandMode; }
 
+	UFUNCTION(BlueprintCallable, Category = "Command System")
+		void EnablePPV();
+
+	UFUNCTION(BlueprintCallable, Category = "Command System")
+		void DisablePPV();
+
 	void UpdateUIInCommandMode();
+
+	// Post Process Volume reference
+	UPROPERTY()
+		class APostProcessVolume* CommandMenuPPV;
+
+	// Timeline for smooth transitions
+	UPROPERTY()
+		FTimeline PPVTimeline;
+
+	// Curve to control the transition
+	UPROPERTY(EditAnywhere, Category = "Command Menu")
+		class UCurveFloat* PPVCurve;
+
+	void UpdatePPVWeight(float Value);
+	void OnPPVTimelineFinished();
+
 
 	FTimerHandle UIUpdateTimerHandle;
 	//Command

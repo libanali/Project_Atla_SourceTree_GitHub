@@ -3460,6 +3460,46 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 
 
+	// Find the command menu post process volume
+	TArray<AActor*> FoundActors;
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APostProcessVolume::StaticClass(), FoundActors);
+	for (AActor* Actor : FoundActors)
+	{
+		if (Actor->ActorHasTag(FName("Command Post Process")))
+		{
+			CommandMenuPPV = Cast<APostProcessVolume>(Actor);
+			break;
+		}
+	}
+
+	// If we found the volume, set it up
+	if (CommandMenuPPV)
+	{
+		CommandMenuPPV->bEnabled = false;
+	}
+
+	// Set up timeline if we have a curve
+	if (PPVCurve)
+	{
+		FOnTimelineFloat TimelineCallback;
+		TimelineCallback.BindUFunction(this, FName("UpdatePPVWeight"));
+
+		FOnTimelineEvent TimelineFinishedCallback;
+		TimelineFinishedCallback.BindUFunction(this, FName("OnPPVTimelineFinished"));
+
+		PPVTimeline.AddInterpFloat(PPVCurve, TimelineCallback);
+		PPVTimeline.SetTimelineFinishedFunc(TimelineFinishedCallback);
+	}
+
+
+
+
+
+
+
+
+
+
 
 	// Ensure WeaponProficiencyMap has entries for all weapon types, even if not loaded
 	if (!WeaponProficiencyMap.Contains(EWeaponType::Sword))
@@ -4183,7 +4223,6 @@ void ARen_Low_Poly_Character::ToggleCommandMenu()
 			CommandMenuWidget->CheckInventoryAndSetFocus();
 			EnterCommandMode();
 
-
 			SetInputModeForUI();
 			bIsInUIMode = true;
 
@@ -4304,6 +4343,7 @@ void ARen_Low_Poly_Character::EnterCommandMode()
 	if (!bIsInCommandMode)
 	{
 		bIsInCommandMode = true;
+		EnablePPV();
 
 		// Slow down the game world
 		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), CommandModeTimeDilation);
@@ -4330,12 +4370,67 @@ void ARen_Low_Poly_Character::ExitCommandMode()
 	if (bIsInCommandMode)
 	{
 		bIsInCommandMode = false;
+		DisablePPV();
 
 		// Restore normal game speed
 		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
 
 		// Clear the UI update timer
 		GetWorld()->GetTimerManager().ClearTimer(UIUpdateTimerHandle);
+	}
+}
+
+
+void ARen_Low_Poly_Character::EnablePPV()
+{
+	if (CommandMenuPPV && PPVCurve)
+	{
+		CommandMenuPPV->bEnabled = true;
+		PPVTimeline.PlayFromStart();
+		GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Cyan, TEXT("PPV Acitvated!"));
+	}
+}
+
+
+void ARen_Low_Poly_Character::DisablePPV()
+{
+	if (CommandMenuPPV && PPVCurve)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Reversing PPV Timeline"));
+		PPVTimeline.Reverse();
+		CommandMenuPPV->bEnabled = false;
+
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Failed to reverse: CommandMenuPPV=%s, PPVCurve=%s"),
+			CommandMenuPPV ? TEXT("Valid") : TEXT("Invalid"),
+			PPVCurve ? TEXT("Valid") : TEXT("Invalid"));
+	}
+
+}
+
+
+
+
+void ARen_Low_Poly_Character::UpdatePPVWeight(float Value)
+{
+	if (CommandMenuPPV)
+	{
+		// Update the weight of the post-process effect
+		// Note: You might need to adjust this depending on your post-process setup
+		CommandMenuPPV->BlendWeight = Value;
+	}
+}
+
+
+
+void ARen_Low_Poly_Character::OnPPVTimelineFinished()
+{
+	if (CommandMenuPPV && !bIsInCommandMode)
+	{
+		// If we're no longer in command mode, disable the post-process volume
+		CommandMenuPPV->bEnabled = false;
 	}
 }
 
@@ -4585,7 +4680,11 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 
 	//GEngine->AddOnScreenDebugMessage(1, 0.f, FColor::Green, StatsText);
 
-
+	// Update the timeline
+	if (PPVTimeline.IsPlaying())
+	{
+		PPVTimeline.TickTimeline(DeltaTime);
+	}
 	
 
 }
