@@ -837,6 +837,10 @@ public:
 	UFUNCTION()
 		void SetInputModeForGameplay();
 
+
+
+
+
 	void EnableUIInputWithGameInput();
 
 	void UpdateVisibilityBasedOnIndex(int Index);

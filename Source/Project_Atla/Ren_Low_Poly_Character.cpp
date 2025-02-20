@@ -141,6 +141,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 	//Special Power-Up
 	bPowerUpActive = false;
+	bIsPoweringUp = false;
 
 
 	// Initialize our new state variables
@@ -3777,13 +3778,14 @@ bool ARen_Low_Poly_Character::CanPerformCombatAction() const
 		!Rolling &&
 		!bPerformingTechnique &&  // Add check for technique
 		!bIsDead &&
-		!bIsInUIMode;
+		!bIsInUIMode &&
+		!bIsPoweringUp;
 }
 
 
 bool ARen_Low_Poly_Character::CanAccessMenus() const
 {
-	return !bIsDead;
+	return !bIsDead && !bIsPoweringUp;
 }
 
 
@@ -4153,7 +4155,7 @@ void ARen_Low_Poly_Character::SetItemsButtonFocus()
 void ARen_Low_Poly_Character::ToggleCommandMenu()
 {
 
-	if (!CanAccessMenus())
+	if (!CanAccessMenus() || bIsPoweringUp)
 		return;
 
 

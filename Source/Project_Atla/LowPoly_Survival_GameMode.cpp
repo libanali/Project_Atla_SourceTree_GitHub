@@ -301,7 +301,6 @@ void ALowPoly_Survival_GameMode::CheckIfCanPowerUp()
                 PlayerCharacter->bIsInUIMode = false;
                 PlayerCharacter->SetInputModeForGameplay();
                 PlayerCharacter->ExitCommandMode();
-                PlayerController->DisableInput(PlayerController);
             }
 
             PlayerController->DisableInput(PlayerController);
@@ -428,12 +427,14 @@ void ALowPoly_Survival_GameMode::PlayPowerUpAnim()
                             if (PlayerController)
                             {
                                 PlayerController->EnableInput(PlayerController);
+
                             }
                         },
                         0.7f,
                             false
                             );
                 });
+
 
             // Play the power up animation immediately
             float Duration = AnimInstance->Montage_Play(PlayerCharacter->PowerUpAnim);
