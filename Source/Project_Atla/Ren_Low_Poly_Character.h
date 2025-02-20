@@ -862,7 +862,7 @@ public:
 
 	UButton* LastFocusedButton;
 
-	const float CommandModeTimeDilation = 0.2f;
+	const float CommandModeTimeDilation = 0.05f;
 
 	bool bIsInCommandMode = false;
 
@@ -1046,6 +1046,10 @@ public:
 		bool CanInterruptCurrentAction(EQueuedActionType NewAction);
 
 	void InterruptCurrentAnimation();
+
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+		bool CanRoll() const;
 	//Action queueing system
 
 

@@ -20,5 +20,6 @@ enum class EQueuedActionType : uint8
     Ability,
     Elemental,
     Item,
-    PowerUp
+    PowerUp,
+    Attack
 };

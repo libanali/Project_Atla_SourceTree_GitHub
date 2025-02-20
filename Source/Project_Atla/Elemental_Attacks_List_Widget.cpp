@@ -86,7 +86,7 @@ void UElemental_Attacks_List_Widget::SetupWidget(ARen_Low_Poly_Character* Charac
                 PopulateTimerHandle,
                 this,
                 &UElemental_Attacks_List_Widget::PopulateElementalAttackList,
-                0.5f,  // 0.5 second delay
+                0.01f,  // 0.5 second delay
                 false
             );
         }
@@ -241,7 +241,7 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
                         }
                     }
                 },
-                0.1f,
+                0.001f,
                     false
                     );
         }

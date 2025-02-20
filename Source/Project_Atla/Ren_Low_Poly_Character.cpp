@@ -149,7 +149,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	bIsInvulnerable = false;      // Start vulnerable
 	bPerformingTechnique = false;
 
-	
+
 
 	InitialiseDefaultElementalProficiencyValues();
 
@@ -914,6 +914,9 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 		NewAction.ActionType = EQueuedActionType::Technique;
 		NewAction.TechniqueIndex = TechniqueIndex;
 		ActionQueue.Add(NewAction);
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue,
+			FString::Printf(TEXT("Queued Technique %d, Queue Size: %d"),
+				TechniqueIndex, ActionQueue.Num()));
 		return;
 	}
 
@@ -3797,8 +3800,14 @@ void ARen_Low_Poly_Character::ProcessNextAction()
 {
 	if (ActionQueue.Num() == 0 || IsPlayingAnyAction())
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red,
+			FString::Printf(TEXT("ProcessNextAction - Queue: %d, IsPlaying: %d"),
+				ActionQueue.Num(), IsPlayingAnyAction()));
 		return;
 	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
+		TEXT("Processing next action from queue"));
 
 	FQueuedAction NextAction = ActionQueue[0];
 	ActionQueue.RemoveAt(0);
@@ -3972,8 +3981,25 @@ void ARen_Low_Poly_Character::ProcessNextAction()
 
 bool ARen_Low_Poly_Character::IsPlayingAnyAction() const
 {
-	return bPerformingTechnique || bPerformingAbility ||
+	bool result = bPerformingTechnique || bPerformingAbility ||
 		bPerformingElemental || bUsingItem || bIsPoweringUp || Attacking || Rolling;
+
+	// Debug which state is active
+	if (result)
+	{
+		FString activeState = "IsPlayingAnyAction true because: ";
+		if (bPerformingTechnique) activeState += "Technique ";
+		if (bPerformingAbility) activeState += "Ability ";
+		if (bPerformingElemental) activeState += "Elemental ";
+		if (bUsingItem) activeState += "Item ";
+		if (bIsPoweringUp) activeState += "PowerUp ";
+		if (Attacking) activeState += "Attacking ";
+		if (Rolling) activeState += "Rolling ";
+
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, activeState);
+	}
+
+	return result;
 }
 
 
@@ -4015,11 +4041,14 @@ void ARen_Low_Poly_Character::OnMontageEnded(UAnimMontage* Montage, bool bInterr
 			bIsPoweringUp = false;
 		}
 
+		else if (Attacking)
+		{
+
+			Attacking = false;
+		}
+
 		ProcessNextAction();
 	}
-
-
-
 
 
 }
@@ -4083,6 +4112,15 @@ void ARen_Low_Poly_Character::InterruptCurrentAnimation()
 	}
 
 
+}
+
+
+
+bool ARen_Low_Poly_Character::CanRoll() const
+{
+
+	// Can only roll if not attacking and can perform combat actions
+	return !Attacking && CanPerformCombatAction();
 }
 	
 
@@ -4298,6 +4336,8 @@ void ARen_Low_Poly_Character::ExitCommandMode()
 		GetWorld()->GetTimerManager().ClearTimer(UIUpdateTimerHandle);
 	}
 }
+
+
 
 void ARen_Low_Poly_Character::UpdateUIInCommandMode()
 

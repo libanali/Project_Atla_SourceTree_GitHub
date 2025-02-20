@@ -300,6 +300,8 @@ void ALowPoly_Survival_GameMode::CheckIfCanPowerUp()
                 PlayerCharacter->CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(0);
                 PlayerCharacter->bIsInUIMode = false;
                 PlayerCharacter->SetInputModeForGameplay();
+                PlayerCharacter->ExitCommandMode();
+                PlayerController->DisableInput(PlayerController);
             }
 
             PlayerController->DisableInput(PlayerController);

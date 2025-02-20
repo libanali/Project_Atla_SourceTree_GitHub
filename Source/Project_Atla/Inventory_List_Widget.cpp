@@ -119,7 +119,7 @@ void UInventory_List_Widget::PopulateItemList()
                     }
                 }
             },
-            0.1f,
+            0.001f,
                 false
                 );
     }

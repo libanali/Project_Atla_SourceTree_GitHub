@@ -79,7 +79,7 @@ void UTechnique_List_Widget::SetupWidget(ARen_Low_Poly_Character* Character)
                 PopulateTimerHandle,
                 this,
                 &UTechnique_List_Widget::PopulateTechniqueList,
-                0.5f,
+                0.01f,
                 false
             );
         }
@@ -184,7 +184,7 @@ void UTechnique_List_Widget::PopulateTechniqueList()
                     }
                 }
             },
-            0.01f,
+            0.001f,
                 false
            );
     }
