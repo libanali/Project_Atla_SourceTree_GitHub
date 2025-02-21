@@ -153,6 +153,12 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	//PPV
 	PPVTransitionSpeed = 25.0f;
 
+
+	//Attack Position
+	OptimalAttackDistance = 200.0f;
+	DistanceThreshold = 40.0f;
+	AttackMovementSpeed = 200.0f;
+
 	InitialiseDefaultElementalProficiencyValues();
 
 	FDelegateHandle DuplicateCheckTimerHandle;

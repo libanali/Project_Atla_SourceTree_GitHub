@@ -248,6 +248,15 @@ public:
 
 	UPROPERTY()
 		FTimerHandle AbilityTimerHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		float OptimalAttackDistance;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		float DistanceThreshold;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		float AttackMovementSpeed;
 	//Combat
 
 
