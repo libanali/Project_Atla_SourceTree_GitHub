@@ -46,9 +46,6 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UButton* ElementalButton;
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-        class UButton* BackButton;
-
     UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
         class UImage* CommandMenuIcon;
 

@@ -128,18 +128,27 @@ void AEnemy_Poly::Death()
 	bIsDead = true;
 	UE_LOG(LogTemp, Warning, TEXT("Enemy %s has died"), *GetName());
 
-	ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
-	if (GameMode)
+	// Notify player character to remove arrow BEFORE destroying the actor
+	ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	if (PlayerCharacter)
 	{
-		int32 PointsEarned = GameMode->CalculatePointsForEnemy(Enemy_Score);
+		// This ensures the arrow is removed immediately when the enemy dies
+		PlayerCharacter->OnEnemyDestroyed(this);
 
-		ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-		if (PlayerCharacter)
+		// Then process score, XP, etc.
+		ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
+		if (GameMode)
 		{
+			int32 PointsEarned = GameMode->CalculatePointsForEnemy(Enemy_Score);
 			PlayerCharacter->AddPoints(PointsEarned);
 			PlayerCharacter->AddWeaponEXP(EXP_Gained);
 		}
+	}
 
+	// Handle game mode updates
+	ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
+	if (GameMode)
+	{
 		GameMode->SpawnedEnemies.Remove(this);
 
 		AEnemy_AIController* AIController = Cast<AEnemy_AIController>(GetController());
@@ -155,8 +164,8 @@ void AEnemy_Poly::Death()
 		}
 	}
 
-	Destroy(true);
 	AttemptItemDrop();
+	Destroy(true);
 }
 
 

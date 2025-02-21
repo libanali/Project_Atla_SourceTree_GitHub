@@ -300,10 +300,9 @@ void UMain_Menu_Widget::OnCreditsClicked()
     {
         WidgetSwitcher->SetActiveWidgetIndex(3); // Settings is index 4
         UpdateCanvasVisibility(3);
-        if (SettingsButton)
+        if (CreditsButton)
         {
-          //  MasterAudioButton->SetKeyboardFocus();
-          //  LastFocusedButton = SettingsButton;
+            LastFocusedButton = CreditsButton;
         }
     }
 
