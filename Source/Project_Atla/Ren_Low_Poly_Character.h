@@ -259,13 +259,10 @@ public:
 		float AttackMovementSpeed;
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-		bool MaintainAttackDistance(AActor* TargetEnemy, float DesiredDistance = 0.0f, float MovementSpeed = 0.0f, bool bFacingOnly = false);
+		void KeepInFrontOfEnemy(AActor* Enemy);
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-		void SetAttackPositioningParams(float NewOptimalDistance, float NewThreshold, float NewMovementSpeed);
-
-	UFUNCTION(BlueprintCallable, Category = "Combat")
-		void TestAttackPositioning();
+		void FaceAndPositionRelativeToEnemy(AActor* Enemy, float DesiredDistance);
 	//Combat
 
 
