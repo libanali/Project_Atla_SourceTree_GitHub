@@ -25,6 +25,14 @@
 #include "End_Screen_Widget.h"
 
 
+static TAutoConsoleVariable<int32> CVarDebugCombatPositioning(
+	TEXT("Game.DebugCombatPositioning"),
+	0,
+	TEXT("Show debug visualization for combat positioning. 0: off, 1: on"),
+	ECVF_Cheat);
+
+
+
 // Sets default values
 ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 {
@@ -992,6 +1000,151 @@ void ARen_Low_Poly_Character::OnTechniqueEnd()
 	SetCombatActionState(false);
 	GetWorld()->GetTimerManager().ClearTimer(TechniqueTimerHandle);
 
+}
+
+bool ARen_Low_Poly_Character::MaintainAttackDistance(AActor* TargetEnemy, float DesiredDistance, float MovementSpeed, bool bFacingOnly)
+{
+
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("MaintainAttackDistance called"));
+
+	// Return if no target enemy
+	if (!TargetEnemy || TargetEnemy->IsPendingKillEnabled())
+	{
+		return false;
+	}
+
+	// Use default values if not specified
+	if (DesiredDistance <= 0.0f)
+	{
+		DesiredDistance = OptimalAttackDistance;
+	}
+
+	if (MovementSpeed <= 0.0f)
+	{
+		MovementSpeed = AttackMovementSpeed;
+	}
+
+	// Get locations
+	FVector MyLocation = GetActorLocation();
+	FVector TargetLocation = TargetEnemy->GetActorLocation();
+
+	// Project locations to the same Z plane (ignoring height differences)
+	FVector MyLocationFlat = MyLocation;
+	MyLocationFlat.Z = TargetLocation.Z;
+	FVector TargetLocationFlat = TargetLocation;
+
+	// Calculate direction and distance
+	FVector DirectionToTarget = (TargetLocationFlat - MyLocationFlat).GetSafeNormal();
+	float CurrentDistance = FVector::Distance(MyLocationFlat, TargetLocationFlat);
+
+	// Always face the enemy, regardless of whether we're moving
+	FRotator TargetRotation = UKismetMathLibrary::MakeRotFromX(DirectionToTarget);
+	SetActorRotation(FMath::RInterpTo(
+		GetActorRotation(),
+		TargetRotation,
+		GetWorld()->GetDeltaSeconds(),
+		10.0f  // Rotation speed
+	));
+
+	// If we're only supposed to face the target, we're done
+	if (bFacingOnly)
+	{
+		return true;
+	}
+
+	// Check if we need to move closer or further
+	float DistanceDifference = CurrentDistance - DesiredDistance;
+	bool bNeedsAdjustment = FMath::Abs(DistanceDifference) > DistanceThreshold;
+
+	if (bNeedsAdjustment)
+	{
+		// Don't interrupt certain animations
+		if (bPerformingTechnique || bIsPoweringUp || bIsHit)
+		{
+			return false;
+		}
+
+		// Calculate ideal position (TargetLocation + Direction * DesiredDistance)
+		FVector IdealPosition = TargetLocationFlat - (DirectionToTarget * DesiredDistance);
+
+		// Keep original Z height
+		IdealPosition.Z = MyLocation.Z;
+
+		// Calculate movement delta
+		float DeltaTime = GetWorld()->GetDeltaSeconds();
+		float MoveAmount = FMath::Min(FMath::Abs(DistanceDifference), MovementSpeed * DeltaTime);
+
+		// Apply direction to movement
+		if (DistanceDifference < 0)
+		{
+			// Need to move closer
+			MoveAmount *= -1.0f;
+		}
+
+		// Calculate new position
+		FVector NewPosition = MyLocation + (DirectionToTarget * MoveAmount);
+
+		// Maintain original Z height
+		NewPosition.Z = MyLocation.Z;
+
+		// Move character to new position
+		SetActorLocation(NewPosition, true);
+
+		// Debug visualization
+		if (CVarDebugCombatPositioning.GetValueOnGameThread() > 0)
+		{
+			// Show optimal position
+			DrawDebugSphere(GetWorld(), IdealPosition, 20.0f, 8, FColor::Green, false, 0.1f);
+
+			// Show direction
+			DrawDebugLine(GetWorld(), MyLocation, MyLocation + (DirectionToTarget * 100.0f),
+				FColor::Blue, false, 0.1f, 0, 2.0f);
+
+			// Print distance info
+			GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Yellow,
+				FString::Printf(TEXT("Distance: %.1f, Target: %.1f, Diff: %.1f"),
+					CurrentDistance, DesiredDistance, DistanceDifference));
+		}
+
+		return true;
+	}
+
+	return true;
+}
+
+
+
+void ARen_Low_Poly_Character::SetAttackPositioningParams(float NewOptimalDistance, float NewThreshold, float NewMovementSpeed)
+{
+
+	OptimalAttackDistance = NewOptimalDistance;
+	DistanceThreshold = NewThreshold;
+	AttackMovementSpeed = NewMovementSpeed;
+
+}
+
+void ARen_Low_Poly_Character::TestAttackPositioning()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Test function called"));
+
+	// Find any enemy to test with
+	AActor* TestEnemy = nullptr;
+	TArray<AActor*> FoundEnemies;
+	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Enemy")), FoundEnemies);
+
+	if (FoundEnemies.Num() > 0)
+	{
+		TestEnemy = FoundEnemies[0];
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
+			FString::Printf(TEXT("Found test enemy: %s"), *TestEnemy->GetName()));
+
+		// Call positioning function directly
+		MaintainAttackDistance(TestEnemy, 200.0f, 250.0f, false);
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("No enemies found for test"));
+	}
 }
 
 

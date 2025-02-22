@@ -257,6 +257,15 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		float AttackMovementSpeed;
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+		bool MaintainAttackDistance(AActor* TargetEnemy, float DesiredDistance = 0.0f, float MovementSpeed = 0.0f, bool bFacingOnly = false);
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+		void SetAttackPositioningParams(float NewOptimalDistance, float NewThreshold, float NewMovementSpeed);
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+		void TestAttackPositioning();
 	//Combat
 
 
