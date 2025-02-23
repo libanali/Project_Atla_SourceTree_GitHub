@@ -263,6 +263,12 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 		void FaceAndPositionRelativeToEnemy(AActor* Enemy, float DesiredDistance);
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+		void UpdateMovementOrientation();
+
+	UFUNCTION(BlueprintCallable, Category = "Combat")
+		void ApplyKnockbackToEnemy(AEnemy_Poly* Enemy, float KnockbackForce = 500.0f, float KnockbackDuration = 0.2f);
 	//Combat
 
 

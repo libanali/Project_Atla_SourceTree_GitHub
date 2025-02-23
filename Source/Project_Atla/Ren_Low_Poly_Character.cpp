@@ -1037,57 +1037,174 @@ void ARen_Low_Poly_Character::FaceAndPositionRelativeToEnemy(AActor* Enemy, floa
 	FVector MyLocation = GetActorLocation();
 	FVector EnemyLocation = Enemy->GetActorLocation();
 
-	// Get the direction from enemy to current position (for determining front)
-	FVector DirectionFromEnemy = (MyLocation - EnemyLocation).GetSafeNormal();
-
-	// Calculate ideal position in front of enemy
-	FVector IdealPosition = EnemyLocation + (DirectionFromEnemy * DesiredDistance);
-	IdealPosition.Z = MyLocation.Z; // Maintain current height
-
-	// Calculate current distance from ideal position
-	float DistanceFromIdeal = FVector::Distance(
+	// Calculate distance to enemy (ignoring Z)
+	float DistanceToEnemy = FVector::Distance(
 		FVector(MyLocation.X, MyLocation.Y, 0),
-		FVector(IdealPosition.X, IdealPosition.Y, 0)
+		FVector(EnemyLocation.X, EnemyLocation.Y, 0)
 	);
 
-	// Only move if we're significantly out of position
-	if (DistanceFromIdeal > 30.0f)  // Threshold of 30 units
+	// Only activate positioning when within range
+	const float ActivationRange = 500.0f;
+
+	if (DistanceToEnemy <= ActivationRange)
 	{
-		// Smoothly move to ideal position
-		FVector NewPosition = FMath::VInterpTo(
-			MyLocation,
-			IdealPosition,
-			GetWorld()->GetDeltaSeconds(),
-			10.0f  // Adjust speed as needed
+		// Get the direction from enemy to current position
+		FVector DirectionFromEnemy = (MyLocation - EnemyLocation).GetSafeNormal();
+
+		// Calculate ideal position in front of enemy
+		FVector IdealPosition = EnemyLocation + (DirectionFromEnemy * DesiredDistance);
+		IdealPosition.Z = MyLocation.Z; // Maintain current height
+
+		// Calculate distance from ideal position
+		float DistanceFromIdeal = FVector::Distance(
+			FVector(MyLocation.X, MyLocation.Y, 0),
+			FVector(IdealPosition.X, IdealPosition.Y, 0)
 		);
 
-		// Move character
-		SetActorLocation(NewPosition);
+		// Only move if we're significantly out of position
+		if (DistanceFromIdeal > 30.0f)  // Threshold of 30 units
+		{
+			// Smoothly move to ideal position with speed based on distance
+			float InterpSpeed = FMath::GetMappedRangeValueClamped(
+				FVector2D(30.0f, 200.0f),  // Input range
+				FVector2D(5.0f, 15.0f),    // Output range (speed)
+				DistanceFromIdeal
+			);
+
+			FVector NewPosition = FMath::VInterpTo(
+				MyLocation,
+				IdealPosition,
+				GetWorld()->GetDeltaSeconds(),
+				InterpSpeed
+			);
+
+			SetActorLocation(NewPosition);
+		}
+
+		// Always face the enemy when in range
+		FRotator TargetRotation = (EnemyLocation - MyLocation).Rotation();
+		TargetRotation.Pitch = 0;
+		TargetRotation.Roll = 0;
+
+		FRotator NewRotation = FMath::RInterpTo(
+			GetActorRotation(),
+			TargetRotation,
+			GetWorld()->GetDeltaSeconds(),
+			15.0f
+		);
+
+		SetActorRotation(NewRotation);
+
+		// Debug visualization if needed
+		if (CVarDebugCombatPositioning.GetValueOnGameThread())
+		{
+			DrawDebugSphere(GetWorld(), IdealPosition, 10.0f, 12, FColor::Green, false, -1.0f, 0, 1.0f);
+			DrawDebugLine(GetWorld(), MyLocation, IdealPosition, FColor::Blue, false, -1.0f, 0, 1.0f);
+			DrawDebugCircle(
+				GetWorld(),
+				EnemyLocation,
+				ActivationRange,
+				32,
+				FColor::Yellow,
+				false,
+				-1.0f,
+				0,
+				1.0f,
+				FVector(0.0f, 1.0f, 0.0f),
+				FVector(1.0f, 0.0f, 0.0f)
+			);
+		}
 	}
 
-	// Calculate rotation to face enemy (keep your existing rotation logic)
-	FRotator TargetRotation = (EnemyLocation - MyLocation).Rotation();
-	TargetRotation.Pitch = 0;
-	TargetRotation.Roll = 0;
+}
 
-	// Smoothly rotate to face target
-	FRotator NewRotation = FMath::RInterpTo(
-		GetActorRotation(),
-		TargetRotation,
-		GetWorld()->GetDeltaSeconds(),
-		15.0f  // Adjust rotation speed as needed
+
+void ARen_Low_Poly_Character::UpdateMovementOrientation()
+{
+
+	// If rolling, ignore everything else
+	if (Rolling)
+	{
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+		return;
+	}
+
+	// Handle combat action orientation
+	if (SoftLockedEnemy && (Attacking || bPerformingAbility || bPerformingTechnique))
+	{
+		GetCharacterMovement()->bOrientRotationToMovement = false;
+		FaceAndPositionRelativeToEnemy(SoftLockedEnemy, 160.0f);
+	}
+	else
+	{
+		GetCharacterMovement()->bOrientRotationToMovement = true;
+	}
+
+}
+
+void ARen_Low_Poly_Character::ApplyKnockbackToEnemy(AEnemy_Poly* Enemy, float KnockbackForce, float KnockbackDuration)
+{
+	if (!Enemy) return;
+
+	// Get the direction from player to enemy
+	FVector KnockbackDirection = Enemy->GetActorLocation() - GetActorLocation();
+	KnockbackDirection.Z = 0.0f; // Keep knockback horizontal
+	KnockbackDirection.Normalize();
+
+	// Calculate start and end positions
+	FVector StartLocation = Enemy->GetActorLocation();
+	FVector TargetLocation = StartLocation + (KnockbackDirection * KnockbackForce);
+
+	// Perform line trace to prevent knocking through walls
+	FHitResult HitResult;
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(Enemy);
+	QueryParams.AddIgnoredActor(this);
+
+	GetWorld()->LineTraceSingleByChannel(
+		HitResult,
+		StartLocation,
+		TargetLocation,
+		ECC_Visibility,
+		QueryParams
 	);
 
-	SetActorRotation(NewRotation);
-
-	// Debug visualization
-	if (GEngine)
+	// If we hit something, adjust target location
+	if (HitResult.bBlockingHit)
 	{
-		DrawDebugSphere(GetWorld(), IdealPosition, 10.0f, 12, FColor::Green, false, -1.0f, 0, 1.0f);
-		DrawDebugLine(GetWorld(), MyLocation, IdealPosition, FColor::Blue, false, -1.0f, 0, 1.0f);
+		TargetLocation = HitResult.Location;
 	}
 
+	struct FKnockbackData
+	{
+		float ElapsedTime;
+		FTimerHandle TimerHandle;
+		FKnockbackData() : ElapsedTime(0.0f) {}
+	};
 
+	TSharedPtr<FKnockbackData> TimerData = MakeShared<FKnockbackData>();
+
+	GetWorld()->GetTimerManager().SetTimer(
+		TimerData->TimerHandle,
+		[Enemy, StartLocation, TargetLocation, KnockbackDuration, TimerData]()
+		{
+			if (!Enemy || !Enemy->IsValidLowLevel()) return;
+
+			TimerData->ElapsedTime += Enemy->GetWorld()->GetDeltaSeconds();
+			float Alpha = FMath::Min(TimerData->ElapsedTime / KnockbackDuration, 1.0f);
+
+			FVector NewLocation = FMath::Lerp(StartLocation, TargetLocation, Alpha);
+			Enemy->SetActorLocation(NewLocation);
+
+			// Stop timer when knockback is complete
+			if (Alpha >= 1.0f)
+			{
+				Enemy->GetWorld()->GetTimerManager().ClearTimer(TimerData->TimerHandle);
+			}
+		},
+		GetWorld()->GetDeltaSeconds(),
+			true
+			);
 }
 
 
@@ -4825,14 +4942,7 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 		}
 	}
 
-
-	if (Attacking && SoftLockedEnemy)
-
-	{
-
-		FaceAndPositionRelativeToEnemy(SoftLockedEnemy, 160.0f);
-	}
-
+	UpdateMovementOrientation();
 
 }
 
