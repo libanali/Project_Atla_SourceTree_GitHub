@@ -45,6 +45,14 @@ AEnemy_Poly::AEnemy_Poly()
 	EnemyHealthBarWidgetComponent->SetupAttachment(RootComponent);
 	EnemyHealthBarWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 
+
+	AttackCollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("AttackCollisionBox"));
+
+	// Attach directly to the mesh
+	AttackCollisionBox->SetupAttachment(GetMesh());
+	AttackCollisionBox->SetCollisionProfileName(TEXT("OverlapAll"));
+	AttackCollisionBox->SetGenerateOverlapEvents(true);
+
 }
 
 
@@ -187,17 +195,95 @@ void AEnemy_Poly::Attack()
 
 void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 {
+	if (!LowPolyRen || LowPolyRen->bIsDead || LowPolyRen->bIsInvincible) return;  // Check if already invincible
 
-	if (LowPolyRen)
+	// Calculate dot product for behind attack detection
+	FVector DirectionToPlayer = (GetActorLocation() - LowPolyRen->GetActorLocation());
+	FVector PlayerForward = LowPolyRen->GetActorForwardVector();
+	float DotResult = FVector::DotProduct(DirectionToPlayer, PlayerForward);
 
+	// Get capsule component
+	UCapsuleComponent* PlayerCapsule = LowPolyRen->GetCapsuleComponent();
+	if (!PlayerCapsule) return;
+
+	// Store the original material for later
+	UMaterialInterface* TheOriginalMaterial = nullptr;
+	if (LowPolyRen->GetMesh())
 	{
+		TheOriginalMaterial = LowPolyRen->GetMesh()->GetMaterial(0);
+	}
 
+	// Common damage application function
+	auto ApplyDamageAndEffects = [this, LowPolyRen, TheOriginalMaterial]()
+	{
+		// Calculate and apply damage
 		TotalEnemyAttack = BaseAttack * AttackMultiplier;
 		float DamageToInflict = TotalEnemyAttack / (1 + LowPolyRen->BaseDefence);
-
 		LowPolyRen->TakeDamage(DamageToInflict);
 
+		// Apply hurt material
+		if (HurtMaterial && LowPolyRen->GetMesh())
+		{
+			LowPolyRen->GetMesh()->SetMaterial(0, HurtMaterial);
+		}
+
+		// Make player invincible
+		LowPolyRen->bIsInvincible = true;
+
+		// Set timer to revert changes after 7 seconds
+		GetWorld()->GetTimerManager().SetTimer(
+			InvincibilityTimerHandle,
+			[LowPolyRen, TheOriginalMaterial]()
+			{
+				// Revert material
+				if (TheOriginalMaterial && LowPolyRen->GetMesh())
+				{
+					LowPolyRen->GetMesh()->SetMaterial(0, TheOriginalMaterial);
+				}
+				// Remove invincibility
+				LowPolyRen->bIsInvincible = false;
+			},
+			7.0f,  // 7 seconds duration
+				false  // don't loop
+				);
+	};
+
+	if (DotResult < 0.0f)  // Attack from behind
+	{
+		LowPolyRen->bAttackedFromBehind = true;
+		ApplyDamageAndEffects();
 	}
+	else  // Attack from front
+	{
+		LowPolyRen->bAttackedFromBehind = false;
+		ApplyDamageAndEffects();
+		// Play hurt animation for front attacks only
+		if (LowPolyRen->HurtAnimation)
+		{
+			LowPolyRen->PlayAnimMontage(LowPolyRen->HurtAnimation, 1.0f);
+		}
+	}
+
+	// Debug message
+	FString AttackDirection = LowPolyRen->bAttackedFromBehind ? TEXT("from behind") : TEXT("from front");
+	GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Red,
+		FString::Printf(TEXT("Hit Player %s! Damage: %f"), *AttackDirection, TotalEnemyAttack));
+}
+
+
+
+void AEnemy_Poly::OnAttackOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+
+
+	// Try to cast the overlapped actor to your player character class
+	ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(OtherActor);
+	if (PlayerCharacter)
+	{
+		// Call our comprehensive damage function
+		InflictDamageOnCharacter(PlayerCharacter);
+	}
+
 
 }
 
@@ -264,6 +350,14 @@ void AEnemy_Poly::BeginPlay()
 		ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
 		
 	}
+
+
+	// Bind the overlap events
+	if (AttackCollisionBox)
+	{
+		AttackCollisionBox->OnComponentBeginOverlap.AddDynamic(this, &AEnemy_Poly::OnAttackOverlapBegin);
+	}
+
 
 	bShouldFacePlayer = true;
 

@@ -131,6 +131,14 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Damage")
 		void InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen);
+
+	UFUNCTION(BlueprintCallable)
+	void OnAttackOverlapBegin(UPrimitiveComponent* OverlappedComponent,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
 	//Enemy Attack & Defence
 
 
@@ -145,9 +153,17 @@ public:
 		AEnemy_Token_Manager* TokenManager;
 
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+		class UBoxComponent* AttackCollisionBox;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		bool bIsAttackedFromBehind;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		class UMaterialInterface* HurtMaterial;
 
+	// Timer handle for managing invincibility frames
+	FTimerHandle InvincibilityTimerHandle;
 
 	bool bHasToken;
 	bool bShouldFacePlayer;

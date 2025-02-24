@@ -96,6 +96,8 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 	//Combat
 	isAttackedFromBehind = false;
+	bEnemyIsHit = false;
+	bIsSwordTraceActive = false;
 
 	//Level
 	bLevelUp = false;
@@ -775,6 +777,12 @@ void ARen_Low_Poly_Character::UseAbility()
 		return;
 	}
 
+	if (bIsPoweringUp)
+
+	{
+		return;
+	}
+
 	// If already performing an action, queue this one
 	if (IsPlayingAnyAction())
 	{
@@ -1027,120 +1035,6 @@ void ARen_Low_Poly_Character::KeepInFrontOfEnemy(AActor* Enemy)
 }
 
 
-
-void ARen_Low_Poly_Character::FaceAndPositionRelativeToEnemy(AActor* Enemy, float DesiredDistance)
-{
-
-	if (!Enemy) return;
-
-	// Get locations
-	FVector MyLocation = GetActorLocation();
-	FVector EnemyLocation = Enemy->GetActorLocation();
-
-	// Calculate distance to enemy (ignoring Z)
-	float DistanceToEnemy = FVector::Distance(
-		FVector(MyLocation.X, MyLocation.Y, 0),
-		FVector(EnemyLocation.X, EnemyLocation.Y, 0)
-	);
-
-	// Only activate positioning when within range
-	const float ActivationRange = 500.0f;
-
-	if (DistanceToEnemy <= ActivationRange)
-	{
-		// Get the direction from enemy to current position
-		FVector DirectionFromEnemy = (MyLocation - EnemyLocation).GetSafeNormal();
-
-		// Calculate ideal position in front of enemy
-		FVector IdealPosition = EnemyLocation + (DirectionFromEnemy * DesiredDistance);
-		IdealPosition.Z = MyLocation.Z; // Maintain current height
-
-		// Calculate distance from ideal position
-		float DistanceFromIdeal = FVector::Distance(
-			FVector(MyLocation.X, MyLocation.Y, 0),
-			FVector(IdealPosition.X, IdealPosition.Y, 0)
-		);
-
-		// Only move if we're significantly out of position
-		if (DistanceFromIdeal > 30.0f)  // Threshold of 30 units
-		{
-			// Smoothly move to ideal position with speed based on distance
-			float InterpSpeed = FMath::GetMappedRangeValueClamped(
-				FVector2D(30.0f, 200.0f),  // Input range
-				FVector2D(5.0f, 15.0f),    // Output range (speed)
-				DistanceFromIdeal
-			);
-
-			FVector NewPosition = FMath::VInterpTo(
-				MyLocation,
-				IdealPosition,
-				GetWorld()->GetDeltaSeconds(),
-				InterpSpeed
-			);
-
-			SetActorLocation(NewPosition);
-		}
-
-		// Always face the enemy when in range
-		FRotator TargetRotation = (EnemyLocation - MyLocation).Rotation();
-		TargetRotation.Pitch = 0;
-		TargetRotation.Roll = 0;
-
-		FRotator NewRotation = FMath::RInterpTo(
-			GetActorRotation(),
-			TargetRotation,
-			GetWorld()->GetDeltaSeconds(),
-			15.0f
-		);
-
-		SetActorRotation(NewRotation);
-
-		// Debug visualization if needed
-		if (CVarDebugCombatPositioning.GetValueOnGameThread())
-		{
-			DrawDebugSphere(GetWorld(), IdealPosition, 10.0f, 12, FColor::Green, false, -1.0f, 0, 1.0f);
-			DrawDebugLine(GetWorld(), MyLocation, IdealPosition, FColor::Blue, false, -1.0f, 0, 1.0f);
-			DrawDebugCircle(
-				GetWorld(),
-				EnemyLocation,
-				ActivationRange,
-				32,
-				FColor::Yellow,
-				false,
-				-1.0f,
-				0,
-				1.0f,
-				FVector(0.0f, 1.0f, 0.0f),
-				FVector(1.0f, 0.0f, 0.0f)
-			);
-		}
-	}
-
-}
-
-
-void ARen_Low_Poly_Character::UpdateMovementOrientation()
-{
-
-	// If rolling, ignore everything else
-	if (Rolling)
-	{
-		GetCharacterMovement()->bOrientRotationToMovement = true;
-		return;
-	}
-
-	// Handle combat action orientation
-	if (SoftLockedEnemy && (Attacking || bPerformingAbility || bPerformingTechnique))
-	{
-		GetCharacterMovement()->bOrientRotationToMovement = false;
-		FaceAndPositionRelativeToEnemy(SoftLockedEnemy, 160.0f);
-	}
-	else
-	{
-		GetCharacterMovement()->bOrientRotationToMovement = true;
-	}
-
-}
 
 void ARen_Low_Poly_Character::ApplyKnockbackToEnemy(AEnemy_Poly* Enemy, float KnockbackForce, float KnockbackDuration)
 {
@@ -4941,8 +4835,6 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 			}
 		}
 	}
-
-	UpdateMovementOrientation();
 
 }
 

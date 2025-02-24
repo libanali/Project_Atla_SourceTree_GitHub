@@ -262,13 +262,24 @@ public:
 		void KeepInFrontOfEnemy(AActor* Enemy);
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
-		void FaceAndPositionRelativeToEnemy(AActor* Enemy, float DesiredDistance);
-
-	UFUNCTION(BlueprintCallable, Category = "Combat")
-		void UpdateMovementOrientation();
-
-	UFUNCTION(BlueprintCallable, Category = "Combat")
 		void ApplyKnockbackToEnemy(AEnemy_Poly* Enemy, float KnockbackForce = 500.0f, float KnockbackDuration = 0.2f);
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		bool bEnemyIsHit;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		bool bIsSwordTraceActive;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		UAnimMontage* HurtAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		bool bAttackedFromBehind;
+
+	UPROPERTY(BlueprintReadWrite, Category = "Character")
+		bool bIsInvincible;
 	//Combat
 
 
