@@ -220,6 +220,8 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 		TotalEnemyAttack = BaseAttack * AttackMultiplier;
 		float DamageToInflict = TotalEnemyAttack / (1 + LowPolyRen->BaseDefence);
 		LowPolyRen->TakeDamage(DamageToInflict);
+		LowPolyRen->bIsHurt = true;
+
 
 		// Apply hurt material
 		if (HurtMaterial && LowPolyRen->GetMesh())
@@ -257,10 +259,18 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 	{
 		LowPolyRen->bAttackedFromBehind = false;
 		ApplyDamageAndEffects();
-		// Play hurt animation for front attacks only
+
+		// Play hurt animation with end delegate
 		if (LowPolyRen->HurtAnimation)
 		{
-			LowPolyRen->PlayAnimMontage(LowPolyRen->HurtAnimation, 1.0f);
+			UAnimInstance* AnimInstance = LowPolyRen->GetMesh()->GetAnimInstance();
+			if (AnimInstance)
+			{
+				FOnMontageEnded EndDelegate;
+				EndDelegate.BindUObject(LowPolyRen, &ARen_Low_Poly_Character::OnHurtAnimationEnded);
+				AnimInstance->Montage_Play(LowPolyRen->HurtAnimation, 1.4f);
+				AnimInstance->Montage_SetEndDelegate(EndDelegate, LowPolyRen->HurtAnimation);
+			}
 		}
 	}
 

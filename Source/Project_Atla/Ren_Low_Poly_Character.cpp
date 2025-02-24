@@ -783,6 +783,11 @@ void ARen_Low_Poly_Character::UseAbility()
 		return;
 	}
 
+	if (bIsHurt || !CanPerformCombatAction())
+	{
+		return;
+	}
+
 	// If already performing an action, queue this one
 	if (IsPlayingAnyAction())
 	{
@@ -931,6 +936,25 @@ void ARen_Low_Poly_Character::ControlTechniqueGaugeFill()
 
 void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 {
+
+
+	// If hurt, queue the technique
+	if (bIsHurt)
+	{
+		FQueuedAction NewAction;
+		NewAction.ActionType = EQueuedActionType::Technique;
+		NewAction.TechniqueIndex = TechniqueIndex;
+		ActionQueue.Add(NewAction);
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue,
+			FString::Printf(TEXT("Queued Technique %d while hurt"),
+				TechniqueIndex));
+		return;
+	}
+
+
+
+
+
 	// If already performing an action, queue this one
 	if (IsPlayingAnyAction())
 	{
@@ -1099,6 +1123,18 @@ void ARen_Low_Poly_Character::ApplyKnockbackToEnemy(AEnemy_Poly* Enemy, float Kn
 		GetWorld()->GetDeltaSeconds(),
 			true
 			);
+}
+
+
+
+
+void ARen_Low_Poly_Character::OnHurtAnimationEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+
+	bIsHurt = false;
+	ProcessNextAction();  // Process any queued actions
+
+
 }
 
 
@@ -1303,11 +1339,11 @@ void ARen_Low_Poly_Character::TakeDamage(float DamageAmount)
 		CalculatedDamage = DamageAmount / (1 + TotalDefence);
 		HealthStruct.CurrentHealth = FMath::Clamp(HealthStruct.CurrentHealth - CalculatedDamage, 0.0f, HealthStruct.MaxHealth);
 		bIsHit = true;
-
+		InterruptCurrentAnimation();  // Stop any current animations
 	}
 
-
 }
+
 
 
 
@@ -1498,6 +1534,21 @@ void ARen_Low_Poly_Character::SpawnElementalGround(FVector SpawnLocation, FRotat
 
 void ARen_Low_Poly_Character::UseElementalAttack(const FElemental_Struct& Attack)
 {
+
+
+	// If hurt, queue the elemental attack
+	if (bIsHurt)
+	{
+		FQueuedAction NewAction;
+		NewAction.ActionType = EQueuedActionType::Elemental;
+		NewAction.ElementalAttack = Attack;
+		ActionQueue.Add(NewAction);
+		return;
+	}
+
+
+
+
 	// If already performing an action, queue this one
 	if (IsPlayingAnyAction())
 	{
@@ -3932,7 +3983,8 @@ bool ARen_Low_Poly_Character::CanPerformCombatAction() const
 		!bPerformingTechnique &&  // Add check for technique
 		!bIsDead &&
 		!bIsInUIMode &&
-		!bIsPoweringUp;
+		!bIsPoweringUp &&
+		!bIsHurt;
 }
 
 
@@ -4137,7 +4189,7 @@ void ARen_Low_Poly_Character::ProcessNextAction()
 bool ARen_Low_Poly_Character::IsPlayingAnyAction() const
 {
 	bool result = bPerformingTechnique || bPerformingAbility ||
-		bPerformingElemental || bUsingItem || bIsPoweringUp || Attacking || Rolling;
+		bPerformingElemental || bUsingItem || bIsPoweringUp || Attacking || Rolling || bIsHurt;
 
 	// Debug which state is active
 	if (result)
@@ -4150,6 +4202,8 @@ bool ARen_Low_Poly_Character::IsPlayingAnyAction() const
 		if (bIsPoweringUp) activeState += "PowerUp ";
 		if (Attacking) activeState += "Attacking ";
 		if (Rolling) activeState += "Rolling ";
+		if (bIsHurt) activeState += "Hurt ";
+
 
 		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, activeState);
 	}

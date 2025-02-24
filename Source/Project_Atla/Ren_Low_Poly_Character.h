@@ -280,6 +280,11 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = "Character")
 		bool bIsInvincible;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
+		bool bIsHurt;
+
+	void OnHurtAnimationEnded(UAnimMontage* Montage, bool bInterrupted);
 	//Combat
 
 
