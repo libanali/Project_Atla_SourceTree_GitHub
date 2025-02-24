@@ -4318,6 +4318,12 @@ void ARen_Low_Poly_Character::InterruptCurrentAnimation()
 
 		// Clear the action queue
 		ActionQueue.Empty();
+
+		if (bIsHit)
+		{
+			bIsHurt = true;
+		}
+
 	}
 
 

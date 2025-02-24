@@ -173,7 +173,20 @@ void AEnemy_Poly::Death()
 	}
 
 	AttemptItemDrop();
-	Destroy(true);
+
+	FTimerHandle DestroyTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(
+		DestroyTimerHandle,
+		[this]()
+		{
+			if (IsValid(this))  // Extra safety check
+			{
+				Destroy();
+			}
+		},
+		0.1f,  // Short delay to allow other operations to complete
+			false
+			);
 }
 
 
@@ -195,7 +208,8 @@ void AEnemy_Poly::Attack()
 
 void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 {
-	if (!LowPolyRen || LowPolyRen->bIsDead || LowPolyRen->bIsInvincible) return;  // Check if already invincible
+	// Initial checks
+	if (!LowPolyRen || LowPolyRen->bIsDead || LowPolyRen->bIsInvincible) return;
 
 	// Calculate dot product for behind attack detection
 	FVector DirectionToPlayer = (GetActorLocation() - LowPolyRen->GetActorLocation());
@@ -213,29 +227,60 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 		TheOriginalMaterial = LowPolyRen->GetMesh()->GetMaterial(0);
 	}
 
-	// Common damage application function
-	auto ApplyDamageAndEffects = [this, LowPolyRen, TheOriginalMaterial]()
+	// Calculate damage
+	TotalEnemyAttack = BaseAttack * AttackMultiplier;
+	float DamageToInflict = TotalEnemyAttack / (1 + LowPolyRen->BaseDefence);
+
+	// Save current health for comparison
+	float CurrentHealth = LowPolyRen->HealthStruct.CurrentHealth;
+
+	// Apply damage
+	LowPolyRen->TakeDamage(DamageToInflict);
+
+	// Check if damage was fatal
+	if (LowPolyRen->bIsDead || LowPolyRen->HealthStruct.CurrentHealth <= 0.0f)
 	{
-		// Calculate and apply damage
-		TotalEnemyAttack = BaseAttack * AttackMultiplier;
-		float DamageToInflict = TotalEnemyAttack / (1 + LowPolyRen->BaseDefence);
-		LowPolyRen->TakeDamage(DamageToInflict);
-		LowPolyRen->bIsHurt = true;
+		// Player died from this hit, don't apply hurt effects or animations
+		GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Red,
+			FString::Printf(TEXT("Fatal Hit on Player! Damage: %f"), TotalEnemyAttack));
+		return;
+	}
 
+	// Player survived, apply hurt effects
+	LowPolyRen->bIsHurt = true;
+	LowPolyRen->bAttackedFromBehind = (DotResult < 0.0f);
 
-		// Apply hurt material
-		if (HurtMaterial && LowPolyRen->GetMesh())
+	// Apply hurt material
+	if (HurtMaterial && LowPolyRen->GetMesh())
+	{
+		LowPolyRen->GetMesh()->SetMaterial(0, HurtMaterial);
+	}
+
+	// Make player invincible
+	LowPolyRen->bIsInvincible = true;
+
+	// Play appropriate hurt animation
+	UAnimMontage* HurtAnim = LowPolyRen->bAttackedFromBehind ?
+		LowPolyRen->BehindHurtAnimation : LowPolyRen->HurtAnimation;
+
+	if (HurtAnim)
+	{
+		UAnimInstance* AnimInstance = LowPolyRen->GetMesh()->GetAnimInstance();
+		if (AnimInstance)
 		{
-			LowPolyRen->GetMesh()->SetMaterial(0, HurtMaterial);
+			FOnMontageEnded EndDelegate;
+			EndDelegate.BindUObject(LowPolyRen, &ARen_Low_Poly_Character::OnHurtAnimationEnded);
+			AnimInstance->Montage_Play(HurtAnim, 1.4f);
+			AnimInstance->Montage_SetEndDelegate(EndDelegate, HurtAnim);
 		}
+	}
 
-		// Make player invincible
-		LowPolyRen->bIsInvincible = true;
-
-		// Set timer to revert changes after 7 seconds
-		GetWorld()->GetTimerManager().SetTimer(
-			InvincibilityTimerHandle,
-			[LowPolyRen, TheOriginalMaterial]()
+	// Set timer to revert changes after 5 seconds
+	GetWorld()->GetTimerManager().SetTimer(
+		InvincibilityTimerHandle,
+		[LowPolyRen, TheOriginalMaterial]()
+		{
+			if (LowPolyRen && !LowPolyRen->bIsDead)
 			{
 				// Revert material
 				if (TheOriginalMaterial && LowPolyRen->GetMesh())
@@ -244,47 +289,11 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 				}
 				// Remove invincibility
 				LowPolyRen->bIsInvincible = false;
-			},
-			7.0f,  // 7 seconds duration
-				false  // don't loop
-				);
-	};
-
-	if (DotResult < 0.0f)  // Attack from behind
-	{
-		LowPolyRen->bAttackedFromBehind = true;
-		ApplyDamageAndEffects();
-		// Play hurt animation with end delegate
-		if (LowPolyRen->BehindHurtAnimation)
-		{
-			UAnimInstance* AnimInstance = LowPolyRen->GetMesh()->GetAnimInstance();
-			if (AnimInstance)
-			{
-				FOnMontageEnded EndDelegate;
-				EndDelegate.BindUObject(LowPolyRen, &ARen_Low_Poly_Character::OnHurtAnimationEnded);
-				AnimInstance->Montage_Play(LowPolyRen->BehindHurtAnimation, 1.4f);
-				AnimInstance->Montage_SetEndDelegate(EndDelegate, LowPolyRen->BehindHurtAnimation);
 			}
-		}
-	}
-	else  // Attack from front
-	{
-		LowPolyRen->bAttackedFromBehind = false;
-		ApplyDamageAndEffects();
-
-		// Play hurt animation with end delegate
-		if (LowPolyRen->HurtAnimation)
-		{
-			UAnimInstance* AnimInstance = LowPolyRen->GetMesh()->GetAnimInstance();
-			if (AnimInstance)
-			{
-				FOnMontageEnded EndDelegate;
-				EndDelegate.BindUObject(LowPolyRen, &ARen_Low_Poly_Character::OnHurtAnimationEnded);
-				AnimInstance->Montage_Play(LowPolyRen->HurtAnimation, 1.4f);
-				AnimInstance->Montage_SetEndDelegate(EndDelegate, LowPolyRen->HurtAnimation);
-			}
-		}
-	}
+		},
+		5.0f,  // 5 seconds duration
+			false  // don't loop
+			);
 
 	// Debug message
 	FString AttackDirection = LowPolyRen->bAttackedFromBehind ? TEXT("from behind") : TEXT("from front");
