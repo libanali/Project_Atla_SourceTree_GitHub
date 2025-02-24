@@ -254,6 +254,18 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 	{
 		LowPolyRen->bAttackedFromBehind = true;
 		ApplyDamageAndEffects();
+		// Play hurt animation with end delegate
+		if (LowPolyRen->BehindHurtAnimation)
+		{
+			UAnimInstance* AnimInstance = LowPolyRen->GetMesh()->GetAnimInstance();
+			if (AnimInstance)
+			{
+				FOnMontageEnded EndDelegate;
+				EndDelegate.BindUObject(LowPolyRen, &ARen_Low_Poly_Character::OnHurtAnimationEnded);
+				AnimInstance->Montage_Play(LowPolyRen->BehindHurtAnimation, 1.4f);
+				AnimInstance->Montage_SetEndDelegate(EndDelegate, LowPolyRen->BehindHurtAnimation);
+			}
+		}
 	}
 	else  // Attack from front
 	{

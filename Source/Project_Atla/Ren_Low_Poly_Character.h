@@ -276,6 +276,9 @@ public:
 		UAnimMontage* HurtAnimation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		UAnimMontage* BehindHurtAnimation;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		bool bAttackedFromBehind;
 
 	UPROPERTY(BlueprintReadWrite, Category = "Character")
@@ -283,10 +286,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Character")
 		bool bIsHurt;
-
-	// Add these if you don't already have them
-	UPROPERTY(BlueprintReadWrite, Category = "Animation", meta = (AllowPrivateAccess = "true"))
-		bool bAttackedFromBehind = false;
 
 	// Variables to track which part of the sequence we're in
 	UPROPERTY(BlueprintReadWrite, Category = "Animation", meta = (AllowPrivateAccess = "true"))
