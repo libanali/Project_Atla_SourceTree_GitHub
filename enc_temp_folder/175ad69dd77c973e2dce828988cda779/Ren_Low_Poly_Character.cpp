@@ -1131,14 +1131,10 @@ void ARen_Low_Poly_Character::ApplyKnockbackToEnemy(AEnemy_Poly* Enemy, float Kn
 void ARen_Low_Poly_Character::OnHurtAnimationEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 
-	// Clear hurt state only if the animation completed normally
-	if (!bInterrupted)
-	{
-		bIsHurt = false;
-		bIsHit = false;
-		// Process any queued actions
-		ProcessNextAction();
-	}
+	bIsHurt = false;
+	ProcessNextAction();  // Process any queued actions
+
+
 }
 
 
@@ -4305,29 +4301,32 @@ bool ARen_Low_Poly_Character::CanInterruptCurrentAction(EQueuedActionType NewAct
 void ARen_Low_Poly_Character::InterruptCurrentAnimation()
 {
 
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (!AnimInstance) return;
-
-	// Get currently playing montage
-	UAnimMontage* CurrentMontage = AnimInstance->GetCurrentActiveMontage();
-	if (CurrentMontage)
+	// Get animation instance
+	if (UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Interrupting montage: %s"), *CurrentMontage->GetName());
-		// Stop with zero blend out time for immediate interruption
-		AnimInstance->Montage_Stop(0.0f, CurrentMontage);
+		// Stop any playing montages with a short blend out time
+		AnimInstance->Montage_Stop(0.1f);
+
+		// Clear any animation-related states
+		bPerformingTechnique = false;
+		bPerformingElemental = false;
+		bPerformingAbility = false;
+		bUsingItem = false;
+		bIsPoweringUp = false;
+		Attacking = false;
+		Rolling = false;
+
+		// Clear the action queue
+		ActionQueue.Empty();
+
+		if (bIsHit)
+		{
+			bIsHurt = true;
+		}
+
 	}
 
-	// Clear all animation states
-	bPerformingTechnique = false;
-	bPerformingElemental = false;
-	bPerformingAbility = false;
-	bUsingItem = false;
-	bIsPoweringUp = false;
-	Attacking = false;
-	Rolling = false;
 
-	// Clear action queue
-	ActionQueue.Empty();
 }
 
 

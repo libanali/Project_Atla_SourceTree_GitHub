@@ -208,7 +208,6 @@ void AEnemy_Poly::Attack()
 
 void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 {
-	
 	// Initial checks
 	if (!LowPolyRen || LowPolyRen->bIsDead || LowPolyRen->bIsInvincible) return;
 
@@ -216,9 +215,6 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 	FVector DirectionToPlayer = (GetActorLocation() - LowPolyRen->GetActorLocation());
 	FVector PlayerForward = LowPolyRen->GetActorForwardVector();
 	float DotResult = FVector::DotProduct(DirectionToPlayer, PlayerForward);
-
-	// Set attacked from behind BEFORE any damage or interruption
-	LowPolyRen->bAttackedFromBehind = (DotResult < 0.0f);
 
 	// Get capsule component
 	UCapsuleComponent* PlayerCapsule = LowPolyRen->GetCapsuleComponent();
@@ -238,7 +234,7 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 	// Save current health for comparison
 	float CurrentHealth = LowPolyRen->HealthStruct.CurrentHealth;
 
-	// Apply damage - this will interrupt current animation without playing hurt animation
+	// Apply damage
 	LowPolyRen->TakeDamage(DamageToInflict);
 
 	// Check if damage was fatal
@@ -250,8 +246,9 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 		return;
 	}
 
-	// Set player in hurt state
+	// Player survived, apply hurt effects
 	LowPolyRen->bIsHurt = true;
+	LowPolyRen->bAttackedFromBehind = (DotResult < 0.0f);
 
 	// Apply hurt material
 	if (HurtMaterial && LowPolyRen->GetMesh())
@@ -262,37 +259,20 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 	// Make player invincible
 	LowPolyRen->bIsInvincible = true;
 
-	// Force play appropriate hurt animation with a small delay to ensure previous animations are fully stopped
+	// Play appropriate hurt animation
 	UAnimMontage* HurtAnim = LowPolyRen->bAttackedFromBehind ?
 		LowPolyRen->BehindHurtAnimation : LowPolyRen->HurtAnimation;
 
 	if (HurtAnim)
 	{
-		// Use a timer to ensure previous animation is completely stopped
-		FTimerHandle HurtAnimTimerHandle;
-		GetWorld()->GetTimerManager().SetTimer(
-			HurtAnimTimerHandle,
-			[this, LowPolyRen, HurtAnim]()
-			{
-				if (LowPolyRen && !LowPolyRen->bIsDead)
-				{
-					UAnimInstance* AnimInstance = LowPolyRen->GetMesh()->GetAnimInstance();
-					if (AnimInstance)
-					{
-						FOnMontageEnded EndDelegate;
-						EndDelegate.BindUObject(LowPolyRen, &ARen_Low_Poly_Character::OnHurtAnimationEnded);
-						AnimInstance->Montage_Play(HurtAnim, 1.4f);
-						AnimInstance->Montage_SetEndDelegate(EndDelegate, HurtAnim);
-
-						UE_LOG(LogTemp, Warning, TEXT("Playing Hurt Animation: %s (from behind: %s)"),
-							*HurtAnim->GetName(),
-							LowPolyRen->bAttackedFromBehind ? TEXT("Yes") : TEXT("No"));
-					}
-				}
-			},
-			0.02f,  // Small delay to ensure clean transition
-				false
-				);
+		UAnimInstance* AnimInstance = LowPolyRen->GetMesh()->GetAnimInstance();
+		if (AnimInstance)
+		{
+			FOnMontageEnded EndDelegate;
+			EndDelegate.BindUObject(LowPolyRen, &ARen_Low_Poly_Character::OnHurtAnimationEnded);
+			AnimInstance->Montage_Play(HurtAnim, 1.4f);
+			AnimInstance->Montage_SetEndDelegate(EndDelegate, HurtAnim);
+		}
 	}
 
 	// Set timer to revert changes after 5 seconds
