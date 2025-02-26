@@ -974,6 +974,8 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 		if (SelectedTechnique.bIsUnlocked && TechniqueStruct.TechniquePoints >= SelectedTechnique.PointsRequired)
 		{
 			bPerformingTechnique = true;
+			bIsInCombatAction = true; // Explicitly set combat action state
+			SetCombatActionState(true); // Use helper function to set state
 			TechniqueStruct.TechniquePoints -= SelectedTechnique.PointsRequired;
 
 			UAnimMontage* TechniqueAnim = SelectedTechnique.TechniqueAnimation;
@@ -985,6 +987,19 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 					EndDelegate.BindUObject(this, &ARen_Low_Poly_Character::OnMontageEnded);
 					AnimInstance->Montage_Play(TechniqueAnim);
 					AnimInstance->Montage_SetEndDelegate(EndDelegate, TechniqueAnim);
+
+					// Log the current state for debugging
+					UE_LOG(LogTemp, Warning, TEXT("Technique %s started - Animation length: %.2f"),
+						*SelectedTechnique.TechniqueName, TechniqueAnim->GetPlayLength());
+
+					// Add a safety timer to reset flags in case the montage end delegate fails
+					float MontageLength = TechniqueAnim->GetPlayLength();
+					GetWorld()->GetTimerManager().SetTimer(
+						TechniqueTimerHandle,
+						FTimerDelegate::CreateUObject(this, &ARen_Low_Poly_Character::ForceResetTechniqueFlags),
+						MontageLength + 0.5f, // Add a small buffer
+						false
+					);
 				}
 			}
 
@@ -1027,10 +1042,20 @@ void ARen_Low_Poly_Character::OnTechniqueBegin()
 void ARen_Low_Poly_Character::OnTechniqueEnd()
 {
 
+	// Clear all technique-related states explicitly
 	bPerformingTechnique = false;
 	bIsInCombatAction = false;
 	SetCombatActionState(false);
+
+	// Clear the technique timer
 	GetWorld()->GetTimerManager().ClearTimer(TechniqueTimerHandle);
+
+	// Log that technique has ended
+	UE_LOG(LogTemp, Warning, TEXT("OnTechniqueEnd: Technique ended, combat states reset"));
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Technique ended - states reset"));
+
+	// Log the current state of all combat flags
+	LogCombatStates("OnTechniqueEnd");
 
 }
 
@@ -3986,6 +4011,68 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 
 
+void ARen_Low_Poly_Character::ForceResetTechniqueFlags()
+{
+
+
+	if (bPerformingTechnique || bIsInCombatAction)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Force resetting technique flags after timer - technique may have gotten stuck"));
+		bPerformingTechnique = false;
+		bIsInCombatAction = false;
+		SetCombatActionState(false);
+	}
+
+}
+
+
+
+void ARen_Low_Poly_Character::ForceResetAllCombatStates()
+{
+
+	// Reset all animation and combat state flags
+	bPerformingTechnique = false;
+	bIsInCombatAction = false;
+	bPerformingElemental = false;
+	bPerformingAbility = false;
+	bUsingItem = false;
+	bIsPoweringUp = false;
+	Attacking = false;
+	Rolling = false;
+
+	// Clear any timers that might be affecting combat states
+	GetWorld()->GetTimerManager().ClearTimer(TechniqueTimerHandle);
+
+	// Log the reset
+	UE_LOG(LogTemp, Warning, TEXT("FORCE RESET: All combat states have been reset"));
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("FORCE RESET: All combat states"));
+
+
+
+}
+
+
+
+
+void ARen_Low_Poly_Character::LogCombatStates(FString Context)
+{
+
+
+	FString StateLog = FString::Printf(TEXT("%s - Combat States: bPerformingTechnique=%d, bIsInCombatAction=%d, Attacking=%d, Rolling=%d"),
+		*Context,
+		bPerformingTechnique ? 1 : 0,
+		bIsInCombatAction ? 1 : 0,
+		Attacking ? 1 : 0,
+		Rolling ? 1 : 0);
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *StateLog);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, StateLog);
+
+
+}
+
+
+
 
 bool ARen_Low_Poly_Character::CanPerformCombatAction() const
 {
@@ -4229,6 +4316,20 @@ bool ARen_Low_Poly_Character::IsPlayingAnyAction() const
 void ARen_Low_Poly_Character::OnMontageEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 
+	LogCombatStates("OnMontageEnded - BEFORE");
+
+	// Always reset these specific flags regardless of which montage ended
+	bPerformingTechnique = false;
+	bIsInCombatAction = false;
+
+	// Log which montage ended
+	if (Montage)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Montage ended: %s, Interrupted: %s"),
+			*Montage->GetName(),
+			bInterrupted ? TEXT("True") : TEXT("False"));
+	}
+
 	if (bInterrupted)
 	{
 		ClearCurrentAction();
@@ -4245,7 +4346,10 @@ void ARen_Low_Poly_Character::OnMontageEnded(UAnimMontage* Montage, bool bInterr
 		}
 		else if (bPerformingTechnique)
 		{
+			// Should already be reset above, but just to be safe
 			bPerformingTechnique = false;
+			bIsInCombatAction = false;
+			SetCombatActionState(false);
 		}
 		else if (bPerformingElemental)
 		{
@@ -4261,16 +4365,15 @@ void ARen_Low_Poly_Character::OnMontageEnded(UAnimMontage* Montage, bool bInterr
 		{
 			bIsPoweringUp = false;
 		}
-
 		else if (Attacking)
 		{
-
 			Attacking = false;
 		}
 
 		ProcessNextAction();
 	}
 
+	LogCombatStates("OnMontageEnded - AFTER");
 
 }
 

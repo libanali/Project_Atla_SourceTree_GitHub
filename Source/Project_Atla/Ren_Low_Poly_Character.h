@@ -1133,6 +1133,17 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 		bool CanRoll() const;
+
+	void ForceResetTechniqueFlags();
+
+
+	// Debug function to force reset all combat states
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+		void ForceResetAllCombatStates();
+
+	// Helper to check combat states - use for debugging
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+		void LogCombatStates(FString Context);
 	//Action queueing system
 
 
