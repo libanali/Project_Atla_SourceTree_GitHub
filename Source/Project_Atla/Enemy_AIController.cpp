@@ -267,8 +267,9 @@ void AEnemy_AIController::DisableAI()
     {
         // Disable movement
         Enemy->GetCharacterMovement()->DisableMovement();
-       // bIsAIStopped = true;
-
+        // Add this line to stop any in-progress movement
+        StopMovement();
+        bIsAIStopped = true;
     }
 
 
@@ -289,8 +290,14 @@ void AEnemy_AIController::RestartAI()
     {
         // Enable movement
         Enemy->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
-      //  bIsAIStopped = false;
-
+        // Reset the stopped flag
+        bIsAIStopped = false;
+        // Resume any behavior like strafing
+        if (TargetPlayer)
+        {
+            // Start the AI moving again based on current situation
+            UpdateBehaviour();
+        }
     }
 
 }

@@ -184,7 +184,7 @@ void AEnemy_Poly::Death()
 				Destroy();
 			}
 		},
-		0.5f,  // Increased from 0.1f to 0.5f
+		1.0f,  // Increased from 0.1f to 0.5f
 			false
 			);
 }
@@ -444,54 +444,98 @@ void AEnemy_Poly::Tick(float DeltaTime)
 
 void AEnemy_Poly::AttemptItemDrop()
 {
- // Save enemy location and rotation before any destruction
+	UWorld* World = GetWorld();
+	if (!World || !IsValid(this))
+	{
+		UE_LOG(LogTemp, Error, TEXT("AttemptItemDrop: Invalid World or Enemy"));
+		return;
+	}
+
+	// Cache location IMMEDIATELY to avoid any issues if the enemy is destroyed
 	FVector DropLocation = GetActorLocation();
 	FRotator DropRotation = FRotator::ZeroRotator;
-	UWorld* World = GetWorld();
 
-	if (!World) return;  // Safety check
-
-	// Determine if an item should drop with a 45% chance
+	// Do a chance roll first (45% chance to drop)
 	float DropRoll = FMath::FRand();
 	if (DropRoll > 0.45f) return;
 
-	// Calculate total probabilities
-	float TotalProbability = 0.f;
+	// If we have no items to drop, return early
+	if (PossibleItemDrops.Num() == 0)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("No possible items to drop"));
+		return;
+	}
+
+	// Calculate total probability
+	float TotalProbability = 0.0f;
 	for (const FItemDrop& ItemDrop : PossibleItemDrops)
 	{
 		TotalProbability += ItemDrop.DropChance;
 	}
 
-	DropRoll = FMath::FRand();
-	if (DropRoll < TotalProbability)
+	// Safety check
+	if (TotalProbability <= 0.0f)
 	{
-		float CumulativeProbability = 0.f;
-		for (const FItemDrop& ItemDrop : PossibleItemDrops)
-		{
-			CumulativeProbability += ItemDrop.DropChance;
-			if (DropRoll <= CumulativeProbability && ItemDrop.ItemClass)
-			{
-				// Spawn the item using cached location
-				AActor* SpawnedItem = World->SpawnActor<AActor>(
-					ItemDrop.ItemClass,
-					DropLocation,
-					DropRotation
-				);
+		UE_LOG(LogTemp, Warning, TEXT("Total drop probability is 0 or negative"));
+		return;
+	}
 
-				// Log and verify spawn
-				if (SpawnedItem)
-				{
-					UE_LOG(LogTemp, Warning, TEXT("Item spawned successfully: %s"), *SpawnedItem->GetName());
-				}
-				else
-				{
-					UE_LOG(LogTemp, Error, TEXT("Failed to spawn item of class %s"),
-						ItemDrop.ItemClass ? *ItemDrop.ItemClass->GetName() : TEXT("NULL"));
-				}
-				break;
-			}
+	// Select an item
+	DropRoll = FMath::FRand() * TotalProbability;
+	float CumulativeProbability = 0.0f;
+	TSubclassOf<AActor> SelectedItemClass = nullptr;
+
+	for (const FItemDrop& ItemDrop : PossibleItemDrops)
+	{
+		CumulativeProbability += ItemDrop.DropChance;
+		if (DropRoll <= CumulativeProbability)
+		{
+			SelectedItemClass = ItemDrop.ItemClass;
+			break;
 		}
 	}
+
+	// Final safety check
+	if (!SelectedItemClass)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to select an item class to drop"));
+		return;
+	}
+
+	// Use a deferred spawn to handle first-time loading issues safely
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+	SpawnParams.Owner = nullptr; // Don't set the enemy as owner since it's about to be destroyed
+
+	// Create a timer to spawn the item after a slight delay
+	// This ensures any asset loading happens outside the enemy destruction process
+	FTimerHandle SpawnTimerHandle;
+	World->GetTimerManager().SetTimer(
+		SpawnTimerHandle,
+		[World, SelectedItemClass, DropLocation, DropRotation, SpawnParams]()
+		{
+			if (!World) return;
+
+			AActor* SpawnedItem = World->SpawnActor<AActor>(
+				SelectedItemClass,
+				DropLocation,
+				DropRotation,
+				SpawnParams
+			);
+
+			if (SpawnedItem)
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Item spawned successfully: %s"), *SpawnedItem->GetName());
+			}
+			else
+			{
+				UE_LOG(LogTemp, Error, TEXT("Failed to spawn item of class %s"),
+					SelectedItemClass ? *SelectedItemClass->GetName() : TEXT("NULL"));
+			}
+		},
+		0.05f, // Small delay for safety
+			false
+			);
 }
 
 void AEnemy_Poly::SpawnItem(TSubclassOf<AActor> ItemClass)
