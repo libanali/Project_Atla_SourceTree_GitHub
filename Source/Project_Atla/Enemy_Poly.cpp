@@ -179,12 +179,12 @@ void AEnemy_Poly::Death()
 		DestroyTimerHandle,
 		[this]()
 		{
-			if (IsValid(this))  // Extra safety check
+			if (IsValid(this))
 			{
 				Destroy();
 			}
 		},
-		0.1f,  // Short delay to allow other operations to complete
+		0.5f,  // Increased from 0.1f to 0.5f
 			false
 			);
 }
@@ -276,9 +276,19 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 			{
 				if (LowPolyRen && !LowPolyRen->bIsDead)
 				{
+					// Ensure we're not in a broken state
+					APlayerController* PlayerController = Cast<APlayerController>(LowPolyRen->GetController());
+					if (PlayerController)
+					{
+						PlayerController->EnableInput(PlayerController);
+					}
+
 					UAnimInstance* AnimInstance = LowPolyRen->GetMesh()->GetAnimInstance();
 					if (AnimInstance)
 					{
+						// Stop any animations that might have started during the delay
+						AnimInstance->StopAllMontages(0.0f);
+
 						FOnMontageEnded EndDelegate;
 						EndDelegate.BindUObject(LowPolyRen, &ARen_Low_Poly_Character::OnHurtAnimationEnded);
 						AnimInstance->Montage_Play(HurtAnim, 1.4f);
@@ -290,7 +300,7 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 					}
 				}
 			},
-			0.02f,  // Small delay to ensure clean transition
+			0.02f,
 				false
 				);
 	}
@@ -434,38 +444,51 @@ void AEnemy_Poly::Tick(float DeltaTime)
 
 void AEnemy_Poly::AttemptItemDrop()
 {
+ // Save enemy location and rotation before any destruction
+	FVector DropLocation = GetActorLocation();
+	FRotator DropRotation = FRotator::ZeroRotator;
+	UWorld* World = GetWorld();
+
+	if (!World) return;  // Safety check
+
 	// Determine if an item should drop with a 45% chance
-	float DropRoll = FMath::FRand();  // Random float between 0 and 1
+	float DropRoll = FMath::FRand();
+	if (DropRoll > 0.45f) return;
 
-	// Check if the item should drop (45% chance)
-	if (DropRoll > 0.45f)
-	{
-		return;  // Exit if the drop check fails
-	}
-
-	// If the drop roll passes, proceed to calculate total probabilities for specific item drops
+	// Calculate total probabilities
 	float TotalProbability = 0.f;
-
-	// Calculate total probabilities for the possible item drops
 	for (const FItemDrop& ItemDrop : PossibleItemDrops)
 	{
-		TotalProbability += ItemDrop.DropChance;  // Access DropChance here
+		TotalProbability += ItemDrop.DropChance;
 	}
 
-	// If the drop roll is less than the total probability, an item can drop
-	DropRoll = FMath::FRand();  // Reroll for item selection
-
+	DropRoll = FMath::FRand();
 	if (DropRoll < TotalProbability)
 	{
-		// Randomly select an item based on probabilities
 		float CumulativeProbability = 0.f;
 		for (const FItemDrop& ItemDrop : PossibleItemDrops)
 		{
-			CumulativeProbability += ItemDrop.DropChance;  // Access DropChance here
-			if (DropRoll <= CumulativeProbability)
+			CumulativeProbability += ItemDrop.DropChance;
+			if (DropRoll <= CumulativeProbability && ItemDrop.ItemClass)
 			{
-				SpawnItem(ItemDrop.ItemClass);  // Access ItemClass here
-				break;  // Exit loop after spawning an item
+				// Spawn the item using cached location
+				AActor* SpawnedItem = World->SpawnActor<AActor>(
+					ItemDrop.ItemClass,
+					DropLocation,
+					DropRotation
+				);
+
+				// Log and verify spawn
+				if (SpawnedItem)
+				{
+					UE_LOG(LogTemp, Warning, TEXT("Item spawned successfully: %s"), *SpawnedItem->GetName());
+				}
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("Failed to spawn item of class %s"),
+						ItemDrop.ItemClass ? *ItemDrop.ItemClass->GetName() : TEXT("NULL"));
+				}
+				break;
 			}
 		}
 	}

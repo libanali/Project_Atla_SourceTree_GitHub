@@ -1131,12 +1131,20 @@ void ARen_Low_Poly_Character::ApplyKnockbackToEnemy(AEnemy_Poly* Enemy, float Kn
 void ARen_Low_Poly_Character::OnHurtAnimationEnded(UAnimMontage* Montage, bool bInterrupted)
 {
 
-	// Clear hurt state only if the animation completed normally
+	// Clear hurt state
+	bIsHurt = false;
+	bIsHit = false;
+
+	// Ensure input is enabled
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController && !bIsDead)
+	{
+		PlayerController->EnableInput(PlayerController);
+	}
+
+	// Process queued actions if the animation wasn't interrupted
 	if (!bInterrupted)
 	{
-		bIsHurt = false;
-		bIsHit = false;
-		// Process any queued actions
 		ProcessNextAction();
 	}
 }
@@ -4312,10 +4320,19 @@ void ARen_Low_Poly_Character::InterruptCurrentAnimation()
 	UAnimMontage* CurrentMontage = AnimInstance->GetCurrentActiveMontage();
 	if (CurrentMontage)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Interrupting montage: %s"), *CurrentMontage->GetName());
-		// Stop with zero blend out time for immediate interruption
+		// Check where we are in the animation
+		float CurrentPosition = AnimInstance->Montage_GetPosition(CurrentMontage);
+		float MontageLength = CurrentMontage->GetPlayLength();
+
+		UE_LOG(LogTemp, Warning, TEXT("Interrupting montage: %s at position %.2f/%.2f"),
+			*CurrentMontage->GetName(), CurrentPosition, MontageLength);
+
+		// Force stop the montage regardless of position
 		AnimInstance->Montage_Stop(0.0f, CurrentMontage);
 	}
+
+	// Force clear any animation notifies that might be pending
+	//AnimInstance->ClearAllMontageInstancesByMontage(CurrentMontage);
 
 	// Clear all animation states
 	bPerformingTechnique = false;
@@ -4325,6 +4342,13 @@ void ARen_Low_Poly_Character::InterruptCurrentAnimation()
 	bIsPoweringUp = false;
 	Attacking = false;
 	Rolling = false;
+
+	// Ensure input is not disabled
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController && !bIsDead)
+	{
+		PlayerController->EnableInput(PlayerController);
+	}
 
 	// Clear action queue
 	ActionQueue.Empty();
