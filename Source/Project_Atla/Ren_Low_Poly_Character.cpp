@@ -1177,6 +1177,70 @@ void ARen_Low_Poly_Character::OnHurtAnimationEnded(UAnimMontage* Montage, bool b
 
 
 
+void ARen_Low_Poly_Character::SpawnFloatingCombatText(const FString& Text, const FVector& Location, const FLinearColor& Color, bool bIsCritical, float LifeSpan)
+{
+
+	if (!FloatingCombatTextClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("FloatingCombatTextClass is not set!"));
+		return;
+	}
+
+	// Get player controller
+	APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+	if (!PC)
+	{
+		return;
+	}
+
+	// Create widget instance
+	UFloating_Combat_Text_Widget* FloatingText = CreateWidget<UFloating_Combat_Text_Widget>(PC, FloatingCombatTextClass);
+	if (FloatingText)
+	{
+		// Set parameters before adding to viewport
+		FloatingText->Init(Text, Color, bIsCritical, LifeSpan);
+		FloatingText->UpdateWorldPosition(Location);
+
+		// Add to viewport
+		FloatingText->AddToViewport(100); // High Z-order to ensure it's on top
+	}
+
+
+}
+
+void ARen_Low_Poly_Character::SpawnFloatingStatusText(const FString& StatusEffect, const FVector& Location)
+{
+
+	// Get appropriate color based on status effect
+	FLinearColor StatusColor;
+
+	if (StatusEffect.Equals("Freeze", ESearchCase::IgnoreCase))
+	{
+		StatusColor = FLinearColor(0.0f, 0.7f, 1.0f); // Ice blue
+	}
+	else if (StatusEffect.Equals("Burn", ESearchCase::IgnoreCase))
+	{
+		StatusColor = FLinearColor(1.0f, 0.3f, 0.0f); // Orange/red
+	}
+	else if (StatusEffect.Equals("Stun", ESearchCase::IgnoreCase))
+	{
+		StatusColor = FLinearColor(1.0f, 1.0f, 0.0f); // Yellow
+	}
+	else
+	{
+		StatusColor = FLinearColor::White; // Default
+	}
+
+	// Use the same function with the status effect text and appropriate color
+	SpawnFloatingCombatText(StatusEffect.ToUpper(), Location, StatusColor, true, 2.5f);
+
+
+
+}
+
+
+
+
 void ARen_Low_Poly_Character::IncreaseTechniquePoints(int IncreaseAmount)
 {
 

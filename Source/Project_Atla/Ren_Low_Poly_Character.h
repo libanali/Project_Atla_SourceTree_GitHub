@@ -35,6 +35,7 @@
 #include "Camera_Shake_Base.h"
 #include "Camera/CameraModifier_CameraShake.h"
 #include "GameEnums.h"
+#include "Floating_Combat_Text_Widget.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
 
@@ -294,9 +295,25 @@ public:
 	UPROPERTY(BlueprintReadWrite, Category = "Animation", meta = (AllowPrivateAccess = "true"))
 		bool bIsGettingUp = false;
 
-
 	void OnHurtAnimationEnded(UAnimMontage* Montage, bool bInterrupted);
 	//Combat
+
+
+
+	//Floating combat text UI
+	UFUNCTION(BlueprintCallable, Category = "Combat|Visual")
+		void SpawnFloatingCombatText(const FString& Text, const FVector& Location,
+			const FLinearColor& Color = FLinearColor::White,
+			bool bIsCritical = false,
+			float LifeSpan = 2.0f);
+
+	UFUNCTION(BlueprintCallable, Category = "Combat|Visual")
+		void SpawnFloatingStatusText(const FString& StatusEffect, const FVector& Location);
+
+	// Add in the class private or protected section
+	UPROPERTY(EditDefaultsOnly, Category = "Combat|UI")
+		TSubclassOf<UFloating_Combat_Text_Widget> FloatingCombatTextClass;
+	//Floating combat text UI
 
 
 
@@ -1145,6 +1162,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Debug")
 		void LogCombatStates(FString Context);
 	//Action queueing system
+
+
+
+	
 
 
 protected:
