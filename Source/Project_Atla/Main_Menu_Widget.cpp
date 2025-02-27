@@ -21,7 +21,10 @@
 #include "Player_Save_Game.h"
 #include "Carousel_Button_Widget.h"
 #include "Components/AudioComponent.h"
+#include "Internationalization/Internationalization.h"
+#include "Internationalization/TextLocalizationManager.h"
 
+#define LOCTEXT_NAMESPACE "MainMenu"
 
 
 void UMain_Menu_Widget::NativeConstruct()
@@ -41,6 +44,19 @@ void UMain_Menu_Widget::NativeConstruct()
     {
         GameInstance->LoadSettings();
         GameInstance->LoadPlayerProgress();
+
+        // Initialize the language based on saved settings
+        FString CultureCode;
+        FString CurrentLanguage = GameInstance->GameSettings.CurrentLanguage;
+        if (CurrentLanguage == "English") CultureCode = "en";
+        else if (CurrentLanguage == "French") CultureCode = "fr";
+        else if (CurrentLanguage == "German") CultureCode = "de";
+        else if (CurrentLanguage == "Spanish") CultureCode = "es";
+        else if (CurrentLanguage == "Japanese") CultureCode = "ja";
+        else CultureCode = "en"; // Default to English
+
+        const bool bIsSuccessful = FInternationalization::Get().SetCurrentLanguage(CultureCode);
+
     }
 
     // Setup background music
@@ -182,7 +198,7 @@ void UMain_Menu_Widget::InitializeSettingsControls()
         {
             LanguageToggle->PossibleValues = { "English", "French", "German", "Spanish", "Japanese" };
             LanguageToggle->OnValueChanged.AddDynamic(this, &UMain_Menu_Widget::OnLanguageValueChanged);
-            LanguageToggle->SetLabel("Language");
+            LanguageToggle->SetLabel(LOCTEXT("LanguageLabel", "Language").ToString());
 
             int32 LangIndex = LanguageToggle->PossibleValues.Find(GameInstance->GameSettings.CurrentLanguage);
             LanguageToggle->CurrentIndex = (LangIndex != INDEX_NONE) ? LangIndex : 0;
@@ -194,7 +210,7 @@ void UMain_Menu_Widget::InitializeSettingsControls()
         {
             ScreenShakeToggle->PossibleValues = { "ON", "OFF" };
             ScreenShakeToggle->OnValueChanged.AddDynamic(this, &UMain_Menu_Widget::OnScreenShakeValueChanged);
-            ScreenShakeToggle->SetLabel("Screen Shake");
+            ScreenShakeToggle->SetLabel(LOCTEXT("ScreenShakeLabel", "Screen Shake").ToString());
             ScreenShakeToggle->CurrentIndex = GameInstance->GameSettings.bScreenShakeEnabled ? 0 : 1;
             ScreenShakeToggle->UpdateDisplay();
         }
@@ -204,7 +220,7 @@ void UMain_Menu_Widget::InitializeSettingsControls()
         {
             VibrationToggle->PossibleValues = { "ON", "OFF" };
             VibrationToggle->OnValueChanged.AddDynamic(this, &UMain_Menu_Widget::OnVibrationValueChanged);
-            VibrationToggle->SetLabel("Vibration");
+            VibrationToggle->SetLabel(LOCTEXT("VibrationLabel", "Vibration").ToString());
             VibrationToggle->CurrentIndex = GameInstance->GameSettings.bVibrationEnabled ? 0 : 1;
             VibrationToggle->UpdateDisplay();
         }
@@ -355,7 +371,7 @@ void UMain_Menu_Widget::OnSwordButtonHovered()
 {
 
     UpdateWeaponStats(EWeaponType::Sword);
-    OnWeaponButtonHovered(TEXT("A sharp sword with enhanced lightning power."));
+    OnWeaponButtonHovered(LOCTEXT("SwordDesc", "A sharp sword with enhanced lightning power.").ToString());
     GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Sword Button Hovered"));
 
     UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
@@ -414,7 +430,7 @@ void UMain_Menu_Widget::OnSwordButtonFocused()
 {
 
     UpdateWeaponStats(EWeaponType::Sword);
-    OnWeaponButtonHovered(TEXT("A sharp sword with enhanced lightning power."));
+    OnWeaponButtonHovered(LOCTEXT("SwordDesc", "A sharp sword with enhanced lightning power.").ToString());
     GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Sword Button Focused"));
     UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
 
@@ -494,7 +510,7 @@ void UMain_Menu_Widget::OnStaffButtonHovered()
 {
 
     UpdateWeaponStats(EWeaponType::Staff);
-    OnWeaponButtonHovered(TEXT("A mystical staff that boosts elemental power."));
+    OnWeaponButtonHovered(LOCTEXT("StaffDesc", "A mystical staff that boosts elemental power.").ToString());
     GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Staff Button Hovered"));
 
     UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
@@ -554,7 +570,7 @@ void UMain_Menu_Widget::OnStaffButtonFocused()
 
 
     UpdateWeaponStats(EWeaponType::Staff);
-    OnWeaponButtonHovered(TEXT("A mystical staff that boosts elemental power."));
+    OnWeaponButtonHovered(LOCTEXT("StaffDesc", "A mystical staff that boosts elemental power.").ToString());
     GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Staff Button Focused"));
 
 
@@ -660,9 +676,10 @@ void UMain_Menu_Widget::OnControlsButtonHovered()
 
     // Update title and description
     UpdateTutorialContent(
-        FText::FromString("Controls"),
-        FText::FromString("")
+        LOCTEXT("TutorialControls", "Controls"),
+        FText::GetEmpty()
     );
+
 
     // Show the controls container
     if (ControlsContainer)
@@ -693,10 +710,9 @@ void UMain_Menu_Widget::OnControlsButtonUnhovered()
         GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Controls Container is null!"));
     }
 
-    // Clear the title and description when unhovered
     UpdateTutorialContent(
-        FText::FromString(""),
-        FText::FromString("")
+        FText::GetEmpty(),
+        FText::GetEmpty()
     );
 }
 
@@ -712,8 +728,8 @@ void UMain_Menu_Widget::OnGameplayButtonHovered()
     }
 
     UpdateTutorialContent(
-        FText::FromString("Gameplay"),
-        FText::FromString("Objective:\n-Your goal is to survive wave after wave of enemies. Stay alert, defeat as many foes as possible, and aim for a new high score.\n\n"
+        LOCTEXT("TutorialGameplay", "Gameplay"),
+        LOCTEXT("TutorialGameplayDesc", "Objective:\n-Your goal is to survive wave after wave of enemies. Stay alert, defeat as many foes as possible, and aim for a new high score.\n\n"
             "Combat Basics:\n"
             "-Use basic attacks to quickly take down enemies\n"
             "-Exploit enemy weaknesses with elemental attacks (Fire, Ice, or Thunder)\n"
@@ -737,8 +753,8 @@ void UMain_Menu_Widget::OnLevellingUpButtonHovered()
     }
 
     UpdateTutorialContent(
-        FText::FromString("Levelling Up"),
-        FText::FromString("Earn Experience:\n-Defeat enemies to gain experience points for your chosen weapon.\n\n"
+        LOCTEXT("TutorialLevelUp", "Levelling Up"),
+        LOCTEXT("TutorialLevelUpDesc", "Earn Experience:\n-Defeat enemies to gain experience points for your chosen weapon.\n\n"
             "Increase Your Weapon Level:\n-When you collect enough experience, your weapon will level up. Leveling up unlocks new combat techniques that help you deal more damage.\n\n"
             "Boost Your Elemental Proficiency:\n-Use elemental attacks (Fire, Ice, or Thunder) during battle. Each use increases your Elemental attribute for that weapon.\n\n"
             "Unlock Powerful Attacks:\n-As your elemental proficiency grows, you'll gain access to stronger elemental moves. Keep using a specific element to make its attacks even more effective.")
@@ -759,8 +775,8 @@ void UMain_Menu_Widget::OnAttributesButtonHovered()
     }
 
     UpdateTutorialContent(
-        FText::FromString("Attributes"),
-        FText::FromString("Health:\n-Your Health (HP) shows how much damage you can take. Taking damage in battle reduces your Health. When your Health reaches zero, it's game over.\n\n"
+        LOCTEXT("TutorialAttributes", "Attributes"),
+        LOCTEXT("TutorialAttributesDesc", "Health:\n-Your Health (HP) shows how much damage you can take. Taking damage in battle reduces your Health. When your Health reaches zero, it's game over.\n\n"
             "Attack:\n-The Attack attribute determines how much damage you deal to enemies. Increasing this attribute means you can defeat foes more quickly.\n\n"
             "Defence:\n-Your Defence attribute reduces the damage you take from enemy attacks. A higher Defence helps you withstand more hits during combat.\n\n"
             "Elemental:\n-This attribute measures your proficiency with elemental attacks (Fire, Ice, and Thunder). As you use these attacks, your Elemental attribute improves, unlocking even more potent moves.\n\n"
@@ -939,7 +955,7 @@ void UMain_Menu_Widget::UpdateVolumeText(float Volume)
     if (VolumePercentageText)
     {
         int32 VolumePercent = FMath::RoundToInt(Volume * 100.0f);
-        VolumePercentageText->SetText(FText::FromString(FString::Printf(TEXT("%d%%"), VolumePercent)));
+        VolumePercentageText->SetText(FText::Format(LOCTEXT("VolumePercentFormat", "{0}%"), FText::AsNumber(VolumePercent)));
     }
 
 }
@@ -1042,7 +1058,7 @@ void UMain_Menu_Widget::UpdateWeaponStatsText(float Attack, float Defense, float
     if (AttackStat)
     {
         // Convert Attack to an integer and update the text
-        AttackStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), static_cast<int32>(Attack))));
+        AttackStat->SetText(FText::Format(LOCTEXT("AttackStatFormat", "{0}"), FText::AsNumber(static_cast<int32>(Attack))));
         UE_LOG(LogTemp, Warning, TEXT("AttackStat updated with: %d"), static_cast<int32>(Attack));
     }
     else
@@ -1053,7 +1069,7 @@ void UMain_Menu_Widget::UpdateWeaponStatsText(float Attack, float Defense, float
     if (DefenceStat)
     {
         // Convert Defense to an integer and update the text
-        DefenceStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), static_cast<int32>(Defense))));
+        DefenceStat->SetText(FText::Format(LOCTEXT("DefenseStatFormat", "{0}"), FText::AsNumber(static_cast<int32>(Defense))));
         UE_LOG(LogTemp, Warning, TEXT("DefenceStat updated with: %d"), static_cast<int32>(Defense));
     }
     else
@@ -1064,7 +1080,7 @@ void UMain_Menu_Widget::UpdateWeaponStatsText(float Attack, float Defense, float
     if (ElementalStat)
     {
         // Convert ElementalAttack to an integer and update the text
-        ElementalStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), static_cast<int32>(ElementalAttack))));
+        ElementalStat->SetText(FText::Format(LOCTEXT("ElementalStatFormat", "{0}"), FText::AsNumber(static_cast<int32>(ElementalAttack))));
         UE_LOG(LogTemp, Warning, TEXT("ElementalStat updated with: %d"), static_cast<int32>(ElementalAttack));
     }
     else
@@ -1075,7 +1091,7 @@ void UMain_Menu_Widget::UpdateWeaponStatsText(float Attack, float Defense, float
     if (WeaponLevelStat)
     {
         // WeaponLevel is already an integer, so no conversion needed
-        WeaponLevelStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), WeaponLevel)));
+        WeaponLevelStat->SetText(FText::Format(LOCTEXT("WeaponLevelFormat", "{0}"), FText::AsNumber(WeaponLevel)));
         UE_LOG(LogTemp, Warning, TEXT("WeaponLevelStat updated with: %d"), WeaponLevel);
     }
     else
@@ -1105,19 +1121,19 @@ void UMain_Menu_Widget::UpdateElementalProficiencyText(EWeaponType WeaponType)
     {
         if (FireProficiencyLevel)
         {
-            FireProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), FireLevel)));
+            FireProficiencyLevel->SetText(FText::Format(LOCTEXT("FireLevelFormat", "{0}"), FText::AsNumber(FireLevel)));
             UE_LOG(LogTemp, Warning, TEXT("FireProficiencyLevel updated with: %d"), FireLevel);
         }
 
         if (IceProficiencyLevel)
         {
-            IceProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), IceLevel)));
+            IceProficiencyLevel->SetText(FText::Format(LOCTEXT("IceLevelFormat", "{0}"), FText::AsNumber(IceLevel)));
             UE_LOG(LogTemp, Warning, TEXT("IceProficiencyLevel updated with: %d"), IceLevel);
         }
 
         if (ThunderProficiencyLevel)
         {
-            ThunderProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ThunderLevel)));
+            ThunderProficiencyLevel->SetText(FText::Format(LOCTEXT("ThunderLevelFormat", "{0}"), FText::AsNumber(ThunderLevel)));
             UE_LOG(LogTemp, Warning, TEXT("ThunderProficiencyLevel updated with: %d"), ThunderLevel);
         }
     }
@@ -1308,19 +1324,31 @@ void UMain_Menu_Widget::OnVibrationValueChanged(const FString& NewValue)
 
 void UMain_Menu_Widget::OnLanguageValueChanged(const FString& NewValue)
 {
-
-
     if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
     {
         // Update the game setting
         GameInstance->GameSettings.CurrentLanguage = NewValue;
 
-        // Save settings
-        //GameInstance->SaveSettings();
+        // Map language name to culture code
+        FString CultureCode;
+        if (NewValue == "English") CultureCode = "en";
+        else if (NewValue == "French") CultureCode = "fr";
+        else if (NewValue == "German") CultureCode = "de";
+        else if (NewValue == "Spanish") CultureCode = "es";
+        else if (NewValue == "Japanese") CultureCode = "ja";
 
-        // Debug message
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
-            FString::Printf(TEXT("Language Changed to: %s"), *NewValue));
+        // Apply the culture change
+        FInternationalization::Get().SetCurrentCulture(CultureCode);
+
+        // Force UI refresh
+        if (WidgetSwitcher)
+        {
+            int32 CurrentIndex = WidgetSwitcher->GetActiveWidgetIndex();
+            UpdateCanvasVisibility(CurrentIndex);
+        }
+
+        // Save settings
+        GameInstance->SaveSettings();
     }
 
 
@@ -1598,7 +1626,7 @@ void UMain_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
     if (SwordButton && SwordButton->HasKeyboardFocus())
     {
         UpdateWeaponStats(EWeaponType::Sword);
-        OnWeaponButtonHovered("A sharp sword with enhanced attack power.");
+        OnWeaponButtonHovered(LOCTEXT("SwordDescAttack", "A sharp sword with enhanced attack power.").ToString());
 
     }
 
@@ -1613,8 +1641,8 @@ void UMain_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
     if (StaffButton && StaffButton->HasKeyboardFocus())
     {
         UpdateWeaponStats(EWeaponType::Staff);
-        OnWeaponButtonHovered("A mystical staff that boosts elemental power.");
- 
+        OnWeaponButtonHovered(LOCTEXT("StaffDescBoost", "A mystical staff that boosts elemental power.").ToString());
+
     }
 
 
@@ -1657,3 +1685,4 @@ ARen_Low_Poly_Character* UMain_Menu_Widget::GetPlayerCharacter()
 }
 
 
+#undef LOCTEXT_NAMESPACE
