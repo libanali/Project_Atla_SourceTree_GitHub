@@ -296,7 +296,7 @@ void AEnemy_AIController::RestartAI()
         if (TargetPlayer)
         {
             // Start the AI moving again based on current situation
-            UpdateBehaviour();
+           // UpdateBehaviour();
         }
     }
 
@@ -305,7 +305,7 @@ void AEnemy_AIController::RestartAI()
 
 
 
-
+/*
 
 void AEnemy_AIController::UpdateBehaviour()
 {
@@ -341,7 +341,7 @@ void AEnemy_AIController::UpdateBehaviour()
 }
 
 
-
+*/
 
 
 void AEnemy_AIController::SetEnemyNumber(int32 NewNumber)
@@ -358,6 +358,320 @@ int32 AEnemy_AIController::GetEnemyNumber() const
 {
     return EnemyNumber;
 }
+
+EEnemyType AEnemy_AIController::GetEnemyType() const
+{
+    return EEnemyType();
+}
+
+void AEnemy_AIController::SetEnemyType(EEnemyType NewType)
+{
+    EnemyType = NewType;
+
+}
+
+void AEnemy_AIController::InitializeForEnemyType(EEnemyType Type)
+{
+    EnemyType = Type;
+
+    // Reset the attack probability
+    AttackProbability = 0.0f;
+
+    // Set movement speed based on type
+    AEnemy_Poly* Enemy = Cast<AEnemy_Poly>(GetPawn());
+    if (Enemy && Enemy->GetCharacterMovement())
+    {
+        switch (Type)
+        {
+        case EEnemyType::Spider:
+            Enemy->GetCharacterMovement()->MaxWalkSpeed = 500.0f;
+            break;
+
+        case EEnemyType::Wolf:
+            Enemy->GetCharacterMovement()->MaxWalkSpeed = 450.0f;
+            break;
+
+        case EEnemyType::RockTroll:
+            Enemy->GetCharacterMovement()->MaxWalkSpeed = 300.0f;
+            break;
+        }
+    }
+
+    // Initialize movement pattern timer
+    MovementPatternTimer = 0.0f;
+}
+
+void AEnemy_AIController::SetTotalEnemyCount(int32 Count)
+{
+    TotalEnemyCount = FMath::Max(1, Count);
+
+}
+
+void AEnemy_AIController::SetBaseAttackProbability(float Probability)
+{
+    BaseAttackProbability = Probability;
+
+}
+
+void AEnemy_AIController::SetAggressionFactor(float Factor)
+{
+    AggressionFactor = Factor;
+
+}
+
+void AEnemy_AIController::UpdateBehaviour(float DeltaTime)
+{
+    if (TargetPlayer == nullptr || !GetPawn()) return;
+
+    AEnemy_Poly* Enemy = Cast<AEnemy_Poly>(GetPawn());
+    if (!Enemy) return;
+
+    // Calculate distance to player
+    float TheDistanceToPlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
+
+    // Update attack probability (increases over time)
+    float AttackRate = GetAttackRateForEnemyType(EnemyType);
+    AttackProbability += DeltaTime * AttackRate * BaseAttackProbability * AggressionFactor;
+
+    // Modify probability based on distance (closer = higher chance)
+    float DistanceFactor = FMath::Clamp(1.0f - (TheDistanceToPlayer / 500.0f), 0.1f, 1.0f);
+    float FinalAttackProbability = AttackProbability * DistanceFactor;
+
+    // If close enough and probability check passes, attack
+    if (TheDistanceToPlayer <= AttackRange && !bIsAttackOnCooldown)
+    {
+        float RandValue = FMath::FRand();
+        if (RandValue < FinalAttackProbability * DeltaTime)
+        {
+            // Reset probability and attack
+            AttackProbability = 0.0f;
+            StopMovement();
+            AttackPlayer();
+            return;
+        }
+    }
+
+    // If not attacking, handle movement based on enemy type and distance
+    if (TheDistanceToPlayer > AttackRange * 1.5f)
+    {
+        // Far distance - approach with type-specific movement
+        switch (EnemyType)
+        {
+        case EEnemyType::Spider:
+            ApplyErraticMovement(DeltaTime);
+            break;
+
+        case EEnemyType::Wolf:
+            ApplyCirclingMovement(DeltaTime);
+            break;
+
+        case EEnemyType::RockTroll:
+            ApplyDirectMovement(DeltaTime);
+            break;
+        }
+    }
+    else if (TheDistanceToPlayer > AttackRange)
+    {
+        // Medium distance - prepare for attack
+        PrepareForAttack(EnemyType, DeltaTime);
+    }
+    else
+    {
+        // Within attack range - evaluate attack or reposition
+        float RepositionChance = 0.3f * DeltaTime; // 30% chance per second to reposition
+        if (FMath::FRand() < RepositionChance)
+        {
+            // Occasionally reposition even in attack range for more dynamic movement
+            PrepareForAttack(EnemyType, DeltaTime);
+        }
+    }
+}
+
+
+
+void AEnemy_AIController::ApplyErraticMovement(float DeltaTime)
+{// Spider movement - erratic zigzag pattern
+    MovementPatternTimer -= DeltaTime;
+
+    if (MovementPatternTimer <= 0.0f)
+    {
+        // Time to change direction
+        MovementPatternTimer = FMath::RandRange(0.5f, 1.5f);
+
+        // Calculate base direction toward player
+        FVector DirectionToPlayer = (TargetPlayer->GetActorLocation() - GetPawn()->GetActorLocation()).GetSafeNormal();
+
+        // Add randomness to direction (zigzag)
+        float RandomAngle = FMath::RandRange(-60.0f, 60.0f);
+        FVector RandomDirection = DirectionToPlayer.RotateAngleAxis(RandomAngle, FVector(0, 0, 1));
+
+        // Calculate target point
+        float AdvanceDistance = FMath::RandRange(100.0f, 300.0f);
+        CurrentMoveTarget = GetPawn()->GetActorLocation() + (RandomDirection * AdvanceDistance);
+
+        // Move to the calculated point
+        MoveToLocation(CurrentMoveTarget, -1.0f, true, true);
+    }
+}
+
+void AEnemy_AIController::ApplyCirclingMovement(float DeltaTime)
+{    // Wolf movement - circle around player while approaching
+    MovementPatternTimer -= DeltaTime;
+
+    if (MovementPatternTimer <= 0.0f)
+    {
+        // Time to update circling position
+        MovementPatternTimer = FMath::RandRange(1.0f, 2.0f);
+
+        // Calculate position in a circle around player
+        float CircleRadius = FMath::RandRange(250.0f, 400.0f);
+        float CircleAngle = FMath::RandRange(0.0f, 360.0f);
+
+        // If we have multiple wolves, try to space them around the circle
+        if (TotalEnemyCount > 1 && EnemyNumber > 0)
+        {
+            CircleAngle = (360.0f / TotalEnemyCount) * EnemyNumber + FMath::RandRange(-30.0f, 30.0f);
+        }
+
+        // Calculate position on the circle
+        FVector CircleOffset = FVector(
+            FMath::Cos(FMath::DegreesToRadians(CircleAngle)) * CircleRadius,
+            FMath::Sin(FMath::DegreesToRadians(CircleAngle)) * CircleRadius,
+            0.0f
+        );
+
+        CurrentMoveTarget = TargetPlayer->GetActorLocation() + CircleOffset;
+
+        // Move to the calculated point
+        MoveToLocation(CurrentMoveTarget, -1.0f, true, true);
+    }
+}
+
+void AEnemy_AIController::ApplyDirectMovement(float DeltaTime)
+{ // Rock Troll movement - slower, direct approach
+    MovementPatternTimer -= DeltaTime;
+
+    if (MovementPatternTimer <= 0.0f)
+    {
+        // Less frequent updates for slower movement
+        MovementPatternTimer = FMath::RandRange(2.0f, 3.0f);
+
+        // Move directly toward player with slight variation
+        FVector DirectionToPlayer = (TargetPlayer->GetActorLocation() - GetPawn()->GetActorLocation()).GetSafeNormal();
+
+        // Small random variation in approach angle
+        float RandomAngle = FMath::RandRange(-20.0f, 20.0f);
+        FVector RandomDirection = DirectionToPlayer.RotateAngleAxis(RandomAngle, FVector(0, 0, 1));
+
+        // Calculate target with longer distance for slower approach
+        float AdvanceDistance = FMath::RandRange(150.0f, 250.0f);
+        CurrentMoveTarget = GetPawn()->GetActorLocation() + (RandomDirection * AdvanceDistance);
+
+        // Move to the calculated point with lower acceptance radius
+        MoveToLocation(CurrentMoveTarget, 100.0f, true, true);
+    }
+}
+
+void AEnemy_AIController::PrepareForAttack(EEnemyType TheEnemyType, float DeltaTime)
+{// Behavior when close to attack range but not attacking yet
+    switch (EnemyType)
+    {
+    case EEnemyType::Spider:
+        // Spiders do quick sidesteps before attacking
+    {
+        MovementPatternTimer -= DeltaTime;
+        if (MovementPatternTimer <= 0.0f)
+        {
+            MovementPatternTimer = FMath::RandRange(0.3f, 0.7f);
+
+            // Calculate sideways direction relative to player
+            FVector DirectionToPlayer = (TargetPlayer->GetActorLocation() - GetPawn()->GetActorLocation()).GetSafeNormal();
+            FVector SideDirection = FVector::CrossProduct(DirectionToPlayer, FVector(0, 0, 1));
+
+            // Randomly select left or right
+            if (FMath::RandBool())
+            {
+                SideDirection = -SideDirection;
+            }
+
+            // Calculate sidestep position
+            float SideStepDistance = FMath::RandRange(80.0f, 150.0f);
+            CurrentMoveTarget = GetPawn()->GetActorLocation() + (SideDirection * SideStepDistance);
+
+            // Move to sidestep position
+            MoveToLocation(CurrentMoveTarget, -1.0f, true, true);
+        }
+    }
+    break;
+
+    case EEnemyType::Wolf:
+        // Wolves feint forward and back
+    {
+        MovementPatternTimer -= DeltaTime;
+        if (MovementPatternTimer <= 0.0f)
+        {
+            MovementPatternTimer = FMath::RandRange(0.8f, 1.5f);
+
+            // Calculate direction to player
+            FVector DirectionToPlayer = (TargetPlayer->GetActorLocation() - GetPawn()->GetActorLocation()).GetSafeNormal();
+
+            // Decide between feint forward or back
+            float FeintDirection = FMath::RandBool() ? 1.0f : -0.5f; // Forward or back
+            float FeintDistance = FMath::RandRange(70.0f, 120.0f) * FeintDirection;
+
+            // Calculate feint position
+            CurrentMoveTarget = GetPawn()->GetActorLocation() + (DirectionToPlayer * FeintDistance);
+
+            // Move to feint position
+            MoveToLocation(CurrentMoveTarget, -1.0f, true, true);
+        }
+    }
+    break;
+
+    case EEnemyType::RockTroll:
+        // Rock Trolls do slow intimidation steps
+    {
+        MovementPatternTimer -= DeltaTime;
+        if (MovementPatternTimer <= 0.0f)
+        {
+            MovementPatternTimer = FMath::RandRange(1.5f, 2.5f);
+
+            // Calculate slightly offset position from direct approach
+            FVector DirectionToPlayer = (TargetPlayer->GetActorLocation() - GetPawn()->GetActorLocation()).GetSafeNormal();
+            float OffsetAngle = FMath::RandRange(-30.0f, 30.0f);
+            FVector OffsetDirection = DirectionToPlayer.RotateAngleAxis(OffsetAngle, FVector(0, 0, 1));
+
+            // Calculate step position
+            float StepDistance = FMath::RandRange(50.0f, 100.0f);
+            CurrentMoveTarget = GetPawn()->GetActorLocation() + (OffsetDirection * StepDistance);
+
+            // Move to step position
+            MoveToLocation(CurrentMoveTarget, -1.0f, true, true);
+        }
+    }
+    break;
+    }
+}
+
+float AEnemy_AIController::GetAttackRateForEnemyType(EEnemyType TheEnemyType)
+{
+    // Return attack rate multiplier based on enemy type
+    switch (EnemyType)
+    {
+    case EEnemyType::Spider:
+        return 1.5f;  // Spiders attack more frequently
+
+    case EEnemyType::Wolf:
+        return 1.2f;  // Wolves attack moderately frequently
+
+    case EEnemyType::RockTroll:
+        return 0.8f;  // Rock Trolls attack less frequently
+
+    default:
+        return 1.0f;
+    }
+}
+
 
 
 
@@ -378,7 +692,8 @@ void AEnemy_AIController::Tick(float deltaTime)
 
         if (TargetPlayer)
         {
-            UpdateBehaviour();  // Just focus on moving and attacking for now
+            UpdateBehaviour(deltaTime);
+
 
         }
         // Ensure the enemy is always facing the player

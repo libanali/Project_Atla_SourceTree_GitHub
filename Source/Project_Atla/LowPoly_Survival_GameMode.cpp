@@ -21,7 +21,7 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
     RoundDelay = 2.5f;
     BaseEnemiesPerRound = 3;
     SpawnRadius = 1200.0f;
-    CurrentRound = 1;
+    CurrentRound = 21;
     AdditionalEnemyHealthPerRound = 30.0f;
     AdditionalEnemiesPerRound = 1.9f;
     BaseSpawnDelay = 2.0f;         // Initial delay between spawns in the first round
@@ -89,6 +89,62 @@ void ALowPoly_Survival_GameMode::StopSpawningAndDestroyEnemies()
 
 }
 
+void ALowPoly_Survival_GameMode::UpdateEnemyBehavior()
+{
+
+    // Update behavior parameters for all enemies
+   // This replaces the old UpdateEnemyNumbers method
+
+   // Exit if no enemies
+    if (SpawnedEnemies.Num() == 0) return;
+
+    // Tell each enemy the current total count (for spacing)
+    int32 TotalActive = 0;
+    for (AEnemy_Poly* Enemy : SpawnedEnemies)
+    {
+        if (Enemy && !Enemy->bIsDead)
+        {
+            TotalActive++;
+        }
+    }
+
+    // Scale aggression based on remaining enemies (fewer enemies = more aggressive)
+    float AggressionScale = 1.0f;
+    if (TotalActive > 0)
+    {
+        // More enemies = slightly less individual aggression
+        AggressionScale = FMath::Max(0.8f, 1.0f - ((TotalActive - 1) * 0.05f));
+
+        // Scale with round number for increased difficulty
+        float RoundScale = 1.0f + (CurrentRound * 0.05f);
+        AggressionScale *= RoundScale;
+    }
+
+    // Update behavior parameters for each enemy
+    int32 ActiveIndex = 0;
+    for (AEnemy_Poly* Enemy : SpawnedEnemies)
+    {
+        if (!Enemy || Enemy->bIsDead) continue;
+
+        AEnemy_AIController* EnemyController = Cast<AEnemy_AIController>(Enemy->GetController());
+        if (EnemyController)
+        {
+            // Update total enemy count
+            EnemyController->SetTotalEnemyCount(TotalActive);
+
+            // Set enemy number (for spacing)
+            EnemyController->SetEnemyNumber(ActiveIndex);
+
+            // Update aggression with slight variation between enemies
+            float IndividualAggression = AggressionScale * FMath::RandRange(0.9f, 1.1f);
+            EnemyController->SetAggressionFactor(IndividualAggression);
+
+            ActiveIndex++;
+        }
+    }
+
+}
+
 
 void ALowPoly_Survival_GameMode::BeginPlay()
 {
@@ -99,8 +155,13 @@ void ALowPoly_Survival_GameMode::BeginPlay()
 
     GetWorld()->GetTimerManager().SetTimer(NumberUpdateTimer, this, &ALowPoly_Survival_GameMode::UpdateEnemyNumbers, 5.0f, true);
 
-    CurrentAttacker = nullptr;
-
+    GetWorld()->GetTimerManager().SetTimer(
+        EnemyBehaviorUpdateTimer,
+        this,
+        &ALowPoly_Survival_GameMode::UpdateEnemyBehavior,
+        5.0f,
+        true
+    );
     SpecialEventInterval = FMath::RandRange(1, 3);
     // Find all actors in the level with the tag "SpawnZone"
     TArray<AActor*> FoundActors;
@@ -149,14 +210,11 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
     ARen_Low_Poly_Character* Ren = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
     if (Ren)
-
     {
-
         Ren->HealthStruct.CurrentHealth = Ren->HealthStruct.MaxHealth;
         Ren->ManaStruct.CurrentMana = Ren->ManaStruct.MaxMana;
-
     }
-   
+
     // Determine the number of enemies to spawn for the current round
     int32 EnemiesToSpawn = 4 + (CurrentRound - 1) * AdditionalEnemiesPerRound;
     float LocalSpawnDelay = FMath::Max(MinSpawnDelay, BaseSpawnDelay - (CurrentRound - 1) * DelayDecreasePerRound);
@@ -166,7 +224,7 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
         FTimerHandle LocalSpawnTimerHandle;
         GetWorld()->GetTimerManager().SetTimer(LocalSpawnTimerHandle, [this, i, EnemiesToSpawn]()
             {
-                FVector SpawnLocation = GetRandomPointNearPlayer();  // Get random spawn location inside spawn zones
+                FVector SpawnLocation = GetRandomPointNearPlayer();
                 FRotator SpawnRotation = FRotator::ZeroRotator;
 
                 // Add a small offset to the spawn location based on the enemy index to space them out
@@ -189,6 +247,37 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
 
                         // Add the spawned enemy to the list
                         SpawnedEnemies.Add(SpawnedEnemy);
+
+                        // Initialize the AI controller with the appropriate enemy type
+                        AEnemy_AIController* AIController = Cast<AEnemy_AIController>(SpawnedEnemy->GetController());
+                        if (AIController)
+                        {
+                            // Set enemy type based on class
+                            EEnemyType EnemyType;
+                            if (EnemyToSpawnClass == BP_Spider)
+                            {
+                                EnemyType = EEnemyType::Spider;
+                            }
+                            else if (EnemyToSpawnClass == BP_Wolf)
+                            {
+                                EnemyType = EEnemyType::Wolf;
+                            }
+                            else if (EnemyToSpawnClass == BP_RockTroll)
+                            {
+                                EnemyType = EEnemyType::RockTroll;
+                            }
+                            else
+                            {
+                                EnemyType = EEnemyType::Spider; // Default
+                            }
+
+                            // Initialize AI behavior for this enemy type
+                            AIController->InitializeForEnemyType(EnemyType);
+
+                            // Add some randomization to make each enemy slightly different
+                            float RandomAggressionFactor = FMath::RandRange(0.8f, 1.2f);
+                            AIController->SetAggressionFactor(RandomAggressionFactor);
+                        }
 
                         // Create the arrow widget for this enemy
                         if (ARen_Low_Poly_Character* Player = Cast<ARen_Low_Poly_Character>(GetWorld()->GetFirstPlayerController()->GetPawn()))
@@ -218,6 +307,9 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
                 if (i == EnemiesToSpawn - 1)
                 {
                     bIsSpawningEnemies = false;
+
+                    // Update enemy behavior parameters after all enemies are spawned
+                    UpdateEnemyBehavior();
                 }
 
             }, i * LocalSpawnDelay, false);
@@ -541,6 +633,9 @@ void ALowPoly_Survival_GameMode::OnEnemyDestroyed()
             SpawnedEnemies.RemoveAt(i);
         }
     }
+
+    // Update behavior parameters for remaining enemies
+    UpdateEnemyBehavior();
 
     // After removing dead enemies, check for the next round
     CheckForNextRound();

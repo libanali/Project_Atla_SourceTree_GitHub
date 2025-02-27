@@ -68,6 +68,10 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Round")
         int32 CurrentRound;
 
+    void UpdateEnemyBehavior();
+
+    UPROPERTY()
+        FTimerHandle EnemyBehaviorUpdateTimer;
 
 private:
     FVector GetRandomPointInZone(const FBox& Zone);

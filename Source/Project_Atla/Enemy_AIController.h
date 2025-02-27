@@ -12,6 +12,16 @@ class AEnemy_Poly;
 /**
  * 
  */
+
+UENUM(BlueprintType)
+enum class EEnemyType : uint8
+{
+    Spider UMETA(DisplayName = "Spider"),
+    Wolf UMETA(DisplayName = "Wolf"),
+    RockTroll UMETA(DisplayName = "Rock Troll")
+};
+
+
 UCLASS()
 class PROJECT_ATLA_API AEnemy_AIController : public AAIController
 {
@@ -37,7 +47,7 @@ public:
     float AttackRange;
 
     // Function to update the behavior of the enemy
-    void UpdateBehaviour();
+   // void UpdateBehaviour();
 
     // Function to set the enemy's assigned number
     void SetEnemyNumber(int32 NewNumber);
@@ -66,6 +76,31 @@ public:
 
     FTimerHandle PetrifiedEffectTimer;
 
+
+    // Getter/setter for enemy type
+    EEnemyType GetEnemyType() const;
+    void SetEnemyType(EEnemyType NewType);
+
+    // Initialize based on enemy type
+    void InitializeForEnemyType(EEnemyType Type);
+
+    // Set total enemy count (for spacing calculation)
+    void SetTotalEnemyCount(int32 Count);
+
+    // Set attack probability modifiers
+    void SetBaseAttackProbability(float Probability);
+    void SetAggressionFactor(float Factor);
+
+    // Update behavior with tick delta time
+    void UpdateBehaviour(float DeltaTime);
+
+    // Existing methods you already have
+    // ...
+
+    // Add this variable to your existing class
+    EEnemyType EnemyType = EEnemyType::Spider;  // Default type
+
+
  
 private:
     AActor* TargetPlayer;
@@ -75,7 +110,23 @@ private:
     float DecisionInterval;  // The time interval between decisions
     bool bIsStrafing;        // Tracks if the AI is currently strafing
   
+    // Attack probability system
+    float AttackProbability = 0.0f;
+    float BaseAttackProbability = 0.5f;  // Base chance to attack per second
+    float AttackProbabilityMultiplier = 1.0f;  // Can be modified based on difficulty
+    float AggressionFactor = 1.0f;  // Individual enemy aggression variation
 
+    // Movement pattern tracking
+    float MovementPatternTimer = 0.0f;
+    FVector CurrentMoveTarget;
+    int32 TotalEnemyCount = 1;
+
+    // Movement pattern methods
+    void ApplyErraticMovement(float DeltaTime);  // Spider movement
+    void ApplyCirclingMovement(float DeltaTime); // Wolf movement
+    void ApplyDirectMovement(float DeltaTime);   // Rock Troll movement
+    void PrepareForAttack(EEnemyType TheEnemyType, float DeltaTime);
+    float GetAttackRateForEnemyType(EEnemyType TheEnemyType);
 
 protected:
 
