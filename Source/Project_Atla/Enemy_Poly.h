@@ -93,6 +93,9 @@ public:
 	UFUNCTION()
 		void ResetHurtState();
 
+	UFUNCTION(BlueprintImplementableEvent)
+		void PlayRedTintUIAnimation();
+
 
 	void UpdateHealthBar();
 	void Death();

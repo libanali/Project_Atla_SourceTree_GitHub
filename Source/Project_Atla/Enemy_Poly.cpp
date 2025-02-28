@@ -67,6 +67,7 @@ void AEnemy_Poly::ResetHurtState()
 
 
 
+
 void AEnemy_Poly::IncreaseEnemyHealth(float Amount, bool bSetInitialHealth)
 {
 
@@ -241,6 +242,27 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 	// Apply damage - this will interrupt current animation without playing hurt animation
 	LowPolyRen->TakeDamage(DamageToInflict);
 
+	PlayRedTintUIAnimation();
+
+	// Calculate actual damage dealt
+	float ActualDamageDealt = CurrentHealth - LowPolyRen->HealthStruct.CurrentHealth;
+
+	// Spawn floating damage text - ADD THIS CODE HERE
+	if (!LowPolyRen->bIsDead && ActualDamageDealt > 0)
+	{
+		// Get a position slightly above the player's head
+		FVector TextLocation = LowPolyRen->GetActorLocation() + FVector(0, 0, 100);
+
+		// Use red color for damage
+		FLinearColor DamageColor = FLinearColor(1.0f, 0.2f, 0.2f); // Red for damage
+
+		// Format damage value (rounded to integer)
+		FString DamageText = FString::Printf(TEXT("-%d"), FMath::RoundToInt(ActualDamageDealt));
+
+		// Display damage text
+		LowPolyRen->SpawnFloatingCombatText(DamageText, TextLocation, DamageColor, false, 2.0f);
+	}
+
 	// Check if damage was fatal
 	if (LowPolyRen->bIsDead || LowPolyRen->HealthStruct.CurrentHealth <= 0.0f)
 	{
@@ -343,6 +365,7 @@ void AEnemy_Poly::OnAttackOverlapBegin(UPrimitiveComponent* OverlappedComponent,
 	{
 		// Call our comprehensive damage function
 		InflictDamageOnCharacter(PlayerCharacter);
+		PlayRedTintUIAnimation();
 	}
 
 

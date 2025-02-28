@@ -702,7 +702,7 @@ void ARen_Low_Poly_Character::IncreaseMana(float ManaAmount)
 	// Display the actual heal amount as floating text
 	SpawnFloatingCombatText(FString::Printf(TEXT("+%.0f"), ActualManaAmount),
 		GetActorLocation() + FVector(0, 0, 100),
-		FLinearColor(0.5f, 0.75f, 1.0f),
+		FLinearColor(0.35f, 0.6f, 0.95f),
 		false);
 
 }
@@ -1467,27 +1467,44 @@ void ARen_Low_Poly_Character::ToggleSoftLock()
 void ARen_Low_Poly_Character::TakeDamage(float DamageAmount)
 {
 
-	// Apply damage to health
-	HealthStruct.TakeDamage(DamageAmount);
+	if (DamageAmount <= 0 || bIsDead) return;
 
-	// If the health is <= 0, call the Death function
+	// Calculate damage just once
+	CalculatedDamage = DamageAmount / (1 + TotalDefence);
+
+	// Apply damage
+	HealthStruct.CurrentHealth = FMath::Clamp(HealthStruct.CurrentHealth - CalculatedDamage, 0.0f, HealthStruct.MaxHealth);
+	bIsHit = true;
+	InterruptCurrentAnimation();
+
+
+	if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+	{
+		// Only trigger camera shake if enabled in settings
+		if (GameInstance->GameSettings.bScreenShakeEnabled)
+
+		{
+
+			// Play camera shake when taking damage
+			if (HitCameraShake && !bIsDead)
+			{
+				APlayerController* PlayerController = Cast<APlayerController>(GetController());
+				if (PlayerController)
+				{
+					PlayerController->ClientStartCameraShake(HitCameraShake, 1.0f); // 1.0f is the scale, adjust as needed
+				}
+			}
+		}
+	}
+
+
+
+
+	// Check for death after applying damage
 	if (HealthStruct.CurrentHealth <= 0.0f && !bIsDead)
 	{
-
-		InterruptCurrentAnimation();
 		Death();  // Call Death only once
-		return;
 	}
-
-	// If damage amount is greater than zero, apply calculated damage
-	if (DamageAmount > 0)
-	{
-		CalculatedDamage = DamageAmount / (1 + TotalDefence);
-		HealthStruct.CurrentHealth = FMath::Clamp(HealthStruct.CurrentHealth - CalculatedDamage, 0.0f, HealthStruct.MaxHealth);
-		bIsHit = true;
-		InterruptCurrentAnimation();  // Stop any current animations
-	}
-
 }
 
 

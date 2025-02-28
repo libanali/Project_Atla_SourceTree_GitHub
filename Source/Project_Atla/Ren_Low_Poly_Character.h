@@ -866,6 +866,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 		void TriggerCameraShake();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Effects")
+		TSubclassOf<UCameraShakeBase> HitCameraShake;
 	//Camera Shake
 
 
