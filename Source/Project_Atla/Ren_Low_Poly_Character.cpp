@@ -458,6 +458,23 @@ void ARen_Low_Poly_Character::IncreaseAll()
 	ManaStruct.CurrentMana = ManaStruct.MaxMana;
 	TechniqueStruct.TechniquePoints = TechniqueStruct.MaxTechniquePoints;
 
+	// Display "MAX" for health
+	SpawnFloatingCombatText(TEXT("HP MAX"),
+		GetActorLocation() + FVector(-50, 0, 120),
+		FLinearColor(0.0f, 1.0f, 0.3f), // Green color
+		false);
+
+	// Display "MAX" for mana 
+	SpawnFloatingCombatText(TEXT("MP MAX"),
+		GetActorLocation() + FVector(0, 0, 100),
+		FLinearColor(0.0f, 0.5f, 1.0f), // Blue color for mana
+		false);
+
+	// Display "MAX" for technique points
+	SpawnFloatingCombatText(TEXT("TP MAX"),
+		GetActorLocation() + FVector(50, 0, 80),
+		FLinearColor(1.0f, 0.0f, 0.6f), 
+		false);
 }
 
 
@@ -673,7 +690,20 @@ void ARen_Low_Poly_Character::RecoverHealth()
 void ARen_Low_Poly_Character::IncreaseMana(float ManaAmount)
 {
 
+	float PreviousMana = ManaStruct.CurrentMana;
+
+
 	ManaStruct.IncreaseMana(ManaAmount);
+
+	float ActualManaAmount = ManaStruct.CurrentMana - PreviousMana;
+
+
+
+	// Display the actual heal amount as floating text
+	SpawnFloatingCombatText(FString::Printf(TEXT("+%.0f"), ActualManaAmount),
+		GetActorLocation() + FVector(0, 0, 100),
+		FLinearColor(0.5f, 0.75f, 1.0f),
+		false);
 
 }
 
@@ -749,11 +779,22 @@ void ARen_Low_Poly_Character::InflictTechniqueDamageOnEnemy(AEnemy_Poly* Enemy, 
 void ARen_Low_Poly_Character::IncreaseAbilityPoints(float Amount)
 {
 
+	float PreviousAbilityPoints = AbilityStruct.CurrentAbilityPoints;
+
+
 	if (bIncreaseAbilityPoints)
 	{
 
 		AbilityStruct.CurrentAbilityPoints = FMath::Min(AbilityStruct.CurrentAbilityPoints + Amount, AbilityStruct.MaxAbilityPoints);
 
+		float ActualAbilityAmount = AbilityStruct.CurrentAbilityPoints - PreviousAbilityPoints;
+
+		/*
+		SpawnFloatingCombatText(FString::Printf(TEXT("+%.0f"), ActualAbilityAmount),
+			GetActorLocation() + FVector(0, 0, 100),
+			FLinearColor(1.0f, 0.65f, 0.0f), 
+			false);
+			*/
 	}
 
 	else
@@ -1244,8 +1285,12 @@ void ARen_Low_Poly_Character::SpawnFloatingStatusText(const FString& StatusEffec
 void ARen_Low_Poly_Character::IncreaseTechniquePoints(int IncreaseAmount)
 {
 
-		TechniqueStruct.TechniquePoints += IncreaseAmount;
+	TechniqueStruct.TechniquePoints += IncreaseAmount;
 
+	SpawnFloatingCombatText(FString::Printf(TEXT("+%.0f"), IncreaseAmount),
+		GetActorLocation() + FVector(0, 0, 100),
+		FLinearColor(1.0f, 0.0f, 0.6f),
+		false);
 }
 
 
@@ -1451,7 +1496,20 @@ void ARen_Low_Poly_Character::TakeDamage(float DamageAmount)
 void ARen_Low_Poly_Character::IncreaseHealth(float HealAmount)
 {
 
+	// Store the health before healing
+	float HealthBefore = HealthStruct.CurrentHealth;
+
+	// Apply the healing
 	HealthStruct.IncreaseHealth(HealAmount);
+
+	// Calculate the actual amount healed
+	float ActualHealAmount = HealthStruct.CurrentHealth - HealthBefore;
+
+	// Display the actual heal amount as floating text
+	SpawnFloatingCombatText(FString::Printf(TEXT("+%.f"), ActualHealAmount),
+		GetActorLocation() + FVector(0, 0, 100),
+		FLinearColor(0.0f, 1.0f, 0.3f), // Green color for healing
+		false);
 
 }
 
