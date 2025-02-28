@@ -1214,15 +1214,15 @@ void ARen_Low_Poly_Character::SpawnFloatingStatusText(const FString& StatusEffec
 	// Get appropriate color based on status effect
 	FLinearColor StatusColor;
 
-	if (StatusEffect.Equals("Freeze", ESearchCase::IgnoreCase))
+	if (StatusEffect.Equals("FREEZE", ESearchCase::IgnoreCase))
 	{
 		StatusColor = FLinearColor(0.0f, 0.7f, 1.0f); // Ice blue
 	}
-	else if (StatusEffect.Equals("Burn", ESearchCase::IgnoreCase))
+	else if (StatusEffect.Equals("BURN", ESearchCase::IgnoreCase))
 	{
 		StatusColor = FLinearColor(1.0f, 0.3f, 0.0f); // Orange/red
 	}
-	else if (StatusEffect.Equals("Stun", ESearchCase::IgnoreCase))
+	else if (StatusEffect.Equals("STUN", ESearchCase::IgnoreCase))
 	{
 		StatusColor = FLinearColor(1.0f, 1.0f, 0.0f); // Yellow
 	}
@@ -2111,6 +2111,10 @@ void ARen_Low_Poly_Character::ApplyTheBurnEffect(AEnemy_Poly* Enemy, float Durat
 		return;
 	}
 
+	SpawnFloatingStatusText("BURN", Enemy->GetActorLocation() + FVector(0, 0, 100));
+
+
+
 	// Set the burn effect state
 	Enemy->bIsBurning = true;
 	Enemy->BurnDurationRemaining = Duration;
@@ -2185,6 +2189,9 @@ void ARen_Low_Poly_Character::ApplyFreezeEffect(AEnemy_Poly* Enemy, float Durati
 		UE_LOG(LogTemp, Warning, TEXT("%s is already frozen"), *Enemy->GetName());
 		return;
 	}
+
+	SpawnFloatingStatusText("FREEZE", Enemy->GetActorLocation() + FVector(0, 0, 100));
+
 
 	// Mark the enemy as frozen
 	Enemy->bIsFrozen = true;
@@ -2267,6 +2274,9 @@ void ARen_Low_Poly_Character::ApplyStunEffect(AEnemy_Poly* Enemy, float Duration
 		UE_LOG(LogTemp, Warning, TEXT("%s is already stunned"), *Enemy->GetName());
 		return;
 	}
+
+	SpawnFloatingStatusText("STUN", Enemy->GetActorLocation() + FVector(0, 0, 100));
+
 
 	// Mark enemy as stunned
 	Enemy->bIsStunned = true;
