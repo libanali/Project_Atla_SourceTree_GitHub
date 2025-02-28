@@ -206,6 +206,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 		bool isAttackedFromBehind;
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+		float ActualDamageApplied;
+
 	UFUNCTION(BlueprintCallable, Category = "Combat")
 		void InflictDamageOnEnemy(AEnemy_Poly* Enemy);
 

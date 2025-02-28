@@ -272,7 +272,7 @@ void ARen_Low_Poly_Character::InflictDamageOnEnemy(AEnemy_Poly* Enemy)
 
 		{
 
-			float ActualDamageApplied = Enemy->ApplyDamage(CalculatedDamage, FHitResult(), GetController(), this);
+			ActualDamageApplied = Enemy->ApplyDamage(CalculatedDamage, FHitResult(), GetController(), this);
 
 		}
 
@@ -310,7 +310,7 @@ void ARen_Low_Poly_Character::InflictElementalDamageOnEnemy(AEnemy_Poly* Enemy, 
 		UWorld* World = GetWorld();
 		if (World)
 		{
-			float ActualDamageApplied = Enemy->ApplyDamage(TheCalculatedDamage, FHitResult(), GetController(), this);
+			 ActualDamageApplied = Enemy->ApplyDamage(TheCalculatedDamage, FHitResult(), GetController(), this);
 
 			// Optional: Add debug logging
 			UE_LOG(LogTemp, Log, TEXT("Inflicted %f %s damage to %s."), TheCalculatedDamage, *UEnum::GetValueAsString(ElementType), *Enemy->GetName());
@@ -728,7 +728,7 @@ void ARen_Low_Poly_Character::InflictTechniqueDamageOnEnemy(AEnemy_Poly* Enemy, 
 			UWorld* World = GetWorld();
 			if (World)
 			{
-				float ActualDamageApplied = Enemy->ApplyDamage(FinalDamage, FHitResult(), GetController(), this);
+			 ActualDamageApplied = Enemy->ApplyDamage(FinalDamage, FHitResult(), GetController(), this);
 
 				// Additional logic for technique effects can go here
 				UE_LOG(LogTemp, Log, TEXT("Technique '%s' used, inflicting %f damage"), *Techniques[TechniqueIndex].TechniqueName, FinalDamage);
