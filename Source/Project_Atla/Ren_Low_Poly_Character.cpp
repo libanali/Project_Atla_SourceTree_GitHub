@@ -2215,7 +2215,19 @@ void ARen_Low_Poly_Character::ApplyTheBurnEffect(AEnemy_Poly* Enemy, float Durat
 
 			// Apply damage
 			Enemy->ApplyDamage(DamagePerSecondss, FHitResult(), GetController(), this);
+			// Add floating damage text for the burn tick
+			SpawnFloatingCombatText(
+				FString::Printf(TEXT("%.0f"), DamagePerSecondss),
+				Enemy->GetActorLocation() + FVector(FMath::RandRange(-30.0f, 30.0f), FMath::RandRange(-30.0f, 30.0f), 100.0f),
+				FLinearColor(1.0f, 0.3f, 0.0f), // Orange-red for burn damage
+				false,
+				1.5f
+			);
 			UE_LOG(LogTemp, Log, TEXT("Applying %f burn damage to %s"), DamagePerSecondss, *Enemy->GetName());
+
+
+
+
 
 			// Reduce remaining duration correctly
 			Enemy->BurnDurationRemaining -= 2.0f;
@@ -4487,11 +4499,10 @@ void ARen_Low_Poly_Character::OnMontageEnded(UAnimMontage* Montage, bool bInterr
 	{
 		if (bUsingItem)
 		{
-			if (UInventory* InventoryComp = FindComponentByClass<UInventory>())
-			{
-				InventoryComp->UseItem(CurrentItemBeingUsed.Item);
-			}
+			
 			bUsingItem = false;
+
+
 		}
 		else if (bPerformingTechnique)
 		{

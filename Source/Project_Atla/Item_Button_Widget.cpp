@@ -49,7 +49,7 @@ void UItem_Button_Widget::OnItemButtonClicked()
             ReturnToGameplay();
             return;
         }
-
+        // Set up the item for use, but DON'T actually use it yet
         if (UAnimInstance* AnimInstance = PlayerCharacter->GetMesh()->GetAnimInstance())
         {
             PlayerCharacter->bUsingItem = true;
