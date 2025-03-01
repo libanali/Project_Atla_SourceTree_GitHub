@@ -1171,6 +1171,7 @@ public:
 
 
 
+
 	
 
 
@@ -1191,6 +1192,13 @@ protected:
 
 
 
+private:
 
+	// Camera zoom for command menu
+	float DefaultArmLength;        // Store the original spring arm length
+	float CommandModeArmLength;    // Target length when in command mode
+	float CurrentArmLength;        // Current interpolated length
+	float ArmLengthTransitionSpeed; // How fast to zoom in/out
+	bool bCameraZoomInitialized;   // Flag to ensure we initialize zoom values
 
 };

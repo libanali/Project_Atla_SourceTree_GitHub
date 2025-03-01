@@ -3859,7 +3859,20 @@ void ARen_Low_Poly_Character::BeginPlay()
 			TEXT("Command PPV initialized and disabled"));
 	}
 
-
+	// Initialize camera zoom parameters
+	if (CameraBoom)
+	{
+		DefaultArmLength = CameraBoom->TargetArmLength;
+		CommandModeArmLength = DefaultArmLength - 20.92f;
+		CurrentArmLength = DefaultArmLength;
+		ArmLengthTransitionSpeed = 6.0f; // Adjust for desired speed
+		bCameraZoomInitialized = true;
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("CameraBoom is null, camera zoom cannot be initialized."));
+		bCameraZoomInitialized = false;
+	}
 
 
 
@@ -4809,6 +4822,13 @@ void ARen_Low_Poly_Character::EnterCommandMode()
 		// Slow down the game world
 		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), CommandModeTimeDilation);
 
+		// Set target for camera zoom
+		if (bCameraZoomInitialized)
+		{
+			CurrentArmLength = CameraBoom->TargetArmLength; // Capture current length
+		}
+
+
 		// Set a custom timer to update our UI elements at normal speed
 		if (CommandMenuWidget)
 		{
@@ -4821,6 +4841,7 @@ void ARen_Low_Poly_Character::EnterCommandMode()
 				true
 			);
 		}
+
 	}
 }
 
@@ -5181,6 +5202,26 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 				CurrentPPVWeight = 0.0f; // Force to exactly 0
 				GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Blue, TEXT("PPV Fully Disabled"));
 			}
+		}
+	}
+
+	if (bCameraZoomInitialized && CameraBoom)
+	{
+		float TargetLength = bIsInCommandMode ? CommandModeArmLength : DefaultArmLength;
+
+		// Only interpolate if we're not already at the target
+		if (!FMath::IsNearlyEqual(CameraBoom->TargetArmLength, TargetLength, 1.0f))
+		{
+			// Smoothly interpolate spring arm length
+			CameraBoom->TargetArmLength = FMath::FInterpTo(
+				CameraBoom->TargetArmLength,
+				TargetLength,
+				DeltaTime,
+				ArmLengthTransitionSpeed
+			);
+
+			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Cyan,
+				FString::Printf(TEXT("Camera Zoom: %.2f"), CameraBoom->TargetArmLength));
 		}
 	}
 
