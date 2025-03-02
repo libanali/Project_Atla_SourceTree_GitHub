@@ -80,6 +80,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 		bool bIsDead;
 
+	UPROPERTY(EditAnywhere, Category = "Animations")
+		UAnimMontage* DeathAnimation;
+
+	UFUNCTION()
+		void OnDeathAnimationEnded(UAnimMontage* Montage, bool bInterrupted);
+
+	UFUNCTION(BlueprintCallable)
+		void AnimNotify_DropItem();
+
+	UFUNCTION(BlueprintCallable)
+		void AnimNotify_StartFade();
+
 	UFUNCTION(BlueprintCallable)
 		void IncreaseEnemyHealth(float Amount, bool bSetInitialHealth = false);
 
@@ -99,6 +111,8 @@ public:
 
 	void UpdateHealthBar();
 	void Death();
+	void StartFadeOut();
+
 	
 
 	float BurnDurationRemaining;   // Remaining duration of the burn effect
@@ -208,5 +222,13 @@ private:
 
 	void AttemptItemDrop();
 	void SpawnItem(TSubclassOf<AActor> ItemClass);
+
+	// Fade control variables
+	bool bIsFading = false;
+	bool bItemDropped = false;
+	float FadeTimeElapsed = 0.0f;
+	float FadeDuration = 1.5f;
+	FTimerHandle FadeTimerHandle;
+	TArray<UMaterialInstanceDynamic*> DynamicMaterials;
 
 };
