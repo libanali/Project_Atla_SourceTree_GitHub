@@ -68,7 +68,7 @@ void AEnemy_Poly::ResetHurtState()
 
 
 
-void AEnemy_Poly::OnDeathAnimationEnded(UAnimMontage* Montage, bool bInterrupted)
+void AEnemy_Poly::OnDeathAnimationEnded()
 {
 
 	// If the animation was interrupted or completed, make sure we've done everything needed
@@ -81,12 +81,18 @@ void AEnemy_Poly::OnDeathAnimationEnded(UAnimMontage* Montage, bool bInterrupted
 		bItemDropped = true;
 	}
 
-	// If fade hasn't started yet (if the notify didn't trigger)
-	if (!bIsFading)
-	{
-		StartFadeOut();
-	}
-
+	FTimerHandle DestroyTimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(
+		DestroyTimerHandle,
+		[this]() {
+			if (IsValid(this)) {
+				UE_LOG(LogTemp, Warning, TEXT("Enemy %s is being destroyed"), *GetName());
+				Destroy(true); // You can pass true to force network cleanup
+			}
+		},
+		0.5f,  // Short delay to ensure fade completes
+			false
+			);
 
 }
 
@@ -108,107 +114,7 @@ void AEnemy_Poly::AnimNotify_DropItem()
 
 
 
-void AEnemy_Poly::AnimNotify_StartFade()
-{
 
-	if (IsValid(this) && !bIsFading)
-	{
-		StartFadeOut();
-	}
-
-
-
-}
-
-
-
-void AEnemy_Poly::StartFadeOut()
-{
-
-	if (bIsFading || !IsValid(this)) return;
-	bIsFading = true;
-
-	// If no dynamic materials created yet, create them now
-	if (DynamicMaterials.Num() == 0)
-	{
-		USkeletalMeshComponent* MeshComp = GetMesh();
-		if (MeshComp)
-		{
-			for (int32 i = 0; i < MeshComp->GetNumMaterials(); i++)
-			{
-				UMaterialInterface* Material = MeshComp->GetMaterial(i);
-				if (Material)
-				{
-					UMaterialInstanceDynamic* DynMaterial = MeshComp->CreateAndSetMaterialInstanceDynamic(i);
-					if (DynMaterial)
-					{
-						DynamicMaterials.Add(DynMaterial);
-					}
-				}
-			}
-		}
-	}
-
-	if (DynamicMaterials.Num() == 0)
-	{
-		// If we still don't have materials, just destroy the actor
-		Destroy();
-		return;
-	}
-
-	// All materials use the same parameter name
-	static const FName FadeParamName = TEXT("Fade");
-
-	// Set up the fade animation
-	FadeDuration = 1.5f;
-	FadeTimeElapsed = 0.0f;
-
-	// Start a timer to update the fade value
-	GetWorldTimerManager().SetTimer(
-		FadeTimerHandle,
-		[this]()
-		{
-			if (!IsValid(this)) return;
-
-			FadeTimeElapsed += GetWorld()->GetDeltaSeconds();
-			float Alpha = 1.0f - FMath::Clamp(FadeTimeElapsed / FadeDuration, 0.0f, 1.0f);
-
-			// Update all dynamic materials
-			for (UMaterialInstanceDynamic* Material : DynamicMaterials)
-			{
-				if (Material)
-				{
-					Material->SetScalarParameterValue(TEXT("Fade"), Alpha);
-				}
-			}
-
-			// If fade is complete, destroy the actor
-			if (FadeTimeElapsed >= FadeDuration)
-			{
-				GetWorldTimerManager().ClearTimer(FadeTimerHandle);
-
-				// Destroy after a short delay to ensure fade completes visually
-				FTimerHandle DestroyTimerHandle;
-				GetWorld()->GetTimerManager().SetTimer(
-					DestroyTimerHandle,
-					[this]()
-					{
-						if (IsValid(this))
-						{
-							Destroy();
-						}
-					},
-					0.2f,
-						false
-						);
-			}
-		},
-		0.0f, // No delay before first execution
-			true   // Loop the timer
-			);
-
-
-}
 
 
 
@@ -298,18 +204,55 @@ void AEnemy_Poly::Death()
 		}
 	}
 
+	EnemyHealthBarWidgetComponent->SetVisibility(false);
+
+	// Completely disable AI controller and movement
+	AEnemy_AIController* AIController = Cast<AEnemy_AIController>(GetController());
+	if (AIController)
+	{
+		// Stop any AI processing
+		AIController->DisableAI();
+
+		// Prevent AI from being reactivated
+		AIController->bIsAIStopped = true;
+
+		// Stop movement completely
+		AIController->StopMovement();
+	}
+
+
+	// Disable all collision to prevent further interaction
+	if (GetCapsuleComponent())
+	{
+		GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
+	// Disable attack collision
+	if (AttackCollisionBox)
+	{
+		AttackCollisionBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
+	// Disable character movement completely
+	if (GetCharacterMovement())
+	{
+		GetCharacterMovement()->DisableMovement();
+		GetCharacterMovement()->StopMovementImmediately();
+	}
+
+
 	// Handle game mode updates
 	ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
 	if (GameMode)
 	{
 		GameMode->SpawnedEnemies.Remove(this);
 
-		AEnemy_AIController* AIController = Cast<AEnemy_AIController>(GetController());
+		AEnemy_AIController* EnemyAIController = Cast<AEnemy_AIController>(GetController());
 		if (AIController)
 		{
-			GameMode->ActiveEnemies.Remove(AIController);
+			GameMode->ActiveEnemies.Remove(EnemyAIController);
 
-			if (GameMode->CurrentAttacker == AIController)
+			if (GameMode->CurrentAttacker == EnemyAIController)
 			{
 				GameMode->ResetAttackCycle();
 				GameMode->CycleToNextEnemy();
@@ -317,47 +260,11 @@ void AEnemy_Poly::Death()
 		}
 	}
 
-	// Create dynamic materials for fade effect
-	USkeletalMeshComponent* MeshComp = GetMesh();
-	if (MeshComp)
-	{
-		DynamicMaterials.Empty();
-		for (int32 i = 0; i < MeshComp->GetNumMaterials(); i++)
-		{
-			UMaterialInterface* Material = MeshComp->GetMaterial(i);
-			if (Material)
-			{
-				UMaterialInstanceDynamic* DynMaterial = MeshComp->CreateAndSetMaterialInstanceDynamic(i);
-				if (DynMaterial)
-				{
-					DynamicMaterials.Add(DynMaterial);
-				}
-			}
-		}
-	}
 
-	// Play death animation if available
-	if (DeathAnimation)
-	{
-		// Set up a delegate for when animation ends
-		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-		if (AnimInstance)
-		{
-			FOnMontageEnded EndDelegate;
-			EndDelegate.BindUObject(this, &AEnemy_Poly::OnDeathAnimationEnded);
-			AnimInstance->Montage_Play(DeathAnimation, 1.0f);
-			AnimInstance->Montage_SetEndDelegate(EndDelegate, DeathAnimation);
-
-			// Item drop and fade will be handled by animation notifies
-			return; // Exit early as destruction will be handled by animation sequence
-		}
-	}
 
 	// Fallback if no animation: drop item, fade, and destroy
 	AttemptItemDrop();
 	bItemDropped = true; // Mark as dropped so we don't try again
-
-	StartFadeOut();
 }
 
 
