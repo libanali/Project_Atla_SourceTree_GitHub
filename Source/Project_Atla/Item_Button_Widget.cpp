@@ -147,7 +147,6 @@ void UItem_Button_Widget::SetParentList(UInventory_List_Widget* InParentList)
 
 
 
-
 FReply UItem_Button_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
     if (InKeyEvent.GetKey() == EKeys::Enter ||
@@ -199,4 +198,35 @@ void UItem_Button_Widget::NativeOnFocusLost(const FFocusEvent& InFocusEvent)
 
 
 
+}
+
+
+void UItem_Button_Widget::PlayNavigationSound()
+{
+
+    if (NavigationSound)
+
+    {
+
+        UGameplayStatics::PlaySound2D(GetWorld(), NavigationSound);
+    }
+
+}
+
+
+
+FNavigationReply UItem_Button_Widget::NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply)
+{
+    EUINavigation Direction = InNavigationEvent.GetNavigationType();
+
+
+    // Play sound for navigation keys
+    if (Direction == EUINavigation::Up ||
+        Direction == EUINavigation::Down)
+    {
+        PlayNavigationSound();
+    }
+
+
+    return Super::NativeOnNavigation(MyGeometry, InNavigationEvent, InDefaultReply);
 }

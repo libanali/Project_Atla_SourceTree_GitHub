@@ -250,7 +250,6 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
 
 
 
-
 void UElemental_Attacks_List_Widget::NewPopulateElementalAttackList()
 {
     if (!Elemental_Attack_ScrollBox)
@@ -306,9 +305,6 @@ void UElemental_Attacks_List_Widget::NewPopulateElementalAttackList()
 
 
 
-
-
-
 void UElemental_Attacks_List_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 
@@ -317,5 +313,9 @@ void UElemental_Attacks_List_Widget::NativeTick(const FGeometry& MyGeometry, flo
 
 
 }
+
+
+
+
 
 

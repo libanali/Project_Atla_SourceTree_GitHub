@@ -46,6 +46,8 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Button Style")
         FSlateBrush HoveredBrush;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+        USoundBase* NavigationSound;
 
 
     // Button functions
@@ -65,6 +67,8 @@ public:
     // Setup functions
     void SetupButton(FInventoryItem ItemData, class ARen_Low_Poly_Character* Character);
     void SetParentList(class UInventory_List_Widget* InParentList);
+    void PlayNavigationSound();
+
 
     FTimerHandle ItemStateTimer;
 
@@ -72,6 +76,7 @@ protected:
     virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
     virtual FReply NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent) override;
     virtual void NativeOnFocusLost(const FFocusEvent& InFocusEvent) override;
+    virtual FNavigationReply NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply) override;
 
 
 

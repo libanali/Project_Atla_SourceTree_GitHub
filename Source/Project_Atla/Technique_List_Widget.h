@@ -35,12 +35,16 @@ public:
     UPROPERTY()
         ARen_Low_Poly_Character* PlayerCharacter;
 
+
+
     void SetupWidget(ARen_Low_Poly_Character* Character);
     void PopulateTechniqueList();
     void SetupInputMode();
+
 
 protected:
     virtual void NativeConstruct() override;
     virtual void NativeOnInitialized() override;
     virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
+
 };

@@ -58,6 +58,7 @@ void UTechnique_List_Widget::NativeTick(const FGeometry& MyGeometry, float InDel
 
 
 
+
 void UTechnique_List_Widget::SetupWidget(ARen_Low_Poly_Character* Character)
 {
 
@@ -208,4 +209,7 @@ void UTechnique_List_Widget::SetupInputMode()
 
 
 }
+
+
+
 

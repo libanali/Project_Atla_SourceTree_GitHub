@@ -259,6 +259,40 @@ void UElemental_Attacks_Button_Widget::NativeOnFocusLost(const FFocusEvent& InFo
 
 
 
+
+FNavigationReply UElemental_Attacks_Button_Widget::NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply)
+{
+    EUINavigation Direction = InNavigationEvent.GetNavigationType();
+
+
+    // Play sound for navigation keys
+    if (Direction == EUINavigation::Up ||
+        Direction == EUINavigation::Down)
+    {
+        PlayNavigationSound();
+    }
+
+
+    return Super::NativeOnNavigation(MyGeometry, InNavigationEvent, InDefaultReply);
+}
+
+
+void UElemental_Attacks_Button_Widget::PlayNavigationSound()
+{
+
+    if (NavigationSound)
+
+    {
+
+        UGameplayStatics::PlaySound2D(GetWorld(), NavigationSound);
+    }
+
+
+}
+
+
+
+
 void UElemental_Attacks_Button_Widget::OnElementalAttackButtonClicked()
 {
     // Ensure the player character is valid and the index is valid
@@ -287,3 +321,4 @@ void UElemental_Attacks_Button_Widget::SetButtonTextColor(FLinearColor NewColor)
     }
 
 }
+

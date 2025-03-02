@@ -63,16 +63,18 @@ public:
     UPROPERTY()
         FSlateBrush CurrentNormalBrush;
 
-
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
         FTechnique_Struct CurrentTechnique;
-
 
     UPROPERTY()
         int32 TechniqueIndex;
 
-    void HandleFocusChanged(bool bHasFocus);
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+        USoundBase* NavigationSound;
 
+
+    void HandleFocusChanged(bool bHasFocus);
+    void PlayNavigationSound();
 
 protected:
     virtual void NativeConstruct() override;
@@ -80,4 +82,6 @@ protected:
     virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
     virtual FReply NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent) override;
     virtual void NativeOnFocusLost(const FFocusEvent& InFocusEvent) override;
+    virtual FNavigationReply NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply) override;
+
 };

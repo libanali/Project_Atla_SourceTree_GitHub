@@ -8,6 +8,7 @@
 #include "Framework/Application/SlateApplication.h"
 #include "Ren_Low_Poly_Character.h"
 #include "Animation/WidgetAnimation.h"
+#include "Kismet/GameplayStatics.h"
 #include "Inventory.h"
 
 
@@ -384,6 +385,19 @@ void UCommand_Menu_Widget::UpdateVisibilityBasedOnIndex(int CurrentIndex)
 
 }
 
+void UCommand_Menu_Widget::PlayNavigationSound()
+{
+
+    if (NavigationSound)
+
+    {
+
+        UGameplayStatics::PlaySound2D(GetWorld(), NavigationSound);
+
+    }
+
+}
+
 
 
 
@@ -462,6 +476,22 @@ void UCommand_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDelta
         }
     }
     
+}
+
+FNavigationReply UCommand_Menu_Widget::NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply)
+{
+    EUINavigation Direction = InNavigationEvent.GetNavigationType();
+
+
+    // Play sound for navigation keys
+    if (Direction == EUINavigation::Up ||
+        Direction == EUINavigation::Down)
+    {
+       PlayNavigationSound();
+    }
+
+
+    return Super::NativeOnNavigation(MyGeometry, InNavigationEvent, InDefaultReply);
 }
 
 

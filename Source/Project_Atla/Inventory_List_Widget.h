@@ -28,6 +28,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
         TSubclassOf<class UItem_Button_Widget> ItemButtonClass;
 
+
     void SetupWidget(class ARen_Low_Poly_Character* Character);
     void PopulateItemList();
     void SetupInputMode();
@@ -36,5 +37,8 @@ private:
 
     UPROPERTY()
         class ARen_Low_Poly_Character* PlayerCharacter;
+
+
+
 
 };

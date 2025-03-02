@@ -68,10 +68,17 @@ public:
 	UPROPERTY()
 		FSlateBrush CurrentNormalBrush;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+		USoundBase* NavigationSound;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)  // Add this property
 		FElemental_Struct CurrentElementalAttack;
 
+
+
 	void SetButtonTextColor(FLinearColor NewColor);
+	void PlayNavigationSound();
+
 
 	virtual void NativeConstruct() override;
 	virtual void NativeOnInitialized() override;
@@ -79,4 +86,6 @@ public:
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 	virtual FReply NativeOnFocusReceived(const FGeometry& InGeometry, const FFocusEvent& InFocusEvent) override;
 	virtual void NativeOnFocusLost(const FFocusEvent& InFocusEvent) override;
+	virtual FNavigationReply NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply) override;
+
 };

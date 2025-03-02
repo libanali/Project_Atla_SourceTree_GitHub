@@ -88,6 +88,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Transient, meta = (BindWidgetAnim))
         UWidgetAnimation* CommandMenu_FadeAnim;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+        USoundBase* NavigationSound;
+
     // State variable for tracking the current menu
     ECommandMenuState CurrentMenuState;
 
@@ -143,6 +146,8 @@ public:
 
     void UpdateVisibilityBasedOnIndex(int CurrentIndex);
 
+    void PlayNavigationSound();
+
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
     EInputMode CurrentInputMode;
@@ -155,4 +160,7 @@ public:
     virtual void NativeOnInitialized() override;
 
     virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
+
+    virtual FNavigationReply NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply) override;
+
 };

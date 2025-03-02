@@ -48,6 +48,8 @@ public:
     
     void PopulateElementalAttackList();
 
+
+
 private:
     /** Populates the scroll box with buttons for unlocked elemental attacks */
 
