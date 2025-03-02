@@ -443,6 +443,7 @@ void AEnemy_Poly::OnAttackOverlapBegin(UPrimitiveComponent* OverlappedComponent,
 	{
 		// Call our comprehensive damage function
 		InflictDamageOnCharacter(PlayerCharacter);
+		PlayerCharacter->TriggerVibration(0.5f, 0.2f, true, true);
 		PlayRedTintUIAnimation();
 	}
 
