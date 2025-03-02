@@ -5220,8 +5220,8 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 				ArmLengthTransitionSpeed
 			);
 
-			GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Cyan,
-				FString::Printf(TEXT("Camera Zoom: %.2f"), CameraBoom->TargetArmLength));
+			//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Cyan,
+			//	FString::Printf(TEXT("Camera Zoom: %.2f"), CameraBoom->TargetArmLength));
 		}
 	}
 

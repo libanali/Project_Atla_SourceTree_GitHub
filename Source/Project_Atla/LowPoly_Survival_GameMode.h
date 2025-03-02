@@ -73,6 +73,13 @@ public:
     UPROPERTY()
         FTimerHandle EnemyBehaviorUpdateTimer;
 
+    // Returns a spawn location that uses NavMesh and avoids player's line of sight
+    FVector GetSmartSpawnLocation();
+
+    // Helper function to find valid NavMesh points near spawn zones
+    FVector GetRandomNavMeshPointNearSpawnZone();
+
+
 private:
     FVector GetRandomPointInZone(const FBox& Zone);
 

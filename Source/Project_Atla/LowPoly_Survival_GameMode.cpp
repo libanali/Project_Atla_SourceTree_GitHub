@@ -145,6 +145,121 @@ void ALowPoly_Survival_GameMode::UpdateEnemyBehavior()
 
 }
 
+FVector ALowPoly_Survival_GameMode::GetSmartSpawnLocation()
+{
+    ARen_Low_Poly_Character* Player = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+    if (!Player)
+    {
+        return GetRandomNavMeshPointNearSpawnZone();
+    }
+
+    // Try multiple locations to find one not in player's view
+    const int32 MaxAttempts = 5;
+    for (int32 i = 0; i < MaxAttempts; i++)
+    {
+        FVector CandidateLocation = GetRandomNavMeshPointNearSpawnZone();
+
+        // IMPORTANT: Perform ground check to ensure valid surface
+        FVector StartTrace = CandidateLocation + FVector(0, 0, 50);  // Start 50 units above
+        FVector EndTrace = CandidateLocation - FVector(0, 0, 100);   // Trace 100 units down
+
+        FHitResult HitResult;
+        FCollisionQueryParams QueryParams;
+        QueryParams.bTraceComplex = true;
+
+        bool bHit = GetWorld()->LineTraceSingleByChannel(
+            HitResult,
+            StartTrace,
+            EndTrace,
+            ECC_Visibility,  // or use your own trace channel
+            QueryParams
+        );
+
+        // Only use locations where we hit solid ground
+        if (bHit)
+        {
+            // Check if location is in player's view
+            FVector AdjustedLocation = HitResult.Location + FVector(0, 0, 5); // 5 units above ground
+            FVector PlayerToSpawn = AdjustedLocation - Player->GetActorLocation();
+            float DistanceToPlayer = PlayerToSpawn.Size();
+
+            PlayerToSpawn.Normalize();
+            FVector PlayerForward = Player->GetActorForwardVector();
+            float DotProduct = FVector::DotProduct(PlayerForward, PlayerToSpawn);
+
+            // If behind player or far enough away, use this location
+            if (DotProduct < 0.0f || DistanceToPlayer > 1500.0f)
+            {
+                return AdjustedLocation;
+            }
+        }
+    }
+
+    // If we couldn't find a suitable location, try a simpler approach
+    // Do a ground trace directly from a spawn zone
+    AActor* SpawnZone = SpawnZones[FMath::RandRange(0, SpawnZones.Num() - 1)];
+    if (SpawnZone)
+    {
+        FVector StartTrace = SpawnZone->GetActorLocation() + FVector(0, 0, 100);
+        FVector EndTrace = StartTrace - FVector(0, 0, 200);
+
+        FHitResult HitResult;
+        GetWorld()->LineTraceSingleByChannel(HitResult, StartTrace, EndTrace, ECC_Visibility);
+
+        if (HitResult.bBlockingHit)
+        {
+            return HitResult.Location + FVector(0, 0, 5);
+        }
+    }
+
+    // Last resort: return player location with offset
+    if (Player)
+    {
+        return Player->GetActorLocation() + FVector(0, 0, 10) + (FMath::VRand() * 1000);
+    }
+
+    return FVector::ZeroVector;
+}
+
+FVector ALowPoly_Survival_GameMode::GetRandomNavMeshPointNearSpawnZone()
+{
+    // Check if we have any spawn zones
+    if (SpawnZones.Num() == 0)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("No spawn zones found!"));
+        return FVector::ZeroVector;
+    }
+
+    // Pick a random spawn zone
+    AActor* RandomSpawnZone = SpawnZones[FMath::RandRange(0, SpawnZones.Num() - 1)];
+    FVector SpawnZoneLocation = RandomSpawnZone->GetActorLocation();
+
+    // Get the navigation system
+    UNavigationSystemV1* NavSystem = FNavigationSystem::GetCurrent<UNavigationSystemV1>(GetWorld());
+    if (!NavSystem)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Navigation system not found!"));
+        return SpawnZoneLocation;
+    }
+
+    // Find a random point on the nav mesh near the spawn zone
+    FNavLocation ResultLocation;
+    bool bFoundPoint = NavSystem->GetRandomReachablePointInRadius(
+        SpawnZoneLocation,
+        500.0f, // Adjust radius as needed
+        ResultLocation);
+
+    if (bFoundPoint)
+    {
+        return ResultLocation.Location;
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Failed to find valid nav mesh location!"));
+        return SpawnZoneLocation;
+    }
+}
+
 
 void ALowPoly_Survival_GameMode::BeginPlay()
 {
@@ -224,22 +339,47 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
         FTimerHandle LocalSpawnTimerHandle;
         GetWorld()->GetTimerManager().SetTimer(LocalSpawnTimerHandle, [this, i, EnemiesToSpawn]()
             {
-                FVector SpawnLocation = GetRandomPointNearPlayer();
+                // Use smart spawn location instead of random point
+                FVector SpawnLocation = GetSmartSpawnLocation();
                 FRotator SpawnRotation = FRotator::ZeroRotator;
 
-                // Add a small offset to the spawn location based on the enemy index to space them out
-                float SpawnOffset = 200.0f; // Adjust this value to control spacing
-                SpawnLocation.X += i * SpawnOffset;
-                SpawnLocation.Y += i * SpawnOffset;
+                // No need for manual offsets as our smart spawning handles this
+                // We've removed the X/Y offset code here
 
                 TSubclassOf<AEnemy_Poly> EnemyToSpawnClass = GetEnemyClassForCurrentRound();
 
                 if (EnemyToSpawnClass)
                 {
-                    AEnemy_Poly* SpawnedEnemy = GetWorld()->SpawnActor<AEnemy_Poly>(EnemyToSpawnClass, SpawnLocation, SpawnRotation);
+                    // Use improved spawn parameters
+                    FActorSpawnParameters SpawnParams;
+                    SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+                    AEnemy_Poly* SpawnedEnemy = GetWorld()->SpawnActor<AEnemy_Poly>(EnemyToSpawnClass, SpawnLocation, SpawnRotation, SpawnParams);
                     if (SpawnedEnemy)
                     {
-                        UE_LOG(LogTemp, Log, TEXT("Spawned enemy: %s"), *SpawnedEnemy->GetName());
+                        UE_LOG(LogTemp, Log, TEXT("Spawned enemy at location: %s"), *SpawnLocation.ToString());
+
+                        // Ensure proper physics and collision setup
+                        UPrimitiveComponent* RootComp = Cast<UPrimitiveComponent>(SpawnedEnemy->GetRootComponent());
+                        if (RootComp)
+                        {
+                            RootComp->SetSimulatePhysics(false);
+                            RootComp->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
+                        }
+
+                        // Ensure the character movement component is properly initialized
+                        if (SpawnedEnemy->GetCharacterMovement())
+                        {
+                            // Add a small delay before enabling movement
+                            FTimerHandle MovementTimerHandle;
+                            GetWorld()->GetTimerManager().SetTimer(MovementTimerHandle, [SpawnedEnemy]()
+                                {
+                                    if (SpawnedEnemy && !SpawnedEnemy->IsPendingKillEnabled())
+                                    {
+                                        SpawnedEnemy->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+                                    }
+                                }, 0.2f, false);
+                        }
 
                         // Increase enemy health based on the current round
                         float AddedEnemyHealth = SpawnedEnemy->MaxEnemyHealth + (CurrentRound - 1) * AdditionalEnemyHealthPerRound;
