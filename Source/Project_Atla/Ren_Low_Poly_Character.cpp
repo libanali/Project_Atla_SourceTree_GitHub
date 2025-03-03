@@ -75,6 +75,9 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	PowerUpCamera->SetRelativeLocation(FVector(0.f, 50.f, 150.f)); // Position above the character's head
 	PowerUpCamera->SetRelativeRotation(FRotator(-10.f, 0.f, 0.f)); // Tilt slightly down if needed
 
+	ObjectiveCamera = CreateDefaultSubobject<UChildActorComponent>(TEXT("Objective Camera"));
+	ObjectiveCamera->SetupAttachment(GetMesh());
+
 	ActionBannerWidgetComponent = CreateDefaultSubobject<UWidgetComponent>(TEXT("Action Banner Widget"));
 	ActionBannerWidgetComponent->SetupAttachment(RootComponent);
 	ActionBannerWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);

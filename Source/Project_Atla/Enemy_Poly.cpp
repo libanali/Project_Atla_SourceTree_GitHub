@@ -8,6 +8,7 @@
 #include "TimerManager.h"
 #include "Engine/World.h"
 #include "Enemy_Poly_HealthBar_Widget.h"
+#include "Kismet/Gameplaystatics.h"
 #include "Components/WidgetComponent.h"
 
 
@@ -319,8 +320,8 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 
 	// Apply damage - this will interrupt current animation without playing hurt animation
 	LowPolyRen->TakeDamage(DamageToInflict);
-
-	PlayRedTintUIAnimation();
+	LowPolyRen->TriggerVibration(0.5f, 0.2f, true, true);
+	UGameplayStatics::PlaySound2D(GetWorld(), HitSound);
 
 	// Calculate actual damage dealt
 	float ActualDamageDealt = CurrentHealth - LowPolyRen->HealthStruct.CurrentHealth;
@@ -443,8 +444,8 @@ void AEnemy_Poly::OnAttackOverlapBegin(UPrimitiveComponent* OverlappedComponent,
 	{
 		// Call our comprehensive damage function
 		InflictDamageOnCharacter(PlayerCharacter);
-		PlayerCharacter->TriggerVibration(0.5f, 0.2f, true, true);
 		PlayRedTintUIAnimation();
+		
 	}
 
 

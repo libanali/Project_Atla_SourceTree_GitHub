@@ -80,6 +80,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
 		bool bIsDead;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+		USoundBase* HitSound;
+
 	UFUNCTION(BlueprintCallable)
 		void OnDeathAnimationEnded();
 

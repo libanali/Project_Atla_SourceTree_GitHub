@@ -1171,8 +1171,11 @@ public:
 
 
 
+	//Objective Message
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Power-Ups")
+		UChildActorComponent* ObjectiveCamera;
+	//Objective Message
 
-	
 
 
 protected:
