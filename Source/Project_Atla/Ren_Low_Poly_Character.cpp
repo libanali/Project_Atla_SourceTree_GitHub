@@ -3755,9 +3755,13 @@ void ARen_Low_Poly_Character::BeginPlay()
 	if (PC)
 
 	{
-		FInputModeGameOnly GameOnlyInput;
-
-		PC->SetInputMode(GameOnlyInput);
+		// Only set game input mode if game mode doesn't have an objective sequence in progress
+		ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (!GameMode || GameMode->bHasShownObjectiveMessage)
+		{
+			FInputModeGameOnly GameOnlyInput;
+			PC->SetInputMode(GameOnlyInput);
+		}
 
 	}
 

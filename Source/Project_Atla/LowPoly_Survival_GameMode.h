@@ -58,6 +58,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawn Zones")
         TArray<AActor*> SpawnZones;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Objective")
+        bool bHasShownObjectiveMessage;
+
     UPROPERTY(BlueprintReadWrite, Category = "Spawning")
         bool bStopSpawning;
 
@@ -172,6 +175,28 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
         bool bIsPowerUpSpawned;
 
+    // Widget class for objective messages
+    UPROPERTY(EditDefaultsOnly, Category = "UI")
+        TSubclassOf<class UObjective_Message_Widget> ObjectiveMessageWidgetClass;
+
+    // We'll use the ObjectiveCamera from the player character class instead
+
+    // Instance of the objective message widget
+    UPROPERTY()
+        class UObjective_Message_Widget* ObjectiveMessageWidget;
+
+    // Text to display as the objective
+    UPROPERTY(EditDefaultsOnly, Category = "UI")
+        FText ObjectiveText;
+
+    // Timer handles for the sequence
+    FTimerHandle ObjectiveInitialDelayTimer;
+    FTimerHandle ObjectiveDisplayTimer;
+
+    // Functions for sequence control
+    void ShowObjectiveMessage();
+    void HideObjectiveMessage();
+    void StartGameAfterObjective();
 
 
     UFUNCTION()

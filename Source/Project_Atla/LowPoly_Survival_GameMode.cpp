@@ -13,6 +13,7 @@
 #include "GameFramework/Actor.h"
 #include "Engine/StaticMeshActor.h"
 #include "Kismet/GameplayStatics.h"
+#include "Objective_Message_Widget.h"
 
 
 ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
@@ -21,7 +22,7 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
     RoundDelay = 2.5f;
     BaseEnemiesPerRound = 3;
     SpawnRadius = 1200.0f;
-    CurrentRound = 15;
+    CurrentRound = 1;
     AdditionalEnemyHealthPerRound = 30.0f;
     AdditionalEnemiesPerRound = 1.9f;
     BaseSpawnDelay = 2.0f;         // Initial delay between spawns in the first round
@@ -30,8 +31,7 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
     bIsSpawningEnemies = false;
     bIsPowerUpSpawned = false;
     bStopSpawning = false;
-
-
+    bHasShownObjectiveMessage = false;
 
 }
 
@@ -261,36 +261,62 @@ FVector ALowPoly_Survival_GameMode::GetRandomNavMeshPointNearSpawnZone()
 }
 
 
+
 void ALowPoly_Survival_GameMode::BeginPlay()
 {
 
     Super::BeginPlay();
 
-    StartNextRound();
 
-    GetWorld()->GetTimerManager().SetTimer(NumberUpdateTimer, this, &ALowPoly_Survival_GameMode::UpdateEnemyNumbers, 5.0f, true);
+    APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
-    GetWorld()->GetTimerManager().SetTimer(
-        EnemyBehaviorUpdateTimer,
-        this,
-        &ALowPoly_Survival_GameMode::UpdateEnemyBehavior,
-        5.0f,
-        true
-    );
-    SpecialEventInterval = FMath::RandRange(1, 3);
-    // Find all actors in the level with the tag "SpawnZone"
-    TArray<AActor*> FoundActors;
-    UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Spawn Zone"), FoundActors);
+    FInputModeUIOnly UIOnly;
+    PlayerController->SetInputMode(UIOnly);
 
-    // Store these actors as spawn zones
-    SpawnZones.Empty();
-    for (AActor* Actor : FoundActors)
-    {
-        if (Actor)
+
+
+        // 1. Find all spawn zones first
+        TArray<AActor*> FoundActors;
+        UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName("Spawn Zone"), FoundActors);
+
+        SpawnZones.Empty();
+        for (AActor* Actor : FoundActors)
         {
-            SpawnZones.Add(Actor);
+            if (Actor)
+            {
+                SpawnZones.Add(Actor);
+            }
         }
-    }
+
+      
+
+        SpecialEventInterval = FMath::RandRange(1, 3);
+
+        GetWorld()->GetTimerManager().SetTimer(
+            NumberUpdateTimer,
+            this,
+            &ALowPoly_Survival_GameMode::UpdateEnemyNumbers,
+            5.0f,
+            true
+        );
+
+        GetWorld()->GetTimerManager().SetTimer(
+            EnemyBehaviorUpdateTimer,
+            this,
+            &ALowPoly_Survival_GameMode::UpdateEnemyBehavior,
+            5.0f,
+            true
+        );
+
+
+        GetWorld()->GetTimerManager().SetTimer(
+            ObjectiveInitialDelayTimer,
+            this,
+            &ALowPoly_Survival_GameMode::ShowObjectiveMessage,
+            1.5f,
+            false
+        );
+
 }
 
 
@@ -461,6 +487,12 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
 
 void ALowPoly_Survival_GameMode::StartNextRound()
 {
+    // If we haven't shown the objective message yet, don't start spawning
+    if (!bHasShownObjectiveMessage)
+    {
+        return;
+    }
+
     // Reset game over flag
     bIsGameOver = false;
 
@@ -479,6 +511,10 @@ void ALowPoly_Survival_GameMode::StartNextRound()
 
 void ALowPoly_Survival_GameMode::CheckForNextRound()
 {
+
+    if (!bHasShownObjectiveMessage)
+        return;
+
     bool bAllEnemiesDead = true;
     for (AEnemy_Poly* Enemy : SpawnedEnemies)
     {
@@ -760,6 +796,176 @@ TSubclassOf<AEnemy_Poly> ALowPoly_Survival_GameMode::GetEnemyClassForCurrentRoun
     // Default to spawning spiders if something goes wrong
     return BP_Spider;
 }
+
+
+
+void ALowPoly_Survival_GameMode::ShowObjectiveMessage()
+{
+
+    ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+    APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+    if (!PlayerCharacter || !PlayerController)
+    {
+        // If we can't get the player character or controller, skip the sequence and start the game
+        StartGameAfterObjective();
+        return;
+    }
+
+    // Use the ObjectiveCamera from the player character
+    AActor* TargetCamera = nullptr;
+
+    // Try to use the ObjectiveCamera that's attached to the player
+    if (PlayerCharacter->ObjectiveCamera && PlayerCharacter->ObjectiveCamera->GetChildActor())
+    {
+        TargetCamera = PlayerCharacter->ObjectiveCamera->GetChildActor();
+    }
+
+   
+
+    // Set view target to objective camera with blend
+    if (TargetCamera)
+    {
+        PlayerController->SetViewTargetWithBlend(TargetCamera, 0.6f, EViewTargetBlendFunction::VTBlend_Linear, 0.0, false);
+        // Disable all input comprehensively
+        PlayerController->DisableInput(PlayerController);
+        PlayerController->bEnableClickEvents = false;
+
+        PlayerController->bShowMouseCursor = false;
+        PlayerController->bEnableMouseOverEvents = false;
+    }
+
+    // Create and display the objective message widget
+    if (ObjectiveMessageWidgetClass)
+    {
+        ObjectiveMessageWidget = CreateWidget<UObjective_Message_Widget>(GetWorld(), ObjectiveMessageWidgetClass);
+
+        if (ObjectiveMessageWidget)
+        {
+
+            // Add to viewport and play show animation
+            ObjectiveMessageWidget->AddToViewport();
+            ObjectiveMessageWidget->PlayShowAnimation();
+
+            // Schedule hiding the message after 3 seconds
+            GetWorld()->GetTimerManager().SetTimer(
+                ObjectiveDisplayTimer,
+                this,
+                &ALowPoly_Survival_GameMode::HideObjectiveMessage,
+                5.0f,  // Show message for 3 seconds
+                false
+            );
+        }
+        else
+        {
+            // If widget creation fails, skip to game start
+            StartGameAfterObjective();
+        }
+    }
+
+    else
+    {
+        // If no widget class is set, skip to game start
+        StartGameAfterObjective();
+    }
+
+
+}
+
+
+
+void ALowPoly_Survival_GameMode::HideObjectiveMessage()
+{
+
+    // Play hide animation on widget
+    if (ObjectiveMessageWidget)
+    {
+        ObjectiveMessageWidget->PlayHideAnimation();
+
+        // Schedule removing the widget and starting the game after the animation
+        // This assumes the animation takes about 1 second to play
+        FTimerHandle RemoveWidgetTimer;
+        GetWorld()->GetTimerManager().SetTimer(
+            RemoveWidgetTimer,
+            [this]()
+            {
+                if (ObjectiveMessageWidget)
+                {
+                    ObjectiveMessageWidget->RemoveFromParent();
+                    ObjectiveMessageWidget = nullptr;
+                }
+
+                // Return camera to player and start game
+                this->StartGameAfterObjective();
+            },
+            1.0f,  // Delay to allow animation to complete
+                false
+                );
+    }
+    else
+    {
+        // If widget is not valid, just start the game
+        StartGameAfterObjective();
+    }
+
+}
+
+
+
+void ALowPoly_Survival_GameMode::StartGameAfterObjective()
+{
+
+    // Return camera to player character
+    ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+    APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
+
+    if (PlayerCharacter && PlayerController)
+    {
+        PlayerController->SetViewTargetWithBlend(PlayerCharacter, 0.6f, EViewTargetBlendFunction::VTBlend_Linear, 0.0f, false);
+
+        // Add debug message before enabling input
+        UE_LOG(LogTemp, Warning, TEXT("About to re-enable input in StartGameAfterObjective"));
+        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Re-enabling input..."));
+
+        // Reset any UI flags on the character
+        PlayerCharacter->bIsInUIMode = false;
+
+        FTimerHandle InputEnableTimer;
+
+        // Add a slight delay before re-enabling input to ensure all transitions are complete
+        GetWorld()->GetTimerManager().SetTimer(
+            InputEnableTimer,
+            [PlayerController]()
+            {
+                if (PlayerController && PlayerController->IsValidLowLevel())
+                {
+                    // Re-enable all input types
+                    PlayerController->EnableInput(PlayerController);
+                    PlayerController->SetIgnoreLookInput(false);
+                    PlayerController->SetIgnoreMoveInput(false);
+
+                    // Explicitly set game-only input mode
+                    FInputModeGameOnly GameOnlyMode;
+                    PlayerController->SetInputMode(GameOnlyMode);
+
+                    // Restore mouse settings
+                    PlayerController->bShowMouseCursor = false;
+                    PlayerController->bEnableMouseOverEvents = true;
+                }
+            },
+            1.0f,
+                false
+                );
+    }
+
+    // Mark that we've shown the objective
+    bHasShownObjectiveMessage = true;
+
+    // Start the first round
+    StartNextRound();
+
+}
+
 
 
 

@@ -1176,6 +1176,7 @@ public:
 		UChildActorComponent* ObjectiveCamera;
 	//Objective Message
 
+	bool bObjectiveSequencePlaying = false;
 
 
 protected:
