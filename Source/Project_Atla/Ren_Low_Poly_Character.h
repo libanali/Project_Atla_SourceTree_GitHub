@@ -1093,6 +1093,9 @@ public:
 
 	UFUNCTION(BlueprintPure, Category = "Pause")
 		bool IsGamePaused() const;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+		USoundBase* PauseSound;
 	//Pause Menu
 
 

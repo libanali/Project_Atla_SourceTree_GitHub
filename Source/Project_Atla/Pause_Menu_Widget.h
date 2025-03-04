@@ -27,6 +27,15 @@ protected:
         class UButton* ResumeButton;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UButton* QuitButton;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UButton* YesButton;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+        class UButton* NoButton;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UCanvasPanel* MainPauseCanvas;
 
 
@@ -43,6 +52,9 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
         USoundBase* BackSound;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+        USoundBase* NavigationSound;
+
     UFUNCTION()
         void OnResumeClicked();
 
@@ -51,6 +63,8 @@ protected:
 
 
     virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
+    virtual FNavigationReply NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply) override;
+    virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
 
 public:
@@ -60,6 +74,7 @@ public:
     void HidePauseMenu();
     void HandleGoBack();
     void UpdateMenuState(int32 ActiveIndex);
+    void PlayNavigationSound();
 
 
 };

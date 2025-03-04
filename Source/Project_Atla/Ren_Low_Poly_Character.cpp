@@ -2847,6 +2847,7 @@ void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
 		GetMesh()->SetGenerateOverlapEvents(false);
 		GetWorld()->GetTimerManager().SetTimer(InvulnerabilityTimer, this, &ARen_Low_Poly_Character::NullifyInvulnerability, 35.0f, false);
 		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("INVULNERABLE!"));
+		bIsInvincible = true;
 
 		break;
 
@@ -2916,7 +2917,7 @@ void ARen_Low_Poly_Character::NullifyInvulnerability()
 	
 	GetMesh()->SetGenerateOverlapEvents(true);
 	GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Red, TEXT("Invulnerability Finished"));
-
+	bIsInvincible = false;
 
 }
 
@@ -3614,6 +3615,15 @@ void ARen_Low_Poly_Character::HandlePauseGame()
 	APlayerController* PC = Cast<APlayerController>(GetController());
 	if (!PC)
 		return;
+
+	if (PauseSound)
+
+	{
+
+		UGameplayStatics::PlaySound2D(GetWorld(), PauseSound);
+
+	}
+
 
 	// If the widget doesn't exist or has been garbage collected, create a new one
 	if (!IsValid(PauseMenuWidget) && PauseMenuClass)

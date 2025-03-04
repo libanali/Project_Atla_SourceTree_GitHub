@@ -37,6 +37,8 @@ void UPause_Menu_Widget::NativeConstruct()
 
     this->SetIsFocusable(true);
 
+    ResumeButton->SetKeyboardFocus();
+
 }
 
 
@@ -198,6 +200,23 @@ void UPause_Menu_Widget::UpdateMenuState(int32 ActiveIndex)
 
 
 
+void UPause_Menu_Widget::PlayNavigationSound()
+{
+
+    if (NavigationSound)
+
+    {
+
+        UGameplayStatics::PlaySound2D(GetWorld(), NavigationSound);
+
+    }
+
+
+}
+
+
+
+
 
 
 
@@ -215,6 +234,39 @@ FReply UPause_Menu_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FK
     }
 
     return FReply::Unhandled();
+}
+
+
+
+FNavigationReply UPause_Menu_Widget::NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply)
+{
+    EUINavigation Direction = InNavigationEvent.GetNavigationType();
+
+
+    // Play sound for navigation keys
+    if (Direction == EUINavigation::Up ||
+        Direction == EUINavigation::Down)
+    {
+        PlayNavigationSound();
+    }
+
+
+    return Super::NativeOnNavigation(MyGeometry, InNavigationEvent, InDefaultReply);
+}
+
+
+
+
+
+void UPause_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+
+    Super::NativeTick(MyGeometry, InDeltaTime);
+
+    // Continuously check focus state
+   // if (ResumeButton && ResumeButton->HasKeyboardFocus())
+
+
 }
 
 
