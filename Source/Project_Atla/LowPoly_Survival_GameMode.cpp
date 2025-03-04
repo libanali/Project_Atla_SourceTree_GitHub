@@ -533,8 +533,10 @@ void ALowPoly_Survival_GameMode::CheckForNextRound()
         // Move to the next round
         CurrentRound++;
 
+        ShowRoundCompleteMessage();
 
-        GetWorld()->GetTimerManager().SetTimer(CheckPowerUp, this, &ALowPoly_Survival_GameMode::CheckIfCanPowerUp, 1.0f, false, 2.0f);
+
+        GetWorld()->GetTimerManager().SetTimer(CheckPowerUp, this, &ALowPoly_Survival_GameMode::CheckIfCanPowerUp, 1.0f, false, 5.0f);
 
 
 
@@ -988,7 +990,7 @@ void ALowPoly_Survival_GameMode::ShowRoundCompleteMessage()
                 RoundCompleteDisplayTimer,
                 this,
                 &ALowPoly_Survival_GameMode::HideRoundCompleteMessage,
-                4.0f,  // Show message for 4 seconds
+                3.0f,  // Show message for 4 seconds
                 false
             );
         }
