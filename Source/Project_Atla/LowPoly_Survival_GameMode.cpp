@@ -969,6 +969,67 @@ void ALowPoly_Survival_GameMode::StartGameAfterObjective()
 
 
 
+void ALowPoly_Survival_GameMode::ShowRoundCompleteMessage()
+{
+
+    // Create and display the round complete message widget
+    if (RoundCompleteWidgetClass)
+    {
+        RoundCompleteWidget = CreateWidget<URound_Complete_Message_Widget>(GetWorld(), RoundCompleteWidgetClass);
+
+        if (RoundCompleteWidget)
+        {
+            // Add to viewport and play show animation
+            RoundCompleteWidget->AddToViewport();
+            RoundCompleteWidget->PlayShowAnimation();
+
+            // Schedule hiding the message after 4 seconds
+            GetWorld()->GetTimerManager().SetTimer(
+                RoundCompleteDisplayTimer,
+                this,
+                &ALowPoly_Survival_GameMode::HideRoundCompleteMessage,
+                4.0f,  // Show message for 4 seconds
+                false
+            );
+        }
+    }
+
+
+
+}
+
+void ALowPoly_Survival_GameMode::HideRoundCompleteMessage()
+{
+
+
+    // Play hide animation on widget
+    if (RoundCompleteWidget)
+    {
+        RoundCompleteWidget->PlayHideAnimation();
+
+        // Schedule removing the widget after the animation
+        FTimerHandle RemoveWidgetTimer;
+        GetWorld()->GetTimerManager().SetTimer(
+            RemoveWidgetTimer,
+            [this]()
+            {
+                if (RoundCompleteWidget)
+                {
+                    RoundCompleteWidget->RemoveFromParent();
+                    RoundCompleteWidget = nullptr;
+                }
+            },
+            1.0f,  // Delay to allow animation to complete
+                false
+                );
+    }
+
+
+}
+
+
+
+
 void ALowPoly_Survival_GameMode::OnEnemyDestroyed()
 {
 

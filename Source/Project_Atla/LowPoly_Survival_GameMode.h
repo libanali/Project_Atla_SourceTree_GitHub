@@ -10,6 +10,7 @@
 #include "GameFramework/Actor.h"
 #include "Engine/TriggerVolume.h"
 #include "Components/BoxComponent.h"  // Include BoxComponent header
+#include "Round_Complete_Message_Widget.h"
 #include "LowPoly_Survival_GameMode.generated.h"
 
 /**
@@ -179,9 +180,6 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "UI")
         TSubclassOf<class UObjective_Message_Widget> ObjectiveMessageWidgetClass;
 
-    // We'll use the ObjectiveCamera from the player character class instead
-
-    // Instance of the objective message widget
     UPROPERTY()
         class UObjective_Message_Widget* ObjectiveMessageWidget;
 
@@ -197,6 +195,19 @@ protected:
     void ShowObjectiveMessage();
     void HideObjectiveMessage();
     void StartGameAfterObjective();
+
+
+    UPROPERTY(EditDefaultsOnly, Category = "UI")
+        TSubclassOf<URound_Complete_Message_Widget> RoundCompleteWidgetClass;
+
+    UPROPERTY()
+        URound_Complete_Message_Widget* RoundCompleteWidget;
+
+    void ShowRoundCompleteMessage();
+    void HideRoundCompleteMessage();
+
+    FTimerHandle RoundCompleteDisplayTimer;
+
 
 
     UFUNCTION()
