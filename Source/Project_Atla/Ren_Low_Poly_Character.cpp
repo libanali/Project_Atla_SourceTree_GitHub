@@ -1138,33 +1138,56 @@ void ARen_Low_Poly_Character::ApplyKnockbackToEnemy(AEnemy_Poly* Enemy, float Kn
 
 	// Get the direction from player to enemy
 	FVector KnockbackDirection = Enemy->GetActorLocation() - GetActorLocation();
-	KnockbackDirection.Z = 0.0f; // Keep knockback horizontal
 	KnockbackDirection.Normalize();
 
 	// Calculate start and end positions
 	FVector StartLocation = Enemy->GetActorLocation();
-	FVector TargetLocation = StartLocation + (KnockbackDirection * KnockbackForce);
 
-	// Perform line trace to prevent knocking through walls
+	// First calculate a purely horizontal knockback for testing
+	FVector HorizontalDir = KnockbackDirection;
+	HorizontalDir.Z = 0.0f;
+	HorizontalDir.Normalize();
+
+	FVector TestTargetLocation = StartLocation + (HorizontalDir * KnockbackForce);
+
+	// Check if horizontal movement would cause collision with a slope
 	FHitResult HitResult;
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(Enemy);
 	QueryParams.AddIgnoredActor(this);
 
-	GetWorld()->LineTraceSingleByChannel(
+	// Test if horizontal knockback would hit something
+	bool bHitObstacle = GetWorld()->LineTraceSingleByChannel(
 		HitResult,
 		StartLocation,
-		TargetLocation,
+		TestTargetLocation,
 		ECC_Visibility,
 		QueryParams
 	);
 
-	// If we hit something, adjust target location
-	if (HitResult.bBlockingHit)
+	// If we hit something, adjust direction to match the surface normal
+	FVector FinalKnockbackDir;
+	if (bHitObstacle && !FMath::IsNearlyZero(HitResult.ImpactNormal.Z, 0.1f))
 	{
-		TargetLocation = HitResult.Location;
+		// Calculate a direction that slides along the surface
+		FinalKnockbackDir = FVector::VectorPlaneProject(HorizontalDir, HitResult.ImpactNormal).GetSafeNormal();
+
+		// Add a slight upward component based on slope steepness
+		float SlopeAngle = FMath::Acos(FVector::DotProduct(HitResult.ImpactNormal, FVector(0, 0, 1)));
+		float UpFactor = FMath::Sin(SlopeAngle) * 0.5f; // Scale based on slope angle
+		FinalKnockbackDir.Z += UpFactor;
+		FinalKnockbackDir.Normalize();
+	}
+	else
+	{
+		// No obstacle or flat ground - use horizontal knockback
+		FinalKnockbackDir = HorizontalDir;
 	}
 
+	// Final target location
+	FVector TargetLocation = StartLocation + (FinalKnockbackDir * KnockbackForce);
+
+	// Use your existing timer setup with sweep enabled
 	struct FKnockbackData
 	{
 		float ElapsedTime;
@@ -1184,10 +1207,13 @@ void ARen_Low_Poly_Character::ApplyKnockbackToEnemy(AEnemy_Poly* Enemy, float Kn
 			float Alpha = FMath::Min(TimerData->ElapsedTime / KnockbackDuration, 1.0f);
 
 			FVector NewLocation = FMath::Lerp(StartLocation, TargetLocation, Alpha);
-			Enemy->SetActorLocation(NewLocation);
 
-			// Stop timer when knockback is complete
-			if (Alpha >= 1.0f)
+			// Use sweeping for better collision handling
+			FHitResult SweepHit;
+			Enemy->SetActorLocation(NewLocation, true, &SweepHit);
+
+			// Stop timer when knockback is complete or hits something solid
+			if (Alpha >= 1.0f || (SweepHit.bBlockingHit && SweepHit.bStartPenetrating))
 			{
 				Enemy->GetWorld()->GetTimerManager().ClearTimer(TimerData->TimerHandle);
 			}
@@ -1431,7 +1457,6 @@ void ARen_Low_Poly_Character::UnlockWeaponTechnique(EWeaponType TheWeaponType, i
 void ARen_Low_Poly_Character::ToggleSoftLock()
 {
 
-
 	TArray<AActor*> OverlappingActors;
 	UGameplayStatics::GetAllActorsWithTag(GetWorld(), FName(TEXT("Enemy")), OverlappingActors);
 
@@ -1443,18 +1468,24 @@ void ARen_Low_Poly_Character::ToggleSoftLock()
 
 	for (AActor* Actor : OverlappingActors)
 	{
+		// Cast to Enemy_Poly to check if it's dead
+		AEnemy_Poly* Enemy = Cast<AEnemy_Poly>(Actor);
+		if (Enemy && Enemy->bIsDead)
+		{
+			// Skip dead enemies
+			continue;
+		}
+
 		FVector TargetDirection = Actor->GetActorLocation() - CharacterLocation;
 		float TargetDistance = TargetDirection.SizeSquared();
 		float AngleToEnemy = FMath::Acos(FVector::DotProduct(TargetDirection.GetSafeNormal(), CharacterForward)) * (180.0f / PI);
 
 		if (TargetDistance <= NearestTargetDistance && AngleToEnemy <= SoftLockAngle)
 		{
-
 			bIsSoftLockEnabled = true;
 			NearestEnemy = Actor;
 			NearestTargetDistance = TargetDistance;
 			//GEngine->AddOnScreenDebugMessage(1, 1.3f, FColor::Green, TEXT("Soft Lock!"));
-
 		}
 	}
 
@@ -3801,8 +3832,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	//TechniqueStruct.CurrentGauge = 100.0f;
 	TechniqueStruct.MaxGauge = 100.0f;
-	TechniqueStruct.TechniquePoints = 6;
-	TechniqueStruct.MaxTechniquePoints = 1;
+	TechniqueStruct.TechniquePoints = 0;
+	TechniqueStruct.MaxTechniquePoints = 7;
 
 
 	AbilityStruct.CurrentAbilityPoints = 0.0f;
