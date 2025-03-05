@@ -1355,7 +1355,7 @@ void UMain_Menu_Widget::OnLanguageValueChanged(const FString& NewValue)
         else if (NewValue == "Japanese") CultureCode = "ja";
 
         // Apply the culture change
-        FInternationalization::Get().SetCurrentCulture(CultureCode);
+        const bool bIsSuccessful = FInternationalization::Get().SetCurrentLanguage(CultureCode);
 
         // Force UI refresh
         if (WidgetSwitcher)

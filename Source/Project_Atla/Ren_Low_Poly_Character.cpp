@@ -1065,7 +1065,7 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 		{
 			if (NotificationWidget)
 			{
-				FString NotificationMessage = FString::Printf(TEXT("Cannot perform %s - Required technique points: %.0f"),
+				FString NotificationMessage = FString::Printf(TEXT("Cannot perform %s - Required technique points: %d"),
 					*SelectedTechnique.TechniqueName,
 					SelectedTechnique.PointsRequired);
 				NotificationWidget->AddNotification(NotificationMessage, 3.0f);
@@ -3802,7 +3802,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	//TechniqueStruct.CurrentGauge = 100.0f;
 	TechniqueStruct.MaxGauge = 100.0f;
 	TechniqueStruct.TechniquePoints = 6;
-	TechniqueStruct.MaxTechniquePoints = 7;
+	TechniqueStruct.MaxTechniquePoints = 1;
 
 
 	AbilityStruct.CurrentAbilityPoints = 0.0f;
