@@ -88,7 +88,24 @@ void UMain_Menu_Widget::NativeConstruct()
     bHasSetFocusForSwordButton = false;
 
     
+    if (GetWorld())
+    {
+        APlayerController* PC = GetWorld()->GetFirstPlayerController();
+        if (PC)
+        {
+            // Set input mode to UI only with focus on this widget
+            FInputModeUIOnly InputMode;
+            InputMode.SetWidgetToFocus(this->TakeWidget());
+            InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+            PC->SetInputMode(InputMode);
 
+            // Make sure the widget has keyboard focus
+            this->SetKeyboardFocus();
+
+            // Debug message to confirm focus is set
+            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Widget focus set on startup"));
+        }
+    }
 }
 
 
@@ -1507,54 +1524,55 @@ void UMain_Menu_Widget::ResetSettingsToDefault()
 FReply UMain_Menu_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
 
-
     // Get the pressed key
     FKey PressedKey = InKeyEvent.GetKey();
-
-    if (PressedKey == EKeys::Gamepad_FaceButton_Right || PressedKey == EKeys::J || PressedKey == EKeys::RightMouseButton)
-    {
-        HandleGoBack(); // Handle the back button logic
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Back!"));
-        PlayBackSound();
-        return FReply::Handled();
-    }
-
-
-    // Check for "Any Key" or "Gamepad Face Button Bottom" for switching to the main menu
-    if (PressedKey == EKeys::AnyKey || PressedKey == EKeys::LeftMouseButton || PressedKey == EKeys::Gamepad_FaceButton_Bottom || PressedKey == EKeys::Gamepad_FaceButton_Top || PressedKey == EKeys::Gamepad_FaceButton_Left || PressedKey == EKeys::Gamepad_FaceButton_Right || PressedKey == EKeys::Gamepad_Special_Right)
-    {
-        SwitchToMainMenu(); // Handle switching to the main menu
-        return FReply::Handled();
-    }
-
-
-    // Master Audio Controls
-    if (MasterAudioButton && MasterAudioButton->HasKeyboardFocus())
-    {
-        if (PressedKey == EKeys::Gamepad_DPad_Left ||
-            PressedKey == EKeys::Gamepad_LeftStick_Left ||
-            PressedKey == EKeys::A)
-        {
-            AdjustMasterVolume(false);
-            return FReply::Handled();
-        }
-        else if (PressedKey == EKeys::Gamepad_DPad_Right ||
-            PressedKey == EKeys::Gamepad_LeftStick_Right ||
-            PressedKey == EKeys::D)
-        {
-            AdjustMasterVolume(true);
-            return FReply::Handled();
-        }
-    }
-
-
    
 
+    // First check if we're on the title screen
+    if (bIsOnTitleScreen)
+    {
+        // On title screen, any key will move to main menu (except ESC which is typically handled by the engine)
+        if (PressedKey != EKeys::Escape)
+        {
+            SwitchToMainMenu();
+            PlayNavigationSound(); // Optional - play a sound when transitioning
+            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
+                FString::Printf(TEXT("Key pressed: %s"), *PressedKey.ToString()));
+            return FReply::Handled();
+        }
+    }
+    else
+    {
+        // Not on title screen - handle regular navigation
+        if (PressedKey == EKeys::Gamepad_FaceButton_Right)
+        {
+            HandleGoBack();
+            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Back!"));
+            PlayBackSound();
+            return FReply::Handled();
+        }
 
-    // Optionally: Handle other keys here if needed
+        // Master Audio Controls
+        if (MasterAudioButton && MasterAudioButton->HasKeyboardFocus())
+        {
+            if (PressedKey == EKeys::Gamepad_DPad_Left ||
+                PressedKey == EKeys::Gamepad_LeftStick_Left ||
+                PressedKey == EKeys::A)
+            {
+                AdjustMasterVolume(false);
+                return FReply::Handled();
+            }
+            else if (PressedKey == EKeys::Gamepad_DPad_Right ||
+                PressedKey == EKeys::Gamepad_LeftStick_Right ||
+                PressedKey == EKeys::D)
+            {
+                AdjustMasterVolume(true);
+                return FReply::Handled();
+            }
+        }
+    }
+
     return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
-
-
 
 }
 
@@ -1608,6 +1626,36 @@ FNavigationReply UMain_Menu_Widget::NativeOnNavigation(const FGeometry& MyGeomet
 
 
     return Super::NativeOnNavigation(MyGeometry, InNavigationEvent, InDefaultReply);
+}
+
+
+
+
+FReply UMain_Menu_Widget::NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent)
+{
+    // Check if we're on the title screen
+    if (bIsOnTitleScreen)
+    {
+        // Any mouse button will move to main menu
+        SwitchToMainMenu();
+        PlayNavigationSound(); // Optional - play a sound when transitioning
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Mouse button pressed"));
+        return FReply::Handled();
+    }
+    else
+    {
+        // Not on title screen - check for right-click for back functionality
+        if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
+        {
+            HandleGoBack();
+            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Back with Right-Click!"));
+            PlayBackSound();
+            return FReply::Handled();
+        }
+    }
+
+    // For other screens, default to regular handling
+    return Super::NativeOnMouseButtonDown(InGeometry, InMouseEvent);
 }
 
 
