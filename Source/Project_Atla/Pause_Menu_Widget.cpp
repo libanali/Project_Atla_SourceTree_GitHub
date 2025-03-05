@@ -39,6 +39,38 @@ void UPause_Menu_Widget::NativeConstruct()
 
     ResumeButton->SetKeyboardFocus();
 
+
+
+    if (YesButton)
+    {
+        YesButton->OnClicked.Clear();
+        YesButton->OnClicked.AddDynamic(this, &UPause_Menu_Widget::OnYesClicked);
+    }
+
+    if (NoButton)
+    {
+        NoButton->OnClicked.Clear();
+        NoButton->OnClicked.AddDynamic(this, &UPause_Menu_Widget::OnNoClicked);
+    }
+
+
+    if (QuitButton)
+    {
+        QuitButton->OnClicked.Clear();
+        QuitButton->OnClicked.AddDynamic(this, &UPause_Menu_Widget::OnQuitClicked);
+    }
+
+    // Hide confirmation canvas initially
+    if (ConfirmationCanvas)
+    {
+        ConfirmationCanvas->SetVisibility(ESlateVisibility::Hidden);
+    }
+
+    // Initial state
+    CurrentMenuState = 0;
+
+
+
 }
 
 
@@ -145,25 +177,55 @@ void UPause_Menu_Widget::PlayBackSound()
 
 
 
+void UPause_Menu_Widget::OnQuitClicked()
+{
+
+    UpdateMenuState(1);
+
+}
+
+
+
+
+void UPause_Menu_Widget::OnYesClicked()
+{
+
+    // Return to main menu
+    UGameplayStatics::OpenLevel(this, FName("Main_Menu_Level")); // Adjust level name as needed
+    HidePauseMenu();
+
+}
+
+
+
+void UPause_Menu_Widget::OnNoClicked()
+{
+
+    UpdateMenuState(0);
+
+
+
+}
+
+
+
 
 void UPause_Menu_Widget::HandleGoBack()
 {
 
-
-    if (MenuSwitcher)
+    if (CurrentMenuState == 1)
     {
-        int32 CurrentIndex = MenuSwitcher->GetActiveWidgetIndex();
-        if (CurrentIndex == 1)
-        {
-            UpdateMenuState(0);
-        }
-        else
-        {
-            HidePauseMenu();
-            UGameplayStatics::SetGamePaused(GetWorld(), false);
-        }
+        // If in confirmation screen, go back to main pause menu
+        UpdateMenuState(0);
+        PlayBackSound();
     }
-
+    else
+    {
+        // If in main pause menu, close pause menu entirely
+        HidePauseMenu();
+        UGameplayStatics::SetGamePaused(GetWorld(), false);
+        PlayBackSound();
+    }
 
 }
 
@@ -177,25 +239,36 @@ void UPause_Menu_Widget::UpdateMenuState(int32 ActiveIndex)
     if (MenuSwitcher)
     {
         MenuSwitcher->SetActiveWidgetIndex(ActiveIndex);
+        CurrentMenuState = ActiveIndex;
 
-        // Play the appropriate animation based on the active index
-        switch (ActiveIndex)
+        // Hide/show appropriate canvases
+        if (ActiveIndex == 0)
         {
-        case 0: // Main Pause Menu
-            if (PauseMenuAnimation)
-            {
-                PlayAnimation(PauseMenuAnimation);
-            }
+            // Show main pause menu
+            if (ConfirmationCanvas)
+                ConfirmationCanvas->SetVisibility(ESlateVisibility::Hidden);
+
             // Set focus on resume button
             if (ResumeButton)
-            {
                 ResumeButton->SetKeyboardFocus();
-            }
-            break;
+
+            if (PauseMenuAnimation)
+                PlayAnimation(PauseMenuAnimation);
         }
-    
-     }
- }
+        else if (ActiveIndex == 1)
+        {
+            // Show confirmation canvas
+            if (ConfirmationCanvas)
+                ConfirmationCanvas->SetVisibility(ESlateVisibility::Visible);
+
+            // Set focus on No button (safer default)
+            if (NoButton)
+                NoButton->SetKeyboardFocus();
+
+
+        }
+    }
+}
 
 
 
@@ -222,17 +295,21 @@ void UPause_Menu_Widget::PlayNavigationSound()
 
 FReply UPause_Menu_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
-    FKey PressedKey = InKeyEvent.GetKey();
-    if (PressedKey == EKeys::Gamepad_FaceButton_Right ||
-        PressedKey == EKeys::J ||
-        PressedKey == EKeys::RightMouseButton ||
-        PressedKey == EKeys::Escape)  // Added Escape key support
-    {
-        HandleGoBack();
-        PlayBackSound();
-        return FReply::Handled();
-    }
+    if (CurrentMenuState == 0 || 1)
 
+
+    {
+        FKey PressedKey = InKeyEvent.GetKey();
+        if (PressedKey == EKeys::Gamepad_FaceButton_Right ||
+            PressedKey == EKeys::J ||
+            PressedKey == EKeys::RightMouseButton ||
+            PressedKey == EKeys::Escape)  // Added Escape key support
+        {
+            HandleGoBack();
+            PlayBackSound();
+            return FReply::Handled();
+        }
+    }
     return FReply::Unhandled();
 }
 

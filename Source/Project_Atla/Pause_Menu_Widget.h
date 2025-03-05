@@ -38,7 +38,8 @@ protected:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UCanvasPanel* MainPauseCanvas;
 
-
+    UPROPERTY(meta = (BindWidget))
+        class UCanvasPanel* ConfirmationCanvas;
 
     UPROPERTY()
         UButton* LastFocusedButton;
@@ -46,6 +47,9 @@ protected:
     // Animation properties
     UPROPERTY(Transient, meta = (BindWidgetAnim))
         UWidgetAnimation* PauseMenuAnimation;
+
+    UPROPERTY(Transient, meta = (BindWidgetAnim))
+        UWidgetAnimation* ConfirmationMenuAnimation;
 
  
 
@@ -61,12 +65,21 @@ protected:
     UFUNCTION()
         void PlayBackSound();
 
+    UFUNCTION()
+        void OnQuitClicked();
+
+    UFUNCTION()
+        void OnYesClicked();
+
+    UFUNCTION()
+        void OnNoClicked();
+
 
     virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
     virtual FNavigationReply NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply) override;
     virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 
-
+    int32 CurrentMenuState = 0;
 public:
     void BindDelegates();
     void UnbindDelegates();
