@@ -805,6 +805,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Power-Ups")
 		void DecreaseHealth(int amount);
 
+	bool bPowerUpPending;
+
 	FTimerHandle ResetAttackTimer;
 	FTimerHandle InvulnerabilityTimer;
 	FTimerHandle RegenHealthTimer;

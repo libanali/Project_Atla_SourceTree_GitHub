@@ -172,6 +172,9 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	DistanceThreshold = 40.0f;
 	AttackMovementSpeed = 200.0f;
 
+
+	bPowerUpPending = false;
+
 	InitialiseDefaultElementalProficiencyValues();
 
 	FDelegateHandle DuplicateCheckTimerHandle;
@@ -4519,6 +4522,13 @@ void ARen_Low_Poly_Character::OnMontageEnded(UAnimMontage* Montage, bool bInterr
 		UE_LOG(LogTemp, Warning, TEXT("Montage ended: %s, Interrupted: %s"),
 			*Montage->GetName(),
 			bInterrupted ? TEXT("True") : TEXT("False"));
+	}
+
+	if (bPowerUpPending)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Power-up pending - skipping next action processing"));
+		bPowerUpPending = false;
+		return;
 	}
 
 	if (bInterrupted)

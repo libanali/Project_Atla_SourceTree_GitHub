@@ -564,6 +564,19 @@ void ALowPoly_Survival_GameMode::CheckIfCanPowerUp()
 
         if (PlayerCharacter && PlayerController && !PlayerCharacter->bIsDead)  // Add death check
         {
+
+            PlayerCharacter->InterruptCurrentAnimation();
+            PlayerCharacter->ClearCurrentAction();
+            PlayerCharacter->ActionQueue.Empty();
+
+            // Force any state flags to be reset
+            PlayerCharacter->bUsingItem = false;
+            PlayerCharacter->bPerformingTechnique = false;
+            PlayerCharacter->bPerformingElemental = false;
+            PlayerCharacter->bPerformingAbility = false;
+
+
+
             // First, force close the command menu if it's open
             if (PlayerCharacter->CommandMenuWidget && PlayerCharacter->CommandMenuWidget->WidgetSwitcher)
             {
@@ -636,6 +649,8 @@ void ALowPoly_Survival_GameMode::PlayPowerUpAnim()
         UE_LOG(LogTemp, Warning, TEXT("Failed to get PlayerCharacter or PlayerController"));
         return;
     }
+
+    PlayerCharacter->bPowerUpPending = true;
 
     // Clear any current animations and states
     if (UAnimInstance* AnimInstance = PlayerCharacter->GetMesh()->GetAnimInstance())
