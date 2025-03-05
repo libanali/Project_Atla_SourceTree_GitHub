@@ -3,6 +3,7 @@
 
 #include "Carousel_Button_Widget.h"
 #include "Components/TextBlock.h"
+#include "Components/Button.h"
 
 
 
@@ -36,9 +37,18 @@ void UCarousel_Button_Widget::NativeConstruct()
         RightArrowText->SetText(FText::FromString(TEXT(">")));
     }
 
+    // Bind button click events
+    if (LeftArrowButton)
+    {
+        LeftArrowButton->OnClicked.AddDynamic(this, &UCarousel_Button_Widget::OnLeftArrowClicked);
+    }
+
+    if (RightArrowButton)
+    {
+        RightArrowButton->OnClicked.AddDynamic(this, &UCarousel_Button_Widget::OnRightArrowClicked);
+    }
+
 }
-
-
 
 
 
@@ -102,6 +112,30 @@ void UCarousel_Button_Widget::UpdateDisplay()
         ValueText->SetText(FText::FromString(PossibleValues[CurrentIndex]));
     }
 
+
+
+}
+
+
+
+
+void UCarousel_Button_Widget::OnLeftArrowClicked()
+{
+
+    CycleValue(false);
+
+
+}
+
+
+
+
+
+void UCarousel_Button_Widget::OnRightArrowClicked()
+{
+
+
+    CycleValue(true);
 
 
 }

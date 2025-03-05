@@ -39,6 +39,14 @@ public:
     UPROPERTY(meta = (BindWidget))
         class UTextBlock* ValueText;
 
+    // Left arrow button (new)
+    UPROPERTY(meta = (BindWidget))
+        UButton* LeftArrowButton;
+
+    // Right arrow button (new)
+    UPROPERTY(meta = (BindWidget))
+        UButton* RightArrowButton;
+
     UPROPERTY(meta = (BindWidget))
         class UTextBlock* LeftArrowText;
 
@@ -64,6 +72,14 @@ public:
     // Set label text
     UFUNCTION(BlueprintCallable, Category = "Carousel")
         void UpdateDisplay();
+
+    // Handler for left arrow button click
+    UFUNCTION()
+        void OnLeftArrowClicked();
+
+    // Handler for right arrow button click
+    UFUNCTION()
+        void OnRightArrowClicked();
 
 protected:
 
