@@ -1626,8 +1626,6 @@ void ARen_Low_Poly_Character::CalculateElementalAttack()
 
 
 
-
-
 void ARen_Low_Poly_Character::SpawnElementalProjectile()
 {
 
@@ -1743,6 +1741,7 @@ void ARen_Low_Poly_Character::SpawnElementalGround(FVector SpawnLocation, FRotat
 
 
 }
+
 
 
 void ARen_Low_Poly_Character::UseElementalAttack(const FElemental_Struct& Attack)
@@ -2595,19 +2594,19 @@ void ARen_Low_Poly_Character::InitialiseDefaultElementalProficiencyValues()
 {
 	// Initialize Sword
 	FElemental_Proficiency_Struct SwordProficiency;
-	SwordProficiency.FireProficiencyThresholds.Add(1, 100.f);
-	SwordProficiency.FireProficiencyThresholds.Add(2, 200.f);
-	SwordProficiency.FireProficiencyThresholds.Add(3, 300.f);
+	SwordProficiency.FireProficiencyThresholds.Add(1, 400.f);
+	SwordProficiency.FireProficiencyThresholds.Add(2, 1000.f);
+	SwordProficiency.FireProficiencyThresholds.Add(3, 2300.f);
 	UE_LOG(LogTemp, Warning, TEXT("Sword Fire Thresholds initialized with %d entries"), SwordProficiency.FireProficiencyThresholds.Num());
 
-	SwordProficiency.IceProficiencyThresholds.Add(1, 100.f);
-	SwordProficiency.IceProficiencyThresholds.Add(2, 200.f);
-	SwordProficiency.IceProficiencyThresholds.Add(3, 300.f);
+	SwordProficiency.IceProficiencyThresholds.Add(1, 400.f);
+	SwordProficiency.IceProficiencyThresholds.Add(2, 1000.f);
+	SwordProficiency.IceProficiencyThresholds.Add(3, 2300.f);
 	UE_LOG(LogTemp, Warning, TEXT("Sword Ice Thresholds initialized with %d entries"), SwordProficiency.IceProficiencyThresholds.Num());
 
-	SwordProficiency.ThunderProficiencyThresholds.Add(1, 100.f);
-	SwordProficiency.ThunderProficiencyThresholds.Add(2, 200.f);
-	SwordProficiency.ThunderProficiencyThresholds.Add(3, 300.f);
+	SwordProficiency.ThunderProficiencyThresholds.Add(1, 400.f);
+	SwordProficiency.ThunderProficiencyThresholds.Add(2, 1000.f);
+	SwordProficiency.ThunderProficiencyThresholds.Add(3, 2300.f);
 	UE_LOG(LogTemp, Warning, TEXT("Sword Thunder Thresholds initialized with %d entries"), SwordProficiency.ThunderProficiencyThresholds.Num());
 
 	WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Sword, SwordProficiency);
@@ -2615,19 +2614,19 @@ void ARen_Low_Poly_Character::InitialiseDefaultElementalProficiencyValues()
 
 	// Initialize Staff
 	FElemental_Proficiency_Struct StaffProficiency;
-	StaffProficiency.FireProficiencyThresholds.Add(1, 100.f);
-	StaffProficiency.FireProficiencyThresholds.Add(2, 200.f);
-	StaffProficiency.FireProficiencyThresholds.Add(3, 300.f);
+	StaffProficiency.FireProficiencyThresholds.Add(1, 400.f);
+	StaffProficiency.FireProficiencyThresholds.Add(2, 1000.f);
+	StaffProficiency.FireProficiencyThresholds.Add(3, 2300.f);
 	UE_LOG(LogTemp, Warning, TEXT("Staff Fire Thresholds initialized with %d entries"), StaffProficiency.FireProficiencyThresholds.Num());
 
-	StaffProficiency.IceProficiencyThresholds.Add(1, 100.f);
-	StaffProficiency.IceProficiencyThresholds.Add(2, 200.f);
-	StaffProficiency.IceProficiencyThresholds.Add(3, 300.f);
+	StaffProficiency.IceProficiencyThresholds.Add(1, 400.f);
+	StaffProficiency.IceProficiencyThresholds.Add(2, 1000.f);
+	StaffProficiency.IceProficiencyThresholds.Add(3, 2300.f);
 	UE_LOG(LogTemp, Warning, TEXT("Staff Ice Thresholds initialized with %d entries"), StaffProficiency.IceProficiencyThresholds.Num());
 
-	StaffProficiency.ThunderProficiencyThresholds.Add(1, 100.f);
-	StaffProficiency.ThunderProficiencyThresholds.Add(2, 200.f);
-	StaffProficiency.ThunderProficiencyThresholds.Add(3, 300.f);
+	StaffProficiency.ThunderProficiencyThresholds.Add(1, 400.f);
+	StaffProficiency.ThunderProficiencyThresholds.Add(2, 1000.f);
+	StaffProficiency.ThunderProficiencyThresholds.Add(3, 2300.f);
 	UE_LOG(LogTemp, Warning, TEXT("Staff Thunder Thresholds initialized with %d entries"), StaffProficiency.ThunderProficiencyThresholds.Num());
 
 	WeaponElementalProficiency.ElementalWeaponProficiencyMap.Add(EWeaponType::Staff, StaffProficiency);
