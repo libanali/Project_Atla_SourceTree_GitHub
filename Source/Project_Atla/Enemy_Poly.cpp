@@ -154,18 +154,15 @@ float AEnemy_Poly::ApplyDamage(float DamageAmount, const FHitResult& HitInfo, AC
 		return 0.0f;
 	}
 
-	UpdateHealthBar();
 
 	bEnemyIsHit = true;
 
-
-
 	PlayAnimMontage(HurtAnimation, 1.0f);
 
-
-
-
 	CurrentEnemyHealth -= DamageAmount;
+
+	UpdateHealthBar();
+
 
 	if (CurrentEnemyHealth <= 0)
 
