@@ -501,7 +501,7 @@ void ALowPoly_Survival_GameMode::StartNextRound()
     GetWorldTimerManager().SetTimer(SpawnTimerHandle, this, &ALowPoly_Survival_GameMode::SpawnEnemies, RoundDelay, false);
     bIsSpawningEnemies = true;
     bIsPowerUpSpawned = false;
-    NextSpawnRound = FMath::RandRange(1, 1);
+    NextSpawnRound = FMath::RandRange(3, 5);
 
 
 }
@@ -514,6 +514,16 @@ void ALowPoly_Survival_GameMode::CheckForNextRound()
 
     if (!bHasShownObjectiveMessage)
         return;
+
+    // Don't show round complete if the game is over (which happens when player dies)
+    if (bIsGameOver)
+        return;
+
+    // Check if the player is dead
+    ARen_Low_Poly_Character* PlayerCharacter = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+    if (PlayerCharacter && PlayerCharacter->bIsDead)
+        return;
+
 
     bool bAllEnemiesDead = true;
     for (AEnemy_Poly* Enemy : SpawnedEnemies)
@@ -537,7 +547,6 @@ void ALowPoly_Survival_GameMode::CheckForNextRound()
 
 
         GetWorld()->GetTimerManager().SetTimer(CheckPowerUp, this, &ALowPoly_Survival_GameMode::CheckIfCanPowerUp, 1.0f, false, 5.0f);
-
 
 
         StartNextRound();
