@@ -4026,9 +4026,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 			// Initialize Sword techniques in the array
 			Techniques.Add(FTechnique_Struct{ TEXT("Stormstrike Flurry"), TEXT("Furious multi-strike sword combo."), true, StormStrikeFlurryAnimMontage, 1.4f, 1, 1 });
-			Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("Electrifying ground-slam force field."), false, VoltageBreakerAnimMontage, 1.6f, 2, 2 });
-			Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Rapid flurry of strikes."), false, TempestBarrageAnimMontage, 1.8f, 3, 3 });
-			Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("Lightning-infused sword combo."), false, StaticRushAnimMontage, 1.9f, 4, 4 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Voltage Breaker"), TEXT("Electrifying ground-slam force field."), false, VoltageBreakerAnimMontage, 1.6f, 6, 2 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Tempest Barrage"), TEXT("Rapid flurry of strikes."), false, TempestBarrageAnimMontage, 2.1f, 18, 3 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Static Rush"), TEXT("Lightning-infused sword combo."), false, StaticRushAnimMontage, 3.1f, 24, 4 });
 			// Create FWeaponTechniques struct and store the techniques
 			FWeaponTechniques SwordTechniques;
 			SwordTechniques.WeaponTechniques = Techniques;
@@ -4062,10 +4062,10 @@ void ARen_Low_Poly_Character::BeginPlay()
 			Techniques.Empty();
 
 			// Initialize Staff techniques in the array
-			Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("Fiery meteor devastates nearby enemies."), true, MeteorStrikeAnimMontage, 3.5f, 1, 1 });
-			Techniques.Add(FTechnique_Struct{ TEXT("Stone Rush"), TEXT("Dark earth rises with force."), false, StoneRushAnimMontage, 2.9f, 2, 2 });
-			Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), false, FrostRainAnimMontage, 1.7f, 3, 3 });
-			Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), false, FeudFangAnimMontage, 1.9f, 4, 4 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Meteor Strike"), TEXT("Fiery meteor devastates nearby enemies."), true, MeteorStrikeAnimMontage, 1.5f, 1, 1 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Stone Rush"), TEXT("Dark earth rises with force."), false, StoneRushAnimMontage, 2.9f, 6, 2 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Frost Rain"), TEXT("Icicles rain down, freezing foes."), false, FrostRainAnimMontage, 5.7f, 18, 3 });
+			Techniques.Add(FTechnique_Struct{ TEXT("Feud Fang"), TEXT("Dark spikes pierce from below."), false, FeudFangAnimMontage, 4.9f, 26, 4 });
 
 			// Create FWeaponTechniques struct and store the techniques
 			FWeaponTechniques StaffTechniques;

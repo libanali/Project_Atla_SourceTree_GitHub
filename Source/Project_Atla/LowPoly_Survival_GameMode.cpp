@@ -690,6 +690,7 @@ void ALowPoly_Survival_GameMode::PlayPowerUpAnim()
                     }
 
                     PlayerCharacter->bIsPoweringUp = false;
+                    PlayerCharacter->bPowerUpPending = false;
 
                     // Return camera after animation ends
                     this->ReturnCamera();
