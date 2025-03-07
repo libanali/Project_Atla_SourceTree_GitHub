@@ -1636,6 +1636,7 @@ void ARen_Low_Poly_Character::SpawnElementalProjectile()
 	{
 	case EElementalAttackType::Fire:
 		ProjectileClass = FireProjectileClass;
+		UGameplayStatics::PlaySound2D(GetWorld(), FireSound);
 		break;
 
 	case EElementalAttackType::Ice:

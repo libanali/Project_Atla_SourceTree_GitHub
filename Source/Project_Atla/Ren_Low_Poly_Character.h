@@ -702,6 +702,15 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		UMaterialInstance* BurnOverlayMaterial;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		USoundBase* FireSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		USoundBase* ThunderSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		USoundBase* IceSound;
+
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void SpawnElementalProjectile();
 
@@ -713,9 +722,6 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void AddExperienceToElementalProfiency(EWeaponType TheWeaponType, EElementalAttackType ElementType, float EXPAmount);
-
-	//UFUNCTION(BlueprintCallable, Category = "Elemental")
-		//void CheckElementalLevelUp(EWeaponType TheWeaponType, EElementalAttackType ElementType);
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void UnlockElementalAbility(EWeaponType TheWeaponType, EElementalAttackType ElementType);

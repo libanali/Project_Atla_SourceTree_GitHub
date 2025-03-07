@@ -6,6 +6,11 @@
 
 FAbility_Struct::FAbility_Struct()
 {
+
+	CurrentAbilityPoints = 0.0f;
+	MaxAbilityPoints = 150.0f;
+
+
 }
 
 void FAbility_Struct::InitializeAbilityPoints()
