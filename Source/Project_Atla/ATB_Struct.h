@@ -18,17 +18,18 @@ struct PROJECT_ATLA_API FATB_Struct
 
 public:
 
+	FATB_Struct();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ATB")
-		float CurrentATB;
+		float CurrentATB = 10.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ATB")
-		float MaxATB;
+		float MaxATB = 100.0f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "ATB")
-		float ATBFillRate;
+		float ATBFillRate = 1.2f;
 
-	float ATB_Attack_Boost;
+	float ATB_Attack_Boost = 10.0f;
 
 	//	void ATB_Increase();
 
@@ -37,5 +38,5 @@ public:
 	//ARen_Character* RenCharacter;
 
 
-	FATB_Struct();
+
 };

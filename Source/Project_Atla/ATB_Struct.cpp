@@ -4,6 +4,10 @@
 #include "ATB_Struct.h"
 #include "Ren_Character.h"
 
+FATB_Struct::FATB_Struct()
+{
+}
+
 void FATB_Struct::InitialiseATB()
 {
 
@@ -16,9 +20,4 @@ void FATB_Struct::InitialiseATB()
 
 
 
-
-
-FATB_Struct::FATB_Struct()
-{
-}
 

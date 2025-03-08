@@ -4,12 +4,9 @@
 #include "Ability_Struct.h"
 
 
+
 FAbility_Struct::FAbility_Struct()
 {
-
-	CurrentAbilityPoints = 0.0f;
-	MaxAbilityPoints = 150.0f;
-
 
 }
 

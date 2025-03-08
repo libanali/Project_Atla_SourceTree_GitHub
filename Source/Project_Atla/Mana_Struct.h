@@ -17,10 +17,10 @@ public:
 
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Mana")
-        float MaxMana;
+    float MaxMana = 100.0f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Mana")
-        float CurrentMana;
+        float CurrentMana = 100.0f;
 
 
 

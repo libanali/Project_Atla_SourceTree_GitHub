@@ -18,17 +18,16 @@ public:
 
 	GENERATED_BODY()
 
-	FAbility_Struct();
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Ability")
-		float MaxAbilityPoints;
+		float MaxAbilityPoints = 150.0f;
 
 
 	UPROPERTY(BlueprintReadWrite, Category = "Ability")
-		float CurrentAbilityPoints;
+		float CurrentAbilityPoints = 0.0f;
 
 
-
+	FAbility_Struct();
 
 	void InitializeAbilityPoints();
 

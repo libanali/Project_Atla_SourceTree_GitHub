@@ -19,10 +19,10 @@ struct PROJECT_ATLA_API FHealth_Struct
 public:
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Health")
-        float MaxHealth;
+        float MaxHealth = 100.0f;
 
     UPROPERTY(BlueprintReadOnly, Category = "Health")
-        float CurrentHealth;
+        float CurrentHealth = 100.0f;
 
 
     FHealth_Struct();

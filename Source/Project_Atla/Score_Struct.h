@@ -22,7 +22,7 @@ public:
 
     // Base points for the enemy type
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
-        int32 BasePoints;
+        int32 BasePoints = 0;
 
     // Multiplier for scaling points by round
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Score")
@@ -30,11 +30,11 @@ public:
 
     // High score for the staff
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HighScore")
-        int32 HighScoreStaff;
+        int32 HighScoreStaff = 0;
 
     // High score for the sword
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "HighScore")
-        int32 HighScoreSword;
+        int32 HighScoreSword = 0;
 
 
   

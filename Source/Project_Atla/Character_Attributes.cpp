@@ -3,3 +3,6 @@
 
 #include "Character_Attributes.h"
 
+FCharacter_Attributes::FCharacter_Attributes()
+{
+}

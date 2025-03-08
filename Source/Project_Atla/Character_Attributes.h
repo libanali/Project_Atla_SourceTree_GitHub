@@ -18,21 +18,21 @@ struct PROJECT_ATLA_API FCharacter_Attributes : public FTableRowBase
 	GENERATED_USTRUCT_BODY()
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
-		int32 CharacterLevel;
+		int32 CharacterLevel = 0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
-		float MaxHealth;
+		float MaxHealth = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
-		float BaseAttack;
+		float BaseAttack = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
-		float BaseDefence;
+		float BaseDefence = 100.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attributes")
-		float BaseElemental;
+		float BaseElemental = 100.0f;
 
-
+		FCharacter_Attributes();
 
 
 };
