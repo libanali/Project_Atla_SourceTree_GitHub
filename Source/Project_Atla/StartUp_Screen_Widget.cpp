@@ -244,22 +244,27 @@ void UStartUp_Screen_Widget::ReverseUnrealLogoAnimation()
 
     UE_LOG(LogTemp, Warning, TEXT("Playing Unreal Engine Canvas Logo animation in reverse"));
 
-    // Play the Unreal Engine logo animation in reverse (fade out)
+    // IMPORTANT: Unbind the forward animation delegate before playing in reverse
     if (UnrealEngineCanvasAnim)
     {
+        UnbindAllFromAnimationFinished(UnrealEngineCanvasAnim);
+
         // Play the animation in reverse
         PlayAnimation(UnrealEngineCanvasAnim, 0.0f, 1, EUMGSequencePlayMode::Reverse);
 
-        // Wait for the reverse animation to complete
+        // We'll rely solely on the timer now since we unbound the delegate
         float AnimDuration = UnrealEngineCanvasAnim->GetEndTime();
-        GetWorld()->GetTimerManager().SetTimer(UnrealLogoTimerHandle, this, &UStartUp_Screen_Widget::WaitAfterUnrealReverse, AnimDuration, false);
+        GetWorld()->GetTimerManager().SetTimer(UnrealLogoTimerHandle, this,
+            &UStartUp_Screen_Widget::WaitAfterUnrealReverse, AnimDuration + 0.2f, false);
+
+        UE_LOG(LogTemp, Warning, TEXT("Set timer for WaitAfterUnrealReverse: %f seconds"),
+            AnimDuration + 0.2f);
     }
     else
     {
         // Skip to waiting after Unreal reverse
         WaitAfterUnrealReverse();
     }
-
 }
 
 
@@ -290,12 +295,31 @@ void UStartUp_Screen_Widget::OpenMainMenu()
 {
 
     UE_LOG(LogTemp, Warning, TEXT("OpenMainMenu ENTERED"));
-    
+
     // Add this line to debug if the method is being called multiple times
     static int callCount = 0;
     UE_LOG(LogTemp, Warning, TEXT("OpenMainMenu called %d times"), ++callCount);
-    
-    UE_LOG(LogTemp, Warning, TEXT("Opening main menu level"));
-    UGameplayStatics::OpenLevel(GetWorld(), FName("Main_Menu_Level"));
 
+    // Add check for valid world
+    UWorld* World = GetWorld();
+    if (!World)
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to open main menu: GetWorld() returned null"));
+        return;
+    }
+
+    UE_LOG(LogTemp, Warning, TEXT("Opening main menu level"));
+
+    // Try alternative method if the standard one isn't working
+    APlayerController* PC = UGameplayStatics::GetPlayerController(World, 0);
+    if (PC)
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Using PlayerController to open level"));
+        PC->ClientTravel("Main_Menu_Level", ETravelType::TRAVEL_Absolute);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("Using standard OpenLevel method"));
+        UGameplayStatics::OpenLevel(World, FName("Main_Menu_Level"));
+    }
 }
