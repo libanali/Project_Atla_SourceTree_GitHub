@@ -4,10 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Components/WidgetSwitcher.h"
-#include "Components/Image.h"
-#include "Components/Border.h"
-#include "Animation/WidgetAnimation.h"
 #include "StartUp_Screen_Widget.generated.h"
 
 /**
@@ -17,32 +13,27 @@ UCLASS()
 class PROJECT_ATLA_API UStartUp_Screen_Widget : public UUserWidget
 {
 	GENERATED_BODY()
+
 public:
     // Called when widget is constructed
     virtual void NativeConstruct() override;
 
-
-
 protected:
-    // Widget References
     UPROPERTY(meta = (BindWidget))
-    UBorder* Border;
+    class UWidgetSwitcher* WidgetSwitcher;
 
     UPROPERTY(meta = (BindWidget))
-    UWidgetSwitcher* WidgetSwitcher;
+    class UCanvasPanel* NovaeInteractiveCanvas;
 
     UPROPERTY(meta = (BindWidget))
-    UImage* NovaeInteractiveLogo;
-
-    UPROPERTY(meta = (BindWidget))
-    UImage* UnrealEngineLogo;
+    class UCanvasPanel* UnrealEngineCanvas;
 
     // Your specific animations
     UPROPERTY(Transient, meta = (BindWidgetAnim))
-    UWidgetAnimation* CompanyLogoAnim;
+    class UWidgetAnimation* NovaeCanvasAnim;
 
     UPROPERTY(Transient, meta = (BindWidgetAnim))
-    UWidgetAnimation* UnrealLogoAnim;
+    class UWidgetAnimation* UnrealEngineCanvasAnim;
 
 private:
     // Timer handles
@@ -51,12 +42,23 @@ private:
 
     // Animation completion delegates
     FWidgetAnimationDynamicEvent CompanyLogoAnimFinishedDelegate;
+    FWidgetAnimationDynamicEvent UnrealLogoAnimFinishedDelegate;
 
     // Sequence methods
+    UFUNCTION()
+    void OnCompanyLogoAnimationComplete();
+
+    UFUNCTION()
+    void OnUnrealLogoAnimFinished();
+
     void PlayCompanyLogoAnimation();
     void ReverseCompanyLogoAnimation();
-    void OnCompanyLogoAnimationComplete();
+    void WaitAfterNovaeReverse();  // New method for step 4
     void PlayUnrealLogoAnimation();
     void ReverseUnrealLogoAnimation();
+    void WaitAfterUnrealReverse();  // New method for step 8
     void OpenMainMenu();
+
+    bool bCompanyReverseInProgress = false;
+    bool bUnrealReverseInProgress = false;
 };
