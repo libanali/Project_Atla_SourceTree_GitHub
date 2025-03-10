@@ -133,6 +133,9 @@ protected:
 		class UTextBlock* IceProficiencyLevel;
 
 	UPROPERTY(meta = (BindWidget))
+		class UTextBlock* HighScore;
+
+	UPROPERTY(meta = (BindWidget))
 		class UTextBlock* ThunderProficiencyLevel;
 
 	UPROPERTY(meta = (BindWidget))

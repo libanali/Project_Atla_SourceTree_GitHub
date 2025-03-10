@@ -51,6 +51,32 @@ void UGame_Instance::LoadPlayerProgress()
 
 
 
+void UGame_Instance::LoadHighScores()
+{
+
+    UPlayer_Save_Game* LoadGameInstance = Cast<UPlayer_Save_Game>(UGameplayStatics::LoadGameFromSlot("HighScore", 0));
+    if (LoadGameInstance)
+    {
+        SwordHighScore = LoadGameInstance->SwordHighScore;
+        StaffHighScore = LoadGameInstance->StaffHighScore;
+
+        UE_LOG(LogTemp, Warning, TEXT("Loaded High Scores - Sword: %d, Staff: %d"),
+            SwordHighScore, StaffHighScore);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("No high score save found. Using default values (0)."));
+        SwordHighScore = 0;
+        StaffHighScore = 0;
+    }
+
+}
+
+
+
+
+
+
 void UGame_Instance::SaveSettings()
 {
     USaveGame* SaveGameInstance = UGameplayStatics::CreateSaveGameObject(UPlayer_Save_Game::StaticClass());

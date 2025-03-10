@@ -108,6 +108,14 @@ public:
     UPROPERTY(BlueprintReadWrite, Category = "Weapon Stats")
         float CurrentElementalAttack;
 
+    UPROPERTY(BlueprintReadWrite, Category = "High Score")
+        int32 SwordHighScore = 0;
+
+    UPROPERTY(BlueprintReadWrite, Category = "High Score")
+        int32 StaffHighScore = 0;
+
+    UFUNCTION(BlueprintCallable, Category = "High Score")
+        void LoadHighScores();
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Settings")
         FGameSettings GameSettings;

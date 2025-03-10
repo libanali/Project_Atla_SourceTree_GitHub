@@ -44,6 +44,7 @@ void UMain_Menu_Widget::NativeConstruct()
     {
         GameInstance->LoadSettings();
         GameInstance->LoadPlayerProgress();
+        GameInstance->LoadHighScores();
 
         // Initialize the language based on saved settings
         FString CultureCode;
@@ -431,6 +432,15 @@ void UMain_Menu_Widget::OnSwordButtonHovered()
         }
     }
 
+    // Update high score for sword
+    if (HighScore)
+    {
+        // Get the high score from Game Instance
+        int32 SwordHighScoreValue = GameInstance->SwordHighScore;
+        HighScore->SetText(FText::FromString(FString::Printf(TEXT("%d"), SwordHighScoreValue)));
+        UE_LOG(LogTemp, Log, TEXT("Updated HighScore with Sword High Score: %d"), SwordHighScoreValue);
+    }
+
 
     if (CharacterWeaponRender && SwordCharacterTexture)
 
@@ -488,6 +498,15 @@ void UMain_Menu_Widget::OnSwordButtonFocused()
             UE_LOG(LogTemp, Log, TEXT("Updated Sword Elemental Levels - Fire: %d, Ice: %d, Thunder: %d"),
                 ElementalStats.FireLevel, ElementalStats.IceLevel, ElementalStats.ThunderLevel);
         }
+    }
+
+    // Update high score for sword
+    if (HighScore)
+    {
+        // Get the high score from Game Instance
+        int32 SwordHighScoreValue = GameInstance->SwordHighScore;
+        HighScore->SetText(FText::FromString(FString::Printf(TEXT("%d"), SwordHighScoreValue)));
+        UE_LOG(LogTemp, Log, TEXT("Updated HighScore with Sword High Score: %d"), SwordHighScoreValue);
     }
 
 
@@ -570,6 +589,16 @@ void UMain_Menu_Widget::OnStaffButtonHovered()
     }
 
 
+    // Update high score for staff
+    if (HighScore)
+    {
+        // Get the high score from Game Instance
+        int32 StaffHighScoreValue = GameInstance->StaffHighScore;
+        HighScore->SetText(FText::FromString(FString::Printf(TEXT("%d"), StaffHighScoreValue)));
+        UE_LOG(LogTemp, Log, TEXT("Updated HighScore with Staff High Score: %d"), StaffHighScoreValue);
+    }
+
+
     if (CharacterWeaponRender && StaffCharacterTexture)
 
     {
@@ -628,6 +657,16 @@ void UMain_Menu_Widget::OnStaffButtonFocused()
             UE_LOG(LogTemp, Log, TEXT("Updated Staff Elemental Levels - Fire: %d, Ice: %d, Thunder: %d"),
                 ElementalStats.FireLevel, ElementalStats.IceLevel, ElementalStats.ThunderLevel);
         }
+    }
+
+
+    // Update high score for staff
+    if (HighScore)
+    {
+        // Get the high score from Game Instance
+        int32 StaffHighScoreValue = GameInstance->StaffHighScore;
+        HighScore->SetText(FText::FromString(FString::Printf(TEXT("%d"), StaffHighScoreValue)));
+        UE_LOG(LogTemp, Log, TEXT("Updated HighScore with Staff High Score: %d"), StaffHighScoreValue);
     }
 
 
@@ -917,6 +956,26 @@ void UMain_Menu_Widget::UpdateWeaponStats(EWeaponType WeaponType)
     else
     {
         UE_LOG(LogTemp, Warning, TEXT("Failed to retrieve updated stats for WeaponType: %d"), (int32)WeaponType);
+    }
+
+
+    // Update high score based on weapon type
+    if (HighScore && GameInstance)
+    {
+        int32 HighScoreValue = 0;
+
+        if (WeaponType == EWeaponType::Sword)
+        {
+            HighScoreValue = GameInstance->SwordHighScore;
+        }
+        else if (WeaponType == EWeaponType::Staff)
+        {
+            HighScoreValue = GameInstance->StaffHighScore;
+        }
+
+        HighScore->SetText(FText::FromString(FString::Printf(TEXT("%d"), HighScoreValue)));
+        UE_LOG(LogTemp, Log, TEXT("Updated HighScore for %s with value: %d"),
+            *UEnum::GetValueAsString(WeaponType), HighScoreValue);
     }
 }
 
