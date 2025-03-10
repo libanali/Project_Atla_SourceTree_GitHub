@@ -83,11 +83,13 @@ public:
     // Helper function to find valid NavMesh points near spawn zones
     FVector GetRandomNavMeshPointNearSpawnZone();
 
+    bool bIsGameOver;
+
+    void ClearAllTimers();
 
 private:
     FVector GetRandomPointInZone(const FBox& Zone);
 
-    bool bIsGameOver;
 
     UPROPERTY()
         FTimerHandle PowerUpStateTimer;

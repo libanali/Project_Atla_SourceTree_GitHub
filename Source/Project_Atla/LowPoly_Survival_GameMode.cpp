@@ -260,6 +260,13 @@ FVector ALowPoly_Survival_GameMode::GetRandomNavMeshPointNearSpawnZone()
     }
 }
 
+void ALowPoly_Survival_GameMode::ClearAllTimers()
+{
+
+    GetWorldTimerManager().ClearAllTimersForObject(this);
+
+}
+
 
 
 void ALowPoly_Survival_GameMode::BeginPlay()

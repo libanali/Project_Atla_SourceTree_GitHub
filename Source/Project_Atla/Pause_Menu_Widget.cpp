@@ -189,11 +189,30 @@ void UPause_Menu_Widget::OnQuitClicked()
 
 void UPause_Menu_Widget::OnYesClicked()
 {
+    // First, prevent any more gameplay activity
+    if (GetWorld())
+    {
+        ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
+        if (GameMode)
+        {
+            // Set flags first to immediately stop gameplay processes
+            GameMode->bStopSpawning = true;
+            GameMode->bIsGameOver = true;
 
-    // Return to main menu
-    UGameplayStatics::OpenLevel(this, FName("Main_Menu_Level")); // Adjust level name as needed
+            // Do cleanup and destroy enemies (which also cleans up arrow widgets)
+            GameMode->StopSpawningAndDestroyEnemies();
+
+            // Clear all timers last
+            GameMode->ClearAllTimers();
+        }
+
+    }
+
+    // Hide UI next
     HidePauseMenu();
 
+    // Finally transition to main menu
+    UGameplayStatics::OpenLevel(this, FName("Main_Menu_Level"));
 }
 
 
