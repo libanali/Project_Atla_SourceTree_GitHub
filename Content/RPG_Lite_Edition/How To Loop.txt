@@ -1,0 +1,11 @@
+IF THE SONG HAS AN INTRO:
+
+1. Add both the "LOOP" cue and "INTRO" cue to the same map
+2. Next, set a delay for the "LOOP" track so that they line up and play sequentially. If you need assistance, listen to the "Fade-Out"
+	track for guidance
+
+
+
+IF THE SONG HAS A REVERB TAIL:
+
+1. Add both the "LOOP" cue and "REVERB TAIL" cue to the same map
