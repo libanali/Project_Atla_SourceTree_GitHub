@@ -100,8 +100,10 @@ public:
     void PrepareForLevelTransition();
 
 
+
 private:
     FVector GetRandomPointInZone(const FBox& Zone);
+    TArray<FTimerHandle> ActiveTimerHandles;
 
 
     UPROPERTY()

@@ -182,17 +182,27 @@ void ALowPoly_Survival_GameMode::UpdateEnemyBehavior()
 
 FVector ALowPoly_Survival_GameMode::GetSmartSpawnLocation()
 {
-
-    if (bIsShuttingDown)
+    // CRITICAL SAFETY CHECK: Check for multiple failure conditions
+    if (bIsShuttingDown || !IsValid(this) || !GetWorld() || GetWorld()->bIsTearingDown)
     {
-        // Return a safe default during shutdown
+        UE_LOG(LogTemp, Warning, TEXT("GetSmartSpawnLocation: Early exit during shutdown"));
         return FVector::ZeroVector;
     }
 
+    // Wrap all player character access in safety checks
+    ARen_Low_Poly_Character* Player = nullptr;
+    if (IsValid(UGameplayStatics::GetPlayerController(GetWorld(), 0)))
+    {
+        Player = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+    }
 
-    ARen_Low_Poly_Character* Player = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
     if (!Player)
     {
+        // Another safety check - validate spawn zones array
+        if (SpawnZones.Num() == 0 || !IsValid(SpawnZones[0]))
+        {
+            return FVector::ZeroVector;
+        }
         return GetRandomNavMeshPointNearSpawnZone();
     }
 
@@ -316,20 +326,73 @@ void ALowPoly_Survival_GameMode::PrepareForLevelTransition()
 
     // Set the shutdown flag first so all functions know we're shutting down
     bIsShuttingDown = true;
+    bStopSpawning = true;  // Make extra sure spawning stops
 
-    // Stop level music
-    StopLevelMusic();
+    UE_LOG(LogTemp, Warning, TEXT("EMERGENCY SHUTDOWN: Level transition preparation starting"));
 
-    // Clear ALL timers in the world, not just ones for this object
+    // Immediately pause the game to freeze all game logic
+    UGameplayStatics::SetGamePaused(GetWorld(), true);
+
+    // Release any player controller references immediately
+    if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+    {
+        PC->DisableInput(PC);
+    }
+
+    // Stop all timers for this object
     if (GetWorld())
     {
         GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
     }
 
-    // Stop spawning and destroy existing enemies
-    StopSpawningAndDestroyEnemies();
+    // Disable all ticking for game mode
+    SetActorTickEnabled(false);
+    PrimaryActorTick.bCanEverTick = false;
 
-    UE_LOG(LogTemp, Warning, TEXT("Game mode prepared for level transition"));
+    // Nullify and clear enemy references to prevent access
+    for (int32 i = SpawnedEnemies.Num() - 1; i >= 0; i--)
+    {
+        if (SpawnedEnemies.IsValidIndex(i))
+        {
+            if (SpawnedEnemies[i])
+            {
+                // Disable physics and collision
+                UPrimitiveComponent* RootComp = Cast<UPrimitiveComponent>(SpawnedEnemies[i]->GetRootComponent());
+                if (RootComp)
+                {
+                    RootComp->SetSimulatePhysics(false);
+                    RootComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+                }
+
+                // Disable AI - use your existing DisableAI method
+                if (AEnemy_AIController* EnemyAI = Cast<AEnemy_AIController>(SpawnedEnemies[i]->GetController()))
+                {
+                    // Call your custom DisableAI method that's already implemented
+                    EnemyAI->DisableAI();
+                    EnemyAI->StopMovement();
+
+                    // Unpossess is still useful as an additional safety measure
+                    EnemyAI->UnPossess();
+                }
+
+                // Disable tick
+                SpawnedEnemies[i]->SetActorTickEnabled(false);
+
+                // Make invisible
+                SpawnedEnemies[i]->SetActorHiddenInGame(true);
+
+                // Finally destroy
+                SpawnedEnemies[i]->Destroy();
+            }
+            SpawnedEnemies[i] = nullptr;
+        }
+    }
+    SpawnedEnemies.Empty();
+
+    // Force garbage collection
+    GEngine->ForceGarbageCollection(true);
+
+    UE_LOG(LogTemp, Warning, TEXT("EMERGENCY SHUTDOWN: Game mode prepared for level transition"));
 }
 
 
@@ -404,18 +467,13 @@ void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 void ALowPoly_Survival_GameMode::SpawnEnemies()
 {  
 
-    if (bIsShuttingDown)
+    // Early return if shutting down or spawning is disabled
+    if (bIsShuttingDown || bStopSpawning || !GetWorld())
     {
-        // Return a safe default during shutdown
+        UE_LOG(LogTemp, Warning, TEXT("Spawning aborted - shutting down or spawning disabled"));
         return;
     }
 
-    // Early return if spawning is disabled
-    if (bStopSpawning)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("Spawning is disabled. Aborting SpawnEnemies."));
-        return;
-    }
 
     // Early return if EnemyClass is not set
     if (EnemyClass == nullptr) return;
@@ -438,22 +496,29 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
     int32 EnemiesToSpawn = 4 + (CurrentRound - 1) * AdditionalEnemiesPerRound;
     float LocalSpawnDelay = FMath::Max(MinSpawnDelay, BaseSpawnDelay - (CurrentRound - 1) * DelayDecreasePerRound);
 
+
     for (int32 i = 0; i < EnemiesToSpawn; i++)
     {
-        FTimerHandle LocalSpawnTimerHandle;
-        GetWorld()->GetTimerManager().SetTimer(LocalSpawnTimerHandle, [this, i, EnemiesToSpawn]()
-            {
+        // Create a weak pointer to this - IMPORTANT CHANGE
+        TWeakObjectPtr<ALowPoly_Survival_GameMode> WeakThis = this;
 
-                if (!IsValid(this) || this->bIsShuttingDown) return;
+        FTimerHandle LocalSpawnTimerHandle;
+        GetWorld()->GetTimerManager().SetTimer(LocalSpawnTimerHandle, [WeakThis, i, EnemiesToSpawn]()
+            {
+                // IMPORTANT: Early safety check - if this object is invalid or shutting down, exit immediately
+                if (!WeakThis.IsValid() || WeakThis->bIsShuttingDown || WeakThis->bStopSpawning)
+                {
+                    return;
+                }
+
+                // Get a safe pointer to use inside the lambda
+                ALowPoly_Survival_GameMode* SafeThis = WeakThis.Get();
 
                 // Use smart spawn location instead of random point
-                FVector SpawnLocation = GetSmartSpawnLocation();
+                FVector SpawnLocation = SafeThis->GetSmartSpawnLocation();
                 FRotator SpawnRotation = FRotator::ZeroRotator;
 
-                // No need for manual offsets as our smart spawning handles this
-                // We've removed the X/Y offset code here
-
-                TSubclassOf<AEnemy_Poly> EnemyToSpawnClass = GetEnemyClassForCurrentRound();
+                TSubclassOf<AEnemy_Poly> EnemyToSpawnClass = SafeThis->GetEnemyClassForCurrentRound();
 
                 if (EnemyToSpawnClass)
                 {
@@ -461,7 +526,7 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
                     FActorSpawnParameters SpawnParams;
                     SpawnParams.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
 
-                    AEnemy_Poly* SpawnedEnemy = GetWorld()->SpawnActor<AEnemy_Poly>(EnemyToSpawnClass, SpawnLocation, SpawnRotation, SpawnParams);
+                    AEnemy_Poly* SpawnedEnemy = SafeThis->GetWorld()->SpawnActor<AEnemy_Poly>(EnemyToSpawnClass, SpawnLocation, SpawnRotation, SpawnParams);
                     if (SpawnedEnemy)
                     {
                         UE_LOG(LogTemp, Log, TEXT("Spawned enemy at location: %s"), *SpawnLocation.ToString());
@@ -477,23 +542,28 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
                         // Ensure the character movement component is properly initialized
                         if (SpawnedEnemy->GetCharacterMovement())
                         {
-                            // Add a small delay before enabling movement
+                            // IMPORTANT: Use weak pointer for the inner lambda as well
+                            TWeakObjectPtr<AEnemy_Poly> WeakEnemy = SpawnedEnemy;
                             FTimerHandle MovementTimerHandle;
-                            GetWorld()->GetTimerManager().SetTimer(MovementTimerHandle, [SpawnedEnemy]()
+                            SafeThis->GetWorld()->GetTimerManager().SetTimer(MovementTimerHandle, [WeakEnemy]()
                                 {
-                                    if (SpawnedEnemy && !SpawnedEnemy->IsPendingKillEnabled())
+                                    if (!WeakEnemy.IsValid() || WeakEnemy->IsPendingKillEnabled())
                                     {
-                                        SpawnedEnemy->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+                                        return;
                                     }
+                                    WeakEnemy->GetCharacterMovement()->SetMovementMode(MOVE_Walking);
                                 }, 0.2f, false);
+
+                            // Track this timer handle
+                            SafeThis->ActiveTimerHandles.Add(MovementTimerHandle);
                         }
 
                         // Increase enemy health based on the current round
-                        float AddedEnemyHealth = SpawnedEnemy->MaxEnemyHealth + (CurrentRound - 1) * AdditionalEnemyHealthPerRound;
+                        float AddedEnemyHealth = SpawnedEnemy->MaxEnemyHealth + (SafeThis->CurrentRound - 1) * SafeThis->AdditionalEnemyHealthPerRound;
                         SpawnedEnemy->IncreaseEnemyHealth(AddedEnemyHealth, true);
 
                         // Add the spawned enemy to the list
-                        SpawnedEnemies.Add(SpawnedEnemy);
+                        SafeThis->SpawnedEnemies.Add(SpawnedEnemy);
 
                         // Initialize the AI controller with the appropriate enemy type
                         AEnemy_AIController* AIController = Cast<AEnemy_AIController>(SpawnedEnemy->GetController());
@@ -501,15 +571,15 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
                         {
                             // Set enemy type based on class
                             EEnemyType EnemyType;
-                            if (EnemyToSpawnClass == BP_Spider)
+                            if (EnemyToSpawnClass == SafeThis->BP_Spider)
                             {
                                 EnemyType = EEnemyType::Spider;
                             }
-                            else if (EnemyToSpawnClass == BP_Wolf)
+                            else if (EnemyToSpawnClass == SafeThis->BP_Wolf)
                             {
                                 EnemyType = EEnemyType::Wolf;
                             }
-                            else if (EnemyToSpawnClass == BP_RockTroll)
+                            else if (EnemyToSpawnClass == SafeThis->BP_RockTroll)
                             {
                                 EnemyType = EEnemyType::RockTroll;
                             }
@@ -527,12 +597,12 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
                         }
 
                         // Create the arrow widget for this enemy
-                        if (ARen_Low_Poly_Character* Player = Cast<ARen_Low_Poly_Character>(GetWorld()->GetFirstPlayerController()->GetPawn()))
+                        if (ARen_Low_Poly_Character* Player = Cast<ARen_Low_Poly_Character>(SafeThis->GetWorld()->GetFirstPlayerController()->GetPawn()))
                         {
                             if (Player && Player->EnemyArrowWidgetClass)
                             {
                                 // Create the arrow widget for the enemy
-                                UEnemy_Detection_Arrow* NewArrowWidget = CreateWidget<UEnemy_Detection_Arrow>(GetWorld(), Player->EnemyArrowWidgetClass);
+                                UEnemy_Detection_Arrow* NewArrowWidget = CreateWidget<UEnemy_Detection_Arrow>(SafeThis->GetWorld(), Player->EnemyArrowWidgetClass);
                                 if (NewArrowWidget)
                                 {
                                     // Add to the viewport
@@ -553,13 +623,15 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
                 // If all enemies have been spawned, mark spawning as done
                 if (i == EnemiesToSpawn - 1)
                 {
-                    bIsSpawningEnemies = false;
+                    SafeThis->bIsSpawningEnemies = false;
 
                     // Update enemy behavior parameters after all enemies are spawned
-                    UpdateEnemyBehavior();
+                    SafeThis->UpdateEnemyBehavior();
                 }
-
             }, i * LocalSpawnDelay, false);
+
+        // IMPORTANT: Track this timer handle for cleanup during shutdown
+        ActiveTimerHandles.Add(LocalSpawnTimerHandle);
     }
 }
 
@@ -1139,23 +1211,41 @@ void ALowPoly_Survival_GameMode::HideRoundCompleteMessage()
     {
         RoundCompleteWidget->PlayHideAnimation();
 
+        // Use a weak pointer to avoid dangling references
+        TWeakObjectPtr<ALowPoly_Survival_GameMode> WeakThis = this;
+        TWeakObjectPtr<URound_Complete_Message_Widget> WeakWidget = RoundCompleteWidget;
+
         // Schedule removing the widget after the animation
         FTimerHandle RemoveWidgetTimer;
         GetWorld()->GetTimerManager().SetTimer(
             RemoveWidgetTimer,
-            [this]()
+            [WeakThis, WeakWidget]()
             {
-                if (RoundCompleteWidget)
+                // Safety check: Make sure both the game mode and widget are still valid
+                if (!WeakThis.IsValid() || WeakThis->bIsShuttingDown)
                 {
-                    RoundCompleteWidget->RemoveFromParent();
-                    RoundCompleteWidget = nullptr;
+                    return; // Game mode is being destroyed, abort
+                }
+
+                // Check if widget is still valid before attempting to remove it
+                if (WeakWidget.IsValid())
+                {
+                    WeakWidget->RemoveFromParent();
+
+                    // Only set to nullptr if the game mode is valid
+                    if (WeakThis.IsValid())
+                    {
+                        WeakThis->RoundCompleteWidget = nullptr;
+                    }
                 }
             },
             1.0f,  // Delay to allow animation to complete
-                false
-                );
-    }
+            false
+        );
 
+        // IMPORTANT: Track this timer handle for cleanup during shutdown
+        ActiveTimerHandles.Add(RemoveWidgetTimer);
+    }
 
 }
 
