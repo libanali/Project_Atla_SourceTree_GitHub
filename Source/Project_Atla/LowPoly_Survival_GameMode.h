@@ -94,8 +94,11 @@ public:
     FVector GetRandomNavMeshPointNearSpawnZone();
 
     bool bIsGameOver;
+    bool bIsShuttingDown;
 
     void ClearAllTimers();
+    void PrepareForLevelTransition();
+
 
 private:
     FVector GetRandomPointInZone(const FBox& Zone);

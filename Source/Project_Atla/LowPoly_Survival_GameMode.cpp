@@ -15,6 +15,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Objective_Message_Widget.h"
 #include "Components/AudioComponent.h"
+#include "Game_Instance.h"
 
 
 
@@ -33,6 +34,7 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
     bIsSpawningEnemies = false;
     bIsPowerUpSpawned = false;
     bStopSpawning = false;
+    bIsShuttingDown = false;
     bHasShownObjectiveMessage = false;
 
 }
@@ -79,17 +81,16 @@ void ALowPoly_Survival_GameMode::StopSpawningAndDestroyEnemies()
     bIsGameOver = true;  // Add this line
     StopLevelMusic();
 
-    // Destroy all spawned enemies
-    for (AEnemy_Poly* Enemy : SpawnedEnemies)
+    // Destroy all spawned enemies - with safety checks
+    for (int32 i = SpawnedEnemies.Num() - 1; i >= 0; i--)
     {
-        if (Enemy && !Enemy->IsPendingKillPending())
+        if (SpawnedEnemies.IsValidIndex(i) && SpawnedEnemies[i] && !SpawnedEnemies[i]->IsPendingKillPending())
         {
-            Enemy->Destroy();
+            SpawnedEnemies[i]->Destroy();
         }
     }
 
     SpawnedEnemies.Empty();
-
 }
 
 
@@ -119,6 +120,12 @@ void ALowPoly_Survival_GameMode::StopLevelMusic()
 
 void ALowPoly_Survival_GameMode::UpdateEnemyBehavior()
 {
+
+    if (bIsShuttingDown)
+    {
+        // Return a safe default during shutdown
+        return;
+    }
 
     // Update behavior parameters for all enemies
    // This replaces the old UpdateEnemyNumbers method
@@ -175,6 +182,14 @@ void ALowPoly_Survival_GameMode::UpdateEnemyBehavior()
 
 FVector ALowPoly_Survival_GameMode::GetSmartSpawnLocation()
 {
+
+    if (bIsShuttingDown)
+    {
+        // Return a safe default during shutdown
+        return FVector::ZeroVector;
+    }
+
+
     ARen_Low_Poly_Character* Player = Cast<ARen_Low_Poly_Character>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
     if (!Player)
     {
@@ -296,6 +311,28 @@ void ALowPoly_Survival_GameMode::ClearAllTimers()
 }
 
 
+void ALowPoly_Survival_GameMode::PrepareForLevelTransition()
+{
+
+    // Set the shutdown flag first so all functions know we're shutting down
+    bIsShuttingDown = true;
+
+    // Stop level music
+    StopLevelMusic();
+
+    // Clear ALL timers in the world, not just ones for this object
+    if (GetWorld())
+    {
+        GetWorld()->GetTimerManager().ClearAllTimersForObject(this);
+    }
+
+    // Stop spawning and destroy existing enemies
+    StopSpawningAndDestroyEnemies();
+
+    UE_LOG(LogTemp, Warning, TEXT("Game mode prepared for level transition"));
+}
+
+
 
 void ALowPoly_Survival_GameMode::BeginPlay()
 {
@@ -367,6 +404,12 @@ void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 void ALowPoly_Survival_GameMode::SpawnEnemies()
 {  
 
+    if (bIsShuttingDown)
+    {
+        // Return a safe default during shutdown
+        return;
+    }
+
     // Early return if spawning is disabled
     if (bStopSpawning)
     {
@@ -400,6 +443,9 @@ void ALowPoly_Survival_GameMode::SpawnEnemies()
         FTimerHandle LocalSpawnTimerHandle;
         GetWorld()->GetTimerManager().SetTimer(LocalSpawnTimerHandle, [this, i, EnemiesToSpawn]()
             {
+
+                if (!IsValid(this) || this->bIsShuttingDown) return;
+
                 // Use smart spawn location instead of random point
                 FVector SpawnLocation = GetSmartSpawnLocation();
                 FRotator SpawnRotation = FRotator::ZeroRotator;
@@ -1026,8 +1072,18 @@ void ALowPoly_Survival_GameMode::StartGameAfterObjective()
         LevelMusicComponent = UGameplayStatics::SpawnSound2D(this, LevelMusic);
         if (LevelMusicComponent)
         {
-            // 2 second fade to full volume
-            LevelMusicComponent->FadeIn(1.5f, 1.0f);
+            // Get the master volume from game settings
+            float MasterVolume = 1.0f;
+            if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
+            {
+                MasterVolume = GameInstance->GameSettings.MasterVolume;
+            }
+
+            // Apply the master volume
+            LevelMusicComponent->SetVolumeMultiplier(MasterVolume);
+
+            // Then fade in from silence
+            LevelMusicComponent->FadeIn(2.0f, MasterVolume);
 
             // Make sure it doesn't automatically destroy when sound finishes
             LevelMusicComponent->bAutoDestroy = false;

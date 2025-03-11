@@ -189,29 +189,38 @@ void UPause_Menu_Widget::OnQuitClicked()
 
 void UPause_Menu_Widget::OnYesClicked()
 {
-    // First, prevent any more gameplay activity
+    // Pause the game immediately
+    UGameplayStatics::SetGamePaused(GetWorld(), true);
+
+    // Hide UI immediately
+    HidePauseMenu();
+
+    // Get the game mode and prepare it for transition
     if (GetWorld())
     {
         ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
         if (GameMode)
         {
-            // Set flags first to immediately stop gameplay processes
-            GameMode->bStopSpawning = true;
-            GameMode->bIsGameOver = true;
+            // Use our new comprehensive transition preparation method
+            GameMode->PrepareForLevelTransition();
 
-            // Do cleanup and destroy enemies (which also cleans up arrow widgets)
-            GameMode->StopSpawningAndDestroyEnemies();
-
-            // Clear all timers last
-            GameMode->ClearAllTimers();
+            // Set a small delay to ensure cleanup completes before transitioning
+            FTimerHandle DelayTimerHandle;
+            GetWorld()->GetTimerManager().SetTimer(
+                DelayTimerHandle,
+                [this]()
+                {
+                    // Finally transition to main menu after cleanup
+                    UGameplayStatics::OpenLevel(this, FName("Main_Menu_Level"));
+                },
+                0.2f, // Small delay to ensure timers are properly cleared
+                false
+            );
+            return; // Return early since we're handling the transition in the timer
         }
-
     }
 
-    // Hide UI next
-    HidePauseMenu();
-
-    // Finally transition to main menu
+    // Fallback if game mode isn't found - transition directly
     UGameplayStatics::OpenLevel(this, FName("Main_Menu_Level"));
 }
 
