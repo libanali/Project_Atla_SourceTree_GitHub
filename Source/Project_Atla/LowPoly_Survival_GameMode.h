@@ -65,8 +65,18 @@ public:
     UPROPERTY(BlueprintReadWrite, Category = "Spawning")
         bool bStopSpawning;
 
+        
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Spawning")
+        USoundBase* LevelMusic;
+
+    UPROPERTY()
+        UAudioComponent* LevelMusicComponent;
+
     UFUNCTION(BlueprintCallable)
         void StopSpawningAndDestroyEnemies();
+
+    UFUNCTION(BlueprintCallable)
+        void StopLevelMusic();
 
     // Current round number
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Round")

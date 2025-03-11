@@ -14,6 +14,8 @@
 #include "Engine/StaticMeshActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "Objective_Message_Widget.h"
+#include "Components/AudioComponent.h"
+
 
 
 ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
@@ -75,6 +77,7 @@ void ALowPoly_Survival_GameMode::StopSpawningAndDestroyEnemies()
     // Set the flag to stop further spawning
     bStopSpawning = true;
     bIsGameOver = true;  // Add this line
+    StopLevelMusic();
 
     // Destroy all spawned enemies
     for (AEnemy_Poly* Enemy : SpawnedEnemies)
@@ -87,6 +90,31 @@ void ALowPoly_Survival_GameMode::StopSpawningAndDestroyEnemies()
 
     SpawnedEnemies.Empty();
 
+}
+
+
+void ALowPoly_Survival_GameMode::StopLevelMusic()
+{
+    if (LevelMusicComponent && LevelMusicComponent->IsPlaying())
+    {
+        // 1.5 second fade to silence using the default linear curve
+        LevelMusicComponent->FadeOut(1.5f, 0.0f);
+
+        // Set a timer to stop the component after the fade completes
+        FTimerHandle StopMusicTimerHandle;
+        GetWorld()->GetTimerManager().SetTimer(
+            StopMusicTimerHandle,
+            [this]()
+            {
+                if (LevelMusicComponent && LevelMusicComponent->IsValidLowLevel())
+                {
+                    LevelMusicComponent->Stop();
+                }
+            },
+            1.6f, // Slightly longer than the fade time to ensure fade completes
+            false
+        );
+    }
 }
 
 void ALowPoly_Survival_GameMode::UpdateEnemyBehavior()
@@ -990,6 +1018,20 @@ void ALowPoly_Survival_GameMode::StartGameAfterObjective()
             1.0f,
                 false
                 );
+    }
+
+    if (LevelMusic)
+    {
+        // Play the music with fade-in
+        LevelMusicComponent = UGameplayStatics::SpawnSound2D(this, LevelMusic);
+        if (LevelMusicComponent)
+        {
+            // 2 second fade to full volume
+            LevelMusicComponent->FadeIn(1.5f, 1.0f);
+
+            // Make sure it doesn't automatically destroy when sound finishes
+            LevelMusicComponent->bAutoDestroy = false;
+        }
     }
 
     // Mark that we've shown the objective
