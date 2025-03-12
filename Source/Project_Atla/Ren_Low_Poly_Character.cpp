@@ -4548,7 +4548,7 @@ void ARen_Low_Poly_Character::ProcessNextAction()
 						}
 
 						CurrentElementalAttackType = SelectedElementalAttack.ElementalType;
-						AddExperienceToElementalProfiency(WeaponType, SelectedElementalAttack.ElementalType, 90.0f);
+						AddExperienceToElementalProfiency(WeaponType, SelectedElementalAttack.ElementalType, 25.0f);
 						SpawnActionBanner(SelectedElementalAttack.ElementalAttackName);
 					}
 					break;
