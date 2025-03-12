@@ -365,7 +365,7 @@ void UEnd_Screen_Widget::OnRetryClicked()
 void UEnd_Screen_Widget::OnMainMenuClicked()
 {
 
-
+    // Immediately set input mode without waiting
     if (APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0))
     {
         FInputModeGameOnly InputMode;
@@ -373,8 +373,11 @@ void UEnd_Screen_Widget::OnMainMenuClicked()
         PC->bShowMouseCursor = false;
     }
 
-    UGameplayStatics::OpenLevel(GetWorld(), TEXT("Main_Menu_Level"));
+    // Force garbage collection before level change
+    GEngine->ForceGarbageCollection(true);
 
+    // Use OpenLevelBySoftObjectPtr with TRAVEL_Absolute to force a clean level transition
+    UGameplayStatics::OpenLevel(GetWorld(), FName("Main_Menu_Level"), true, "?forcecleantravel=1");
 }
 
 

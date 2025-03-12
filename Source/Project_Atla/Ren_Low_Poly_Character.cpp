@@ -2237,34 +2237,60 @@ void ARen_Low_Poly_Character::ApplyTheBurnEffect(AEnemy_Poly* Enemy, float Durat
 		Enemy->GetMesh()->SetOverlayMaterial(BurnOverlayMaterial);
 	}
 
+	// Create weak pointers for safety
+	TWeakObjectPtr<AEnemy_Poly> WeakEnemy = Enemy;
+	TWeakObjectPtr<ARen_Low_Poly_Character> WeakThis = this;
+
 	// Start a repeating timer specific to this enemy
 	GetWorld()->GetTimerManager().SetTimer(
 		Enemy->BurnTimerHandle,  // Use the enemy's unique timer handle
-		[Enemy, DamagePerSecondss, this]()
+		[WeakEnemy, DamagePerSecondss, WeakThis]()
 		{
-			if (!Enemy || !Enemy->IsValidLowLevel())
+			// Check that both the character and enemy are still valid
+			if (!WeakThis.IsValid())
 			{
-				// Stop the timer if the enemy is no longer valid
+				// Character no longer valid (level transition)
+				return;
+			}
+
+			if (!WeakEnemy.IsValid())
+			{
+				// Enemy no longer valid
+				return;
+			}
+
+			// Now it's safe to use the pointers
+			AEnemy_Poly* Enemy = WeakEnemy.Get();
+
+			// Extra safety check
+			if (!Enemy || Enemy->IsPendingKillPending())
+			{
 				UE_LOG(LogTemp, Warning, TEXT("Burn effect ended: Enemy is no longer valid."));
-				GetWorld()->GetTimerManager().ClearTimer(Enemy->BurnTimerHandle);
+
+				// Stop the timer if we somehow get here
+				if (WeakThis.IsValid() && WeakThis->GetWorld())
+				{
+					WeakThis->GetWorld()->GetTimerManager().ClearTimer(Enemy->BurnTimerHandle);
+				}
 				return;
 			}
 
 			// Apply damage
-			Enemy->ApplyDamage(DamagePerSecondss, FHitResult(), GetController(), this);
+			Enemy->ApplyDamage(DamagePerSecondss, FHitResult(), WeakThis->GetController(), WeakThis.Get());
+
 			// Add floating damage text for the burn tick
-			SpawnFloatingCombatText(
-				FString::Printf(TEXT("%.0f"), DamagePerSecondss),
-				Enemy->GetActorLocation() + FVector(FMath::RandRange(-30.0f, 30.0f), FMath::RandRange(-30.0f, 30.0f), 100.0f),
-				FLinearColor(1.0f, 0.3f, 0.0f), // Orange-red for burn damage
-				false,
-				1.5f
-			);
+			if (WeakThis.IsValid())
+			{
+				WeakThis->SpawnFloatingCombatText(
+					FString::Printf(TEXT("%.0f"), DamagePerSecondss),
+					Enemy->GetActorLocation() + FVector(FMath::RandRange(-30.0f, 30.0f), FMath::RandRange(-30.0f, 30.0f), 100.0f),
+					FLinearColor(1.0f, 0.3f, 0.0f), // Orange-red for burn damage
+					false,
+					1.5f
+				);
+			}
+
 			UE_LOG(LogTemp, Log, TEXT("Applying %f burn damage to %s"), DamagePerSecondss, *Enemy->GetName());
-
-
-
-
 
 			// Reduce remaining duration correctly
 			Enemy->BurnDurationRemaining -= 2.0f;
@@ -2272,7 +2298,11 @@ void ARen_Low_Poly_Character::ApplyTheBurnEffect(AEnemy_Poly* Enemy, float Durat
 			if (Enemy->BurnDurationRemaining <= 0.0f)
 			{
 				// Stop the timer when the effect ends
-				GetWorld()->GetTimerManager().ClearTimer(Enemy->BurnTimerHandle);
+				if (WeakThis.IsValid() && WeakThis->GetWorld())
+				{
+					WeakThis->GetWorld()->GetTimerManager().ClearTimer(Enemy->BurnTimerHandle);
+				}
+
 				Enemy->bIsBurning = false;
 
 				// Reset the overlay material
@@ -2282,17 +2312,16 @@ void ARen_Low_Poly_Character::ApplyTheBurnEffect(AEnemy_Poly* Enemy, float Durat
 			}
 		},
 		2.0f,  // Interval: Apply damage every 2 seconds
-			true   // Loop the timer
-			);
+		true   // Loop the timer
+	);
+
+	// Add this timer to the tracked handles for cleanup during level transition
+	ActiveTimerHandles.Add(Enemy->BurnTimerHandle);
 
 	// Debug log for confirmation
 	UE_LOG(LogTemp, Log, TEXT("Burn effect applied to %s for %f seconds at %f DPS"), *Enemy->GetName(), Duration, DamagePerSecondss);
+
 }
-
-
-
-
-
 
 
 
@@ -2339,36 +2368,69 @@ void ARen_Low_Poly_Character::ApplyFreezeEffect(AEnemy_Poly* Enemy, float Durati
 
 		// Pause animations for a frozen effect
 		Enemy->GetMesh()->bPauseAnims = true;
+		// Use weak pointers to avoid crashes during level transitions
+		TWeakObjectPtr<AEnemy_Poly> WeakEnemy = Enemy;
+		TWeakObjectPtr<AEnemy_AIController> WeakAIController = EnemyAIController;
+		TWeakObjectPtr<ARen_Low_Poly_Character> WeakThis = this;
 
 		// Set a timer to re-enable AI and clean up after the freeze duration
 		GetWorld()->GetTimerManager().SetTimer(
 			Enemy->FreezeTimerHandle,  // Use the enemy's freeze timer handle
-			[Enemy, EnemyAIController]()
+			[WeakEnemy, WeakAIController, WeakThis]()
 			{
-				if (Enemy && EnemyAIController)
+				// IMPORTANT: Check if game or objects are still valid
+				if (!WeakThis.IsValid())
 				{
-					// Re-enable AI and reset state
-					EnemyAIController->RestartAI();
-					EnemyAIController->SetFrozenState(false);
-
-					// Allow the enemy to face the player again
-					Enemy->bShouldFacePlayer = true;
-
-					// Resume animations
-					Enemy->GetMesh()->bPauseAnims = false;
-
-					// Reset the overlay material to its original state
-					Enemy->GetMesh()->SetOverlayMaterial(nullptr);
-
-					// Clear frozen state
-					Enemy->bIsFrozen = false;
-
-					UE_LOG(LogTemp, Log, TEXT("Freeze effect ended for %s"), *Enemy->GetName());
+					// Character no longer valid (level transition)
+					return;
 				}
+
+				if (!WeakEnemy.IsValid() || !WeakAIController.IsValid())
+				{
+					// Enemy or AIController no longer valid
+					return;
+				}
+
+				// Now it's safe to use the pointers
+				AEnemy_Poly* Enemy = WeakEnemy.Get();
+				AEnemy_AIController* EnemyAIController = WeakAIController.Get();
+
+				// Extra paranoid check that we can only reach here if both are valid
+				if (!Enemy || !EnemyAIController)
+				{
+					return;
+				}
+
+				// Check if game is shutting down
+				if (WeakThis->bIsDead || WeakThis->GetWorld()->bIsTearingDown)
+				{
+					return;
+				}
+
+				// Re-enable AI and reset state
+				EnemyAIController->RestartAI();
+				EnemyAIController->SetFrozenState(false);
+
+				// Allow the enemy to face the player again
+				Enemy->bShouldFacePlayer = true;
+
+				// Resume animations
+				Enemy->GetMesh()->bPauseAnims = false;
+
+				// Reset the overlay material to its original state
+				Enemy->GetMesh()->SetOverlayMaterial(nullptr);
+
+				// Clear frozen state
+				Enemy->bIsFrozen = false;
+
+				UE_LOG(LogTemp, Log, TEXT("Freeze effect ended for %s"), *Enemy->GetName());
 			},
 			Duration,  // Freeze duration
-				false  // Do not loop
-				);
+			false      // Do not loop
+		);
+
+		// Add this timer to the tracked handles for cleanup during level transition
+		ActiveTimerHandles.Add(Enemy->FreezeTimerHandle);
 
 		// Debug log
 		UE_LOG(LogTemp, Log, TEXT("Freeze effect applied to %s for %f seconds"), *Enemy->GetName(), Duration);
@@ -2419,30 +2481,63 @@ void ARen_Low_Poly_Character::ApplyStunEffect(AEnemy_Poly* Enemy, float Duration
 		EnemyAIController->DisableAI();
 		EnemyAIController->bIsStunned = true;
 
+		// Use weak pointers for safety
+		TWeakObjectPtr<AEnemy_Poly> WeakEnemy = Enemy;
+		TWeakObjectPtr<AEnemy_AIController> WeakAIController = EnemyAIController;
+		TWeakObjectPtr<ARen_Low_Poly_Character> WeakThis = this;
+
 		// Set a timer to re-enable AI and clean up after the stun duration
 		GetWorld()->GetTimerManager().SetTimer(
 			Enemy->StunTimerHandle,  // Use the enemy's timer handle
-			[Enemy, EnemyAIController]()
+			[WeakEnemy, WeakAIController, WeakThis]()
 			{
-				if (Enemy && EnemyAIController)
+				// IMPORTANT: Check if game or objects are still valid
+				if (!WeakThis.IsValid())
 				{
-					// Re-enable AI
-					EnemyAIController->RestartAI();
-
-					// Reset overlay material
-					Enemy->GetMesh()->SetOverlayMaterial(nullptr);
-
-					// Clear stun state
-					Enemy->bIsStunned = false;
-					EnemyAIController->bIsStunned = false;
-
-
-					UE_LOG(LogTemp, Log, TEXT("Stun effect ended for %s"), *Enemy->GetName());
+					// Character no longer valid (level transition)
+					return;
 				}
+
+				if (!WeakEnemy.IsValid() || !WeakAIController.IsValid())
+				{
+					// Enemy or AIController no longer valid
+					return;
+				}
+
+				// Now it's safe to use the pointers
+				AEnemy_Poly* Enemy = WeakEnemy.Get();
+				AEnemy_AIController* EnemyAIController = WeakAIController.Get();
+
+				// Extra paranoid check that we can only reach here if both are valid
+				if (!Enemy || !EnemyAIController)
+				{
+					return;
+				}
+
+				// Check if game is shutting down
+				if (WeakThis->bIsDead || WeakThis->GetWorld()->bIsTearingDown)
+				{
+					return;
+				}
+
+				// Re-enable AI
+				EnemyAIController->RestartAI();
+
+				// Reset overlay material
+				Enemy->GetMesh()->SetOverlayMaterial(nullptr);
+
+				// Clear stun state
+				Enemy->bIsStunned = false;
+				EnemyAIController->bIsStunned = false;
+
+				UE_LOG(LogTemp, Log, TEXT("Stun effect ended for %s"), *Enemy->GetName());
 			},
 			Duration,  // Stun duration
-				false  // Do not loop
-				);
+			false      // Do not loop
+		);
+
+		// Add this timer to the tracked handles for cleanup during level transition
+		ActiveTimerHandles.Add(Enemy->StunTimerHandle);
 
 		// Debug log
 		UE_LOG(LogTemp, Log, TEXT("Stun effect applied to %s for %f seconds"), *Enemy->GetName(), Duration);

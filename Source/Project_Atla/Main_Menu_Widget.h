@@ -376,6 +376,8 @@ protected:
 	UFUNCTION()
 	void ScrollTutorialContent(float Value);
 
+	//void UpdateAllUIText();
+
 
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 	virtual FReply NativeOnAnalogValueChanged(const FGeometry& InGeometry, const FAnalogInputEvent& InAnalogInputEvent) override;

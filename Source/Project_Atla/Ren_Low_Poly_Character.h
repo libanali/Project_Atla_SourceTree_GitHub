@@ -1215,5 +1215,6 @@ private:
 	float CurrentArmLength;        // Current interpolated length
 	float ArmLengthTransitionSpeed; // How fast to zoom in/out
 	bool bCameraZoomInitialized;   // Flag to ensure we initialize zoom values
+	TArray<FTimerHandle> ActiveTimerHandles;
 
 };
