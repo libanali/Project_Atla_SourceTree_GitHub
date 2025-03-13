@@ -93,7 +93,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 
 	//Technique
-	GaugeIncreaseRate = 10.7f;
+	GaugeIncreaseRate = 6.7f;
 	CanIncreaseTechniqueBarRate = false;
 	bIsTechniquePointsMax = false;
 
