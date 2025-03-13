@@ -3919,6 +3919,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	AbilityStruct.InitializeAbilityPoints();
 
+	UpdateStatsBasedOnWeapon();
+
 	HealthStruct.InitializeHealth();
 	HealthStruct.CurrentHealth = HealthStruct.MaxHealth;
 
@@ -4057,7 +4059,7 @@ void ARen_Low_Poly_Character::BeginPlay()
 	*/
 
 	// Then, update the stats based on the weapon proficiency
-	UpdateStatsBasedOnWeapon();
+	//UpdateStatsBasedOnWeapon();
 
 
 	// Store initial stats
