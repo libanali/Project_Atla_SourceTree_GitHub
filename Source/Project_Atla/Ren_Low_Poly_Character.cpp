@@ -3488,33 +3488,70 @@ void ARen_Low_Poly_Character::CheckAndDisplayArrow(AActor* Enemy, UEnemy_Detecti
 		return;
 	}
 
+	// Get player controller
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (!PC) return;
+
 	// Get the screen position of the enemy
 	FVector2D ScreenPosition;
-	bool bIsOnScreen = UGameplayStatics::ProjectWorldToScreen(GetWorld()->GetFirstPlayerController(), Enemy->GetActorLocation(), ScreenPosition);
+	bool bIsOnScreen = UGameplayStatics::ProjectWorldToScreen(PC, Enemy->GetActorLocation(), ScreenPosition);
 
 	// Get the viewport size
 	int32 ViewportWidth, ViewportHeight;
-	GetWorld()->GetFirstPlayerController()->GetViewportSize(ViewportWidth, ViewportHeight);
+	PC->GetViewportSize(ViewportWidth, ViewportHeight);
 	FVector2D ViewportSize(ViewportWidth, ViewportHeight);
+	FVector2D ScreenCenter = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 2);
 
 	// Check if enemy is off-screen
 	bool bOffScreen = ScreenPosition.X < 0 || ScreenPosition.X > ViewportSize.X ||
-		ScreenPosition.Y < 0 || ScreenPosition.Y > ViewportSize.Y;
+		ScreenPosition.Y < 0 || ScreenPosition.Y > ViewportSize.Y || !bIsOnScreen;
 
 	if (bOffScreen)
 	{
 		ArrowWidget->SetVisibility(ESlateVisibility::Visible);
 
 		// Calculate direction from screen center to enemy
-		FVector2D ScreenCenter = FVector2D(ViewportSize.X / 2, ViewportSize.Y / 2);
-		FVector2D Direction = ScreenPosition - ScreenCenter;
-		Direction.Normalize();
+		FVector2D Direction;
+
+		if (bIsOnScreen)
+		{
+			// Normal case - use projected screen position
+			Direction = ScreenPosition - ScreenCenter;
+		}
+		else
+		{
+			// For very distant enemies - use camera view instead of player rotation
+			FVector CameraLocation;
+			FRotator CameraRotation;
+			PC->GetPlayerViewPoint(CameraLocation, CameraRotation);
+
+			// Get enemy direction in world space
+			FVector EnemyDirection = Enemy->GetActorLocation() - CameraLocation;
+			EnemyDirection.Normalize();
+
+			// Transform to camera space
+			FVector CameraSpace = CameraRotation.UnrotateVector(EnemyDirection);
+
+			// Convert to screen space (X right, Y up in 3D space becomes X right, Y down in screen space)
+			Direction = FVector2D(CameraSpace.Y, -CameraSpace.Z);
+		}
+
+		if (!Direction.IsNearlyZero())
+		{
+			Direction.Normalize();
+		}
+		else
+		{
+			// Default direction if calculation fails
+			Direction = FVector2D(0, -1);
+		}
 
 		float EdgePadding = 20.0f;
-		float RightEdgePadding = EdgePadding * 3;  // Increased padding for right edge
-		float BottomEdgePadding = EdgePadding * 3; // Similar padding for bottom edge
+		float RightEdgePadding = EdgePadding * 3;
+		float BottomEdgePadding = EdgePadding * 3;
 		FVector2D EdgePosition;
 
+		// Original positioning code remains the same
 		if (Direction.X > 0 && FMath::Abs(Direction.X) > FMath::Abs(Direction.Y))
 		{
 			// Right edge
@@ -3548,7 +3585,7 @@ void ARen_Low_Poly_Character::CheckAndDisplayArrow(AActor* Enemy, UEnemy_Detecti
 			EdgePosition.X = FMath::Clamp(EdgePosition.X, EdgePadding, ViewportSize.X - RightEdgePadding);
 		}
 
-		// Final safety clamp with adjusted padding for right and bottom edges
+		// Final safety clamp
 		EdgePosition.X = FMath::Clamp(EdgePosition.X, EdgePadding, ViewportSize.X - RightEdgePadding);
 		EdgePosition.Y = FMath::Clamp(EdgePosition.Y, EdgePadding, ViewportSize.Y - BottomEdgePadding);
 
