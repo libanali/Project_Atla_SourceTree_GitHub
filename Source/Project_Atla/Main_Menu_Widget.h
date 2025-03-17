@@ -181,8 +181,8 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 		class UCarousel_Button_Widget* VibrationToggle;
 
-	UPROPERTY(meta = (BindWidget))
-		class UCarousel_Button_Widget* LanguageToggle;
+	//UPROPERTY(meta = (BindWidget))
+	//	class UCarousel_Button_Widget* LanguageToggle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
 		USoundBase* MenuMusic;

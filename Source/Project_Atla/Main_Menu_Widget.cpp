@@ -211,6 +211,7 @@ void UMain_Menu_Widget::InitializeSettingsControls()
             UpdateVolumeText(GameInstance->GameSettings.MasterVolume);
         }
 
+        /*
         // Language Toggle setup
         if (LanguageToggle)
         {
@@ -222,6 +223,7 @@ void UMain_Menu_Widget::InitializeSettingsControls()
             LanguageToggle->CurrentIndex = (LangIndex != INDEX_NONE) ? LangIndex : 0;
             LanguageToggle->UpdateDisplay();
         }
+        */
 
         // Screen Shake Toggle setup
         if (ScreenShakeToggle)
@@ -1560,6 +1562,7 @@ void UMain_Menu_Widget::ResetSettingsToDefault()
         }
     }
 
+    /*
     // Reset Language
     if (LanguageToggle)
     {
@@ -1573,9 +1576,9 @@ void UMain_Menu_Widget::ResetSettingsToDefault()
 
 
 
+}*/
+
 }
-
-
 
 
 
