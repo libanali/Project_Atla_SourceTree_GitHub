@@ -21,7 +21,6 @@
 #include "Notification_Widget.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Elemental_Attacks_List_Widget.h"
-#include "LowPoly_Survival_GameMode.h"
 #include "End_Screen_Widget.h"
 
 
@@ -992,9 +991,9 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 		NewAction.ActionType = EQueuedActionType::Technique;
 		NewAction.TechniqueIndex = TechniqueIndex;
 		ActionQueue.Add(NewAction);
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue,
-			FString::Printf(TEXT("Queued Technique %d while hurt"),
-				TechniqueIndex));
+		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue,
+			//FString::Printf(TEXT("Queued Technique %d while hurt"),
+				//TechniqueIndex));
 		return;
 	}
 
@@ -1009,9 +1008,9 @@ void ARen_Low_Poly_Character::UseTechnique(int32 TechniqueIndex)
 		NewAction.ActionType = EQueuedActionType::Technique;
 		NewAction.TechniqueIndex = TechniqueIndex;
 		ActionQueue.Add(NewAction);
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue,
-			FString::Printf(TEXT("Queued Technique %d, Queue Size: %d"),
-				TechniqueIndex, ActionQueue.Num()));
+		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue,
+			//FString::Printf(TEXT("Queued Technique %d, Queue Size: %d"),
+				//TechniqueIndex, ActionQueue.Num()));
 		return;
 	}
 
@@ -1099,7 +1098,7 @@ void ARen_Low_Poly_Character::OnTechniqueEnd()
 
 	// Log that technique has ended
 	UE_LOG(LogTemp, Warning, TEXT("OnTechniqueEnd: Technique ended, combat states reset"));
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Technique ended - states reset"));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Technique ended - states reset"));
 
 	// Log the current state of all combat flags
 	LogCombatStates("OnTechniqueEnd");
@@ -1583,7 +1582,7 @@ void ARen_Low_Poly_Character::IncreaseAttack(float IncreaseAmount)
 {
 
 	BaseAttack *= IncreaseAmount;
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Increase Attack"));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Increase Attack"));
 
 
 }
@@ -1607,7 +1606,7 @@ void ARen_Low_Poly_Character::IncreaseDefence(float IncreaseAmount)
 {
 
 	BaseDefence *= IncreaseAmount;
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Increase Defence"));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Increase Defence"));
 
 }
 
@@ -2963,7 +2962,7 @@ void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
 		
 		GetWorld()->GetTimerManager().SetTimer(ResetAttackTimer, this, &ARen_Low_Poly_Character::ResetAttackPower, 35.0f, false);
 
-		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("BERSERK!"));
+		//GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("BERSERK!"));
 
 		break;
 
@@ -2975,7 +2974,7 @@ void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
 
 		GetMesh()->SetGenerateOverlapEvents(false);
 		GetWorld()->GetTimerManager().SetTimer(InvulnerabilityTimer, this, &ARen_Low_Poly_Character::NullifyInvulnerability, 35.0f, false);
-		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("INVULNERABLE!"));
+		//GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("INVULNERABLE!"));
 		bIsInvincible = true;
 
 		break;
@@ -2985,7 +2984,7 @@ void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
 
 	case ESpecialPowerUp::HealthRegen:
 		UE_LOG(LogTemp, Warning, TEXT("Health Regen Activated: Regenerating Health!"));
-		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("REGEN HEALTH"));
+		//GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("REGEN HEALTH"));
 
 		{
 			
@@ -3003,7 +3002,7 @@ void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
 
 
 		UE_LOG(LogTemp, Warning, TEXT("Double Points Activated: Score Multiplier!"));
-		GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("Double Points"));
+		//GEngine->AddOnScreenDebugMessage(-1, 1.5f, FColor::Cyan, TEXT("Double Points"));
 
 
 
@@ -3033,7 +3032,7 @@ void ARen_Low_Poly_Character::ResetAttackPower()
 
 
 	BaseAttack = InitialAttack;
-	GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Red, TEXT("Berserk Finished"));
+	//GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Red, TEXT("Berserk Finished"));
 	UE_LOG(LogTemp, Warning, TEXT("Berserk Ended: Attack Power Reset to Initial Value (%f)."), InitialAttack);
 
 
@@ -3045,7 +3044,7 @@ void ARen_Low_Poly_Character::NullifyInvulnerability()
 
 	
 	GetMesh()->SetGenerateOverlapEvents(true);
-	GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Red, TEXT("Invulnerability Finished"));
+	//GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Red, TEXT("Invulnerability Finished"));
 	bIsInvincible = false;
 
 }
@@ -3059,7 +3058,7 @@ void ARen_Low_Poly_Character::RegenHealth()
 	HealthStruct.CurrentHealth = FMath::Clamp(HealthStruct.CurrentHealth + RegenHealth, 0.0f, HealthStruct.MaxHealth);
 
 	UE_LOG(LogTemp, Warning, TEXT("Healing Aura: Health Regenerated to %f"), HealthStruct.CurrentHealth);
-	GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Red, FString::Printf(TEXT("Healing Aura: Health Regenerated to %f"), HealthStruct.CurrentHealth));
+	//GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Red, FString::Printf(TEXT("Healing Aura: Health Regenerated to %f"), HealthStruct.CurrentHealth));
 
 
 }
@@ -3073,7 +3072,7 @@ void ARen_Low_Poly_Character::CancelHealthRegen()
 
 	UE_LOG(LogTemp, Warning, TEXT("Healing Aura Ended"));
 
-	GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Red, TEXT("Regen Finished"));
+	//GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Red, TEXT("Regen Finished"));
 
 
 }
@@ -3085,7 +3084,7 @@ void ARen_Low_Poly_Character::CancelDoublePoints()
 
 
 	bDoublePoints = false;
-	GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Red, TEXT("Double Points Finished"));
+	//GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Red, TEXT("Double Points Finished"));
 
 
 }
@@ -4012,8 +4011,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 	TArray<AActor*> FoundActors;
 	UGameplayStatics::GetAllActorsOfClass(GetWorld(), APostProcessVolume::StaticClass(), FoundActors);
 
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
-		FString::Printf(TEXT("Found %d Post Process Volumes"), FoundActors.Num()));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow,
+	//	FString::Printf(TEXT("Found %d Post Process Volumes"), FoundActors.Num()));
 
 	bool bFoundCommandPPV = false;
 	for (AActor* Actor : FoundActors)
@@ -4022,16 +4021,16 @@ void ARen_Low_Poly_Character::BeginPlay()
 		{
 			CommandMenuPPV = Cast<APostProcessVolume>(Actor);
 			bFoundCommandPPV = true;
-			GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green,
-				TEXT("Found Command PPV with tag!"));
+			//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green,
+			//	TEXT("Found Command PPV with tag!"));
 			break;
 		}
 	}
 
 	if (!bFoundCommandPPV)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red,
-			TEXT("Failed to find PPV with 'Command Post Process' tag!"));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red,
+		//	TEXT("Failed to find PPV with 'Command Post Process' tag!"));
 	}
 
 	// If we found the volume, set it up
@@ -4040,8 +4039,8 @@ void ARen_Low_Poly_Character::BeginPlay()
 		CommandMenuPPV->bEnabled = false;
 		CurrentPPVWeight = 0.0f;
 		TargetPPVWeight = 0.0f;
-		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green,
-			TEXT("Command PPV initialized and disabled"));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green,
+			//TEXT("Command PPV initialized and disabled"));
 	}
 
 	// Initialize camera zoom parameters
@@ -4404,7 +4403,7 @@ void ARen_Low_Poly_Character::ForceResetAllCombatStates()
 
 	// Log the reset
 	UE_LOG(LogTemp, Warning, TEXT("FORCE RESET: All combat states have been reset"));
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("FORCE RESET: All combat states"));
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("FORCE RESET: All combat states"));
 
 
 
@@ -4425,7 +4424,7 @@ void ARen_Low_Poly_Character::LogCombatStates(FString Context)
 		Rolling ? 1 : 0);
 
 	UE_LOG(LogTemp, Warning, TEXT("%s"), *StateLog);
-	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, StateLog);
+	//GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, StateLog);
 
 
 }
@@ -4465,14 +4464,14 @@ void ARen_Low_Poly_Character::ProcessNextAction()
 {
 	if (ActionQueue.Num() == 0 || IsPlayingAnyAction())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red,
-			FString::Printf(TEXT("ProcessNextAction - Queue: %d, IsPlaying: %d"),
-				ActionQueue.Num(), IsPlayingAnyAction()));
+		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red,
+			//FString::Printf(TEXT("ProcessNextAction - Queue: %d, IsPlaying: %d"),
+				//ActionQueue.Num(), IsPlayingAnyAction()));
 		return;
 	}
 
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
-		TEXT("Processing next action from queue"));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
+	//	TEXT("Processing next action from queue"));
 
 	FQueuedAction NextAction = ActionQueue[0];
 	ActionQueue.RemoveAt(0);
@@ -4663,7 +4662,7 @@ bool ARen_Low_Poly_Character::IsPlayingAnyAction() const
 		if (bIsHurt) activeState += "Hurt ";
 
 
-		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, activeState);
+		//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, activeState);
 	}
 
 	return result;
@@ -5057,36 +5056,36 @@ void ARen_Low_Poly_Character::ExitCommandMode()
 
 void ARen_Low_Poly_Character::EnablePPV()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Yellow, TEXT("EnablePPV Called"));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Yellow, TEXT("EnablePPV Called"));
 
 	if (CommandMenuPPV)
 	{
 		CommandMenuPPV->bEnabled = true;
 		TargetPPVWeight = 1.0f; // Target full intensity
-		GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Green,
-			FString::Printf(TEXT("PPV Activated! Reference Valid: %s"),
-				CommandMenuPPV ? TEXT("YES") : TEXT("NO")));
+		//GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Green,
+		//	FString::Printf(TEXT("PPV Activated! Reference Valid: %s"),
+			//	CommandMenuPPV ? TEXT("YES") : TEXT("NO")));
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Red, TEXT("PPV Reference is NULL!"));
+		//GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Red, TEXT("PPV Reference is NULL!"));
 	}
 }
 
 
 void ARen_Low_Poly_Character::DisablePPV()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Yellow, TEXT("DisablePPV Called"));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Yellow, TEXT("DisablePPV Called"));
 
 	if (CommandMenuPPV)
 	{
 		TargetPPVWeight = 0.0f; // Target zero intensity
-		GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Red,
-			FString::Printf(TEXT("PPV Deactivating! Current Weight: %.2f"), CurrentPPVWeight));
+		//GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Red,
+//			FString::Printf(TEXT("PPV Deactivating! Current Weight: %.2f"), CurrentPPVWeight));
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Red, TEXT("PPV Reference is NULL!"));
+		//GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Red, TEXT("PPV Reference is NULL!"));
 	}
 }
 
@@ -5383,8 +5382,8 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 			// Only log occasionally to avoid spam
 			if (FMath::Abs(OldWeight - CurrentPPVWeight) > 0.05f)
 			{
-				GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Cyan,
-					FString::Printf(TEXT("PPV Weight: %.2f -> %.2f"), OldWeight, CurrentPPVWeight));
+				//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Cyan,
+					//FString::Printf(TEXT("PPV Weight: %.2f -> %.2f"), OldWeight, CurrentPPVWeight));
 			}
 
 			// If we're close enough to zero and heading down, disable completely
@@ -5392,7 +5391,7 @@ void ARen_Low_Poly_Character::Tick(float DeltaTime)
 			{
 				CommandMenuPPV->bEnabled = false;
 				CurrentPPVWeight = 0.0f; // Force to exactly 0
-				GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Blue, TEXT("PPV Fully Disabled"));
+				//GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Blue, TEXT("PPV Fully Disabled"));
 			}
 		}
 	}

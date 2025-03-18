@@ -276,7 +276,7 @@ void AEnemy_Poly::Attack()
 	}
 	else
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Attack Animation is missing!"));
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Attack Animation is missing!"));
 	}
 
 }
@@ -343,8 +343,8 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 	if (LowPolyRen->bIsDead || LowPolyRen->HealthStruct.CurrentHealth <= 0.0f)
 	{
 		// Player died from this hit, don't apply hurt effects or animations
-		GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Red,
-			FString::Printf(TEXT("Fatal Hit on Player! Damage: %f"), TotalEnemyAttack));
+		//GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Red,
+			//FString::Printf(TEXT("Fatal Hit on Player! Damage: %f"), TotalEnemyAttack));
 		return;
 	}
 
@@ -424,9 +424,9 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 			);
 
 	// Debug message
-	FString AttackDirection = LowPolyRen->bAttackedFromBehind ? TEXT("from behind") : TEXT("from front");
-	GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Red,
-		FString::Printf(TEXT("Hit Player %s! Damage: %f"), *AttackDirection, TotalEnemyAttack));
+	//FString AttackDirection = LowPolyRen->bAttackedFromBehind ? TEXT("from behind") : TEXT("from front");
+	//GEngine->AddOnScreenDebugMessage(-1, 6.0f, FColor::Red,
+	//	FString::Printf(TEXT("Hit Player %s! Damage: %f"), *AttackDirection, TotalEnemyAttack));
 }
 
 

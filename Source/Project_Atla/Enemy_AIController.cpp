@@ -83,7 +83,7 @@ void AEnemy_AIController::AttackPlayer()
             if (DistanceToThePlayer <= AttackRange)
             {
                 // Log the attack and play the attack animation
-                GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Enemy is Attacking!"));
+               // GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Enemy is Attacking!"));
                 bIsAttacking = true;
                 bIsAttackOnCooldown = true;  // Set the cooldown flag
                 Enemy->Attack();  // Call the attack function to play the animation
@@ -242,7 +242,7 @@ void AEnemy_AIController::UpdateHitState()
         
             // Disable AI if the enemy is hit
             DisableAI();
-            GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Enemy is not moving after hit!"));
+           // GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Red, TEXT("Enemy is not moving after hit!"));
     }
 
      else
@@ -250,7 +250,7 @@ void AEnemy_AIController::UpdateHitState()
     {
             // Restart AI if the enemy is no longer hit
             RestartAI();
-            GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("Enemy is moving after hit!"));
+           // GEngine->AddOnScreenDebugMessage(-1, 5, FColor::Green, TEXT("Enemy is moving after hit!"));
     }
     
 }

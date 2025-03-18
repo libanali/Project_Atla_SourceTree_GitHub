@@ -66,7 +66,7 @@ FReply UTechnique_Button_Widget::NativeOnKeyDown(const FGeometry& InGeometry, co
     {
         if (Technique_Button)
         {
-            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Key pressed on technique button!"));
+           // GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Key pressed on technique button!"));
             OnTechniqueButtonClicked();
             return FReply::Handled();
         }
@@ -85,7 +85,7 @@ FReply UTechnique_Button_Widget::NativeOnFocusReceived(const FGeometry& InGeomet
 {
     if (Technique_Button)
     {
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Focus Received - Setting Hovered Brush"));
+       // GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Focus Received - Setting Hovered Brush"));
 
         FButtonStyle ButtonStyle = Technique_Button->WidgetStyle;
         ButtonStyle.SetNormal(HoveredBrush);
@@ -94,7 +94,7 @@ FReply UTechnique_Button_Widget::NativeOnFocusReceived(const FGeometry& InGeomet
         if (ParentListWidget && ParentListWidget->DescriptionText)
         {
             ParentListWidget->DescriptionText->SetText(FText::FromString(CurrentTechnique.Description));
-            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Focus Description Updated"));
+          //  GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Focus Description Updated"));
         }
     }
 
@@ -155,7 +155,7 @@ void UTechnique_Button_Widget::HandleFocusChanged(bool bHasFocus)
         if (bHasFocus)
         {
             ParentListWidget->DescriptionText->SetText(FText::FromString(CurrentTechnique.Description));
-            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Focus Description Updated"));
+         //   GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Focus Description Updated"));
 
             // Update button style for focus
             if (Technique_Button)
@@ -252,7 +252,7 @@ void UTechnique_Button_Widget::OnTechniqueButtonHovered()
     if (ParentListWidget && ParentListWidget->DescriptionText)
     {
         ParentListWidget->DescriptionText->SetText(FText::FromString(CurrentTechnique.Description));
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Hover Description Updated"));
+     //   GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Hover Description Updated"));
     }
 
 }

@@ -72,8 +72,8 @@ void UMain_Menu_Widget::NativeConstruct()
                 InitialVolume = GameInstance->GameSettings.MasterVolume;
             }
             BackgroundMusic->Play();
-            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
-                FString::Printf(TEXT("Playing Music at Volume: %.2f"), InitialVolume));
+           // GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
+               // FString::Printf(TEXT("Playing Music at Volume: %.2f"), InitialVolume));
         }
     }
 
@@ -104,7 +104,7 @@ void UMain_Menu_Widget::NativeConstruct()
             this->SetKeyboardFocus();
 
             // Debug message to confirm focus is set
-            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Widget focus set on startup"));
+            //GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Widget focus set on startup"));
         }
     }
 }
@@ -152,7 +152,7 @@ void UMain_Menu_Widget::InitializeMenuButtons()
 
     {
         QuitButton->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnQuitClicked);
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Quit Button Initialized"));
+       // GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Quit Button Initialized"));
     }
 
     // Setup animations
@@ -357,11 +357,11 @@ void UMain_Menu_Widget::OnQuitClicked()
             {
                 // Quit the game
                 PlayerController->ConsoleCommand("quit");
-                GEngine->AddOnScreenDebugMessage(-1, 3.4f, FColor::Blue, TEXT("quit"));
+              //  GEngine->AddOnScreenDebugMessage(-1, 3.4f, FColor::Blue, TEXT("quit"));
             }
         }
 
-        GEngine->AddOnScreenDebugMessage(-1, 3.4f, FColor::Blue, TEXT("quit"));
+       // GEngine->AddOnScreenDebugMessage(-1, 3.4f, FColor::Blue, TEXT("quit"));
 
 }
 
@@ -392,7 +392,7 @@ void UMain_Menu_Widget::OnSwordButtonHovered()
 
     UpdateWeaponStats(EWeaponType::Sword);
     OnWeaponButtonHovered(LOCTEXT("SwordDesc", "A sharp sword with enhanced lightning power.").ToString());
-    GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Sword Button Hovered"));
+   // GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Sword Button Hovered"));
 
     UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
 
@@ -460,7 +460,7 @@ void UMain_Menu_Widget::OnSwordButtonFocused()
 
     UpdateWeaponStats(EWeaponType::Sword);
     OnWeaponButtonHovered(LOCTEXT("SwordDesc", "A sharp sword with enhanced lightning power.").ToString());
-    GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Sword Button Focused"));
+   // GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Sword Button Focused"));
     UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
 
     if (!GameInstance)
@@ -549,7 +549,7 @@ void UMain_Menu_Widget::OnStaffButtonHovered()
 
     UpdateWeaponStats(EWeaponType::Staff);
     OnWeaponButtonHovered(LOCTEXT("StaffDesc", "A mystical staff that boosts elemental power.").ToString());
-    GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Staff Button Hovered"));
+   // GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Staff Button Hovered"));
 
     UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
 
@@ -619,7 +619,7 @@ void UMain_Menu_Widget::OnStaffButtonFocused()
 
     UpdateWeaponStats(EWeaponType::Staff);
     OnWeaponButtonHovered(LOCTEXT("StaffDesc", "A mystical staff that boosts elemental power.").ToString());
-    GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Staff Button Focused"));
+  //  GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Staff Button Focused"));
 
 
     UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
@@ -743,11 +743,11 @@ void UMain_Menu_Widget::OnControlsButtonHovered()
     if (ControlsContainer)
     {
         ControlsContainer->SetVisibility(ESlateVisibility::Visible);
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Controls Container Shown"));
+        //GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Controls Container Shown"));
     }
     else
     {
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Controls Container is null!"));
+       // GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Controls Container is null!"));
     }
 }
 
@@ -761,11 +761,11 @@ void UMain_Menu_Widget::OnControlsButtonUnhovered()
     if (ControlsContainer)
     {
         ControlsContainer->SetVisibility(ESlateVisibility::Hidden);
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Controls Container Hidden"));
+       // GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Controls Container Hidden"));
     }
     else
     {
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Controls Container is null!"));
+       // GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Controls Container is null!"));
     }
 
     UpdateTutorialContent(
@@ -1062,8 +1062,8 @@ void UMain_Menu_Widget::OnMasterVolumeChanged(float Value)
             BackgroundMusic->SetVolumeMultiplier(Value);
         }
 
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow,
-            FString::Printf(TEXT("Volume Changed: %.2f"), Value));
+       // GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow,
+          //  FString::Printf(TEXT("Volume Changed: %.2f"), Value));
     }
 }
 
@@ -1277,8 +1277,8 @@ void UMain_Menu_Widget::HandleGoBack()
             if (LastFocusedButton)
             {
                 LastFocusedButton->SetKeyboardFocus();
-                GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow,
-                    FString::Printf(TEXT("Focus restored to: %s"), *LastFocusedButton->GetName()));
+             //   GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow,
+                //    FString::Printf(TEXT("Focus restored to: %s"), *LastFocusedButton->GetName()));
             }
         }
         else
@@ -1306,7 +1306,7 @@ void UMain_Menu_Widget::SwitchToMainMenu()
     {
         WidgetSwitcher->SetActiveWidgetIndex(1); // Switch to Main Menu (index 1)
         UpdateCanvasVisibility(1); // Add this line
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Main Menu!"));
+      //  GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Main Menu!"));
         LastFocusedButton = nullptr;
 
         if (PlayButton)
@@ -1342,7 +1342,7 @@ void UMain_Menu_Widget::SwitchToWeaponSelectMenu()
             {
                 SwordButton->SetKeyboardFocus();
                 bHasSetFocusForSwordButton = true;  // Mark that focus has been set
-                GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Sword button focused!"));
+               // GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Sword button focused!"));
             }
         }
         else if (CurrentIndex != 2)
@@ -1371,8 +1371,8 @@ void UMain_Menu_Widget::OnScreenShakeValueChanged(const FString& NewValue)
       //  GameInstance->SaveSettings();
 
         // Debug message
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
-            FString::Printf(TEXT("Screen Shake: %s"), *NewValue));
+       // GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
+      //      FString::Printf(TEXT("Screen Shake: %s"), *NewValue));
     }
 
 
@@ -1391,8 +1391,8 @@ void UMain_Menu_Widget::OnVibrationValueChanged(const FString& NewValue)
        // GameInstance->SaveSettings();
 
         // Debug message
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
-            FString::Printf(TEXT("Vibration: %s"), *NewValue));
+       // GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
+          //  FString::Printf(TEXT("Vibration: %s"), *NewValue));
     }
 
 
@@ -1446,7 +1446,7 @@ void UMain_Menu_Widget::OnResetToDefaultClicked()
         GameInstance->SaveSettings();
     }
 
-    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Settings Reset to Default"));
+   // GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Settings Reset to Default"));
 
 
 }
@@ -1462,7 +1462,7 @@ void UMain_Menu_Widget::OnApplyChangesClicked()
         GameInstance->SaveSettings();
     }
 
-    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Settings Applied"));
+  //  GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Settings Applied"));
 
 }
 
@@ -1520,7 +1520,7 @@ void UMain_Menu_Widget::OnMasterAudioButtonFocused()
         }
 
         // Debug message to confirm button is focused
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Master Audio Button Focused"));
+      //  GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Master Audio Button Focused"));
     }
 
 
@@ -1598,8 +1598,8 @@ FReply UMain_Menu_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKe
         {
             SwitchToMainMenu();
             PlayNavigationSound(); // Optional - play a sound when transitioning
-            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
-                FString::Printf(TEXT("Key pressed: %s"), *PressedKey.ToString()));
+           // GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
+              //  FString::Printf(TEXT("Key pressed: %s"), *PressedKey.ToString()));
             return FReply::Handled();
         }
     }
@@ -1609,7 +1609,7 @@ FReply UMain_Menu_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKe
         if (PressedKey == EKeys::Gamepad_FaceButton_Right)
         {
             HandleGoBack();
-            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Back!"));
+           // GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Back!"));
             PlayBackSound();
             return FReply::Handled();
         }
@@ -1701,7 +1701,7 @@ FReply UMain_Menu_Widget::NativeOnMouseButtonDown(const FGeometry& InGeometry, c
         // Any mouse button will move to main menu
         SwitchToMainMenu();
         PlayNavigationSound(); // Optional - play a sound when transitioning
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Mouse button pressed"));
+      //  GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Mouse button pressed"));
         return FReply::Handled();
     }
     else
@@ -1710,7 +1710,7 @@ FReply UMain_Menu_Widget::NativeOnMouseButtonDown(const FGeometry& InGeometry, c
         if (InMouseEvent.GetEffectingButton() == EKeys::RightMouseButton)
         {
             HandleGoBack();
-            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Back with Right-Click!"));
+         //   GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Back with Right-Click!"));
             PlayBackSound();
             return FReply::Handled();
         }

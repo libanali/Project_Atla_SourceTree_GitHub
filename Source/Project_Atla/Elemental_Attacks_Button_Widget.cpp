@@ -82,7 +82,7 @@ void UElemental_Attacks_Button_Widget::NativeOnInitialized()
 void UElemental_Attacks_Button_Widget::OnAnyButtonClicked()
 {
 
-    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Button clicked!"));
+//    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("Button clicked!"));
 
 
 }
@@ -104,7 +104,7 @@ void UElemental_Attacks_Button_Widget::OnElementalAttackButtonHovered()
     if (ParentListWidget && ParentListWidget->DescriptionText)
     {
         ParentListWidget->DescriptionText->SetText(FText::FromString(CurrentElementalAttack.ElementDescription));
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Hover Description Updated"));
+      //  GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Hover Description Updated"));
     }
 
 }
@@ -165,13 +165,13 @@ void UElemental_Attacks_Button_Widget::SetupButton(FElemental_Struct ElementalAt
         ParentListWidget = Cast<UElemental_Attacks_List_Widget>(GetParent());
         if (!ParentListWidget)
         {
-            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red,
-                TEXT("Could not find ParentListWidget in SetupButton"));
+          //  GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red,
+                //TEXT("Could not find ParentListWidget in SetupButton"));
         }
         else
         {
-            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green,
-                TEXT("ParentListWidget found successfully"));
+          //  GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green,
+               // TEXT("ParentListWidget found successfully"));
         }
     }
 }
@@ -187,7 +187,7 @@ FReply UElemental_Attacks_Button_Widget::NativeOnKeyDown(const FGeometry& InGeom
     {
         if (Elemental_Attack_Button)
         {
-            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Key pressed on elemental button!"));
+           // GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Key pressed on elemental button!"));
             OnElementalAttackButtonClicked();
             return FReply::Handled();
         }
@@ -205,7 +205,7 @@ FReply UElemental_Attacks_Button_Widget::NativeOnFocusReceived(const FGeometry& 
 
     if (Elemental_Attack_Button)
     {
-        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Focus Received - Setting Hovered Brush"));
+      //  GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Focus Received - Setting Hovered Brush"));
 
       //  FButtonStyle ButtonStyle = Elemental_Attack_Button->WidgetStyle;
       //  ButtonStyle.SetNormal(HoveredBrush);
@@ -215,13 +215,13 @@ FReply UElemental_Attacks_Button_Widget::NativeOnFocusReceived(const FGeometry& 
         if (ParentListWidget && ParentListWidget->DescriptionText)
         {
             ParentListWidget->DescriptionText->SetText(FText::FromString(CurrentElementalAttack.ElementDescription));
-            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Focus Description Updated"));
+         //   GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Focus Description Updated"));
         }
 
         else
 
         {
-            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Focus Description Not Updated"));
+         //   GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Focus Description Not Updated"));
 
 
         }
@@ -303,7 +303,7 @@ void UElemental_Attacks_Button_Widget::OnElementalAttackButtonClicked()
     }
 
 
-    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("Elemental Attack Button Clicked!"));
+  //  GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("Elemental Attack Button Clicked!"));
 }
 
 

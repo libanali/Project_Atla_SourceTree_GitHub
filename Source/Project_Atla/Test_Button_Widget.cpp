@@ -35,7 +35,7 @@ FReply UTest_Button_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const F
     {
         if (TestButton)
         {
-            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Key pressed on button!"));
+            //GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Key pressed on button!"));
             OnButtonClicked();  // Directly call OnButtonClicked instead of broadcasting
             return FReply::Handled();
         }
@@ -49,7 +49,7 @@ FReply UTest_Button_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const F
 void UTest_Button_Widget::OnButtonClicked()
 {
 
-    GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Test Button Clicked!"));
+   // GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Test Button Clicked!"));
 
 
 }

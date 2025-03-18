@@ -1105,7 +1105,7 @@ void ALowPoly_Survival_GameMode::StartGameAfterObjective()
 
         // Add debug message before enabling input
         UE_LOG(LogTemp, Warning, TEXT("About to re-enable input in StartGameAfterObjective"));
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Re-enabling input..."));
+        //GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Re-enabling input..."));
 
         // Reset any UI flags on the character
         PlayerCharacter->bIsInUIMode = false;

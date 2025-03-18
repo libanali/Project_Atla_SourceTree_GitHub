@@ -190,7 +190,7 @@ void UPause_Menu_Widget::OnQuitClicked()
 void UPause_Menu_Widget::OnYesClicked()
 {
     // Show debug message on screen
-    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("ATTEMPTING LEVEL TRANSITION"));
+   // GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("ATTEMPTING LEVEL TRANSITION"));
     UE_LOG(LogTemp, Error, TEXT("OnYesClicked: Attempting transition to main menu"));
 
     // Cache local copy of world pointer for safety
@@ -198,7 +198,7 @@ void UPause_Menu_Widget::OnYesClicked()
 
     if (!CurrentWorld)
     {
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("ERROR: Invalid World!"));
+      //  GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("ERROR: Invalid World!"));
         UE_LOG(LogTemp, Error, TEXT("OnYesClicked: World is NULL!"));
         return;
     }
@@ -224,20 +224,20 @@ void UPause_Menu_Widget::OnYesClicked()
     ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(CurrentWorld->GetAuthGameMode());
     if (GameMode)
     {
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Preparing GameMode for transition"));
+      //  GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Preparing GameMode for transition"));
         UE_LOG(LogTemp, Warning, TEXT("Found valid GameMode, preparing for transition"));
         GameMode->PrepareForLevelTransition();
     }
     else
     {
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("WARNING: No GameMode found!"));
+     //   GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("WARNING: No GameMode found!"));
         UE_LOG(LogTemp, Error, TEXT("OnYesClicked: GameMode is NULL!"));
     }
 
     // FALLBACK OPTIONS - TRY MULTIPLE APPROACHES
 
     // First approach - direct transition using GetWorld
-    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("DIRECT TRANSITION: Using GetWorld()"));
+ //   GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("DIRECT TRANSITION: Using GetWorld()"));
     UE_LOG(LogTemp, Warning, TEXT("Attempting direct transition with GetWorld()"));
     UGameplayStatics::OpenLevel(CurrentWorld, FName("Main_Menu_Level"));
 
@@ -245,7 +245,7 @@ void UPause_Menu_Widget::OnYesClicked()
     FPlatformProcess::Sleep(0.2f);
 
     // Second approach - try with GWorld if we're still here
-    GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("FALLBACK: Using GWorld"));
+  //  GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("FALLBACK: Using GWorld"));
     UE_LOG(LogTemp, Warning, TEXT("Attempting fallback transition with GWorld"));
     UGameplayStatics::OpenLevel(GWorld, FName("Main_Menu_Level"));
 }
