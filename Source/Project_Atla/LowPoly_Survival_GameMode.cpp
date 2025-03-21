@@ -19,6 +19,7 @@
 
 
 
+
 ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
 {
 
@@ -402,6 +403,8 @@ void ALowPoly_Survival_GameMode::BeginPlay()
 
     Super::BeginPlay();
 
+
+    
 
     APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 

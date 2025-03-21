@@ -40,6 +40,28 @@
 		{
 			"Name": "OnlineSubsystemSteam",
 			"Enabled": true
+		},
+		{
+			"Name": "SteamController",
+			"Enabled": true
+		},
+		{
+			"Name": "RawInput",
+			"Enabled": true
+		},
+		{
+			"Name": "WinDualShock",
+			"Enabled": true,
+			"SupportedTargetPlatforms": [
+				"Win64"
+			]
+		},
+		{
+			"Name": "GameInputWindows",
+			"Enabled": true,
+			"SupportedTargetPlatforms": [
+				"Win64"
+			]
 		}
 	]
 }
