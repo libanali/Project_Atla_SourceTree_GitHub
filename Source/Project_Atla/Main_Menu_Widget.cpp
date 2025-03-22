@@ -1588,6 +1588,13 @@ FReply UMain_Menu_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKe
 
     // Get the pressed key
     FKey PressedKey = InKeyEvent.GetKey();
+
+
+    if (PressedKey == EKeys::Gamepad_FaceButton_Top)
+    {
+        // Either ignore this button completely
+        return FReply::Handled();
+    }
    
 
     // First check if we're on the title screen

@@ -22,6 +22,11 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Elemental_Attacks_List_Widget.h"
 #include "End_Screen_Widget.h"
+#include "GenericPlatform/GenericApplicationMessageHandler.h"
+#include "GenericPlatform/IInputInterface.h"
+#include "Framework/Application/SlateApplication.h"
+
+
 
 
 static TAutoConsoleVariable<int32> CVarDebugCombatPositioning(
@@ -220,6 +225,8 @@ void ARen_Low_Poly_Character::MoveRight(float Axis)
 	}
 
 }
+
+
 
 
 
@@ -3909,6 +3916,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 {
 	Super::BeginPlay();
 
+
+
+
 	LoadHighScore();
 	LoadPlayerProgress();
 
@@ -3970,6 +3980,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 
 	AbilityStruct.CurrentAbilityPoints = 0.0f;
+
+
+
 
 
 

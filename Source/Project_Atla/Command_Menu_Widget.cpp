@@ -10,6 +10,8 @@
 #include "Animation/WidgetAnimation.h"
 #include "Kismet/GameplayStatics.h"
 #include "Inventory.h"
+#include "GenericPlatform/GenericApplicationMessageHandler.h"
+#include "GenericPlatform/IInputInterface.h"
 
 
 
@@ -26,7 +28,7 @@ void UCommand_Menu_Widget::NativeOnInitialized()
     if (FSlateApplication::Get().GetPlatformApplication()->IsGamepadAttached())
     {
         CurrentInputMode = EInputMode::Gamepad;
-       // GEngine->AddOnScreenDebugMessage(2, 2.5f, FColor::Green, TEXT("Gamepad Connected!"));
+        GEngine->AddOnScreenDebugMessage(2, 2.5f, FColor::Green, TEXT("Gamepad Connected!"));
 
         APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
         if (PlayerController)
@@ -38,7 +40,7 @@ void UCommand_Menu_Widget::NativeOnInitialized()
     else
     {
         CurrentInputMode = EInputMode::Mouse;
-      //  GEngine->AddOnScreenDebugMessage(2, 2.5f, FColor::Black, TEXT("No Gamepad Connected!"));
+        GEngine->AddOnScreenDebugMessage(2, 2.5f, FColor::Black, TEXT("No Gamepad Connected!"));
 
         APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
         if (PlayerController)

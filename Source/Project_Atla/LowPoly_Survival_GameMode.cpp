@@ -9,13 +9,15 @@
 #include "NavigationSystem.h"
 #include "Enemy_Token_Manager.h"
 #include "Kismet/KismetMathLibrary.h"
-#include "NavigationSystem.h"
 #include "GameFramework/Actor.h"
 #include "Engine/StaticMeshActor.h"
 #include "Kismet/GameplayStatics.h"
 #include "Objective_Message_Widget.h"
 #include "Components/AudioComponent.h"
 #include "Game_Instance.h"
+#include "GenericPlatform/GenericApplicationMessageHandler.h"
+#include "GenericPlatform/IInputInterface.h"
+#include "Framework/Application/SlateApplication.h"
 
 
 
@@ -38,6 +40,9 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
     bIsShuttingDown = false;
     bHasShownObjectiveMessage = false;
 
+
+
+   
 }
 
 
@@ -404,6 +409,27 @@ void ALowPoly_Survival_GameMode::BeginPlay()
     Super::BeginPlay();
 
 
+    if (FSlateApplication::Get().GetPlatformApplication()->IsGamepadAttached())
+    {
+        GEngine->AddOnScreenDebugMessage(2, 2.5f, FColor::Green, TEXT("Gamepad Connected!"));
+
+        APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+        if (PlayerController)
+        {
+            PlayerController->bShowMouseCursor = false;
+        }
+
+    }
+    else
+    {
+        GEngine->AddOnScreenDebugMessage(2, 2.5f, FColor::Black, TEXT("No Gamepad Connected!"));
+
+        APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
+        if (PlayerController)
+        {
+            PlayerController->bShowMouseCursor = true;
+        }
+    }
     
 
     APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
