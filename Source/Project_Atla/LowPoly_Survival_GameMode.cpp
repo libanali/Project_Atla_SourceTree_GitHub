@@ -17,7 +17,9 @@
 #include "Game_Instance.h"
 #include "GenericPlatform/GenericApplicationMessageHandler.h"
 #include "GenericPlatform/IInputInterface.h"
-#include "Framework/Application/SlateApplication.h"
+#include "InputCoreTypes.h"
+#include "Steam/steam_api.h"
+#include "Steam/isteaminput.h"
 
 
 
@@ -41,8 +43,9 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
     bHasShownObjectiveMessage = false;
 
 
+    bSteamInitialized = false;
 
-   
+
 }
 
 
@@ -430,7 +433,37 @@ void ALowPoly_Survival_GameMode::BeginPlay()
             PlayerController->bShowMouseCursor = true;
         }
     }
-    
+
+
+    bSteamInitialized = SteamAPI_Init();
+    if (bSteamInitialized)
+    {
+        // Initialize Steam Input
+        SteamInput()->Init(true);
+
+        // Get connected controllers
+        InputHandle_t ConnectedControllers[STEAM_INPUT_MAX_COUNT];
+        int controllerCount = SteamInput()->GetConnectedControllers(ConnectedControllers);
+
+        if (controllerCount > 0)
+        {
+            // Use the first controller
+            PlayerController = ConnectedControllers[0];
+            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green,
+                TEXT("Steam Input initialized with controller"));
+        }
+        else
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red,
+                TEXT("No controllers detected through Steam Input"));
+        }
+
+    }
+
+
+
+
+
 
     APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
@@ -488,7 +521,18 @@ void ALowPoly_Survival_GameMode::BeginPlay()
 void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 {
 
+
+    // Process Steam callbacks
+    if (bSteamInitialized)
+    {
+        SteamAPI_RunCallbacks();
+    }
+
+
     OnEnemyDestroyed();
+
+
+
 }
 
 

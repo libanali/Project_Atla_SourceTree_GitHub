@@ -99,7 +99,8 @@ public:
     void ClearAllTimers();
     void PrepareForLevelTransition();
 
-
+    bool bSteamInitialized;
+    InputHandle_t PlayerController;
 
 private:
     FVector GetRandomPointInZone(const FBox& Zone);
