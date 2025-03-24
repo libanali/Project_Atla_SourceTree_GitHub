@@ -43,7 +43,6 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
     bHasShownObjectiveMessage = false;
 
 
-    bSteamInitialized = false;
 
 
 }
@@ -412,6 +411,11 @@ void ALowPoly_Survival_GameMode::BeginPlay()
     Super::BeginPlay();
 
 
+
+    SetupSteamOverlayDetection();
+
+
+
     if (FSlateApplication::Get().GetPlatformApplication()->IsGamepadAttached())
     {
         GEngine->AddOnScreenDebugMessage(2, 2.5f, FColor::Green, TEXT("Gamepad Connected!"));
@@ -433,34 +437,6 @@ void ALowPoly_Survival_GameMode::BeginPlay()
             PlayerController->bShowMouseCursor = true;
         }
     }
-
-
-    bSteamInitialized = SteamAPI_Init();
-    if (bSteamInitialized)
-    {
-        // Initialize Steam Input
-        SteamInput()->Init(true);
-
-        // Get connected controllers
-        InputHandle_t ConnectedControllers[STEAM_INPUT_MAX_COUNT];
-        int controllerCount = SteamInput()->GetConnectedControllers(ConnectedControllers);
-
-        if (controllerCount > 0)
-        {
-            // Use the first controller
-            PlayerController = ConnectedControllers[0];
-            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green,
-                TEXT("Steam Input initialized with controller"));
-        }
-        else
-        {
-            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red,
-                TEXT("No controllers detected through Steam Input"));
-        }
-
-    }
-
-
 
 
 
@@ -522,11 +498,6 @@ void ALowPoly_Survival_GameMode::Tick(float DeltaTime)
 {
 
 
-    // Process Steam callbacks
-    if (bSteamInitialized)
-    {
-        SteamAPI_RunCallbacks();
-    }
 
 
     OnEnemyDestroyed();
@@ -1374,6 +1345,50 @@ FVector ALowPoly_Survival_GameMode::GetRandomPointNearPlayer()
 
     // Return a random point within the spawn zone area
     return FVector(RandomX, RandomY, RandomZ);
+}
+
+
+
+
+void ALowPoly_Survival_GameMode::OnSteamOverlayActivated(bool bIsActive)
+{
+
+    if (bIsActive)
+    {
+        // Pause the game when overlay is activated
+        SetPause(GetWorld()->GetFirstPlayerController());
+        GEngine->AddOnScreenDebugMessage(2, 2.5f, FColor::Green, TEXT("Overlay activated!"));
+    }
+    else
+    {
+        // Unpause when overlay is deactivated
+        ClearPause();
+        GEngine->AddOnScreenDebugMessage(2, 2.5f, FColor::Green, TEXT("Overlay deactivated!"));
+    }
+
+
+}
+
+
+
+
+
+void ALowPoly_Survival_GameMode::SetupSteamOverlayDetection()
+{
+
+    IOnlineSubsystem* OnlineSubsystem = IOnlineSubsystem::Get("Steam");
+    if (OnlineSubsystem)
+    {
+        IOnlineExternalUIPtr ExternalUI = OnlineSubsystem->GetExternalUIInterface();
+        if (ExternalUI.IsValid())
+        {
+            OnOverlayActivatedDelegateHandle = ExternalUI->AddOnExternalUIChangeDelegate_Handle(
+                FOnExternalUIChangeDelegate::CreateUObject(this, &ALowPoly_Survival_GameMode::OnSteamOverlayActivated));
+        }
+    }
+
+
+
 }
 
 

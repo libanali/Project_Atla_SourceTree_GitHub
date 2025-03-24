@@ -11,6 +11,8 @@
 #include "Engine/TriggerVolume.h"
 #include "Components/BoxComponent.h"  // Include BoxComponent header
 #include "Round_Complete_Message_Widget.h"
+#include "OnlineSubsystem.h"
+#include "Interfaces/OnlineExternalUIInterface.h"
 #include "LowPoly_Survival_GameMode.generated.h"
 
 /**
@@ -99,8 +101,6 @@ public:
     void ClearAllTimers();
     void PrepareForLevelTransition();
 
-    bool bSteamInitialized;
-    InputHandle_t PlayerController;
 
 private:
     FVector GetRandomPointInZone(const FBox& Zone);
@@ -244,7 +244,9 @@ protected:
 
     FVector GetRandomPointNearPlayer();
 
-
+    FDelegateHandle OnOverlayActivatedDelegateHandle;
+    void OnSteamOverlayActivated(bool bIsActive);
+    void SetupSteamOverlayDetection();
 
 
 
