@@ -12,6 +12,10 @@
 #include "IInputDevice.h"
 #include "GenericPlatform/GenericApplication.h"
 #include "GameFramework/InputSettings.h"
+#include "GenericPlatform/GenericPlatformInputDeviceMapper.h"
+#include "Engine/Engine.h"
+#include "GenericPlatform/GenericPlatformMisc.h"
+#include "GameFramework/InputDeviceSubsystem.h"
 
 
 
@@ -52,6 +56,9 @@ void AMain_Menu_GameMode::SetIsUsingGamepad(const bool bIsUsing)
 
 void AMain_Menu_GameMode::DetectGamepadType()
 {
+
+
+
 
 }
 
