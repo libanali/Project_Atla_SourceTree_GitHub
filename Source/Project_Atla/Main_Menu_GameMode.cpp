@@ -7,6 +7,11 @@
 #include "Engine/World.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
+#include "GenericPlatform/GenericApplicationMessageHandler.h"
+#include "GenericPlatform/IInputInterface.h"
+#include "IInputDevice.h"
+#include "GenericPlatform/GenericApplication.h"
+#include "GameFramework/InputSettings.h"
 
 
 
@@ -31,8 +36,23 @@ void AMain_Menu_GameMode::BeginPlay()
 			PC->bShowMouseCursor = true;
 		}
 	}
+}
 
 
 
+
+void AMain_Menu_GameMode::SetIsUsingGamepad(const bool bIsUsing)
+{
+
+	bIsUsingGamepad = bIsUsing;
 
 }
+
+
+
+void AMain_Menu_GameMode::DetectGamepadType()
+{
+
+}
+
+

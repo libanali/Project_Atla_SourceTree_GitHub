@@ -21,11 +21,19 @@ public:
 		TSubclassOf<UUserWidget> MainMenuWidgetClass;
 
 
+	UFUNCTION(BlueprintPure, Category = "Gamepad")
+	FORCEINLINE bool IsUsingGamepad() const { return bIsUsingGamepad; }
 
+	UFUNCTION(BlueprintCallable, Category = "Gamepad")
+	void SetIsUsingGamepad(const bool bIsUsing);
+
+	void DetectGamepadType();
 
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	bool bIsUsingGamepad;
 
 
 };

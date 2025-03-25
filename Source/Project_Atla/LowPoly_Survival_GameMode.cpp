@@ -20,6 +20,8 @@
 #include "InputCoreTypes.h"
 #include "Steam/steam_api.h"
 #include "Steam/isteaminput.h"
+#include "Kismet/KismetSystemLibrary.h"
+
 
 
 
@@ -414,11 +416,12 @@ void ALowPoly_Survival_GameMode::BeginPlay()
 
     SetupSteamOverlayDetection();
 
+    //UKismetSystemLibrary::GetGamepad
 
 
     if (FSlateApplication::Get().GetPlatformApplication()->IsGamepadAttached())
     {
-        GEngine->AddOnScreenDebugMessage(2, 2.5f, FColor::Green, TEXT("Gamepad Connected!"));
+       // GEngine->AddOnScreenDebugMessage(2, 2.5f, FColor::Green, TEXT("Gamepad Connected!"));
 
         APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
         if (PlayerController)
@@ -429,7 +432,7 @@ void ALowPoly_Survival_GameMode::BeginPlay()
     }
     else
     {
-        GEngine->AddOnScreenDebugMessage(2, 2.5f, FColor::Black, TEXT("No Gamepad Connected!"));
+      //  GEngine->AddOnScreenDebugMessage(2, 2.5f, FColor::Black, TEXT("No Gamepad Connected!"));
 
         APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
         if (PlayerController)

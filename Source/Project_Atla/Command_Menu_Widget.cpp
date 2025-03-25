@@ -12,7 +12,7 @@
 #include "Inventory.h"
 #include "GenericPlatform/GenericApplicationMessageHandler.h"
 #include "GenericPlatform/IInputInterface.h"
-
+#include "IInputDevice.h"
 
 
 void UCommand_Menu_Widget::NativeOnInitialized()
