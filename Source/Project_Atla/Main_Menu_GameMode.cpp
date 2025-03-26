@@ -57,9 +57,9 @@ void AMain_Menu_GameMode::SetIsUsingGamepad(const bool bIsUsing)
 void AMain_Menu_GameMode::DetectGamepadType()
 {
 
-
-
+   
 
 }
 
 
+ 
