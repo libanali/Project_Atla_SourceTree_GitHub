@@ -1214,5 +1214,6 @@ private:
 	float ArmLengthTransitionSpeed; // How fast to zoom in/out
 	bool bCameraZoomInitialized;   // Flag to ensure we initialize zoom values
 	TArray<FTimerHandle> ActiveTimerHandles;
+	void PreAttackCalculation();
 
 };

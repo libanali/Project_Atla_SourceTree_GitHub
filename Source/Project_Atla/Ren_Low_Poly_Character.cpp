@@ -270,6 +270,9 @@ void ARen_Low_Poly_Character::DisplayWeaponStats(EWeaponType TheWeaponType)
 void ARen_Low_Poly_Character::InflictDamageOnEnemy(AEnemy_Poly* Enemy)
 {
 
+	PreAttackCalculation(); 
+
+
 	if (Enemy)
 
 	{
@@ -633,7 +636,8 @@ void ARen_Low_Poly_Character::LoadPlayerProgress()
 		{
 			Techniques = WeaponTechniques[WeaponType].WeaponTechniques;
 		}
-		// Rest of your existing load code...
+
+		UpdateStatsBasedOnWeapon();
 		bIsGameLoaded = false;
 	}
 }
@@ -2997,7 +3001,7 @@ void ARen_Low_Poly_Character::ApplyPowerUp(ESpecialPowerUp PowerUp)
 			
 			
 			GetWorld()->GetTimerManager().SetTimer(RegenHealthTimer, this, &ARen_Low_Poly_Character::RegenHealth, 3.0f, true); // Trigger every 3 seconds
-			GetWorld()->GetTimerManager().SetTimer(RegenHealthDurationTimer, this, &ARen_Low_Poly_Character::CancelHealthRegen, 35.0f, false); // Stop after 15 seconds
+			GetWorld()->GetTimerManager().SetTimer(RegenHealthDurationTimer, this, &ARen_Low_Poly_Character::CancelHealthRegen, 35.0f, false); 
 
 			break;
 
@@ -3063,6 +3067,16 @@ void ARen_Low_Poly_Character::RegenHealth()
 
 	const float RegenHealth = HealthStruct.CurrentHealth * 0.05f; //add 5% of health to character
 	HealthStruct.CurrentHealth = FMath::Clamp(HealthStruct.CurrentHealth + RegenHealth, 0.0f, HealthStruct.MaxHealth);
+
+
+	// Spawn floating text showing the healing amount
+	SpawnFloatingCombatText(
+		FString::Printf(TEXT("+%.0f"), RegenHealth),
+		GetActorLocation() + FVector(FMath::RandRange(-20.0f, 20.0f), FMath::RandRange(-20.0f, 20.0f), 100.0f),
+		FLinearColor(0.0f, 1.0f, 0.3f), // Green for healing
+		false,
+		2.0f
+	);
 
 	UE_LOG(LogTemp, Warning, TEXT("Healing Aura: Health Regenerated to %f"), HealthStruct.CurrentHealth);
 	//GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Red, FString::Printf(TEXT("Healing Aura: Health Regenerated to %f"), HealthStruct.CurrentHealth));
@@ -3922,6 +3936,10 @@ void ARen_Low_Poly_Character::BeginPlay()
 	LoadHighScore();
 	LoadPlayerProgress();
 
+	EnsureAllInitialisation();
+	UpdateStatsBasedOnWeapon();
+
+
 	// Cast to ALowPoly_Survival_GameMode
 	LowPoly_Survival_GameMode = Cast<ALowPoly_Survival_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
 
@@ -4378,6 +4396,19 @@ void ARen_Low_Poly_Character::BeginPlay()
 
 	}
 
+}
+
+void ARen_Low_Poly_Character::PreAttackCalculation()
+{
+	// Force recalculate stats right before attacking
+	if (WeaponProficiencyMap.Contains(WeaponType))
+	{
+		const FWeapon_Proficiency_Struct& Proficiency = WeaponProficiencyMap[WeaponType];
+
+		// Directly set attack without resetting to base first
+		float weaponBaseAttack = (WeaponType == EWeaponType::Sword) ? 8.0f : 4.0f;
+		BaseAttack = weaponBaseAttack + Proficiency.AttackPowerBoost;
+	}
 }
 
 
