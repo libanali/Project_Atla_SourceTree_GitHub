@@ -1203,7 +1203,12 @@ protected:
 		USceneComponent* StaffFireProjectile;
 	//Character Components
 
+	//Demo
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Demo")
+	bool bIsDemoBuild = false;
 
+	static constexpr int32 DEMO_MAX_LEVEL = 3;
+	//Demo
 
 private:
 
