@@ -36,7 +36,7 @@ void UMain_Menu_Widget::NativeConstruct()
     InitializeCanvasPanels();
     UpdateCanvasVisibility(0);
 
-
+    bIsDemoBuild = true;
  
 
     // Load saved settings first
@@ -82,6 +82,9 @@ void UMain_Menu_Widget::NativeConstruct()
 
     // Initialize menu buttons
     InitializeMenuButtons();
+
+    //Check for demo build
+    CheckAndApplyDemoRestrictions();
 
     // Set widget as focusable
     this->SetIsFocusable(true);
@@ -1799,6 +1802,22 @@ void UMain_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 ARen_Low_Poly_Character* UMain_Menu_Widget::GetPlayerCharacter()
 {
     return nullptr;
+}
+
+
+
+void UMain_Menu_Widget::CheckAndApplyDemoRestrictions()
+{
+
+    if (bIsDemoBuild && StaffButton)
+
+    {
+
+        StaffButton->SetIsEnabled(false);
+        StaffButton->RenderOpacity = 0.5f;
+
+    }
+
 }
 
 

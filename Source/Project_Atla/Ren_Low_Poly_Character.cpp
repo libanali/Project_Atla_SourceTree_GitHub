@@ -177,6 +177,10 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 	AttackMovementSpeed = 200.0f;
 
 
+	//Demo
+	bIsDemoBuild = true;
+
+
 	bPowerUpPending = false;
 
 	InitialiseDefaultElementalProficiencyValues();
@@ -3200,6 +3204,14 @@ void ARen_Low_Poly_Character::GenerateStatUpgradeMessages()
 void ARen_Low_Poly_Character::AddWeaponEXP(float ExpAmount)
 {
 
+	if (bIsDemoBuild)
+
+	{
+
+		return;
+
+	}
+
 
 	// Check if the currently equipped weapon exists in the proficiency map
 	if (WeaponProficiencyMap.Contains(WeaponType))
@@ -4102,31 +4114,29 @@ void ARen_Low_Poly_Character::BeginPlay()
 	}
 
 
-	/*
-
-	// Initialize any stats if necessary
-	if (WeaponType == EWeaponType::Sword)
+	if (bIsDemoBuild)
 	{
-		// Set initial values (or defaults) here if necessary
-		BaseAttack = 10.0f;
-		BaseDefence = 2.0f;
-		BaseElementalAttack = 4.0f;
-		HealthStruct.MaxHealth = 140.0f;
-		ManaStruct.MaxMana = 60.0f;
-	}
-	else if (WeaponType == EWeaponType::Staff)
-	{
-		BaseAttack = 3.0f;
-		BaseDefence = 2.0f;
-		BaseElementalAttack = 4.0f;
-		HealthStruct.MaxHealth = 130.0f;
-		ManaStruct.MaxMana = 95.0f;
-	}
+		// Set sword to level 5 (since staff is disabled in demo)
+		if (WeaponProficiencyMap.Contains(EWeaponType::Sword))
+		{
+			FWeapon_Proficiency_Struct& SwordProficiency = WeaponProficiencyMap[EWeaponType::Sword];
+			SwordProficiency.WeaponLevel = DEMO_MAX_LEVEL;
+			SwordProficiency.CurrentEXP = 0;
 
-	*/
+			// Apply level 5 stats - adjust these based on your actual level 5 values
+			SwordProficiency.AttackPowerBoost = 20.0f;
+			SwordProficiency.DefenseBoost = 10.0f;
+			SwordProficiency.ElementalPowerBoost = 15.0f;
+			SwordProficiency.MaxHealthBoost = 50.0f;
+			SwordProficiency.MaxManaBoost = 75.0f;
+		}
 
-	// Then, update the stats based on the weapon proficiency
-	//UpdateStatsBasedOnWeapon();
+		// Force weapon type to sword for demo
+		WeaponType = EWeaponType::Sword;
+
+		// Update stats based on the demo weapon settings
+		UpdateStatsBasedOnWeapon();
+	}
 
 
 	// Store initial stats

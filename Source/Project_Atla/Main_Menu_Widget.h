@@ -236,6 +236,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Icons")
 		UTexture2D* ThunderIcon;
 
+	UPROPERTY()
+	bool bIsDemoBuild = false;
 
 
 
@@ -376,7 +378,6 @@ protected:
 	UFUNCTION()
 	void ScrollTutorialContent(float Value);
 
-	//void UpdateAllUIText();
 
 
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
@@ -392,6 +393,7 @@ private:
 	ARen_Low_Poly_Character* GetPlayerCharacter();
 	TArray<UCanvasPanel*> MenuCanvases;
 	class UButton* LastFocusedButton;
+	void CheckAndApplyDemoRestrictions();
 };
 
 
