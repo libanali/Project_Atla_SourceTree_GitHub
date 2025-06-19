@@ -178,7 +178,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 
 	//Demo
-	bIsDemoBuild = true;
+	bIsDemoBuild = false;
 
 
 	bPowerUpPending = false;
