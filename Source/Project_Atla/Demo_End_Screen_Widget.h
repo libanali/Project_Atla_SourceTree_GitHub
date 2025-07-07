@@ -22,4 +22,12 @@ public:
 
 
 	virtual void NativeConstruct() override;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UButton* Main_Menu_Button;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
+	class UButton* Steam_Store_Button;
 };
