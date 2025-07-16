@@ -178,7 +178,7 @@ ARen_Low_Poly_Character::ARen_Low_Poly_Character()
 
 
 	//Demo
-	bIsDemoBuild = false;
+	bIsDemoBuild = true;
 
 
 	bPowerUpPending = false;
@@ -667,21 +667,14 @@ void ARen_Low_Poly_Character::Death()
 	}
 	GetCapsuleComponent()->SetGenerateOverlapEvents(false);
 
-	// Store the old high score but don't update it yet
-	OldHighScoreValue = (WeaponType == EWeaponType::Sword) ? SwordHighScore : StaffHighScore;
-
-	if (PlayerScore > OldHighScoreValue)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Potential new high score! Current: %d, Score: %d"),
-			OldHighScoreValue, PlayerScore);
-	}
-
 	// Save the game state
 //	SaveHighScore();
 	SavePlayerProgress();
 
-	// Show end screen and cleanup UI
-	DisplayEndScreenWidget();
+	
+	//DisplayEndScreenWidget();
+
+
 	CommandMenuWidget->RemoveFromParent();
 	RemoveGameplayUI();
 
@@ -689,6 +682,24 @@ void ARen_Low_Poly_Character::Death()
 	if (ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(UGameplayStatics::GetGameMode(GetWorld())))
 	{
 		GameMode->StopSpawningAndDestroyEnemies();
+	}
+
+	// Check if demo build
+	if (bIsDemoBuild)
+	{
+		// Show demo end screen instead of normal end screen
+		DisplayDemoScreen();
+	}
+	else
+	{
+		// Normal game - show regular end screen
+		OldHighScoreValue = (WeaponType == EWeaponType::Sword) ? SwordHighScore : StaffHighScore;
+		if (PlayerScore > OldHighScoreValue)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Potential new high score! Current: %d, Score: %d"),
+				OldHighScoreValue, PlayerScore);
+		}
+		DisplayEndScreenWidget();
 	}
 }
 
@@ -4404,6 +4415,30 @@ void ARen_Low_Poly_Character::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Staff proficiency not found!"));
 
+	}
+
+}
+
+void ARen_Low_Poly_Character::DisplayDemoScreen()
+{
+	if (!Demo_End_Screen_Widget && DemoEndScreenWidgetClass)
+	{
+		Demo_End_Screen_Widget = CreateWidget<UDemo_End_Screen_Widget>(GetWorld(), DemoEndScreenWidgetClass);
+	}
+
+	if (Demo_End_Screen_Widget)
+	{
+		Demo_End_Screen_Widget->AddToViewport(); // High Z-order
+
+		// Set input mode to UI
+		APlayerController* PC = Cast<APlayerController>(GetController());
+		if (PC)
+		{
+			FInputModeUIOnly InputMode;
+			InputMode.SetWidgetToFocus(Demo_End_Screen_Widget->TakeWidget());
+			PC->SetInputMode(InputMode);
+			PC->bShowMouseCursor = true;
+		}
 	}
 
 }

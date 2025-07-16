@@ -36,6 +36,7 @@
 #include "Camera/CameraModifier_CameraShake.h"
 #include "GameEnums.h"
 #include "Floating_Combat_Text_Widget.h"
+#include "Demo_End_Screen_Widget.h"
 #include "Ren_Low_Poly_Character.generated.h"
 
 
@@ -1207,7 +1208,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Demo")
 	bool bIsDemoBuild = false;
 
-	static constexpr int32 DEMO_MAX_LEVEL = 5;
+	static constexpr int32 DEMO_MAX_LEVEL = 3;
+
+	void DisplayDemoScreen();
+
+	//Command
+	UPROPERTY()
+	UDemo_End_Screen_Widget* Demo_End_Screen_Widget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<UUserWidget> DemoEndScreenWidgetClass;
 	//Demo
 
 private:
