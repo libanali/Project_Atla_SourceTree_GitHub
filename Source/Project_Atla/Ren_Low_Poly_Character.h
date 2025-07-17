@@ -1208,7 +1208,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Demo")
 	bool bIsDemoBuild = false;
 
-	static constexpr int32 DEMO_MAX_LEVEL = 3;
+	static constexpr int32 DEMO_MAX_LEVEL = 5;
 
 	void DisplayDemoScreen();
 

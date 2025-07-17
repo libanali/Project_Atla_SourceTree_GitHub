@@ -36,8 +36,6 @@ void UMain_Menu_Widget::NativeConstruct()
     UpdateCanvasVisibility(0);
 
     bIsDemoBuild = true;
- 
-
     // Load saved settings first
     if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
     {
@@ -45,18 +43,39 @@ void UMain_Menu_Widget::NativeConstruct()
         GameInstance->LoadPlayerProgress();
         GameInstance->LoadHighScores();
 
-        // Initialize the language based on saved settings
-        FString CultureCode;
-        FString CurrentLanguage = GameInstance->GameSettings.CurrentLanguage;
-        if (CurrentLanguage == "English") CultureCode = "en";
-        else if (CurrentLanguage == "French") CultureCode = "fr";
-        else if (CurrentLanguage == "German") CultureCode = "de";
-        else if (CurrentLanguage == "Spanish") CultureCode = "es";
-        else if (CurrentLanguage == "Japanese") CultureCode = "ja";
-        else CultureCode = "en"; // Default to English
+        // OVERRIDE VALUES FOR DEMO BUILD
+        if (bIsDemoBuild)
+        {
+            // Override high scores to 0
+            GameInstance->SwordHighScore = 0;
+            //GameInstance->StaffHighScore = 0;
 
-        const bool bIsSuccessful = FInternationalization::Get().SetCurrentLanguage(CultureCode);
+            // Override weapon proficiency for demo
+            if (GameInstance->WeaponProficiencyMap.Contains(EWeaponType::Sword))
+            {
+                FWeapon_Proficiency_Struct& SwordProficiency = GameInstance->WeaponProficiencyMap[EWeaponType::Sword];
+                SwordProficiency.WeaponLevel = 3; // Fixed level 3
+                SwordProficiency.CurrentEXP = 0;
+                SwordProficiency.AttackPowerBoost = 6.0f; // Adjust as needed for level 3
+                SwordProficiency.DefenseBoost = 3.0f;
+                SwordProficiency.ElementalPowerBoost = 9.0f;
+                SwordProficiency.MaxHealthBoost = 30.0f;
+                SwordProficiency.MaxManaBoost = 45.0f;
+            }
 
+            // Override elemental proficiency for demo (all level 1)
+            if (GameInstance->WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Sword))
+            {
+                FElemental_Proficiency_Struct& ElementalProf =
+                    GameInstance->WeaponElementalProficiency.ElementalWeaponProficiencyMap[EWeaponType::Sword];
+                ElementalProf.FireLevel = 1;
+                ElementalProf.IceLevel = 1;
+                ElementalProf.ThunderLevel = 1;
+                ElementalProf.FireProficiency = 1;
+                ElementalProf.IceProficiency = 1;
+                ElementalProf.ThunderProficiency = 1;
+            }
+        }
     }
 
     // Setup background music
@@ -391,32 +410,59 @@ void UMain_Menu_Widget::OnSwordButtonClicked()
 
 void UMain_Menu_Widget::OnSwordButtonHovered()
 {
-
     UpdateWeaponStats(EWeaponType::Sword);
     OnWeaponButtonHovered(LOCTEXT("SwordDesc", "A sharp sword with enhanced lightning power.").ToString());
-   // GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Sword Button Hovered"));
 
     UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
-
     if (!GameInstance)
     {
         UE_LOG(LogTemp, Error, TEXT("GameInstance is null in OnSwordButtonHovered!"));
         return;
     }
 
-    // Check if the weapon data exists in the proficiency map
-    if (GameInstance->WeaponProficiencyMap.Contains(EWeaponType::Sword))
+    // Check if demo build and override values
+    if (bIsDemoBuild)
     {
-        const FWeapon_Proficiency_Struct& SwordStats = GameInstance->WeaponProficiencyMap[EWeaponType::Sword];
-
-        // Update the weapon level text
+        // Set demo weapon level
         if (WeaponLevelStat)
         {
-            WeaponLevelStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), SwordStats.WeaponLevel)));
-            UE_LOG(LogTemp, Log, TEXT("Updated WeaponLevelStat with Sword Level: %d"), SwordStats.WeaponLevel);
+            WeaponLevelStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), 3))); // Fixed level 3 for demo
         }
 
-        // Update elemental levels
+        // Set demo high score
+        if (HighScore)
+        {
+            HighScore->SetText(FText::FromString(TEXT("-")));
+        }
+
+        // Set demo elemental levels (all at level 1 for demo)
+        if (FireProficiencyLevel)
+            FireProficiencyLevel->SetText(FText::FromString(TEXT("1")));
+        if (IceProficiencyLevel)
+            IceProficiencyLevel->SetText(FText::FromString(TEXT("1")));
+        if (ThunderProficiencyLevel)
+            ThunderProficiencyLevel->SetText(FText::FromString(TEXT("1")));
+    }
+    else
+    {
+        // Normal game - use saved data
+        if (GameInstance->WeaponProficiencyMap.Contains(EWeaponType::Sword))
+        {
+            const FWeapon_Proficiency_Struct& SwordStats = GameInstance->WeaponProficiencyMap[EWeaponType::Sword];
+            if (WeaponLevelStat)
+            {
+                WeaponLevelStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), SwordStats.WeaponLevel)));
+            }
+        }
+
+        // Update high score for normal game
+        if (HighScore)
+        {
+            int32 SwordHighScoreValue = GameInstance->SwordHighScore;
+            HighScore->SetText(FText::FromString(FString::Printf(TEXT("%d"), SwordHighScoreValue)));
+        }
+
+        // Update elemental levels for normal game
         if (GameInstance->WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Sword))
         {
             const FElemental_Proficiency_Struct& ElementalStats =
@@ -424,34 +470,17 @@ void UMain_Menu_Widget::OnSwordButtonHovered()
 
             if (FireProficiencyLevel)
                 FireProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ElementalStats.FireLevel)));
-
             if (IceProficiencyLevel)
                 IceProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ElementalStats.IceLevel)));
-
             if (ThunderProficiencyLevel)
                 ThunderProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ElementalStats.ThunderLevel)));
-
-            UE_LOG(LogTemp, Log, TEXT("Updated Sword Elemental Levels - Fire: %d, Ice: %d, Thunder: %d"),
-                ElementalStats.FireLevel, ElementalStats.IceLevel, ElementalStats.ThunderLevel);
         }
     }
 
-    // Update high score for sword
-    if (HighScore)
-    {
-        // Get the high score from Game Instance
-        int32 SwordHighScoreValue = GameInstance->SwordHighScore;
-        HighScore->SetText(FText::FromString(FString::Printf(TEXT("%d"), SwordHighScoreValue)));
-        UE_LOG(LogTemp, Log, TEXT("Updated HighScore with Sword High Score: %d"), SwordHighScoreValue);
-    }
-
-
+    // Update character render
     if (CharacterWeaponRender && SwordCharacterTexture)
-
     {
-
         CharacterWeaponRender->SetBrushFromTexture(SwordCharacterTexture);
-
     }
 }
 
@@ -459,32 +488,59 @@ void UMain_Menu_Widget::OnSwordButtonHovered()
 
 void UMain_Menu_Widget::OnSwordButtonFocused()
 {
-
     UpdateWeaponStats(EWeaponType::Sword);
     OnWeaponButtonHovered(LOCTEXT("SwordDesc", "A sharp sword with enhanced lightning power.").ToString());
-   // GEngine->AddOnScreenDebugMessage(-1, 3.5f, FColor::Black, TEXT("Sword Button Focused"));
-    UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
 
+    UGame_Instance* GameInstance = Cast<UGame_Instance>(GetWorld()->GetGameInstance());
     if (!GameInstance)
     {
         UE_LOG(LogTemp, Error, TEXT("GameInstance is null in OnSwordButtonHovered!"));
         return;
     }
 
-    // Check if the weapon data exists in the proficiency map
-    if (GameInstance->WeaponProficiencyMap.Contains(EWeaponType::Sword))
+    // Check if demo build and override values
+    if (bIsDemoBuild)
     {
-        const FWeapon_Proficiency_Struct& SwordStats = GameInstance->WeaponProficiencyMap[EWeaponType::Sword];
-
-        // Update the weapon level text
+        // Set demo weapon level
         if (WeaponLevelStat)
         {
-            WeaponLevelStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), SwordStats.WeaponLevel)));
-            UE_LOG(LogTemp, Log, TEXT("Updated WeaponLevelStat with Sword Level: %d"), SwordStats.WeaponLevel);
+            WeaponLevelStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), 3))); // Fixed level 3 for demo
         }
-       
 
-        // Update elemental levels
+        // Set demo high score
+        if (HighScore)
+        {
+            HighScore->SetText(FText::FromString(TEXT("-")));
+        }
+
+        // Set demo elemental levels (all at level 1 for demo)
+        if (FireProficiencyLevel)
+            FireProficiencyLevel->SetText(FText::FromString(TEXT("1")));
+        if (IceProficiencyLevel)
+            IceProficiencyLevel->SetText(FText::FromString(TEXT("1")));
+        if (ThunderProficiencyLevel)
+            ThunderProficiencyLevel->SetText(FText::FromString(TEXT("1")));
+    }
+    else
+    {
+        // Normal game - use saved data
+        if (GameInstance->WeaponProficiencyMap.Contains(EWeaponType::Sword))
+        {
+            const FWeapon_Proficiency_Struct& SwordStats = GameInstance->WeaponProficiencyMap[EWeaponType::Sword];
+            if (WeaponLevelStat)
+            {
+                WeaponLevelStat->SetText(FText::FromString(FString::Printf(TEXT("%d"), SwordStats.WeaponLevel)));
+            }
+        }
+
+        // Update high score for normal game
+        if (HighScore)
+        {
+            int32 SwordHighScoreValue = GameInstance->SwordHighScore;
+            HighScore->SetText(FText::FromString(FString::Printf(TEXT("%d"), SwordHighScoreValue)));
+        }
+
+        // Update elemental levels for normal game
         if (GameInstance->WeaponElementalProficiency.ElementalWeaponProficiencyMap.Contains(EWeaponType::Sword))
         {
             const FElemental_Proficiency_Struct& ElementalStats =
@@ -492,36 +548,18 @@ void UMain_Menu_Widget::OnSwordButtonFocused()
 
             if (FireProficiencyLevel)
                 FireProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ElementalStats.FireLevel)));
-
             if (IceProficiencyLevel)
                 IceProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ElementalStats.IceLevel)));
-
             if (ThunderProficiencyLevel)
                 ThunderProficiencyLevel->SetText(FText::FromString(FString::Printf(TEXT("%d"), ElementalStats.ThunderLevel)));
-
-            UE_LOG(LogTemp, Log, TEXT("Updated Sword Elemental Levels - Fire: %d, Ice: %d, Thunder: %d"),
-                ElementalStats.FireLevel, ElementalStats.IceLevel, ElementalStats.ThunderLevel);
         }
     }
 
-    // Update high score for sword
-    if (HighScore)
-    {
-        // Get the high score from Game Instance
-        int32 SwordHighScoreValue = GameInstance->SwordHighScore;
-        HighScore->SetText(FText::FromString(FString::Printf(TEXT("%d"), SwordHighScoreValue)));
-        UE_LOG(LogTemp, Log, TEXT("Updated HighScore with Sword High Score: %d"), SwordHighScoreValue);
-    }
-
-
+    // Update character render
     if (CharacterWeaponRender && SwordCharacterTexture)
-
     {
-
         CharacterWeaponRender->SetBrushFromTexture(SwordCharacterTexture);
-
     }
-
 }
 
 void UMain_Menu_Widget::OnStaffButtonClicked()
@@ -1814,6 +1852,7 @@ void UMain_Menu_Widget::CheckAndApplyDemoRestrictions()
 
         StaffButton->SetIsEnabled(false);
         StaffButton->RenderOpacity = 0.5f;
+        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("This is the demo version"));
 
     }
 

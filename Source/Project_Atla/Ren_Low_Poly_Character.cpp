@@ -689,6 +689,7 @@ void ARen_Low_Poly_Character::Death()
 	{
 		// Show demo end screen instead of normal end screen
 		DisplayDemoScreen();
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Attempting to open demo end screen"));
 	}
 	else
 	{
@@ -699,6 +700,7 @@ void ARen_Low_Poly_Character::Death()
 			UE_LOG(LogTemp, Warning, TEXT("Potential new high score! Current: %d, Score: %d"),
 				OldHighScoreValue, PlayerScore);
 		}
+
 		DisplayEndScreenWidget();
 	}
 }
@@ -4023,7 +4025,10 @@ void ARen_Low_Poly_Character::BeginPlay()
 	AbilityStruct.CurrentAbilityPoints = 0.0f;
 
 
-
+	if (bIsDemoBuild)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("this is a demo"));
+	}
 
 
 
@@ -4134,9 +4139,9 @@ void ARen_Low_Poly_Character::BeginPlay()
 			SwordProficiency.WeaponLevel = DEMO_MAX_LEVEL;
 			SwordProficiency.CurrentEXP = 0;
 
-			// Apply level 5 stats - adjust these based on your actual level 5 values
-			SwordProficiency.AttackPowerBoost = 20.0f;
-			SwordProficiency.DefenseBoost = 10.0f;
+			
+			SwordProficiency.AttackPowerBoost = 8.0f;
+			SwordProficiency.DefenseBoost = 0.000000000000003f;
 			SwordProficiency.ElementalPowerBoost = 15.0f;
 			SwordProficiency.MaxHealthBoost = 50.0f;
 			SwordProficiency.MaxManaBoost = 75.0f;
