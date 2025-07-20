@@ -3703,7 +3703,6 @@ void ARen_Low_Poly_Character::DisplayEndScreenWidget()
 			CurrentRound = GameMode->CurrentRound;
 		}
 
-		// Update high score if needed (but we'll still show the old one for animation)
 		if (FinalScore > OldHighScore)
 		{
 			if (WeaponType == EWeaponType::Sword)
