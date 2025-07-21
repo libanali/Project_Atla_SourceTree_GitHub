@@ -14,7 +14,7 @@ class UButton;
 class UWidgetAnimation;
 class UBackgroundBlur;
 class UTextBlock;
-class AResults_camera;
+class UImage;
 
 UCLASS()
 class PROJECT_ATLA_API UDemo_End_Screen_Widget : public UUserWidget
@@ -28,12 +28,67 @@ public:
 	virtual void NativeConstruct() override;
 
 
+    void SetupDemoEnd();
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	 UButton* Main_Menu_Button;
 
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	 UButton* Steam_Store_Button;
+
+
+     UPROPERTY(meta = (BindWidget))
+     UBackgroundBlur* BackgroundBlur;
+
+     UPROPERTY(meta = (BindWidget))
+     UTextBlock* DemoCompleteText;
+
+     UPROPERTY(meta = (BindWidget))
+     UImage* DemoScreenImage;
+
+     // Animations
+     UPROPERTY(meta = (BindWidgetAnim), Transient)
+     UWidgetAnimation* BlurAnimation;
+
+     UPROPERTY(meta = (BindWidgetAnim), Transient)
+     UWidgetAnimation* DemoCompleteAnimation;
+
+     UPROPERTY(meta = (BindWidgetAnim), Transient)
+     UWidgetAnimation* ButtonsRevealAnimation;
+
+
+     UPROPERTY(meta = (BindWidgetAnim), Transient)
+     UWidgetAnimation* DemoScreenImageAnimation;
+
+     // Button callbacks
+     UFUNCTION()
+     void OnMainMenuClicked();
+
+     UFUNCTION()
+     void OnSteamStoreClicked();
+
+     // Animation callbacks
+     UFUNCTION()
+     void OnBlurComplete();
+
+     UFUNCTION()
+     void OnDemoTextComplete();
+
+     UFUNCTION()
+     void OnButtonsRevealComplete();
+
+private:
+    // Animation finished delegate
+    FWidgetAnimationDynamicEvent OnAnimationFinishedEvent;
+
+
+    // Timer handles
+    FTimerHandle TransitionTimerHandle;
+    FTimerHandle ButtonsTimerHandle;
+
+
+    void ShowButtons();
 
 
 };
