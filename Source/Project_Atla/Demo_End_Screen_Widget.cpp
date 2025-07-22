@@ -207,6 +207,8 @@ void UDemo_End_Screen_Widget::OnButtonsRevealComplete()
 }
 
 
+
+
 void UDemo_End_Screen_Widget::ShowButtons()
 {
 
@@ -229,6 +231,15 @@ void UDemo_End_Screen_Widget::ShowButtons()
         OnAnimationFinishedEvent.BindDynamic(this, &UDemo_End_Screen_Widget::OnButtonsRevealComplete);
         BindToAnimationFinished(ButtonsRevealAnimation, OnAnimationFinishedEvent);
         PlayAnimation(ButtonsRevealAnimation);
+
+        if (DemoScreenImageAnimation)
+
+        {
+        OnAnimationFinishedEvent.BindDynamic(this, &UDemo_End_Screen_Widget::OnButtonsRevealComplete);
+        BindToAnimationFinished(DemoScreenImageAnimation, OnAnimationFinishedEvent);
+        PlayAnimation(DemoScreenImageAnimation);
+    }
+
     }
     else
     {
