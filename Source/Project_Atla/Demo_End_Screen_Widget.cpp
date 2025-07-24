@@ -166,6 +166,7 @@ void UDemo_End_Screen_Widget::OnDemoTextComplete()
                     {
                         UE_LOG(LogTemp, Warning, TEXT("Fade in complete, showing buttons"));
                         ShowButtons();
+                        BackgroundBlur->BlurStrength = 0.0f;
                     },
                     1.5f,
                     false
