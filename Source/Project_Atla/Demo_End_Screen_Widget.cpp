@@ -5,6 +5,7 @@
 #include "Components/Button.h"
 #include "Components/BackgroundBlur.h"
 #include "Components/TextBlock.h"
+ #include "Components/Border.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Components/Image.h"
@@ -47,8 +48,14 @@ void UDemo_End_Screen_Widget::NativeConstruct()
     if (DemoScreenImage)
 
     {
-
         DemoScreenImage->SetVisibility(ESlateVisibility::Hidden);
+    }
+
+
+    if (BlackBorder)
+
+    {
+        BlackBorder->SetVisibility(ESlateVisibility::Hidden);
     }
 
     // Make widget focusable
@@ -104,6 +111,9 @@ void UDemo_End_Screen_Widget::OnSteamStoreClicked()
 
     UE_LOG(LogTemp, Warning, TEXT("Steam Store button clicked"));
 
+    FString LastWaveURL = TEXT("https://store.steampowered.com/app/3598040/Last_Wave/?curator_clanid=38337801");
+    FPlatformProcess::LaunchURL(*LastWaveURL, nullptr, nullptr);
+
 }
 
 
@@ -145,32 +155,24 @@ void UDemo_End_Screen_Widget::OnDemoTextComplete()
     APlayerController* PlayerController = UGameplayStatics::GetPlayerController(GetWorld(), 0);
     if (PlayerController)
     {
-        // Fade to black
+        // Fade to black and STAY black
         PlayerController->ClientSetCameraFade(true, FColor::Black, FVector2D(0.0f, 1.0f), 1.0f, true, true);
-        UE_LOG(LogTemp, Warning, TEXT("Started fade to black"));
+        UE_LOG(LogTemp, Warning, TEXT("Started fade to black - will remain black"));
 
-        // Wait for fade to complete
+        // Wait for fade to complete, then show buttons directly
         GetWorld()->GetTimerManager().SetTimer(
             TransitionTimerHandle,
-            [this, PlayerController]()
+            [this]()
             {
-                UE_LOG(LogTemp, Warning, TEXT("Fade complete, fading back in"));
+                UE_LOG(LogTemp, Warning, TEXT("Fade complete, showing buttons on black screen"));
 
-                // Fade from black without changing camera
-                PlayerController->ClientSetCameraFade(false, FColor::Black, FVector2D(1.0f, 0.0f), 1.0f, true, true);
+                // Show the black border to ensure screen stays black
+                if (BlackBorder)
+                {
+                    BlackBorder->SetVisibility(ESlateVisibility::Visible);
+                }
 
-                // Wait for fade in, then show buttons
-                GetWorld()->GetTimerManager().SetTimer(
-                    ButtonsTimerHandle,
-                    [this]()
-                    {
-                        UE_LOG(LogTemp, Warning, TEXT("Fade in complete, showing buttons"));
-                        ShowButtons();
-                        BackgroundBlur->BlurStrength = 0.0f;
-                    },
-                    1.5f,
-                    false
-                );
+                ShowButtons();
             },
             2.0f,
             false
@@ -178,6 +180,8 @@ void UDemo_End_Screen_Widget::OnDemoTextComplete()
     }
 
 }
+
+
 
 void UDemo_End_Screen_Widget::OnButtonsRevealComplete()
 {
@@ -202,6 +206,7 @@ void UDemo_End_Screen_Widget::OnButtonsRevealComplete()
         {
             DemoScreenImage->SetVisibility(ESlateVisibility::Visible);
         }
+
     }
 
 
@@ -234,19 +239,24 @@ void UDemo_End_Screen_Widget::ShowButtons()
         PlayAnimation(ButtonsRevealAnimation);
 
         if (DemoScreenImageAnimation)
-
         {
-        OnAnimationFinishedEvent.BindDynamic(this, &UDemo_End_Screen_Widget::OnButtonsRevealComplete);
-        BindToAnimationFinished(DemoScreenImageAnimation, OnAnimationFinishedEvent);
-        PlayAnimation(DemoScreenImageAnimation);
-    }
+            PlayAnimation(DemoScreenImageAnimation);
+        }
 
+        if (BackgroundBlur)
+        {
+            BackgroundBlur->SetBlurStrength(0.0f);
+        }
+
+        if (Main_Menu_Button)
+        {
+            Main_Menu_Button->SetKeyboardFocus();
+        }
     }
     else
     {
         // No animation, go directly to enabling input
         OnButtonsRevealComplete();
     }
-
 
 }

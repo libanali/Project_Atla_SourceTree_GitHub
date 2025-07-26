@@ -15,6 +15,7 @@ class UWidgetAnimation;
 class UBackgroundBlur;
 class UTextBlock;
 class UImage;
+class UBorder;
 
 UCLASS()
 class PROJECT_ATLA_API UDemo_End_Screen_Widget : public UUserWidget
@@ -46,6 +47,9 @@ public:
 
      UPROPERTY(meta = (BindWidget))
      UImage* DemoScreenImage;
+
+     UPROPERTY(meta = (BindWidget))
+     UBorder* BlackBorder;
 
      // Animations
      UPROPERTY(meta = (BindWidgetAnim), Transient)
