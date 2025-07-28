@@ -260,3 +260,16 @@ void UDemo_End_Screen_Widget::ShowButtons()
     }
 
 }
+
+FReply UDemo_End_Screen_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
+{
+
+    return FReply::Unhandled();
+}
+
+FNavigationReply UDemo_End_Screen_Widget::NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply)
+{
+
+
+    return Super::NativeOnNavigation(MyGeometry, InNavigationEvent, InDefaultReply);
+}
