@@ -65,6 +65,9 @@ public:
      UPROPERTY(meta = (BindWidgetAnim), Transient)
      UWidgetAnimation* DemoScreenImageAnimation;
 
+     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+     USoundBase* NavigationSound;
+
      // Button callbacks
      UFUNCTION()
      void OnMainMenuClicked();
@@ -93,6 +96,7 @@ private:
 
 
     void ShowButtons();
+    void PlayNavigationSound();
 
 
 protected:

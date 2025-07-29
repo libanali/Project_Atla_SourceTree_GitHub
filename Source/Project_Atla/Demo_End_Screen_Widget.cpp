@@ -5,7 +5,7 @@
 #include "Components/Button.h"
 #include "Components/BackgroundBlur.h"
 #include "Components/TextBlock.h"
- #include "Components/Border.h"
+#include "Components/Border.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 #include "Components/Image.h"
@@ -261,14 +261,37 @@ void UDemo_End_Screen_Widget::ShowButtons()
 
 }
 
+
+void UDemo_End_Screen_Widget::PlayNavigationSound()
+{
+    if (NavigationSound)
+
+    {
+
+        UGameplayStatics::PlaySound2D(GetWorld(), NavigationSound);
+
+    }
+}
+
+
 FReply UDemo_End_Screen_Widget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
 {
 
     return FReply::Unhandled();
 }
 
+
 FNavigationReply UDemo_End_Screen_Widget::NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply)
 {
+    EUINavigation Direction = InNavigationEvent.GetNavigationType();
+
+
+    // Play sound for navigation keys
+    if (Direction == EUINavigation::Up ||
+        Direction == EUINavigation::Down)
+    {
+        PlayNavigationSound();
+    }
 
 
     return Super::NativeOnNavigation(MyGeometry, InNavigationEvent, InDefaultReply);
