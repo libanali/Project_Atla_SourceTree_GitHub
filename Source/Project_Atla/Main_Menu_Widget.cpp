@@ -35,7 +35,7 @@ void UMain_Menu_Widget::NativeConstruct()
     InitializeCanvasPanels();
     UpdateCanvasVisibility(0);
 
-    bIsDemoBuild = true;
+    bIsDemoBuild = false;
     // Load saved settings first
     if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
     {
