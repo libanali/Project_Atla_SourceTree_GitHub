@@ -4,16 +4,41 @@ using UnrealBuildTool;
 
 public class Project_Atla : ModuleRules
 {
-	public Project_Atla(ReadOnlyTargetRules Target) : base(Target)
-	{
-		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
-	
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "InputDevice", "NavigationSystem", "UMG", "Slate", "SlateCore", "ApplicationCore", "Niagara", "MediaAssets", "Media", "OnlineSubsystem", "OnlineSubsystemSteam", "Steamworks"});
+    public Project_Atla(ReadOnlyTargetRules Target) : base(Target)
+    {
+        PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PrivateDependencyModuleNames.AddRange(new string[] { "Engine" });
+        // Core dependencies for ALL platforms
+        PublicDependencyModuleNames.AddRange(new string[] {
+            "Core",
+            "CoreUObject",
+            "Engine",
+            "InputCore",
+            "InputDevice",
+            "NavigationSystem",
+            "UMG",
+            "Slate",
+            "SlateCore",
+            "ApplicationCore",
+            "Niagara",
+            "MediaAssets",
+            "Media",
+            "OnlineSubsystem"  // Keep base OnlineSubsystem for all platforms
+        });
 
-        PublicDependencyModuleNames.AddRange(new string[] { "SteamController" });
+        PrivateDependencyModuleNames.AddRange(new string[] { "Engine" });
 
+        // Steam-specific dependencies ONLY for PC platforms
+        if (Target.Platform == UnrealTargetPlatform.Win64 ||
+            Target.Platform == UnrealTargetPlatform.Mac ||
+            Target.Platform == UnrealTargetPlatform.Linux)
+        {
+            PublicDependencyModuleNames.AddRange(new string[] {
+                "OnlineSubsystemSteam",
+                "Steamworks",
+                "SteamController"
+            });
+        }
 
         // Uncomment if you are using Slate UI
         // PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });

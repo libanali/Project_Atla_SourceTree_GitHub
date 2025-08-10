@@ -66,7 +66,7 @@ public:
 		FHealth_Struct HealthStruct;
 
 	UFUNCTION(BlueprintCallable, Category = "Health")
-		void TakeDamage(float DamageAmount);
+		void ReceiveDamage(float DamageAmount);
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Health")
 		float DamageReduction;

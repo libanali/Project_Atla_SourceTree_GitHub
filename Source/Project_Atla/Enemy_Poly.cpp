@@ -147,10 +147,10 @@ float AEnemy_Poly::ApplyDamage(float DamageAmount, const FHitResult& HitInfo, AC
 
 	//float CalculatedDamage = DamageAmount * (1 - DefencePercentage);
 
-	// Check if the Enemy is valid
-	if (!this)
+	// Check if already dead instead
+	if (bIsDead)
 	{
-		UE_LOG(LogTemp, Error, TEXT("AEnemy_Poly is invalid (this is null)"));
+		UE_LOG(LogTemp, Warning, TEXT("Enemy is already dead, ignoring damage"));
 		return 0.0f;
 	}
 
@@ -316,7 +316,7 @@ void AEnemy_Poly::InflictDamageOnCharacter(ARen_Low_Poly_Character* LowPolyRen)
 	float CurrentHealth = LowPolyRen->HealthStruct.CurrentHealth;
 
 	// Apply damage - this will interrupt current animation without playing hurt animation
-	LowPolyRen->TakeDamage(DamageToInflict);
+	LowPolyRen->ReceiveDamage(DamageToInflict);
 	LowPolyRen->TriggerVibration(0.5f, 0.2f, true, true);
 	UGameplayStatics::PlaySound2D(GetWorld(), HitSound);
 

@@ -1528,7 +1528,7 @@ bIsSoftLockEnabled = SoftLockedEnemy != nullptr;
 
 
 
-void ARen_Low_Poly_Character::TakeDamage(float DamageAmount)
+void ARen_Low_Poly_Character::ReceiveDamage(float DamageAmount)
 {
 
 if (DamageAmount <= 0 || bIsDead) return;

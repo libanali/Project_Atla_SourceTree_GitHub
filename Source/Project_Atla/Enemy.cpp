@@ -70,7 +70,7 @@ void AEnemy::InflictDamageOnCharacter(ARen_Character* RenCharacter)
 		TotalEnemyAttack = BaseAttack * AttackMultiplier;
 		float DamageToInflict = TotalEnemyAttack / (1 + RenCharacter->BaseDefence);
 
-		RenCharacter->TakeDamage(DamageToInflict);
+		RenCharacter->ReceiveDamage(DamageToInflict);
 
 	}
 

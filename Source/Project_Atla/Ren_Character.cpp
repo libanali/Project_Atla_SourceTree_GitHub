@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ // Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Ren_Character.h"
@@ -179,7 +179,7 @@ void ARen_Character::MoveRight(float Axis)
 
 
 
-void ARen_Character::TakeDamage(float DamageAmount)
+void ARen_Character::ReceiveDamage(float DamageAmount)
 {
 
 	HealthStruct.TakeDamage(DamageAmount);
