@@ -43,6 +43,7 @@ public:
     void UpdateHitState();
     void DisableAI();
     void RestartAI();
+    void ApplyDirectApproach(float DeltaTime);
     float DistanceToPlayer;
     float AttackRange;
 

@@ -302,46 +302,22 @@ void AEnemy_AIController::RestartAI()
 
 }
 
-
-
-
-/*
-
-void AEnemy_AIController::UpdateBehaviour()
+void AEnemy_AIController::ApplyDirectApproach(float DeltaTime)
 {
 
-    ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(GetWorld()->GetAuthGameMode());
+    // Simple direct movement toward player for all enemy types when far away
+    MovementPatternTimer -= DeltaTime;
 
-    if (TargetPlayer == nullptr || !GetPawn()) return;
-
-    // Attack only if this enemy is the current attacker
-    if (GameMode->CurrentAttacker == this)
+    if (MovementPatternTimer <= 0.0f)
     {
-        // Calculate distance to the player
-        float DistanceToThePlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
+        MovementPatternTimer = FMath::RandRange(1.0f, 2.0f);
 
-        // If not in range, move closer to the player first
-        if (DistanceToThePlayer > AttackRange)
-        {
-            MoveToActor(TargetPlayer, AttackRange - 80.0f);  // Adjust to stop slightly within attack range
-        }
-        else
-        {
-            // Stop moving and initiate the attack
-            StopMovement();
-            AttackPlayer();
-        }
-    }
-    else
-    {
-        // Strafe if not attacking
-        StrafeAroundPlayer();
+        // Move directly toward player
+        MoveToActor(TargetPlayer, 100.0f);
     }
 
 }
 
-
-*/
 
 
 void AEnemy_AIController::SetEnemyNumber(int32 NewNumber)
@@ -451,14 +427,23 @@ void AEnemy_AIController::UpdateBehaviour(float DeltaTime)
         }
     }
 
-    // If not attacking, handle movement based on enemy type and distance
-    if (TheDistanceToPlayer > AttackRange * 1.5f)
+    // Define range thresholds
+    float ZigZagRange = 1000.0f;  // Distance at which spiders start zigzagging
+    float MediumRange = AttackRange * 1.5f;
+
+    // Handle movement based on distance and enemy type
+    if (TheDistanceToPlayer > ZigZagRange)
     {
-        // Far distance - approach with type-specific movement
+        // FAR DISTANCE - All enemies move directly toward player
+        ApplyDirectApproach(DeltaTime);
+    }
+    else if (TheDistanceToPlayer > MediumRange)
+    {
+        // MEDIUM-FAR DISTANCE - Type-specific tactical movement
         switch (EnemyType)
         {
         case EEnemyType::Spider:
-            ApplyErraticMovement(DeltaTime);
+            ApplyErraticMovement(DeltaTime);  // Now only zigzags when closer
             break;
 
         case EEnemyType::Wolf:
@@ -466,22 +451,21 @@ void AEnemy_AIController::UpdateBehaviour(float DeltaTime)
             break;
 
         case EEnemyType::RockTroll:
-            ApplyDirectMovement(DeltaTime);
+            ApplyDirectMovement(DeltaTime);  // Trolls keep moving directly
             break;
         }
     }
     else if (TheDistanceToPlayer > AttackRange)
     {
-        // Medium distance - prepare for attack
+        // CLOSE DISTANCE - Prepare for attack
         PrepareForAttack(EnemyType, DeltaTime);
     }
     else
     {
-        // Within attack range - evaluate attack or reposition
-        float RepositionChance = 0.3f * DeltaTime; // 30% chance per second to reposition
+        // ATTACK RANGE - Evaluate attack or reposition
+        float RepositionChance = 0.3f * DeltaTime;
         if (FMath::FRand() < RepositionChance)
         {
-            // Occasionally reposition even in attack range for more dynamic movement
             PrepareForAttack(EnemyType, DeltaTime);
         }
     }
