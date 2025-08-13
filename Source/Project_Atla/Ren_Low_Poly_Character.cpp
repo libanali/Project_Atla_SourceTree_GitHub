@@ -178,7 +178,7 @@ AttackMovementSpeed = 200.0f;
 
 
 //Demo
-bIsDemoBuild = false;
+bIsDemoBuild = true;
 
 
 bPowerUpPending = false;
@@ -4140,7 +4140,7 @@ if (bIsDemoBuild)
 
 			
 		SwordProficiency.AttackPowerBoost = 8.0f;
-		SwordProficiency.DefenseBoost = 0.000000000000003f;
+		SwordProficiency.DefenseBoost = 5.0f;
 		SwordProficiency.ElementalPowerBoost = 15.0f;
 		SwordProficiency.MaxHealthBoost = 50.0f;
 		SwordProficiency.MaxManaBoost = 75.0f;
