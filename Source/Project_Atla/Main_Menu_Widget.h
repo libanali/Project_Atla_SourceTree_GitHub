@@ -236,10 +236,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Tutorial|Icons")
 		UTexture2D* ThunderIcon;
 
-	UPROPERTY()
-	bool bIsDemoBuild = false;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Demo")
+	bool bIsDemoBuild;
 
+	UPROPERTY(meta = (BindWidget))
+	class UBorder* StaffImage;
 
 
 

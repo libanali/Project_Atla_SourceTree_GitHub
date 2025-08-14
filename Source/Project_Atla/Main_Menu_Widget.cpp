@@ -11,6 +11,7 @@
 #include "Components/CanvasPanel.h"
 #include "Components/Image.h"
 #include "Components/Slider.h"
+#include "Components/Border.h"
 #include "Components/VerticalBox.h"
 #include "Components/HorizontalBox.h"
 #include "Components/HorizontalBoxSlot.h"
@@ -35,7 +36,7 @@ void UMain_Menu_Widget::NativeConstruct()
     InitializeCanvasPanels();
     UpdateCanvasVisibility(0);
 
-    bIsDemoBuild = false;
+    bIsDemoBuild = true;
     // Load saved settings first
     if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
     {
@@ -432,7 +433,7 @@ void UMain_Menu_Widget::OnSwordButtonHovered()
         // Set demo high score
         if (HighScore)
         {
-            HighScore->SetText(FText::FromString(TEXT("-")));
+            HighScore->SetText(FText::FromString(TEXT("0")));
         }
 
         // Set demo elemental levels (all at level 1 for demo)
@@ -1852,8 +1853,13 @@ void UMain_Menu_Widget::CheckAndApplyDemoRestrictions()
 
         StaffButton->SetIsEnabled(false);
         StaffButton->RenderOpacity = 0.5f;
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("This is the demo version"));
 
+        if (StaffImage)
+
+        {
+            StaffImage->SetRenderOpacity(0.3f);
+            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("This is the demo version"));
+        }
     }
 
 }
