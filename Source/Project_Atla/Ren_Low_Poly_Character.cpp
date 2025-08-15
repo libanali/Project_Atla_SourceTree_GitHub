@@ -87,6 +87,9 @@ ActionBannerWidgetComponent->SetupAttachment(RootComponent);
 ActionBannerWidgetComponent->SetWidgetSpace(EWidgetSpace::Screen);
 ActionBannerWidgetComponent->SetVisibility(false);
 
+StaffProjectilePoint = CreateDefaultSubobject<USceneComponent>(TEXT("Staff Projectile Spawn Point"));
+StaffProjectilePoint->SetupAttachment(GetCapsuleComponent());
+
 InventoryComponent = CreateDefaultSubobject<UInventory>(TEXT("Inventory Component"));
 
 
@@ -1674,7 +1677,6 @@ case EElementalAttackType::Thunder:
 	ProjectileClass = ThunderProjectileClass;
 	break;
 
-	// Add more cases for additional elements here
 
 default:
 	UE_LOG(LogTemp, Warning, TEXT("Unknown Elemental Type!"));
@@ -1753,13 +1755,15 @@ float ARen_Low_Poly_Character::GetTargetHeightOffset(AActor * Enemy)
 	// Check for specific enemy types if you have different classes
 	if (Enemy->ActorHasTag("Spider"))
 	{
-		// Spiders are low to ground, aim slightly above them
 		return 30.0f;
 	}
 	else if (Enemy->ActorHasTag("RockTroll"))
 	{
-		// Giants need higher aim point
 		return 150.0f;
+	}
+	else if (Enemy->ActorHasTag("Wolf"))
+	{
+		return 50.0f;
 	}
 
 	// Default: Use bounds calculation for dynamic offset

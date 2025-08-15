@@ -623,6 +623,12 @@ public:
 		TSubclassOf<AActor> ThunderProjectileClass;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
+		TSubclassOf<AActor> StaffProjectileClass;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+		class USceneComponent* StaffProjectilePoint;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
 		UAnimMontage* FireProjectileAnimation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Elemental")
