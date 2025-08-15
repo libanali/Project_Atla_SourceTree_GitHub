@@ -1212,13 +1212,15 @@ protected:
 
 	void DisplayDemoScreen();
 
-	//Command
 	UPROPERTY()
 	UDemo_End_Screen_Widget* Demo_End_Screen_Widget;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
 	TSubclassOf<UUserWidget> DemoEndScreenWidgetClass;
 	//Demo
+
+
+
 
 private:
 
@@ -1230,5 +1232,6 @@ private:
 	bool bCameraZoomInitialized;   // Flag to ensure we initialize zoom values
 	TArray<FTimerHandle> ActiveTimerHandles;
 	void PreAttackCalculation();
+	float GetTargetHeightOffset(AActor* Enemy);
 
 };

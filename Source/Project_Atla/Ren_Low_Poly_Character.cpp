@@ -1682,21 +1682,95 @@ default:
 }
 
 
-// Ensure we have a valid projectile class
 if (ProjectileClass)
 {
-	// Get the position and rotation from the "projectile point" socket
 	USkeletalMeshComponent* MeshComp = GetMesh();
 	if (MeshComp)
 	{
 		FVector SpawnLocation = MeshComp->GetSocketLocation(TEXT("Switch_Weapon"));
+		FRotator ProjectileRotation;
 
-		// Spawn the projectile actor
-		GetWorld()->SpawnActor<AActor>(ProjectileClass, SpawnLocation, GetActorRotation());
+		// Check if we have a locked enemy to aim at
+		if (SoftLockedEnemy && IsValid(SoftLockedEnemy))
+		{
+			// Get enemy location
+			FVector TargetLocation = SoftLockedEnemy->GetActorLocation();
+
+			// Add dynamic height offset based on enemy's actual size
+			float HeightOffset = GetTargetHeightOffset(SoftLockedEnemy);
+			TargetLocation.Z += HeightOffset;
+
+			// Calculate direction from projectile spawn to target
+			FVector AimDirection = (TargetLocation - SpawnLocation).GetSafeNormal();
+
+			// Convert direction to rotation for the projectile
+			ProjectileRotation = AimDirection.Rotation();
+
+			// Optional: Log for debugging different enemy types
+			UE_LOG(LogTemp, Log, TEXT("Firing at %s with height offset: %.2f"),
+				*SoftLockedEnemy->GetName(), HeightOffset);
+
+			// Debug visualization (remove in production)
+#if WITH_EDITOR
+// Draw line to show where we're aiming
+			DrawDebugLine(GetWorld(), SpawnLocation, TargetLocation,
+				FColor::Red, false, 3.0f, 0, 2.0f);
+			// Draw sphere at target point
+			DrawDebugSphere(GetWorld(), TargetLocation, 10.0f,
+				12, FColor::Yellow, false, 3.0f);
+#endif
+		}
+		else
+		{
+			// No target - just fire straight forward from character
+			ProjectileRotation = GetActorRotation();
+
+			UE_LOG(LogTemp, Warning, TEXT("No soft locked enemy, firing straight"));
+		}
+
+		// Spawn the projectile with proper aiming rotation
+		AActor* SpawnedProjectile = GetWorld()->SpawnActor<AActor>(
+			ProjectileClass,
+			SpawnLocation,
+			ProjectileRotation
+		);
+
+		if (SpawnedProjectile)
+		{
+			UE_LOG(LogTemp, Log, TEXT("Projectile spawned with rotation - Pitch: %.2f, Yaw: %.2f"),
+				ProjectileRotation.Pitch, ProjectileRotation.Yaw);
+		}
 	}
 }
 
-	
+}
+
+
+float ARen_Low_Poly_Character::GetTargetHeightOffset(AActor * Enemy)
+{
+	if (!Enemy) return 75.0f; // Default offset
+
+	// Check for specific enemy types if you have different classes
+	if (Enemy->ActorHasTag("Spider"))
+	{
+		// Spiders are low to ground, aim slightly above them
+		return 30.0f;
+	}
+	else if (Enemy->ActorHasTag("RockTroll"))
+	{
+		// Giants need higher aim point
+		return 150.0f;
+	}
+
+	// Default: Use bounds calculation for dynamic offset
+	FVector Origin, BoxExtent;
+	Enemy->GetActorBounds(false, Origin, BoxExtent);
+
+	float EnemyHeight = BoxExtent.Z * 2.0f;
+
+	// You can also clamp the value to reasonable limits
+	float Offset = EnemyHeight * 0.5f;
+	return FMath::Clamp(Offset, 20.0f, 200.0f); // Min 20, Max 200
 }
 
 
@@ -4460,6 +4534,8 @@ if (WeaponProficiencyMap.Contains(WeaponType))
 	BaseAttack = weaponBaseAttack + Proficiency.AttackPowerBoost;
 }
 }
+
+
 
 
 
