@@ -720,6 +720,9 @@ public:
 		void SpawnElementalProjectile();
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")
+		void SpawnStaffAttackProjectile();
+
+	UFUNCTION(BlueprintCallable, Category = "Elemental")
 		void SpawnElementalAOE(FVector SpawnLocation, FRotator SpawnRotation);
 
 	UFUNCTION(BlueprintCallable, Category = "Elemental")

@@ -1748,6 +1748,120 @@ if (ProjectileClass)
 }
 
 
+
+void ARen_Low_Poly_Character::SpawnStaffAttackProjectile()
+{
+
+	// Make sure we have a valid staff projectile class
+	if (!StaffProjectileClass)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("StaffProjectileClass is not set!"));
+		return;
+	}
+
+	// Make sure we have a valid staff projectile point
+	if (!StaffProjectilePoint)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("StaffProjectilePoint is not set!"));
+		return;
+	}
+
+	// Get spawn location from the Staff Projectile Point component
+	FVector SpawnLocation = StaffProjectilePoint->GetComponentLocation();
+	FRotator ProjectileRotation;
+
+	// Check if we have a locked enemy to aim at
+	if (SoftLockedEnemy && IsValid(SoftLockedEnemy))
+	{
+		// Get enemy location
+		FVector TargetLocation = SoftLockedEnemy->GetActorLocation();
+
+		// Add dynamic height offset based on enemy's actual size
+		float HeightOffset = GetTargetHeightOffset(SoftLockedEnemy);
+		TargetLocation.Z += HeightOffset;
+
+		// Check distance to enemy
+		float DistanceToEnemy = FVector::Dist(SpawnLocation, TargetLocation);
+
+		// If we're too close, adjust spawn point backwards
+		if (DistanceToEnemy < 150.0f) // Adjust threshold as needed
+		{
+			// Pull spawn point back from the enemy
+			FVector DirectionToEnemy = (TargetLocation - SpawnLocation).GetSafeNormal();
+
+			// Move spawn point backwards along that direction
+			float PullBackDistance = 150.0f - DistanceToEnemy;
+			SpawnLocation -= DirectionToEnemy * PullBackDistance;
+
+			UE_LOG(LogTemp, Warning, TEXT("Too close to enemy! Adjusted spawn point back by %.1f units"),
+				PullBackDistance);
+		}
+
+		// Calculate direction from adjusted spawn point to target
+		FVector AimDirection = (TargetLocation - SpawnLocation).GetSafeNormal();
+
+		// Convert direction to rotation for the projectile
+		ProjectileRotation = AimDirection.Rotation();
+
+		UE_LOG(LogTemp, Log, TEXT("Staff: Firing at %s with height offset: %.2f, Distance: %.1f"),
+			*SoftLockedEnemy->GetName(), HeightOffset, DistanceToEnemy);
+
+		// Debug visualization
+#if WITH_EDITOR
+		DrawDebugLine(GetWorld(), SpawnLocation, TargetLocation,
+			FColor::Blue, false, 3.0f, 0, 2.0f);
+		DrawDebugSphere(GetWorld(), TargetLocation, 10.0f,
+			12, FColor::Cyan, false, 3.0f);
+		DrawDebugSphere(GetWorld(), SpawnLocation, 8.0f,
+			8, FColor::Green, false, 3.0f);
+#endif
+	}
+	else
+	{
+		// No target - just fire straight forward from character
+		ProjectileRotation = GetActorRotation();
+
+		UE_LOG(LogTemp, Warning, TEXT("Staff: No soft locked enemy, firing straight"));
+	}
+
+	// Spawn with proper parameters to avoid collision issues
+	FActorSpawnParameters SpawnParams;
+	SpawnParams.Owner = this;
+	SpawnParams.Instigator = GetInstigator();
+	SpawnParams.SpawnCollisionHandlingOverride =
+		ESpawnActorCollisionHandlingMethod::AdjustIfPossibleButAlwaysSpawn;
+
+	// Spawn the staff projectile with proper aiming rotation
+	AActor* SpawnedProjectile = GetWorld()->SpawnActor<AActor>(
+		StaffProjectileClass,
+		SpawnLocation,
+		ProjectileRotation,
+		SpawnParams
+	);
+
+	if (SpawnedProjectile)
+	{
+		// Make sure projectile ignores the character who fired it
+		UPrimitiveComponent* ProjectileCollision = Cast<UPrimitiveComponent>(
+			SpawnedProjectile->GetRootComponent());
+		if (ProjectileCollision)
+		{
+			ProjectileCollision->IgnoreActorWhenMoving(this, true);
+
+			// Also ignore the character's mesh
+			if (GetMesh())
+			{
+				ProjectileCollision->IgnoreComponentWhenMoving(GetMesh(), true);
+			}
+		}
+
+		UE_LOG(LogTemp, Log, TEXT("Staff projectile spawned with rotation - Pitch: %.2f, Yaw: %.2f"),
+			ProjectileRotation.Pitch, ProjectileRotation.Yaw);
+	}
+
+}
+
+
 float ARen_Low_Poly_Character::GetTargetHeightOffset(AActor * Enemy)
 {
 	if (!Enemy) return 75.0f; // Default offset
