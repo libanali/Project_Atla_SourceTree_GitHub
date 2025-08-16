@@ -123,8 +123,17 @@ void UMain_Menu_Widget::NativeConstruct()
             PC->SetInputMode(InputMode);
 
             // Make sure the widget has keyboard focus
-            this->SetKeyboardFocus();
 
+            if (IsControllerConnected())
+            {
+                this->SetKeyboardFocus();
+                GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Controller detected - focus set"));
+            }
+            else
+            {
+                GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("No controller - mouse mode"));
+
+            }
             // Debug message to confirm focus is set
             //GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Widget focus set on startup"));
         }
@@ -291,18 +300,20 @@ void UMain_Menu_Widget::InitializeSettingsControls()
 
 void UMain_Menu_Widget::OnPlayClicked()
 {
-
     if (WidgetSwitcher)
     {
         WidgetSwitcher->SetActiveWidgetIndex(2);
         UpdateCanvasVisibility(2);
 
-        // Set focus on SwordButton instead of PlayButton since we're in weapon select
-        if (SwordButton)
+        // Only set focus if controller is connected
+        if (IsControllerConnected())
         {
-            SwordButton->SetKeyboardFocus();
-            LastFocusedButton = PlayButton;
+            if (SwordButton)
+            {
+                SwordButton->SetKeyboardFocus();
+            }
         }
+        LastFocusedButton = PlayButton;
     }
 
 }
@@ -317,14 +328,16 @@ void UMain_Menu_Widget::OnTutorialClicked()
         WidgetSwitcher->SetActiveWidgetIndex(5);
         UpdateCanvasVisibility(5);
 
-        // Set focus on SwordButton instead of PlayButton since we're in weapon select
-        if (ControlsButton)
+        // Only set focus if controller is connected
+        if (IsControllerConnected())
         {
-            ControlsButton->SetKeyboardFocus();
-            LastFocusedButton = TutorialButton;
+            if (ControlsButton)
+            {
+                ControlsButton->SetKeyboardFocus();
+            }
         }
+        LastFocusedButton = TutorialButton;
     }
-
 
 }
 
@@ -339,11 +352,16 @@ void UMain_Menu_Widget::OnSettingsClicked()
     {
         WidgetSwitcher->SetActiveWidgetIndex(4); // Settings is index 4
         UpdateCanvasVisibility(4);
-        if (SettingsButton)
+
+        // Only set focus if controller is connected
+        if (IsControllerConnected())
         {
-            MasterAudioButton->SetKeyboardFocus();
-            LastFocusedButton = SettingsButton;
+            if (MasterAudioButton)
+            {
+                MasterAudioButton->SetKeyboardFocus();
+            }
         }
+        LastFocusedButton = SettingsButton;
     }
 
 }
@@ -968,6 +986,11 @@ void UMain_Menu_Widget::ScrollTutorialContent(float Value)
 
 }
 
+bool UMain_Menu_Widget::IsControllerConnected() const
+{
+    return FSlateApplication::Get().IsGamepadAttached();
+}
+
 
 
 void UMain_Menu_Widget::UpdateWeaponStats(EWeaponType WeaponType)
@@ -1314,12 +1337,15 @@ void UMain_Menu_Widget::HandleGoBack()
             WidgetSwitcher->SetActiveWidgetIndex(1);  // Go back to main menu
             UpdateCanvasVisibility(1);
 
-            // Restore focus to the last focused button
-            if (LastFocusedButton)
+            // Only restore focus if controller is connected
+            if (IsControllerConnected())
             {
-                LastFocusedButton->SetKeyboardFocus();
-             //   GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow,
-                //    FString::Printf(TEXT("Focus restored to: %s"), *LastFocusedButton->GetName()));
+                if (LastFocusedButton)
+                {
+                    LastFocusedButton->SetKeyboardFocus();
+                    //GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow,
+                    //    FString::Printf(TEXT("Focus restored to: %s"), *LastFocusedButton->GetName()));
+                }
             }
         }
         else
@@ -1343,19 +1369,25 @@ void UMain_Menu_Widget::SwitchToMainMenu()
 {
 
     if (WidgetSwitcher && bIsOnTitleScreen)
-
     {
         WidgetSwitcher->SetActiveWidgetIndex(1); // Switch to Main Menu (index 1)
-        UpdateCanvasVisibility(1); // Add this line
-      //  GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Main Menu!"));
+        UpdateCanvasVisibility(1);
         LastFocusedButton = nullptr;
 
-        if (PlayButton)
-
+        // Check for controller
+        if (IsControllerConnected())
         {
+            if (PlayButton)
+            {
+                PlayButton->SetKeyboardFocus();
+            }
+        }
+        else
+        {
+            FSlateApplication::Get().ClearKeyboardFocus();
 
-            PlayButton->SetKeyboardFocus();
-
+            // Optional debug message
+            //GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("No controller - cleared focus"));
         }
 
         bIsOnTitleScreen = false;
@@ -1371,19 +1403,22 @@ void UMain_Menu_Widget::SwitchToMainMenu()
 void UMain_Menu_Widget::SwitchToWeaponSelectMenu()
 {
 
-    // Check if we're on Widget 2 (index 3)
+    // Check if we're on Widget 2 (index 2)
     if (WidgetSwitcher)
     {
         int32 CurrentIndex = WidgetSwitcher->GetActiveWidgetIndex();
 
         if (CurrentIndex == 2 && !bHasSetFocusForSwordButton)
         {
-            // Set focus on SwordButton if not already focused
-            if (SwordButton)
+            // Only set focus if controller is connected
+            if (IsControllerConnected())
             {
-                SwordButton->SetKeyboardFocus();
-                bHasSetFocusForSwordButton = true;  // Mark that focus has been set
-               // GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Sword button focused!"));
+                if (SwordButton)
+                {
+                    SwordButton->SetKeyboardFocus();
+                    bHasSetFocusForSwordButton = true;  // Mark that focus has been set
+                    //GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("Sword button focused!"));
+                }
             }
         }
         else if (CurrentIndex != 2)
@@ -1779,6 +1814,32 @@ void UMain_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
 
     SwitchToWeaponSelectMenu();
     UpdateCharacterImage();
+
+
+
+    // Add this debug code to see controller status (remove after testing)
+    static bool bLastControllerState = false;
+    static float TimeSinceLastCheck = 0.0f;
+    TimeSinceLastCheck += InDeltaTime;
+
+    // Check every second
+    if (TimeSinceLastCheck > 1.0f)
+    {
+        bool bCurrentState = IsControllerConnected();
+        if (bCurrentState != bLastControllerState)
+        {
+            GEngine->AddOnScreenDebugMessage(-1, 3.0f,
+                bCurrentState ? FColor::Green : FColor::Red,
+                FString::Printf(TEXT("Controller Connected: %s"),
+                    bCurrentState ? TEXT("YES") : TEXT("NO")));
+            bLastControllerState = bCurrentState;
+        }
+        TimeSinceLastCheck = 0.0f;
+    }
+
+
+
+
 
     // Check if the sword button has keyboard focus and update stats
     if (SwordButton && SwordButton->HasKeyboardFocus())
