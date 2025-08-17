@@ -222,28 +222,31 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
             }
         }
 
-        // Set focus to first button with delay
         if (Elemental_Attack_ScrollBox->GetChildrenCount() > 0)
         {
-            FTimerHandle FocusTimerHandle;
-            GetWorld()->GetTimerManager().SetTimer(
-                FocusTimerHandle,
-                [this]()
-                {
-                    if (Elemental_Attack_ScrollBox->GetChildAt(0))
+            // Only set focus if controller is connected
+            if (IsControllerConnected())
+            {
+                FTimerHandle FocusTimerHandle;
+                GetWorld()->GetTimerManager().SetTimer(
+                    FocusTimerHandle,
+                    [this]()
                     {
-                        UElemental_Attacks_Button_Widget* FirstButton =
-                            Cast<UElemental_Attacks_Button_Widget>(Elemental_Attack_ScrollBox->GetChildAt(0));
-
-                        if (FirstButton && FirstButton->Elemental_Attack_Button)
+                        if (Elemental_Attack_ScrollBox->GetChildAt(0))
                         {
-                            FirstButton->Elemental_Attack_Button->SetKeyboardFocus();
+                            UElemental_Attacks_Button_Widget* FirstButton =
+                                Cast<UElemental_Attacks_Button_Widget>(Elemental_Attack_ScrollBox->GetChildAt(0));
+
+                            if (FirstButton && FirstButton->Elemental_Attack_Button)
+                            {
+                                FirstButton->Elemental_Attack_Button->SetKeyboardFocus();
+                            }
                         }
-                    }
-                },
-                0.001f,
+                    },
+                    0.001f,
                     false
-                    );
+                );
+            }
         }
     }
 }
@@ -315,7 +318,10 @@ void UElemental_Attacks_List_Widget::NativeTick(const FGeometry& MyGeometry, flo
 }
 
 
-
+bool UElemental_Attacks_List_Widget::IsControllerConnected() const  
+{
+    return FSlateApplication::Get().IsGamepadAttached();
+}
 
 
 

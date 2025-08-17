@@ -65,4 +65,9 @@ private:
 
     virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
 
+
+protected:
+
+    bool IsControllerConnected() const;
+
 };

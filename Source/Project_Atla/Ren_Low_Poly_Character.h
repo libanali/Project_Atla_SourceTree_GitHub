@@ -1228,6 +1228,7 @@ protected:
 	TSubclassOf<UUserWidget> DemoEndScreenWidgetClass;
 	//Demo
 
+	bool IsControllerConnected() const;
 
 
 

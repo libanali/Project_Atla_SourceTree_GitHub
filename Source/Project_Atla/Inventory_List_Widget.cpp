@@ -106,24 +106,27 @@ void UInventory_List_Widget::PopulateItemList()
     // Set focus to first button with delay
     if (Item_ScrollBox->GetChildrenCount() > 0)
     {
-        FTimerHandle FocusTimerHandle;
-        GetWorld()->GetTimerManager().SetTimer(
-            FocusTimerHandle,
-            [this]()
-            {
-                if (UItem_Button_Widget* FirstButton = Cast<UItem_Button_Widget>(Item_ScrollBox->GetChildAt(0)))
+        // Only set focus if controller is connected
+        if (IsControllerConnected())
+        {
+            FTimerHandle FocusTimerHandle;
+            GetWorld()->GetTimerManager().SetTimer(
+                FocusTimerHandle,
+                [this]()
                 {
-                    if (FirstButton->Item_Button)
+                    if (UItem_Button_Widget* FirstButton = Cast<UItem_Button_Widget>(Item_ScrollBox->GetChildAt(0)))
                     {
-                        FirstButton->Item_Button->SetKeyboardFocus();
+                        if (FirstButton->Item_Button)
+                        {
+                            FirstButton->Item_Button->SetKeyboardFocus();
+                        }
                     }
-                }
-            },
-            0.001f,
+                },
+                0.001f,
                 false
-                );
+            );
+        }
     }
-
 }
 
 
@@ -145,3 +148,8 @@ void UInventory_List_Widget::SetupInputMode()
 
 }
 
+
+bool UInventory_List_Widget::IsControllerConnected() const
+{
+    return FSlateApplication::Get().IsGamepadAttached();
+}

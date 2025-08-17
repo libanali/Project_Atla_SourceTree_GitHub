@@ -40,5 +40,8 @@ private:
 
 
 
+protected:
+
+    bool IsControllerConnected() const;
 
 };

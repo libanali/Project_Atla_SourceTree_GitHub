@@ -170,24 +170,28 @@ void UTechnique_List_Widget::PopulateTechniqueList()
     // Set focus to first button with delay
     if (Technique_ScrollBox->GetChildrenCount() > 0)
     {
-        FTimerHandle FocusTimerHandle;
-        GetWorld()->GetTimerManager().SetTimer(
-            FocusTimerHandle,
-            [this]()
-            {
-                if (Technique_ScrollBox->GetChildAt(0))
+        // Only set focus if controller is connected
+        if (IsControllerConnected())
+        {
+            FTimerHandle FocusTimerHandle;
+            GetWorld()->GetTimerManager().SetTimer(
+                FocusTimerHandle,
+                [this]()
                 {
-                    UTechnique_Button_Widget* FirstButton =
-                        Cast<UTechnique_Button_Widget>(Technique_ScrollBox->GetChildAt(0));
-                    if (FirstButton && FirstButton->Technique_Button)
+                    if (Technique_ScrollBox->GetChildAt(0))
                     {
-                        FirstButton->Technique_Button->SetKeyboardFocus();
+                        UTechnique_Button_Widget* FirstButton =
+                            Cast<UTechnique_Button_Widget>(Technique_ScrollBox->GetChildAt(0));
+                        if (FirstButton && FirstButton->Technique_Button)
+                        {
+                            FirstButton->Technique_Button->SetKeyboardFocus();
+                        }
                     }
-                }
-            },
-            0.001f,
+                },
+                0.001f,
                 false
-           );
+            );
+        }
     }
 }
 
@@ -213,3 +217,7 @@ void UTechnique_List_Widget::SetupInputMode()
 
 
 
+bool UTechnique_List_Widget::IsControllerConnected() const
+{
+    return FSlateApplication::Get().IsGamepadAttached();
+}

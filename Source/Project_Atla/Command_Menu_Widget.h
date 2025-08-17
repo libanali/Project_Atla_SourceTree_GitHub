@@ -149,6 +149,8 @@ public:
     void PlayNavigationSound();
 
 
+
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input")
     EInputMode CurrentInputMode;
 
@@ -162,5 +164,10 @@ public:
     virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
 
     virtual FNavigationReply NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply) override;
+
+
+protected:
+
+    bool IsControllerConnected() const;
 
 };

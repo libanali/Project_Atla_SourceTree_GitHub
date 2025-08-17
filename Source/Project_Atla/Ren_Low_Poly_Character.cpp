@@ -5124,20 +5124,23 @@ return !Attacking && CanPerformCombatAction();
 void ARen_Low_Poly_Character::SetItemsButtonFocus()
 {
 
-
-if (CommandMenuWidget && CommandMenuWidget->ItemsButton && !bIsDead)
-{
-	if (!InventoryComponent->bIsInventoryEmpty)
+	if (CommandMenuWidget && CommandMenuWidget->ItemsButton && !bIsDead)
 	{
-		CommandMenuWidget->ItemsButton->SetKeyboardFocus(); // Focus on the Items Button
-		UE_LOG(LogTemp, Warning, TEXT("Focus set on Items Button after delay."));
+		// Only set focus if controller is connected
+		if (IsControllerConnected())
+		{
+			if (!InventoryComponent->bIsInventoryEmpty)
+			{
+				CommandMenuWidget->ItemsButton->SetKeyboardFocus(); // Focus on the Items Button
+				UE_LOG(LogTemp, Warning, TEXT("Focus set on Items Button after delay."));
+			}
+			else
+			{
+				CommandMenuWidget->TechniquesButton->SetKeyboardFocus(); // Focus on the Techniques Button
+				UE_LOG(LogTemp, Warning, TEXT("Focus set on Techniques Button because inventory is empty."));
+			}
+		}
 	}
-	else
-	{
-		CommandMenuWidget->TechniquesButton->SetKeyboardFocus(); // Focus on the Techniques Button
-		UE_LOG(LogTemp, Warning, TEXT("Focus set on Techniques Button because inventory is empty."));
-	}
-}
 }
 
 
@@ -5185,11 +5188,15 @@ if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher && !bIsDead)
 	else if (CurrentIndex == 1) // If already in the command menu
 	{
 		UpdateVisibilityBasedOnIndex(1);  // Update visibility for index 1
-		if (CommandMenuWidget->ItemsButton)
+		// Only set focus if controller is connected
+		if (IsControllerConnected())
 		{
-			CommandMenuWidget->ItemsButton->SetKeyboardFocus(); // Ensure focus remains on the Items Button
+			if (CommandMenuWidget->ItemsButton)
+			{
+				CommandMenuWidget->ItemsButton->SetKeyboardFocus(); // Ensure focus remains on the Items Button
+			}
 		}
-
+	
 		// Log for debugging
 		UE_LOG(LogTemp, Warning, TEXT("Command Menu already open, focus set on Items Button."));
 	}
@@ -5223,39 +5230,43 @@ if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher && !bIsDead)
 void ARen_Low_Poly_Character::UpdateVisibilityBasedOnIndex(int Index)
 {
 
-
-if (CommandMenuWidget)
-{
-	if (Index == 1)
+	if (CommandMenuWidget)
 	{
-		CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Visible);
-		CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Visible);
-		CommandMenuWidget->ElementalButton->SetVisibility(ESlateVisibility::Visible);
-
-
-		if (CommandMenuWidget->InventoryWidgetInstance && CommandMenuWidget->InventoryWidgetInstance->IsInViewport())
+		if (Index == 1)
 		{
-			CommandMenuWidget->InventoryWidgetInstance->RemoveFromParent();
-			CommandMenuWidget->ItemsButton->SetKeyboardFocus();
+			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Visible);
+			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Visible);
+			CommandMenuWidget->ElementalButton->SetVisibility(ESlateVisibility::Visible);
 
+			if (CommandMenuWidget->InventoryWidgetInstance && CommandMenuWidget->InventoryWidgetInstance->IsInViewport())
+			{
+				CommandMenuWidget->InventoryWidgetInstance->RemoveFromParent();
+
+				// Only set focus if controller is connected
+				if (IsControllerConnected())
+				{
+					CommandMenuWidget->ItemsButton->SetKeyboardFocus();
+				}
+			}
+
+			// Only set focus if controller is connected
+			if (IsControllerConnected())
+			{
+				CommandMenuWidget->ItemsButton->SetKeyboardFocus();
+			}
 		}
-
-		CommandMenuWidget->ItemsButton->SetKeyboardFocus();
-	}
-	else if (Index == 2)
-	{
-		CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Collapsed);
-		CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Collapsed);
-		CommandMenuWidget->ElementalButton->SetVisibility(ESlateVisibility::Collapsed);
-
-
-		if (CommandMenuWidget->InventoryWidgetInstance && !CommandMenuWidget->InventoryWidgetInstance->IsInViewport())
+		else if (Index == 2)
 		{
-			CommandMenuWidget->InventoryWidgetInstance->AddToViewport();
-		}
+			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Collapsed);
+			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Collapsed);
+			CommandMenuWidget->ElementalButton->SetVisibility(ESlateVisibility::Collapsed);
 
+			if (CommandMenuWidget->InventoryWidgetInstance && !CommandMenuWidget->InventoryWidgetInstance->IsInViewport())
+			{
+				CommandMenuWidget->InventoryWidgetInstance->AddToViewport();
+			}
+		}
 		else if (Index == 3)
-
 		{
 			// Set techniques widget visibility and other required elements
 			if (CommandMenuWidget->TechniquesWidgetInstance && !CommandMenuWidget->TechniquesWidgetInstance->IsInViewport())
@@ -5266,11 +5277,8 @@ if (CommandMenuWidget)
 			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Collapsed);
 			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Collapsed);
 			CommandMenuWidget->ElementalButton->SetVisibility(ESlateVisibility::Collapsed);
-
 		}
-
 		else if (Index == 4)
-
 		{
 			// Set techniques widget visibility and other required elements
 			if (CommandMenuWidget->ElementalAttacksWidgetInstance && !CommandMenuWidget->ElementalAttacksWidgetInstance->IsInViewport())
@@ -5281,11 +5289,8 @@ if (CommandMenuWidget)
 			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Collapsed);
 			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Collapsed);
 			CommandMenuWidget->ElementalButton->SetVisibility(ESlateVisibility::Collapsed);
-
 		}
 	}
-}
-
 
 }
 
@@ -5341,6 +5346,11 @@ if (bIsInCommandMode)
 }
 }
 
+
+bool ARen_Low_Poly_Character::IsControllerConnected() const
+{
+	return FSlateApplication::Get().IsGamepadAttached();
+}
 
 void ARen_Low_Poly_Character::EnablePPV()
 {
@@ -5420,33 +5430,33 @@ if (CommandMenuWidget)
 
 void ARen_Low_Poly_Character::OpenInventory()
 {
-
-if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher)
-{
-	// Set the WidgetSwitcher to display the inventory (index 2)
-	CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(2);
-	bIsInventoryOpen = true;
-	bIsTechniquesOpen = false;
-	bIsElementalsOpen = false;
-
-
-
-	// Check and focus the inventory button after confirming it is initialized
-	if (InventoryButtonWidget)
+	if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher)
 	{
-		InventoryButtonWidget->SetKeyboardFocus();
-		
+		// Set the WidgetSwitcher to display the inventory (index 2)
+		CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(2);
+		bIsInventoryOpen = true;
+		bIsTechniquesOpen = false;
+		bIsElementalsOpen = false;
+
+		// Only focus the inventory button if controller is connected
+		if (IsControllerConnected())
+		{
+			if (InventoryButtonWidget)
+			{
+				InventoryButtonWidget->SetKeyboardFocus();
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("InventoryButtonWidget is null, focus cannot be set."));
+			}
+		}
+
+		SetInputModeForUI();
+		bIsInUIMode = true;  // Track that we're still in UI mode
 	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("InventoryButtonWidget is null, focus cannot be set."));
-	}		SetInputModeForUI();
-
-	bIsInUIMode = true;  // Track that we're still in UI mode
 }
 
 
-}
 
 void ARen_Low_Poly_Character::OpenTechniques()
 {
@@ -5502,55 +5512,75 @@ bIsInUIMode = true; // Track UI mode for elemental menu
 
 void ARen_Low_Poly_Character::HandleBackInput()
 {
-UE_LOG(LogTemp, Warning, TEXT("Back button pressed!"));
-	
-if (BackSound && bIsInUIMode)
-{
-	UGameplayStatics::PlaySound2D(this, BackSound);
-}
+	UE_LOG(LogTemp, Warning, TEXT("Back button pressed!"));
 
-if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher)
-{
-	int CurrentIndex = CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex();
-
-	if (CurrentIndex == 1) // If in command menu
+	if (BackSound && bIsInUIMode)
 	{
-		CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(0);
-		CommandMenuWidget->PlayAnimation(CommandMenuWidget->CommandMenuIcon_FadeAnim);
-		CommandMenuWidget->PlayAnimationReverse(CommandMenuWidget->CommandMenu_FadeAnim);
-		SetInputModeForGameplay();
-		bIsInUIMode = false; // Return to gameplay
-		ExitCommandMode();
-
+		UGameplayStatics::PlaySound2D(this, BackSound);
 	}
-	else if (CurrentIndex == 2 || CurrentIndex == 3 || CurrentIndex == 4) // If in inventory, techniques, or elementals
+
+	if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher)
 	{
-		CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
-		bIsInUIMode = true; // Still in UI mode
+		int CurrentIndex = CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex();
 
-		// Explicitly restore focus to the correct button based on the last menu
-		if (CurrentIndex == 2 && CommandMenuWidget->ItemsButton) // Coming from Inventory
+		if (CurrentIndex == 1) // If in command menu - close it
 		{
-			CommandMenuWidget->ItemsButton->SetKeyboardFocus();
-			UE_LOG(LogTemp, Warning, TEXT("Focus restored to Items Button."));
+			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(0);
+			CommandMenuWidget->PlayAnimation(CommandMenuWidget->CommandMenuIcon_FadeAnim);
+			CommandMenuWidget->PlayAnimationReverse(CommandMenuWidget->CommandMenu_FadeAnim);
+			SetInputModeForGameplay();
+			bIsInUIMode = false; // Return to gameplay
+			ExitCommandMode();
 		}
-		else if (CurrentIndex == 3 && CommandMenuWidget->TechniquesButton) // Coming from Techniques
+		else if (CurrentIndex == 2 || CurrentIndex == 3 || CurrentIndex == 4) // If in submenu - go back to main command menu
 		{
-			CommandMenuWidget->TechniquesButton->SetKeyboardFocus();
-			UE_LOG(LogTemp, Warning, TEXT("Focus restored to Techniques Button."));
-		}
-		else if (CurrentIndex == 4 && CommandMenuWidget->ElementalButton) // Coming from Elementals
-		{
-			CommandMenuWidget->ElementalButton->SetKeyboardFocus();
-			UE_LOG(LogTemp, Warning, TEXT("Focus restored to Elemental Button."));
-		}
-		else if (LastFocusedButton) // Fallback to last focused button
-		{
-			LastFocusedButton->SetKeyboardFocus();
-			UE_LOG(LogTemp, Warning, TEXT("Fallback: Focus restored to LastFocusedButton."));
+			// Go back to main command menu
+			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
+
+			// IMPORTANT: Update visibility to show the command menu buttons again
+			UpdateVisibilityBasedOnIndex(1);
+
+			// Clear submenu flags
+			bIsInventoryOpen = false;
+			bIsTechniquesOpen = false;
+			bIsElementalsOpen = false;
+
+			// Stay in UI mode
+			bIsInUIMode = true;
+
+			// Only restore focus if controller is connected
+			if (IsControllerConnected())
+			{
+				// Restore focus to the correct button based on which submenu we came from
+				if (CurrentIndex == 2 && CommandMenuWidget->ItemsButton) // Coming from Inventory
+				{
+					CommandMenuWidget->ItemsButton->SetKeyboardFocus();
+					UE_LOG(LogTemp, Warning, TEXT("Focus restored to Items Button."));
+				}
+				else if (CurrentIndex == 3 && CommandMenuWidget->TechniquesButton) // Coming from Techniques
+				{
+					CommandMenuWidget->TechniquesButton->SetKeyboardFocus();
+					UE_LOG(LogTemp, Warning, TEXT("Focus restored to Techniques Button."));
+				}
+				else if (CurrentIndex == 4 && CommandMenuWidget->ElementalButton) // Coming from Elementals
+				{
+					CommandMenuWidget->ElementalButton->SetKeyboardFocus();
+					UE_LOG(LogTemp, Warning, TEXT("Focus restored to Elemental Button."));
+				}
+				else if (LastFocusedButton) // Fallback to last focused button
+				{
+					LastFocusedButton->SetKeyboardFocus();
+					UE_LOG(LogTemp, Warning, TEXT("Fallback: Focus restored to LastFocusedButton."));
+				}
+			}
+			else
+			{
+				// If no controller, clear any focus
+				FSlateApplication::Get().ClearKeyboardFocus();
+				UE_LOG(LogTemp, Warning, TEXT("No controller - cleared focus"));
+			}
 		}
 	}
-}
 }
 
 

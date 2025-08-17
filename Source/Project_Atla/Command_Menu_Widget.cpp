@@ -13,6 +13,7 @@
 #include "GenericPlatform/GenericApplicationMessageHandler.h"
 #include "GenericPlatform/IInputInterface.h"
 #include "IInputDevice.h"
+#include "Framework/Application/SlateApplication.h"
 
 
 void UCommand_Menu_Widget::NativeOnInitialized()
@@ -25,30 +26,7 @@ void UCommand_Menu_Widget::NativeOnInitialized()
 
     CurrentText = "";
     
-    if (FSlateApplication::Get().GetPlatformApplication()->IsGamepadAttached())
-    {
-        CurrentInputMode = EInputMode::Gamepad;
-       // GEngine->AddOnScreenDebugMessage(2, 2.5f, FColor::Green, TEXT("Gamepad Connected!"));
-
-        APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-        if (PlayerController)
-        {
-            PlayerController->bShowMouseCursor = false;
-        }
-
-    }
-    else
-    {
-        CurrentInputMode = EInputMode::Mouse;
-       // GEngine->AddOnScreenDebugMessage(2, 2.5f, FColor::Black, TEXT("No Gamepad Connected!"));
-
-        APlayerController* PlayerController = GetWorld()->GetFirstPlayerController();
-        if (PlayerController)
-        {
-            PlayerController->bShowMouseCursor = true;
-        }
-    }
-
+   
 
     // Bind button click events to transition methods
     if (ItemsButton)
@@ -82,7 +60,12 @@ void UCommand_Menu_Widget::NativeOnInitialized()
     TechniquesButton->SetVisibility(ESlateVisibility::Hidden);
     ElementalButton->SetVisibility(ESlateVisibility::Hidden);
 
-    ItemsButton->SetKeyboardFocus();
+
+    // THE ONLY CHANGE - wrap with controller check:
+    if (IsControllerConnected())
+    {
+        ItemsButton->SetKeyboardFocus();
+    }
 
     WidgetSwitcher->SetActiveWidgetIndex(0);
 
@@ -119,10 +102,12 @@ void UCommand_Menu_Widget::NativeOnInitialized()
         }
     }
 
+}
 
-    
 
-
+bool UCommand_Menu_Widget::IsControllerConnected() const
+{
+    return FSlateApplication::Get().IsGamepadAttached();
 }
 
 
@@ -322,12 +307,13 @@ void UCommand_Menu_Widget::CheckInventoryAndSetFocus()
             // Set focus to Items button if appropriate
             if (WidgetSwitcher && WidgetSwitcher->GetActiveWidgetIndex() == 1)  // Main menu index
             {
-                ItemsButton->SetKeyboardFocus();
+                if (IsControllerConnected())
+                {
+                    ItemsButton->SetKeyboardFocus();
+                }
             }
         }
     }
-
-
 
 }
 
@@ -445,34 +431,29 @@ void UCommand_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDelta
     Super::NativeTick(MyGeometry, InDeltaTime);
 
 
-    if (CurrentInputMode == EInputMode::Gamepad)
+
+    if (ItemsButton)
     {
-        // Gamepad: Check for keyboard focus
-        if (ItemsButton && ItemsButton->HasKeyboardFocus())
+        if ((IsControllerConnected() && ItemsButton->HasKeyboardFocus()) ||
+            (!IsControllerConnected() && ItemsButton->IsHovered()))
         {
             UpdateInformationText("Browse your collected items.");
-        }
-        else if (TechniquesButton && TechniquesButton->HasKeyboardFocus())
-        {
-            UpdateInformationText("Perform a powerful technique.");
-        }
-        else if (ElementalButton && ElementalButton->HasKeyboardFocus())
-        {
-            UpdateInformationText("Use elemental-type attacks.");
         }
     }
-    else if (CurrentInputMode == EInputMode::Mouse)
+
+    if (TechniquesButton)
     {
-        // Mouse: Check for hover
-        if (ItemsButton && ItemsButton->IsHovered())
-        {
-            UpdateInformationText("Browse your collected items.");
-        }
-        else if (TechniquesButton && TechniquesButton->IsHovered())
+        if ((IsControllerConnected() && TechniquesButton->HasKeyboardFocus()) ||
+            (!IsControllerConnected() && TechniquesButton->IsHovered()))
         {
             UpdateInformationText("Perform a powerful technique.");
         }
-        else if (ElementalButton && ElementalButton->IsHovered())
+    }
+
+    if (ElementalButton)
+    {
+        if ((IsControllerConnected() && ElementalButton->HasKeyboardFocus()) ||
+            (!IsControllerConnected() && ElementalButton->IsHovered()))
         {
             UpdateInformationText("Use elemental-type attacks.");
         }
