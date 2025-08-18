@@ -526,9 +526,12 @@ void UEnd_Screen_Widget::ShowPage(EGameOverPage Page)
             PlayAnimation(StatsPanelAnimation);
         }
 
-        if (RetryButton)
+        if (IsControllerConnected())
         {
-            RetryButton->SetKeyboardFocus();
+            if (RetryButton)
+            {
+                RetryButton->SetKeyboardFocus();
+            }
         }
 
         if (APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0))
@@ -805,4 +808,10 @@ void UEnd_Screen_Widget::OnHighScoreAnimationComplete()
         );
     }
 
+}
+
+
+bool UEnd_Screen_Widget::IsControllerConnected() const
+{
+    return FSlateApplication::Get().IsGamepadAttached();
 }

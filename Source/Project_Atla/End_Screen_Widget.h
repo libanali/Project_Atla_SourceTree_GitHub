@@ -233,4 +233,8 @@ private:
     void OnRoundAnimationComplete();
     void OnScoreAnimationComplete();
     void OnHighScoreAnimationComplete();
+
+
+    bool IsControllerConnected() const;
+
 };
