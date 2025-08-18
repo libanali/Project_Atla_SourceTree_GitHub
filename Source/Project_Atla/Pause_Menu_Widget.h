@@ -89,5 +89,6 @@ public:
     void UpdateMenuState(int32 ActiveIndex);
     void PlayNavigationSound();
 
+    bool IsControllerConnected() const;
 
 };

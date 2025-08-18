@@ -401,6 +401,10 @@ void UPause_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTi
 }
 
 
+bool UPause_Menu_Widget::IsControllerConnected() const
+{
+    return FSlateApplication::Get().IsGamepadAttached();
+}
 
 
 
