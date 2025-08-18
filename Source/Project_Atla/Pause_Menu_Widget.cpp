@@ -37,8 +37,22 @@ void UPause_Menu_Widget::NativeConstruct()
 
     this->SetIsFocusable(true);
 
-    ResumeButton->SetKeyboardFocus();
 
+    // Only set focus if controller is connected
+    if (IsControllerConnected())
+    {
+        if (ResumeButton)
+        {
+            ResumeButton->SetKeyboardFocus();
+            GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("Pause Menu: Controller detected - focus set"));
+        }
+    }
+    else
+    {
+        // Clear focus if no controller
+        FSlateApplication::Get().ClearKeyboardFocus();
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow, TEXT("Pause Menu: No controller - mouse mode"));
+    }
 
 
     if (YesButton)
@@ -69,6 +83,7 @@ void UPause_Menu_Widget::NativeConstruct()
     // Initial state
     CurrentMenuState = 0;
 
+    SetInitialFocus();
 
 
 }
@@ -108,7 +123,6 @@ void UPause_Menu_Widget::ShowPauseMenu()
         ResumeButton->OnClicked.RemoveAll(this);
         ResumeButton->OnClicked.AddDynamic(this, &UPause_Menu_Widget::OnResumeClicked);
     }
-  
 
     AddToViewport();
 
@@ -117,7 +131,24 @@ void UPause_Menu_Widget::ShowPauseMenu()
     if (PlayerController)
     {
         PlayerController->SetShowMouseCursor(true);
-        PlayerController->SetInputMode(FInputModeUIOnly());
+
+        // Set input mode based on controller presence
+        if (IsControllerConnected())
+        {
+            // UI only mode with focus on widget for controller
+            FInputModeUIOnly InputMode;
+            InputMode.SetWidgetToFocus(this->TakeWidget());
+            InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+            PlayerController->SetInputMode(InputMode);
+
+            // Set keyboard focus on the widget
+            this->SetKeyboardFocus();
+        }
+        else
+        {
+            // Simple UI only mode for mouse
+            PlayerController->SetInputMode(FInputModeUIOnly());
+        }
     }
 
     // Update menu state to show main pause menu
@@ -261,6 +292,39 @@ void UPause_Menu_Widget::OnNoClicked()
 
 }
 
+void UPause_Menu_Widget::SetInitialFocus()
+{
+
+    // Only set focus if controller is connected
+    if (IsControllerConnected())
+    {
+        // Use a small delay to ensure widget is fully initialized
+        if (GetWorld())
+        {
+            GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
+                {
+                    if (CurrentMenuState == 0 && ResumeButton)
+                    {
+                        ResumeButton->SetKeyboardFocus();
+                        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green,
+                            TEXT("Pause Menu: Controller detected - Resume button focused"));
+                    }
+                    else if (CurrentMenuState == 1 && NoButton)
+                    {
+                        NoButton->SetKeyboardFocus();
+                    }
+                });
+        }
+    }
+    else
+    {
+        // Clear focus if no controller
+        FSlateApplication::Get().ClearKeyboardFocus();
+        GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Yellow,
+            TEXT("Pause Menu: No controller - mouse mode"));
+    }
+}
+
 
 
 
@@ -288,8 +352,6 @@ void UPause_Menu_Widget::HandleGoBack()
 
 void UPause_Menu_Widget::UpdateMenuState(int32 ActiveIndex)
 {
-
-
     if (MenuSwitcher)
     {
         MenuSwitcher->SetActiveWidgetIndex(ActiveIndex);
@@ -302,9 +364,19 @@ void UPause_Menu_Widget::UpdateMenuState(int32 ActiveIndex)
             if (ConfirmationCanvas)
                 ConfirmationCanvas->SetVisibility(ESlateVisibility::Hidden);
 
-            // Set focus on resume button
-            if (ResumeButton)
-                ResumeButton->SetKeyboardFocus();
+            // Only set focus if controller is connected
+            if (IsControllerConnected())
+            {
+                if (ResumeButton)
+                {
+                    ResumeButton->SetKeyboardFocus();
+                }
+            }
+            else
+            {
+                // Clear focus for mouse mode
+                FSlateApplication::Get().ClearKeyboardFocus();
+            }
 
             if (PauseMenuAnimation)
                 PlayAnimation(PauseMenuAnimation);
@@ -315,11 +387,20 @@ void UPause_Menu_Widget::UpdateMenuState(int32 ActiveIndex)
             if (ConfirmationCanvas)
                 ConfirmationCanvas->SetVisibility(ESlateVisibility::Visible);
 
-            // Set focus on No button (safer default)
-            if (NoButton)
-                NoButton->SetKeyboardFocus();
-
-
+            // Only set focus if controller is connected
+            if (IsControllerConnected())
+            {
+                // Set focus on No button (safer default)
+                if (NoButton)
+                {
+                    NoButton->SetKeyboardFocus();
+                }
+            }
+            else
+            {
+                // Clear focus for mouse mode
+                FSlateApplication::Get().ClearKeyboardFocus();
+            }
         }
     }
 }
@@ -394,10 +475,53 @@ void UPause_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTi
 
     Super::NativeTick(MyGeometry, InDeltaTime);
 
-    // Continuously check focus state
-   // if (ResumeButton && ResumeButton->HasKeyboardFocus())
 
+    // Optional: Monitor controller connection changes
+    static bool bLastControllerState = false;
+    static float TimeSinceLastCheck = 0.0f;
+    TimeSinceLastCheck += InDeltaTime;
 
+    // Check every second
+    if (TimeSinceLastCheck > 1.0f)
+    {
+        bool bCurrentState = IsControllerConnected();
+        if (bCurrentState != bLastControllerState)
+        {
+            // Controller state changed
+            if (bCurrentState)
+            {
+                // Controller connected - set appropriate focus with delay
+                if (GetWorld())
+                {
+                    GetWorld()->GetTimerManager().SetTimerForNextTick([this]()
+                        {
+                            if (CurrentMenuState == 0 && ResumeButton)
+                            {
+                                ResumeButton->SetKeyboardFocus();
+                                GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green,
+                                    TEXT("Controller Connected - Resume button focused"));
+                            }
+                            else if (CurrentMenuState == 1 && NoButton)
+                            {
+                                NoButton->SetKeyboardFocus();
+                                GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green,
+                                    TEXT("Controller Connected - No button focused"));
+                            }
+                        });
+                }
+            }
+            else
+            {
+                // Controller disconnected - clear focus
+                FSlateApplication::Get().ClearKeyboardFocus();
+                GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Red,
+                    TEXT("Controller Disconnected - Focus Cleared"));
+            }
+
+            bLastControllerState = bCurrentState;
+        }
+        TimeSinceLastCheck = 0.0f;
+    }
 }
 
 

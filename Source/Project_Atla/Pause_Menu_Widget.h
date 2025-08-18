@@ -75,6 +75,9 @@ protected:
         void OnNoClicked();
 
 
+    void SetInitialFocus();
+
+
     virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
     virtual FNavigationReply NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply) override;
     virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
