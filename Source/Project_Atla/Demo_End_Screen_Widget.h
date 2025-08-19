@@ -99,6 +99,9 @@ private:
     void PlayNavigationSound();
 
 
+    bool IsControllerConnected() const;
+
+
 protected:
 
     virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;

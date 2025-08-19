@@ -196,11 +196,17 @@ void UDemo_End_Screen_Widget::OnButtonsRevealComplete()
         PC->SetInputMode(InputMode);
        // PC->bShowMouseCursor = true;
 
-        // Set focus to main menu button
-        if (Main_Menu_Button)
+        if (IsControllerConnected())
+
         {
-            Main_Menu_Button->SetKeyboardFocus();
+            // Set focus to main menu button
+            if (Main_Menu_Button)
+            {
+                Main_Menu_Button->SetKeyboardFocus();
+            }
+
         }
+
 
         if (DemoScreenImage)
         {
@@ -295,4 +301,11 @@ FNavigationReply UDemo_End_Screen_Widget::NativeOnNavigation(const FGeometry& My
 
 
     return Super::NativeOnNavigation(MyGeometry, InNavigationEvent, InDefaultReply);
+}
+
+
+
+bool UDemo_End_Screen_Widget::IsControllerConnected() const
+{
+    return FSlateApplication::Get().IsGamepadAttached();
 }
