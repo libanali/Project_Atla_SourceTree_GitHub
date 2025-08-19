@@ -18,6 +18,7 @@
 #include "Components/ScrollBox.h"
 #include "Game_Instance.h"
 #include "Ren_Low_Poly_Character.h"
+#include "Story_Board_Widget.h"
 #include "Player_Save_Game.h"
 #include "Carousel_Button_Widget.h"
 #include "Components/AudioComponent.h"
@@ -420,7 +421,9 @@ void UMain_Menu_Widget::OnSwordButtonClicked()
     }
 
     // Open the gameplay level
-    UGameplayStatics::OpenLevel(this, FName("LowPoly_Level"));
+   // UGameplayStatics::OpenLevel(this, FName("LowPoly_Level"));
+
+    ShowStoryBoardWidget();
 
 
 }
@@ -595,8 +598,9 @@ void UMain_Menu_Widget::OnStaffButtonClicked()
     }
 
     // Open the gameplay level
-    UGameplayStatics::OpenLevel(this, FName("LowPoly_Level"));
+   // UGameplayStatics::OpenLevel(this, FName("LowPoly_Level"));
 
+    ShowStoryBoardWidget();
 
 
 }
@@ -985,6 +989,58 @@ void UMain_Menu_Widget::ScrollTutorialContent(float Value)
 
 
 }
+
+
+
+
+void UMain_Menu_Widget::ShowStoryBoardWidget()
+{
+
+    // Check if we have a valid story board widget class
+    if (!StoryBoardWidgetClass)
+    {
+        UE_LOG(LogTemp, Error, TEXT("StoryBoardWidgetClass is not set! Please set it in the Blueprint."));
+        // Fallback to directly opening the level if widget class is missing
+        UGameplayStatics::OpenLevel(this, FName("LowPoly_Level"));
+        return;
+    }
+
+    // Create the story board widget
+    if (UStory_Board_Widget* StoryWidget = CreateWidget<UStory_Board_Widget>(GetWorld(), StoryBoardWidgetClass))
+    {
+        // Configure the widget
+        StoryWidget->LevelToOpen = FName("LowPoly_Level");
+        StoryWidget->StoryTextContent = FText::FromString(TEXT(
+            "Consciousness returns slowly. You find yourself on an unfamiliar shore, surrounded by an island that pulses with danger.\n\n"
+            "Creatures stalk through the mist. Your past is a void - yet your hands remember the weight of weapons, your body knows abilities that feel both foreign and familiar.\n\n"
+            "Every breath is survival. Every step forward brings new questions. This island holds answers... if you can live long enough to find them."
+        ));
+
+        // Hide the main menu and show the story widget
+        this->RemoveFromParent();
+        StoryWidget->AddToViewport(10); // Higher Z-order to ensure it's on top
+
+        // Start the story sequence
+        StoryWidget->StartStorySequence();
+
+        // Stop the main menu music if it's playing
+        if (BackgroundMusic)
+        {
+            BackgroundMusic->Stop();
+        }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("Failed to create Story Board Widget!"));
+        // Fallback to directly opening the level
+        UGameplayStatics::OpenLevel(this, FName("LowPoly_Level"));
+    }
+
+
+
+}
+
+
 
 bool UMain_Menu_Widget::IsControllerConnected() const
 {

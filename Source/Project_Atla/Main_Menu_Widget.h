@@ -243,6 +243,9 @@ protected:
 	UPROPERTY(meta = (BindWidget))
 	class UBorder* StaffImage;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
+	TSubclassOf<class UStory_Board_Widget> StoryBoardWidgetClass;
+
 
 
 	// Functions for button click events
@@ -379,6 +382,11 @@ protected:
 
 	UFUNCTION()
 	void ScrollTutorialContent(float Value);
+
+	void ShowStoryBoardWidget();
+
+
+
 
 	bool IsControllerConnected() const;
 
