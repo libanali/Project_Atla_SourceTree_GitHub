@@ -47,17 +47,13 @@ public:
 
     // Configuration Properties
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Story Board")
-    float StoryDisplayDuration = 6.0f;
+    float StoryDisplayDuration = 4.0f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Story Board")
     FName LevelToOpen = "YourLevelName";
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Story Board")
-    FText StoryTextContent = FText::FromString(TEXT(
-        "Consciousness returns slowly. You find yourself on an unfamiliar shore, surrounded by an island that pulses with danger.\n\n"
-        "Creatures stalk through the mist. Your past is a void - yet your hands remember the weight of weapons, your body knows abilities that feel both foreign and familiar.\n\n"
-        "Every breath is survival. Every step forward brings new questions. This island holds answers... if you can live long enough to find them."
-    ));
+    FText StoryTextContent;
 
     // Typewriter configuration
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Story Board|Typewriter")
