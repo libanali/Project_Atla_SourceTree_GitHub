@@ -192,6 +192,7 @@ void UDemo_End_Screen_Widget::OnButtonsRevealComplete()
     if (APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0))
     {
         FInputModeUIOnly InputMode;
+        InputMode.SetWidgetToFocus(this->TakeWidget());
         InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
         PC->SetInputMode(InputMode);
        // PC->bShowMouseCursor = true;

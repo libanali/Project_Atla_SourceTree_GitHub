@@ -33,10 +33,10 @@ public:
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	 UButton* Main_Menu_Button;
+	 class UButton* Main_Menu_Button;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
-	 UButton* Steam_Store_Button;
+	 class UButton* Steam_Store_Button;
 
 
      UPROPERTY(meta = (BindWidget))
