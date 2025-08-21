@@ -7,7 +7,8 @@
 FEnemy_Health_Struct::FEnemy_Health_Struct()
 {
 
-
+	MaxHealth = 100.0f;
+	CurrentHealth = MaxHealth;
 
 }
 
