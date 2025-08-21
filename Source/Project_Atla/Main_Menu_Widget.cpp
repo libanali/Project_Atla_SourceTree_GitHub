@@ -37,7 +37,7 @@ void UMain_Menu_Widget::NativeConstruct()
     InitializeCanvasPanels();
     UpdateCanvasVisibility(0);
 
-    bIsDemoBuild = true;
+    bIsDemoBuild = false;
 
     // Load saved settings first
     if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
@@ -129,11 +129,11 @@ void UMain_Menu_Widget::NativeConstruct()
             if (IsControllerConnected())
             {
                 this->SetKeyboardFocus();
-                GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Controller detected - focus set"));
+                //GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Controller detected - focus set"));
             }
             else
             {
-                GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("No controller - mouse mode"));
+               // GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("No controller - mouse mode"));
 
             }
             // Debug message to confirm focus is set
@@ -1885,11 +1885,11 @@ void UMain_Menu_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
         bool bCurrentState = IsControllerConnected();
         if (bCurrentState != bLastControllerState)
         {
-            GEngine->AddOnScreenDebugMessage(-1, 3.0f,
+          /*  GEngine->AddOnScreenDebugMessage(-1, 3.0f,
                 bCurrentState ? FColor::Green : FColor::Red,
                 FString::Printf(TEXT("Controller Connected: %s"),
                     bCurrentState ? TEXT("YES") : TEXT("NO")));
-            bLastControllerState = bCurrentState;
+            bLastControllerState = bCurrentState;*/
         }
         TimeSinceLastCheck = 0.0f;
     }
@@ -1976,7 +1976,7 @@ void UMain_Menu_Widget::CheckAndApplyDemoRestrictions()
 
         {
             StaffImage->SetRenderOpacity(0.3f);
-            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("This is the demo version"));
+            //GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("This is the demo version"));
         }
     }
 

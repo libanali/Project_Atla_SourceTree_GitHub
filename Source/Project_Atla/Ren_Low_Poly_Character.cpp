@@ -181,7 +181,7 @@ AttackMovementSpeed = 200.0f;
 
 
 //Demo
-bIsDemoBuild = true;
+bIsDemoBuild = false;
 
 
 bPowerUpPending = false;
@@ -692,7 +692,7 @@ if (bIsDemoBuild)
 {
 	// Show demo end screen instead of normal end screen
 	DisplayDemoScreen();
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Attempting to open demo end screen"));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("Attempting to open demo end screen"));
 }
 else
 {
@@ -4218,7 +4218,7 @@ AbilityStruct.CurrentAbilityPoints = 0.0f;
 
 if (bIsDemoBuild)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("this is a demo"));
+	//GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Blue, TEXT("this is a demo"));
 }
 
 
