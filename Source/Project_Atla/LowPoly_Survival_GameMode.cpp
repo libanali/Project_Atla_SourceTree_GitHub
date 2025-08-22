@@ -34,7 +34,7 @@ ALowPoly_Survival_GameMode::ALowPoly_Survival_GameMode()
     SpawnRadius = 1200.0f;
     CurrentRound = 1;
     AdditionalEnemyHealthPerRound = 30.0f;
-    AdditionalEnemiesPerRound = 3;
+    AdditionalEnemiesPerRound = 2;
     BaseSpawnDelay = 2.0f;         // Initial delay between spawns in the first round
     MinSpawnDelay = 1.5f;          // Minimum delay between spawns in later rounds
     DelayDecreasePerRound = 0.1f;

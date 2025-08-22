@@ -68,7 +68,7 @@ void ABase_Item::BeginPlay()
     Super::BeginPlay();
 
     CollisionSphere->OnComponentBeginOverlap.AddDynamic(this, &ABase_Item::OnOverlapBegin);
-
+    SetLifeSpan(10.0f);
 
 }
 
