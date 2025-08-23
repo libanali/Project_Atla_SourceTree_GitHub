@@ -129,9 +129,21 @@ private:
     void PrepareForAttack(EEnemyType TheEnemyType, float DeltaTime);
     float GetAttackRateForEnemyType(EEnemyType TheEnemyType);
 
+
+
+    // Anti-crowding system
+    static int32 CurrentEngagedEnemies;
+    static const int32 MaxEngagedEnemies;
+    bool bIsEngaged;
+    bool bCanEngage;
+
+    // Helper function
+    void CheckEngagementStatus();
+
 protected:
 
     virtual void Tick(float deltaTime);
+    virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
 
 };

@@ -15,6 +15,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 
 
+int32 AEnemy_AIController::CurrentEngagedEnemies = 0;
+const int32 AEnemy_AIController::MaxEngagedEnemies = 4;
 
 
 AEnemy_AIController::AEnemy_AIController()
@@ -44,6 +46,10 @@ void AEnemy_AIController::BeginPlay()
     TargetPlayer = GetWorld()->GetFirstPlayerController()->GetPawn();
     EnemyNumber = 0;
 
+    bIsEngaged = false;
+    bCanEngage = false;
+
+    CurrentEngagedEnemies = 0;
 
 }
 
@@ -405,6 +411,9 @@ void AEnemy_AIController::UpdateBehaviour(float DeltaTime)
     // Calculate distance to player
     float TheDistanceToPlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
 
+    // NEW: Check if this enemy can engage
+    CheckEngagementStatus();
+
     // Update attack probability (increases over time)
     float AttackRate = GetAttackRateForEnemyType(EnemyType);
     AttackProbability += DeltaTime * AttackRate * BaseAttackProbability * AggressionFactor;
@@ -413,8 +422,8 @@ void AEnemy_AIController::UpdateBehaviour(float DeltaTime)
     float DistanceFactor = FMath::Clamp(1.0f - (TheDistanceToPlayer / 500.0f), 0.1f, 1.0f);
     float FinalAttackProbability = AttackProbability * DistanceFactor;
 
-    // If close enough and probability check passes, attack
-    if (TheDistanceToPlayer <= AttackRange && !bIsAttackOnCooldown)
+    // NEW: Only engaged enemies can attack
+    if (bCanEngage && TheDistanceToPlayer <= AttackRange && !bIsAttackOnCooldown)
     {
         float RandValue = FMath::FRand();
         if (RandValue < FinalAttackProbability * DeltaTime)
@@ -431,7 +440,32 @@ void AEnemy_AIController::UpdateBehaviour(float DeltaTime)
     float ZigZagRange = 1000.0f;  // Distance at which spiders start zigzagging
     float MediumRange = AttackRange * 1.5f;
 
-    // Handle movement based on distance and enemy type
+    // NEW: If we can't engage, maintain a waiting distance
+    float WaitingDistance = 300.0f;  // Changed from 250 to 300
+    if (!bCanEngage && TheDistanceToPlayer < WaitingDistance)
+    {
+        // Non-engaged enemies circle at waiting distance
+        MovementPatternTimer -= DeltaTime;
+
+        if (MovementPatternTimer <= 0.0f)
+        {
+            MovementPatternTimer = FMath::RandRange(1.0f, 2.0f);
+
+            // Calculate a position around the player at waiting distance
+            float Angle = FMath::RandRange(0.0f, 360.0f);
+            FVector CircleOffset = FVector(
+                FMath::Cos(FMath::DegreesToRadians(Angle)) * WaitingDistance,
+                FMath::Sin(FMath::DegreesToRadians(Angle)) * WaitingDistance,
+                0.0f
+            );
+
+            FVector WaitPosition = TargetPlayer->GetActorLocation() + CircleOffset;
+            MoveToLocation(WaitPosition, -1.0f, true);
+        }
+        return;  // Skip other movement behaviors
+    }
+
+    // ALL YOUR EXISTING MOVEMENT LOGIC REMAINS EXACTLY THE SAME
     if (TheDistanceToPlayer > ZigZagRange)
     {
         // FAR DISTANCE - All enemies move directly toward player
@@ -455,12 +489,12 @@ void AEnemy_AIController::UpdateBehaviour(float DeltaTime)
             break;
         }
     }
-    else if (TheDistanceToPlayer > AttackRange)
+    else if (bCanEngage && TheDistanceToPlayer > AttackRange)  // NEW: Added bCanEngage check
     {
         // CLOSE DISTANCE - Prepare for attack
         PrepareForAttack(EnemyType, DeltaTime);
     }
-    else
+    else if (bCanEngage)  // NEW: Added bCanEngage check
     {
         // ATTACK RANGE - Evaluate attack or reposition
         float RepositionChance = 0.3f * DeltaTime;
@@ -470,6 +504,8 @@ void AEnemy_AIController::UpdateBehaviour(float DeltaTime)
         }
     }
 }
+
+
 
 
 
@@ -659,6 +695,51 @@ float AEnemy_AIController::GetAttackRateForEnemyType(EEnemyType TheEnemyType)
 
 
 
+void AEnemy_AIController::CheckEngagementStatus()
+{
+
+    if (!TargetPlayer || !GetPawn()) return;
+
+    float DistToPlayer = FVector::Dist(GetPawn()->GetActorLocation(), TargetPlayer->GetActorLocation());
+
+    // Check if we're close enough to want engagement
+    if (DistToPlayer <= 300.0f)  // Changed from 180 to 300
+    {
+        // Try to engage if we haven't already and there's room
+        if (!bIsEngaged && CurrentEngagedEnemies < MaxEngagedEnemies)
+        {
+            bIsEngaged = true;
+            CurrentEngagedEnemies++;
+            bCanEngage = true;
+        }
+        else if (bIsEngaged)
+        {
+            bCanEngage = true;
+        }
+        else
+        {
+            bCanEngage = false;
+        }
+    }
+    else if (DistToPlayer > 400.0f && bIsEngaged)  // Changed from 270 to 400
+    {
+        // We've moved far away, disengage
+        bIsEngaged = false;
+        CurrentEngagedEnemies--;
+        bCanEngage = false;
+    }
+
+    // If we're engaged but still far from attack range, make sure we can move closer
+    if (bIsEngaged)
+    {
+        bCanEngage = true;  // This ensures engaged enemies keep moving
+    }
+
+}
+
+
+
+
 void AEnemy_AIController::Tick(float deltaTime)
 {
    
@@ -684,4 +765,22 @@ void AEnemy_AIController::Tick(float deltaTime)
         FacePlayer();
 
         
+}
+
+
+
+
+void AEnemy_AIController::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+
+    // Clean up our engagement if we were engaged
+    if (bIsEngaged)
+    {
+        CurrentEngagedEnemies--;
+        bIsEngaged = false;
+    }
+
+    Super::EndPlay(EndPlayReason);
+
+
 }
