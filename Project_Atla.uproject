@@ -40,7 +40,7 @@
 		{
 			"Name": "OnlineSubsystemSteam",
 			"Enabled": true,
-			"WhitelistPlatforms": [
+			"PlatformAllowList": [
 				"Win64",
 				"Win32",
 				"Mac",
@@ -50,7 +50,7 @@
 		{
 			"Name": "SteamController",
 			"Enabled": true,
-			"WhitelistPlatforms": [
+			"PlatformAllowList": [
 				"Win64",
 				"Win32",
 				"Mac",
@@ -77,6 +77,10 @@
 		},
 		{
 			"Name": "CommonUI",
+			"Enabled": true
+		},
+		{
+			"Name": "RemoteSession",
 			"Enabled": true
 		}
 	]

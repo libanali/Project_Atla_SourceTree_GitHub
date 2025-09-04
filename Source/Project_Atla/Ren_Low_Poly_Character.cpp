@@ -181,7 +181,7 @@ AttackMovementSpeed = 200.0f;
 
 
 //Demo
-bIsDemoBuild = true;
+bIsDemoBuild = false;
 
 
 bPowerUpPending = false;
