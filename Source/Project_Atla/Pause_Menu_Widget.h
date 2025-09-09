@@ -93,5 +93,6 @@ public:
     void PlayNavigationSound();
 
     bool IsControllerConnected() const;
+    bool IsRunningOnMobile() const;
 
 };

@@ -126,7 +126,7 @@ void UMain_Menu_Widget::NativeConstruct()
 
             // Make sure the widget has keyboard focus
 
-            if (IsControllerConnected())
+            if (IsControllerConnected() && !IsRunningOnMobile())
             {
                 this->SetKeyboardFocus();
                 //GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Controller detected - focus set"));
@@ -140,6 +140,48 @@ void UMain_Menu_Widget::NativeConstruct()
             //GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("Widget focus set on startup"));
         }
     }
+
+
+    // Initialize mobile back buttons
+    if (IsRunningOnMobile())
+    {
+        // Bind all back buttons to the same handler
+        if (MobileBackButton_WeaponSelect)
+        {
+            MobileBackButton_WeaponSelect->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnMobileBackButtonClicked);
+        }
+
+        if (MobileBackButton_Credits)
+        {
+            MobileBackButton_Credits->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnMobileBackButtonClicked);
+        }
+
+        if (MobileBackButton_Settings)
+        {
+            MobileBackButton_Settings->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnMobileBackButtonClicked);
+        }
+
+        if (MobileBackButton_Tutorial)
+        {
+            MobileBackButton_Tutorial->OnClicked.AddDynamic(this, &UMain_Menu_Widget::OnMobileBackButtonClicked);
+        }
+    }
+    else
+    {
+        // Hide all mobile back buttons on non-mobile platforms
+        if (MobileBackButton_WeaponSelect)
+            MobileBackButton_WeaponSelect->SetVisibility(ESlateVisibility::Collapsed);
+
+        if (MobileBackButton_Credits)
+            MobileBackButton_Credits->SetVisibility(ESlateVisibility::Collapsed);
+
+        if (MobileBackButton_Settings)
+            MobileBackButton_Settings->SetVisibility(ESlateVisibility::Collapsed);
+
+        if (MobileBackButton_Tutorial)
+            MobileBackButton_Tutorial->SetVisibility(ESlateVisibility::Collapsed);
+    }
+
 }
 
 
@@ -308,7 +350,7 @@ void UMain_Menu_Widget::OnPlayClicked()
         UpdateCanvasVisibility(2);
 
         // Only set focus if controller is connected
-        if (IsControllerConnected())
+        if (IsControllerConnected() && !IsRunningOnMobile())
         {
             if (SwordButton)
             {
@@ -331,7 +373,7 @@ void UMain_Menu_Widget::OnTutorialClicked()
         UpdateCanvasVisibility(5);
 
         // Only set focus if controller is connected
-        if (IsControllerConnected())
+        if (IsControllerConnected() && !IsRunningOnMobile())
         {
             if (ControlsButton)
             {
@@ -356,7 +398,7 @@ void UMain_Menu_Widget::OnSettingsClicked()
         UpdateCanvasVisibility(4);
 
         // Only set focus if controller is connected
-        if (IsControllerConnected())
+        if (IsControllerConnected() && !IsRunningOnMobile())
         {
             if (MasterAudioButton)
             {
@@ -1043,9 +1085,30 @@ void UMain_Menu_Widget::ShowStoryBoardWidget()
 
 
 
+void UMain_Menu_Widget::OnMobileBackButtonClicked()
+{
+
+    HandleGoBack();
+    PlayBackSound();
+}
+
+
+
 bool UMain_Menu_Widget::IsControllerConnected() const
 {
     return FSlateApplication::Get().IsGamepadAttached();
+}
+
+bool UMain_Menu_Widget::IsRunningOnMobile() const
+{
+
+#if PLATFORM_ANDROID || PLATFORM_IOS
+    return true;
+#else
+    // Runtime check for mobile platform
+    FString PlatformName = UGameplayStatics::GetPlatformName();
+    return (PlatformName == TEXT("Android") || PlatformName == TEXT("IOS"));
+#endif
 }
 
 
@@ -1395,7 +1458,7 @@ void UMain_Menu_Widget::HandleGoBack()
             UpdateCanvasVisibility(1);
 
             // Only restore focus if controller is connected
-            if (IsControllerConnected())
+            if (IsControllerConnected() && !IsRunningOnMobile())
             {
                 if (LastFocusedButton)
                 {
@@ -1432,7 +1495,7 @@ void UMain_Menu_Widget::SwitchToMainMenu()
         LastFocusedButton = nullptr;
 
         // Check for controller
-        if (IsControllerConnected())
+        if (IsControllerConnected() && !IsRunningOnMobile())
         {
             if (PlayButton)
             {
@@ -1468,7 +1531,7 @@ void UMain_Menu_Widget::SwitchToWeaponSelectMenu()
         if (CurrentIndex == 2 && !bHasSetFocusForSwordButton)
         {
             // Only set focus if controller is connected
-            if (IsControllerConnected())
+            if (IsControllerConnected() && !IsRunningOnMobile())
             {
                 if (SwordButton)
                 {

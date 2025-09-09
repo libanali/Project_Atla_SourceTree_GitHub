@@ -526,7 +526,7 @@ void UEnd_Screen_Widget::ShowPage(EGameOverPage Page)
             PlayAnimation(StatsPanelAnimation);
         }
 
-        if (IsControllerConnected())
+        if (IsControllerConnected() && !IsRunningOnMobile())
         {
             if (RetryButton)
             {
@@ -814,4 +814,17 @@ void UEnd_Screen_Widget::OnHighScoreAnimationComplete()
 bool UEnd_Screen_Widget::IsControllerConnected() const
 {
     return FSlateApplication::Get().IsGamepadAttached();
+}
+
+
+
+bool UEnd_Screen_Widget::IsRunningOnMobile() const
+{
+#if PLATFORM_ANDROID || PLATFORM_IOS
+    return true;
+#else
+    // Runtime check for mobile platform
+    FString PlatformName = UGameplayStatics::GetPlatformName();
+    return (PlatformName == TEXT("Android") || PlatformName == TEXT("IOS"));
+#endif
 }

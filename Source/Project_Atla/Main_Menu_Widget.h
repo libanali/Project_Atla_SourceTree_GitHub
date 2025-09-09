@@ -102,6 +102,17 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 		class UButton* AttributesButton;
 
+	UPROPERTY(meta = (BindWidget))
+		class UButton* MobileBackButton_WeaponSelect;
+
+	UPROPERTY(meta = (BindWidget))
+		class UButton* MobileBackButton_Credits;
+
+	UPROPERTY(meta = (BindWidget))
+		class UButton* MobileBackButton_Settings;
+
+	UPROPERTY(meta = (BindWidget))
+	   class UButton* MobileBackButton_Tutorial;
 
 
 	// "Press Any Button" Text Block
@@ -385,10 +396,12 @@ protected:
 
 	void ShowStoryBoardWidget();
 
+	void OnMobileBackButtonClicked();
 
 
 
 	bool IsControllerConnected() const;
+	bool IsRunningOnMobile() const;
 
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 	virtual FReply NativeOnAnalogValueChanged(const FGeometry& InGeometry, const FAnalogInputEvent& InAnalogInputEvent) override;

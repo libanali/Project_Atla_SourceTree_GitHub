@@ -171,7 +171,7 @@ void UTechnique_List_Widget::PopulateTechniqueList()
     if (Technique_ScrollBox->GetChildrenCount() > 0)
     {
         // Only set focus if controller is connected
-        if (IsControllerConnected())
+        if (IsControllerConnected() && !IsRunningOnMobile())
         {
             FTimerHandle FocusTimerHandle;
             GetWorld()->GetTimerManager().SetTimer(
@@ -220,4 +220,17 @@ void UTechnique_List_Widget::SetupInputMode()
 bool UTechnique_List_Widget::IsControllerConnected() const
 {
     return FSlateApplication::Get().IsGamepadAttached();
+}
+
+bool UTechnique_List_Widget::IsRunningOnMobile() const
+{
+
+#if PLATFORM_ANDROID || PLATFORM_IOS
+    return true;
+#else
+    // Runtime check for mobile platform
+    FString PlatformName = UGameplayStatics::GetPlatformName();
+    return (PlatformName == TEXT("Android") || PlatformName == TEXT("IOS"));
+#endif
+
 }

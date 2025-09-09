@@ -69,5 +69,6 @@ private:
 protected:
 
     bool IsControllerConnected() const;
+    bool IsRunningOnMobile() const;
 
 };

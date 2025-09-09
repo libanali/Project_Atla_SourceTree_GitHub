@@ -107,7 +107,7 @@ void UInventory_List_Widget::PopulateItemList()
     if (Item_ScrollBox->GetChildrenCount() > 0)
     {
         // Only set focus if controller is connected
-        if (IsControllerConnected())
+        if (IsControllerConnected() && !IsRunningOnMobile())
         {
             FTimerHandle FocusTimerHandle;
             GetWorld()->GetTimerManager().SetTimer(
@@ -152,4 +152,16 @@ void UInventory_List_Widget::SetupInputMode()
 bool UInventory_List_Widget::IsControllerConnected() const
 {
     return FSlateApplication::Get().IsGamepadAttached();
+}
+
+
+bool UInventory_List_Widget::IsRunningOnMobile() const
+{
+#if PLATFORM_ANDROID || PLATFORM_IOS
+    return true;
+#else
+    // Runtime check for mobile platform
+    FString PlatformName = UGameplayStatics::GetPlatformName();
+    return (PlatformName == TEXT("Android") || PlatformName == TEXT("IOS"));
+#endif
 }

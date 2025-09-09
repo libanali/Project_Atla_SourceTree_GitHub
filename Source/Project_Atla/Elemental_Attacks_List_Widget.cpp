@@ -225,7 +225,7 @@ void UElemental_Attacks_List_Widget::PopulateElementalAttackList()
         if (Elemental_Attack_ScrollBox->GetChildrenCount() > 0)
         {
             // Only set focus if controller is connected
-            if (IsControllerConnected())
+            if (IsControllerConnected() && !IsRunningOnMobile())
             {
                 FTimerHandle FocusTimerHandle;
                 GetWorld()->GetTimerManager().SetTimer(
@@ -323,5 +323,18 @@ bool UElemental_Attacks_List_Widget::IsControllerConnected() const
     return FSlateApplication::Get().IsGamepadAttached();
 }
 
+
+bool UElemental_Attacks_List_Widget::IsRunningOnMobile() const
+{
+
+#if PLATFORM_ANDROID || PLATFORM_IOS
+    return true;
+#else
+    // Runtime check for mobile platform
+    FString PlatformName = UGameplayStatics::GetPlatformName();
+    return (PlatformName == TEXT("Android") || PlatformName == TEXT("IOS"));
+#endif
+
+}
 
 

@@ -39,7 +39,7 @@ void UPause_Menu_Widget::NativeConstruct()
 
 
     // Only set focus if controller is connected
-    if (IsControllerConnected())
+    if (IsControllerConnected() && !IsRunningOnMobile())
     {
         if (ResumeButton)
         {
@@ -133,7 +133,7 @@ void UPause_Menu_Widget::ShowPauseMenu()
         PlayerController->SetShowMouseCursor(true);
 
         // Set input mode based on controller presence
-        if (IsControllerConnected())
+        if (IsControllerConnected() && !IsRunningOnMobile())
         {
             // UI only mode with focus on widget for controller
             FInputModeUIOnly InputMode;
@@ -296,7 +296,7 @@ void UPause_Menu_Widget::SetInitialFocus()
 {
 
     // Only set focus if controller is connected
-    if (IsControllerConnected())
+    if (IsControllerConnected() && !IsRunningOnMobile())
     {
         // Use a small delay to ensure widget is fully initialized
         if (GetWorld())
@@ -365,7 +365,7 @@ void UPause_Menu_Widget::UpdateMenuState(int32 ActiveIndex)
                 ConfirmationCanvas->SetVisibility(ESlateVisibility::Hidden);
 
             // Only set focus if controller is connected
-            if (IsControllerConnected())
+            if (IsControllerConnected() && !IsRunningOnMobile())
             {
                 if (ResumeButton)
                 {
@@ -388,7 +388,7 @@ void UPause_Menu_Widget::UpdateMenuState(int32 ActiveIndex)
                 ConfirmationCanvas->SetVisibility(ESlateVisibility::Visible);
 
             // Only set focus if controller is connected
-            if (IsControllerConnected())
+            if (IsControllerConnected() && !IsRunningOnMobile())
             {
                 // Set focus on No button (safer default)
                 if (NoButton)
@@ -530,6 +530,19 @@ bool UPause_Menu_Widget::IsControllerConnected() const
     return FSlateApplication::Get().IsGamepadAttached();
 }
 
+
+bool UPause_Menu_Widget::IsRunningOnMobile() const
+{
+
+#if PLATFORM_ANDROID || PLATFORM_IOS
+    return true;
+#else
+    // Runtime check for mobile platform
+    FString PlatformName = UGameplayStatics::GetPlatformName();
+    return (PlatformName == TEXT("Android") || PlatformName == TEXT("IOS"));
+#endif
+
+}
 
 
 

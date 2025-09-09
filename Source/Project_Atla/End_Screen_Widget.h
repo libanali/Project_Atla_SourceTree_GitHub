@@ -236,5 +236,6 @@ private:
 
 
     bool IsControllerConnected() const;
+    bool IsRunningOnMobile() const;
 
 };
