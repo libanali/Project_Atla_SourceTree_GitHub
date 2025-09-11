@@ -171,6 +171,10 @@ public:
 	void MoveRight(float Axis);
 	//Movement
 
+	//Mobile detection
+	UFUNCTION(BlueprintCallable, Category = "Mobile Detection")
+	bool IsRunningOnMobile() const;
+	//Mobile Detection
 
 	//Game mode
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Game Mode")

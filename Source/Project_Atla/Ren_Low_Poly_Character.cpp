@@ -5639,6 +5639,19 @@ if (PlayerController)
 }
 
 
+bool ARen_Low_Poly_Character::IsRunningOnMobile() const
+{
+
+#if PLATFORM_ANDROID || PLATFORM_IOS
+	return true;
+#else
+	// Runtime check for mobile platform
+	FString PlatformName = UGameplayStatics::GetPlatformName();
+	return (PlatformName == TEXT("Android") || PlatformName == TEXT("IOS"));
+
+#endif
+
+}
 
 
 // Called every frame
