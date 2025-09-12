@@ -1106,7 +1106,7 @@ public:
 		UPause_Menu_Widget* PauseMenuWidget;
 
 	// Function to handle pause input
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void HandlePauseGame();
 
 	// Helper function to set game pause state
