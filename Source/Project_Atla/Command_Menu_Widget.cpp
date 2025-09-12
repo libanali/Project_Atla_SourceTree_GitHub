@@ -111,6 +111,18 @@ bool UCommand_Menu_Widget::IsControllerConnected() const
 }
 
 
+bool UCommand_Menu_Widget::IsRunningOnMobile() const
+{
+
+#if PLATFORM_ANDROID || PLATFORM_IOS
+    return true;
+#else
+    // Runtime check for mobile platform
+    FString PlatformName = UGameplayStatics::GetPlatformName();
+    return (PlatformName == TEXT("Android") || PlatformName == TEXT("IOS"));
+#endif
+}
+
 
 void UCommand_Menu_Widget::ShowItemsMenu()
 {
@@ -307,7 +319,7 @@ void UCommand_Menu_Widget::CheckInventoryAndSetFocus()
             // Set focus to Items button if appropriate
             if (WidgetSwitcher && WidgetSwitcher->GetActiveWidgetIndex() == 1)  // Main menu index
             {
-                if (IsControllerConnected())
+                if (IsControllerConnected() && !IsRunningOnMobile())
                 {
                     ItemsButton->SetKeyboardFocus();
                 }

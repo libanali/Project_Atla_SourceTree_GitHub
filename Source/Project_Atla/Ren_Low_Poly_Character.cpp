@@ -1806,15 +1806,7 @@ void ARen_Low_Poly_Character::SpawnStaffAttackProjectile()
 		UE_LOG(LogTemp, Log, TEXT("Staff: Firing at %s with height offset: %.2f, Distance: %.1f"),
 			*SoftLockedEnemy->GetName(), HeightOffset, DistanceToEnemy);
 
-		// Debug visualization
-#if WITH_EDITOR
-		DrawDebugLine(GetWorld(), SpawnLocation, TargetLocation,
-			FColor::Blue, false, 3.0f, 0, 2.0f);
-		DrawDebugSphere(GetWorld(), TargetLocation, 10.0f,
-			12, FColor::Cyan, false, 3.0f);
-		DrawDebugSphere(GetWorld(), SpawnLocation, 8.0f,
-			8, FColor::Green, false, 3.0f);
-#endif
+
 	}
 	else
 	{
@@ -5243,14 +5235,14 @@ void ARen_Low_Poly_Character::UpdateVisibilityBasedOnIndex(int Index)
 				CommandMenuWidget->InventoryWidgetInstance->RemoveFromParent();
 
 				// Only set focus if controller is connected
-				if (IsControllerConnected())
+				if (IsControllerConnected() && !IsRunningOnMobile())
 				{
 					CommandMenuWidget->ItemsButton->SetKeyboardFocus();
 				}
 			}
 
 			// Only set focus if controller is connected
-			if (IsControllerConnected())
+			if (IsControllerConnected() && !IsRunningOnMobile())
 			{
 				CommandMenuWidget->ItemsButton->SetKeyboardFocus();
 			}
@@ -5672,6 +5664,7 @@ CheckTechniquePointsMaximum();
 ControlTechniqueGaugeFill();
 
 ControlMPFill();
+
 
 // Call UpdateEnemyArrows only if the EnemyArrowMap is valid and not empty
 if (EnemyArrowMap.Num() > 0)

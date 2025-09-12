@@ -165,6 +165,8 @@ public:
 
     virtual FNavigationReply NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply) override;
 
+    bool IsRunningOnMobile() const;
+
 
 protected:
 

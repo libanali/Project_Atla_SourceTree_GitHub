@@ -908,7 +908,7 @@ public:
 
 	void SetItemsButtonFocus();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void ToggleCommandMenu();
 
 	UFUNCTION()
@@ -935,6 +935,7 @@ public:
 
 	void EnableUIInputWithGameInput();
 
+	UFUNCTION(BlueprintCallable)
 	void UpdateVisibilityBasedOnIndex(int Index);
 
 
