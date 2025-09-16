@@ -1087,9 +1087,32 @@ void UMain_Menu_Widget::ShowStoryBoardWidget()
 
 void UMain_Menu_Widget::OnMobileBackButtonClicked()
 {
+   
+    if (WidgetSwitcher)
+    {
+       
 
-    HandleGoBack();
-    PlayBackSound();
+        // Switch to main menu
+        WidgetSwitcher->SetActiveWidgetIndex(1);
+        UpdateCanvasVisibility(1);
+
+      
+    }
+    else
+    {
+        UE_LOG(LogTemp, Error, TEXT("WidgetSwitcher is NULL!"));
+        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Red, TEXT("ERROR: WidgetSwitcher is NULL"));
+    }
+
+    // STEP 3: Try to play sound
+    if (BackSound)
+    {
+        UGameplayStatics::PlaySound2D(GetWorld(), BackSound);
+    }
+    else
+    {
+        UE_LOG(LogTemp, Warning, TEXT("BackSound is NULL"));
+    }
 }
 
 

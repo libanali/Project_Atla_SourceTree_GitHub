@@ -309,7 +309,7 @@ protected:
 	UFUNCTION()
 		void InitializeCanvasPanels();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void UpdateCanvasVisibility(int32 ActiveIndex);
 
 	
@@ -401,6 +401,8 @@ protected:
 
 
 	bool IsControllerConnected() const;
+
+	UFUNCTION(BlueprintCallable)
 	bool IsRunningOnMobile() const;
 
 	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
