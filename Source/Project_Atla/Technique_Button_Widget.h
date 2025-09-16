@@ -73,6 +73,9 @@ public:
         USoundBase* NavigationSound;
 
 
+
+
+
     void HandleFocusChanged(bool bHasFocus);
     void PlayNavigationSound();
 

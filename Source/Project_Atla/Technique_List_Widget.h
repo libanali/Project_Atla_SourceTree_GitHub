@@ -47,6 +47,9 @@ protected:
     virtual void NativeOnInitialized() override;
     virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
     bool IsControllerConnected() const;
+
+
+    UFUNCTION(BlueprintCallable)
     bool IsRunningOnMobile() const;
 
 };

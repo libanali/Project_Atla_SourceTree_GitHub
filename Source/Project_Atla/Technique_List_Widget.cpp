@@ -222,6 +222,7 @@ bool UTechnique_List_Widget::IsControllerConnected() const
     return FSlateApplication::Get().IsGamepadAttached();
 }
 
+
 bool UTechnique_List_Widget::IsRunningOnMobile() const
 {
 
