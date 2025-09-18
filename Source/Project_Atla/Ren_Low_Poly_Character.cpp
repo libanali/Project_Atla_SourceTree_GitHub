@@ -1711,7 +1711,7 @@ if (ProjectileClass)
 			// Optional: Log for debugging different enemy types
 			UE_LOG(LogTemp, Log, TEXT("Firing at %s with height offset: %.2f"),
 				*SoftLockedEnemy->GetName(), HeightOffset);
-
+/*
 			// Debug visualization (remove in production)
 #if WITH_EDITOR
 // Draw line to show where we're aiming
@@ -1721,6 +1721,7 @@ if (ProjectileClass)
 			DrawDebugSphere(GetWorld(), TargetLocation, 10.0f,
 				12, FColor::Yellow, false, 3.0f);
 #endif
+*/
 		}
 		else
 		{
