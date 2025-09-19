@@ -5,7 +5,6 @@
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
 #include "Ren_Low_Poly_Character.h"
-#include "Mobile_Commands_Widget.h"
 #include "Kismet/GameplayStatics.h"
 #include "TimerManager.h"
 #include "Engine/World.h"
@@ -224,20 +223,13 @@ void UTechnique_Button_Widget::SetupButton(FTechnique_Struct TechniqueData, ARen
 
 void UTechnique_Button_Widget::OnTechniqueButtonClicked()
 {
+
     if (PlayerCharacter)
     {
         PlayerCharacter->UseTechnique(TechniqueIndex);
-
-        // Try to handle mobile commands
-        if (UMobile_Commands_Widget* MobileCommands = UMobile_Commands_Widget::GetInstance())
-        {
-            MobileCommands->OnCommandExecuted();
-            return; // Don't call ReturnToGameplay for mobile
-        }
-
-        // PC behavior
         ReturnToGameplay();
     }
+
 }
 
 

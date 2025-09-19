@@ -5404,6 +5404,29 @@ if (CommandMenuPPV && !bIsInCommandMode)
 }
 }
 
+void ARen_Low_Poly_Character::ExitCommandModeForMobile()
+{
+
+	// Exit command mode functionality
+	if (bIsInCommandMode)
+	{
+		bIsInCommandMode = false;
+		DisablePPV();
+		UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
+		GetWorld()->GetTimerManager().ClearTimer(UIUpdateTimerHandle);
+	}
+
+	// Set input back to gameplay
+	SetInputModeForGameplay();
+	bIsInUIMode = false;
+
+	if (MobileCommandWidget)
+	{
+		MobileCommandWidget->SetVisibility(ESlateVisibility::Visible);
+	}
+
+}
+
 
 
 void ARen_Low_Poly_Character::UpdateUIInCommandMode()

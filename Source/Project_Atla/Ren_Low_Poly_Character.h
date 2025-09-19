@@ -1006,6 +1006,16 @@ public:
 		float PPVTransitionSpeed;
 
 	FTimerHandle UIUpdateTimerHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
+	TSubclassOf<UUserWidget> MobileCommandWidgetClass;
+
+	UPROPERTY()
+	UUserWidget* MobileCommandWidget;
+
+	// Add this function
+	UFUNCTION(BlueprintCallable, Category = "Command System")
+	void ExitCommandModeForMobile();
 	//Command
 
 
