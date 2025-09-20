@@ -38,6 +38,9 @@ public class Project_Atla : ModuleRules
                 "Steamworks",
                 "SteamController"
             });
+
+            bEnableUndefinedIdentifierWarnings = false;
+            PublicDefinitions.Add("__has_feature(x)=0");
         }
 
         // Uncomment if you are using Slate UI

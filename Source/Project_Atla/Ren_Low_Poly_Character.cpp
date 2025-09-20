@@ -5143,78 +5143,98 @@ void ARen_Low_Poly_Character::SetItemsButtonFocus()
 
 void ARen_Low_Poly_Character::ToggleCommandMenu()
 {
+	if (!CanAccessMenus() || bIsPoweringUp)
+		return;
 
-if (!CanAccessMenus() || bIsPoweringUp)
-	return;
-
-
-if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher && !bIsDead)
-{
-	int CurrentIndex = CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex();
-
-	// Check if we are currently at index 0 to open the command menu
-	if (CurrentIndex == 0)
+	// Handle Mobile version first
+	if (IsRunningOnMobile())
 	{
-		CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
-		CommandMenuWidget->PlayAnimationReverse(CommandMenuWidget->CommandMenuIcon_FadeAnim);
-		CommandMenuWidget->PlayAnimation(CommandMenuWidget->CommandMenu_FadeAnim);
-		UpdateVisibilityBasedOnIndex(1);  // Update visibility right after switching to index 1
-
-		// Make sure buttons are visible
-		CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Visible);
-		CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Visible);
-		CommandMenuWidget->ElementalButton->SetVisibility(ESlateVisibility::Visible);
-
-
-		// Add slight delay before setting keyboard focus to ensure UI updates
-		GetWorldTimerManager().SetTimerForNextTick(this, &ARen_Low_Poly_Character::SetItemsButtonFocus);
-
-		CommandMenuWidget->CheckInventoryAndSetFocus();
-		EnterCommandMode();
-
-		SetInputModeForUI();
-		bIsInUIMode = true;
-
-		// Log for debugging
-		UE_LOG(LogTemp, Warning, TEXT("Command Menu opened, index set to: %d"), CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex());
-	}
-	else if (CurrentIndex == 1) // If already in the command menu
-	{
-		UpdateVisibilityBasedOnIndex(1);  // Update visibility for index 1
-		// Only set focus if controller is connected
-		if (IsControllerConnected())
+		if (MobileCommandWidget)
 		{
-			if (CommandMenuWidget->ItemsButton)
+			if (MobileCommandWidget->IsVisible())
 			{
-				CommandMenuWidget->ItemsButton->SetKeyboardFocus(); // Ensure focus remains on the Items Button
+				// Hide mobile widget and enter command mode
+				MobileCommandWidget->SetVisibility(ESlateVisibility::Hidden);
+				EnterCommandMode();
+				SetInputModeForUI();
+				bIsInUIMode = true;
+				UE_LOG(LogTemp, Warning, TEXT("Mobile Command Menu opened"));
+			}
+			else
+			{
+				// Show mobile widget and exit command mode
+				MobileCommandWidget->SetVisibility(ESlateVisibility::Visible);
+				ExitCommandMode();
+				SetInputModeForGameplay();
+				bIsInUIMode = false;
+				UE_LOG(LogTemp, Warning, TEXT("Mobile Command Menu closed"));
 			}
 		}
-	
-		// Log for debugging
-		UE_LOG(LogTemp, Warning, TEXT("Command Menu already open, focus set on Items Button."));
+		return; // Exit early for mobile
 	}
-	else if (CurrentIndex == 2) // If currently in the inventory
+
+	// PC/Console version with widget switcher
+	if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher && !bIsDead)
 	{
-		CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
-		UpdateVisibilityBasedOnIndex(1);  // Update visibility when switching back to command menu
+		int CurrentIndex = CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex();
 
-		// Make sure buttons are visible when returning to command menu
-		CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Visible);
-		CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Visible);
-		CommandMenuWidget->ElementalButton->SetVisibility(ESlateVisibility::Visible);
+		// Check if we are currently at index 0 to open the command menu
+		if (CurrentIndex == 0)
+		{
+			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
+			CommandMenuWidget->PlayAnimationReverse(CommandMenuWidget->CommandMenuIcon_FadeAnim);
+			CommandMenuWidget->PlayAnimation(CommandMenuWidget->CommandMenu_FadeAnim);
+			UpdateVisibilityBasedOnIndex(1);
 
+			// Make sure buttons are visible
+			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Visible);
+			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Visible);
+			CommandMenuWidget->ElementalButton->SetVisibility(ESlateVisibility::Visible);
 
-			
-		GetWorldTimerManager().SetTimerForNextTick(this, &ARen_Low_Poly_Character::SetItemsButtonFocus);
-			
+			// Add slight delay before setting keyboard focus to ensure UI updates
+			GetWorldTimerManager().SetTimerForNextTick(this, &ARen_Low_Poly_Character::SetItemsButtonFocus);
 
-		bIsInventoryOpen = false;
-		bIsTechniquesOpen = false;
-		bIsElementalsOpen = false;
-		// Log for debugging
-		UE_LOG(LogTemp, Warning, TEXT("Returned to Command Menu from Inventory, index set to: %d"), CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex());
+			CommandMenuWidget->CheckInventoryAndSetFocus();
+			EnterCommandMode();
+
+			SetInputModeForUI();
+			bIsInUIMode = true;
+
+			UE_LOG(LogTemp, Warning, TEXT("Command Menu opened, index set to: %d"), CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex());
+		}
+		else if (CurrentIndex == 1) // If already in the command menu
+		{
+			UpdateVisibilityBasedOnIndex(1);
+			// Only set focus if controller is connected
+			if (IsControllerConnected())
+			{
+				if (CommandMenuWidget->ItemsButton)
+				{
+					CommandMenuWidget->ItemsButton->SetKeyboardFocus();
+				}
+			}
+
+			UE_LOG(LogTemp, Warning, TEXT("Command Menu already open, focus set on Items Button."));
+		}
+		else if (CurrentIndex == 2 || CurrentIndex == 3 || CurrentIndex == 4) // If in any submenu
+		{
+			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
+			UpdateVisibilityBasedOnIndex(1);
+
+			// Make sure buttons are visible when returning to command menu
+			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Visible);
+			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Visible);
+			CommandMenuWidget->ElementalButton->SetVisibility(ESlateVisibility::Visible);
+
+			GetWorldTimerManager().SetTimerForNextTick(this, &ARen_Low_Poly_Character::SetItemsButtonFocus);
+
+			bIsInventoryOpen = false;
+			bIsTechniquesOpen = false;
+			bIsElementalsOpen = false;
+
+			UE_LOG(LogTemp, Warning, TEXT("Returned to Command Menu from submenu, index set to: %d"), CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex());
+		}
 	}
-}
 }
 
 
