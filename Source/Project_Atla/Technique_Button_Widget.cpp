@@ -228,14 +228,6 @@ void UTechnique_Button_Widget::OnTechniqueButtonClicked()
     {
         PlayerCharacter->UseTechnique(TechniqueIndex);
 
-        // Try to handle mobile commands
-        if (UMobile_Commands_Widget* MobileCommands = UMobile_Commands_Widget::GetInstance())
-        {
-            MobileCommands->OnCommandExecuted();
-            return; // Don't call ReturnToGameplay for mobile
-        }
-
-        // PC behavior
         ReturnToGameplay();
     }
 }

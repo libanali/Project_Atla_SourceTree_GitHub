@@ -5146,34 +5146,7 @@ void ARen_Low_Poly_Character::ToggleCommandMenu()
 	if (!CanAccessMenus() || bIsPoweringUp)
 		return;
 
-	// Handle Mobile version first
-	if (IsRunningOnMobile())
-	{
-		if (MobileCommandWidget)
-		{
-			if (MobileCommandWidget->IsVisible())
-			{
-				// Hide mobile widget and enter command mode
-				MobileCommandWidget->SetVisibility(ESlateVisibility::Hidden);
-				EnterCommandMode();
-				SetInputModeForUI();
-				bIsInUIMode = true;
-				UE_LOG(LogTemp, Warning, TEXT("Mobile Command Menu opened"));
-			}
-			else
-			{
-				// Show mobile widget and exit command mode
-				MobileCommandWidget->SetVisibility(ESlateVisibility::Visible);
-				ExitCommandMode();
-				SetInputModeForGameplay();
-				bIsInUIMode = false;
-				UE_LOG(LogTemp, Warning, TEXT("Mobile Command Menu closed"));
-			}
-		}
-		return; // Exit early for mobile
-	}
 
-	// PC/Console version with widget switcher
 	if (CommandMenuWidget && CommandMenuWidget->WidgetSwitcher && !bIsDead)
 	{
 		int CurrentIndex = CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex();
@@ -5184,12 +5157,13 @@ void ARen_Low_Poly_Character::ToggleCommandMenu()
 			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
 			CommandMenuWidget->PlayAnimationReverse(CommandMenuWidget->CommandMenuIcon_FadeAnim);
 			CommandMenuWidget->PlayAnimation(CommandMenuWidget->CommandMenu_FadeAnim);
-			UpdateVisibilityBasedOnIndex(1);
+			UpdateVisibilityBasedOnIndex(1);  // Update visibility right after switching to index 1
 
 			// Make sure buttons are visible
 			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Visible);
 			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Visible);
 			CommandMenuWidget->ElementalButton->SetVisibility(ESlateVisibility::Visible);
+
 
 			// Add slight delay before setting keyboard focus to ensure UI updates
 			GetWorldTimerManager().SetTimerForNextTick(this, &ARen_Low_Poly_Character::SetItemsButtonFocus);
@@ -5200,39 +5174,44 @@ void ARen_Low_Poly_Character::ToggleCommandMenu()
 			SetInputModeForUI();
 			bIsInUIMode = true;
 
+			// Log for debugging
 			UE_LOG(LogTemp, Warning, TEXT("Command Menu opened, index set to: %d"), CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex());
 		}
 		else if (CurrentIndex == 1) // If already in the command menu
 		{
-			UpdateVisibilityBasedOnIndex(1);
+			UpdateVisibilityBasedOnIndex(1);  // Update visibility for index 1
 			// Only set focus if controller is connected
 			if (IsControllerConnected())
 			{
 				if (CommandMenuWidget->ItemsButton)
 				{
-					CommandMenuWidget->ItemsButton->SetKeyboardFocus();
+					CommandMenuWidget->ItemsButton->SetKeyboardFocus(); // Ensure focus remains on the Items Button
 				}
 			}
 
+			// Log for debugging
 			UE_LOG(LogTemp, Warning, TEXT("Command Menu already open, focus set on Items Button."));
 		}
-		else if (CurrentIndex == 2 || CurrentIndex == 3 || CurrentIndex == 4) // If in any submenu
+		else if (CurrentIndex == 2) // If currently in the inventory
 		{
 			CommandMenuWidget->WidgetSwitcher->SetActiveWidgetIndex(1);
-			UpdateVisibilityBasedOnIndex(1);
+			UpdateVisibilityBasedOnIndex(1);  // Update visibility when switching back to command menu
 
 			// Make sure buttons are visible when returning to command menu
 			CommandMenuWidget->ItemsButton->SetVisibility(ESlateVisibility::Visible);
 			CommandMenuWidget->TechniquesButton->SetVisibility(ESlateVisibility::Visible);
 			CommandMenuWidget->ElementalButton->SetVisibility(ESlateVisibility::Visible);
 
+
+
 			GetWorldTimerManager().SetTimerForNextTick(this, &ARen_Low_Poly_Character::SetItemsButtonFocus);
+
 
 			bIsInventoryOpen = false;
 			bIsTechniquesOpen = false;
 			bIsElementalsOpen = false;
-
-			UE_LOG(LogTemp, Warning, TEXT("Returned to Command Menu from submenu, index set to: %d"), CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex());
+			// Log for debugging
+			UE_LOG(LogTemp, Warning, TEXT("Returned to Command Menu from Inventory, index set to: %d"), CommandMenuWidget->WidgetSwitcher->GetActiveWidgetIndex());
 		}
 	}
 }

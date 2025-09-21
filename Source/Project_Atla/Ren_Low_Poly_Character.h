@@ -1010,7 +1010,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "UI")
 	TSubclassOf<UUserWidget> MobileCommandWidgetClass;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Command System")
 	UUserWidget* MobileCommandWidget;
 
 	// Add this function
