@@ -69,6 +69,8 @@ private:
 protected:
 
     bool IsControllerConnected() const;
+
+    UFUNCTION(BlueprintCallable, Category = "Mobile Detection")
     bool IsRunningOnMobile() const;
 
 };
