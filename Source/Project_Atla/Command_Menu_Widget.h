@@ -165,6 +165,7 @@ public:
 
     virtual FNavigationReply NativeOnNavigation(const FGeometry& MyGeometry, const FNavigationEvent& InNavigationEvent, const FNavigationReply& InDefaultReply) override;
 
+    UFUNCTION(BlueprintCallable, Category = "Mobile Detection")
     bool IsRunningOnMobile() const;
 
 
