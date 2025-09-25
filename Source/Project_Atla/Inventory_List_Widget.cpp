@@ -5,6 +5,8 @@
 #include "Components/ScrollBox.h"
 #include "Components/Button.h"
 #include "Components/TextBlock.h"
+#include "Components/VerticalBox.h"
+#include "Components/HorizontalBox.h"
 #include "Item_Button_Widget.h"
 #include "Ren_Low_Poly_Character.h"
 #include "Blueprint/WidgetBlueprintLibrary.h"
@@ -16,6 +18,8 @@
 
 void UInventory_List_Widget::NativeConstruct()
 {
+
+    Super::NativeConstruct();
 
     // Get the player character
     ARen_Low_Poly_Character* Character = Cast<ARen_Low_Poly_Character>(GetOwningPlayerPawn());
@@ -29,6 +33,26 @@ void UInventory_List_Widget::NativeConstruct()
         UE_LOG(LogTemp, Warning, TEXT("Could not get player character in NativeConstruct"));
     }
 
+
+    // Add this block for mobile scaling
+    if (IsRunningOnMobile())
+    {
+        // Position entire widget in bottom-right
+       // SetRenderTransformPivot(FVector2D(1.0f, 1.0f));
+
+        // Scale the containers
+        if (Title)  // Your horizontal box
+        {
+            Title->SetRenderScale(FVector2D(2.0f, 2.0f));
+            Title->SetRenderTransformPivot(FVector2D(1.0f, 1.0f));
+        }
+
+        if (ItemScrollBoxAndDescription)  // Your vertical box
+        {
+            ItemScrollBoxAndDescription->SetRenderScale(FVector2D(2.0f, 2.0f));
+            ItemScrollBoxAndDescription->SetRenderTransformPivot(FVector2D(1.0f, 1.0f));
+        }
+    }
 
 
 }

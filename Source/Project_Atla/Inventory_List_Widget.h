@@ -28,6 +28,11 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "UI")
         TSubclassOf<class UItem_Button_Widget> ItemButtonClass;
 
+    UPROPERTY(meta = (BindWidget))
+        class UHorizontalBox* Title;
+
+    UPROPERTY(meta = (BindWidget))
+        class UVerticalBox* ItemScrollBoxAndDescription;
 
     void SetupWidget(class ARen_Low_Poly_Character* Character);
     void PopulateItemList();
