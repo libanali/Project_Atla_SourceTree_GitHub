@@ -4165,16 +4165,34 @@ else
 APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
 if (PC)
-
 {
-	// Only set game input mode if game mode doesn't have an objective sequence in progress
-	ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (!GameMode || GameMode->bHasShownObjectiveMessage)
+	if (IsRunningOnMobile())
 	{
-		FInputModeGameOnly GameOnlyInput;
-		PC->SetInputMode(GameOnlyInput);
-	}
+		// For mobile gameplay, ensure virtual joystick works
+		FInputModeGameAndUI InputMode;  // This allows both touch and game input
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		InputMode.SetHideCursorDuringCapture(false);
+		PC->SetInputMode(InputMode);
+		PC->bShowMouseCursor = false;
 
+		// Enable touch interface
+		PC->ActivateTouchInterface(nullptr);
+
+		// Enable touch events
+		PC->bEnableClickEvents = true;
+		PC->bEnableTouchEvents = true;
+		PC->bEnableTouchOverEvents = true;
+	}
+	else
+	{
+		// Desktop - your existing code
+		ALowPoly_Survival_GameMode* GameMode = Cast<ALowPoly_Survival_GameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+		if (!GameMode || GameMode->bHasShownObjectiveMessage)
+		{
+			FInputModeGameOnly GameOnlyInput;
+			PC->SetInputMode(GameOnlyInput);
+		}
+	}
 }
 
 
@@ -5628,7 +5646,20 @@ void ARen_Low_Poly_Character::SetInputModeForGameplay()
 APlayerController* PlayerController = Cast<APlayerController>(GetController());
 if (PlayerController)
 {
-	PlayerController->SetInputMode(FInputModeGameOnly());
+	if (IsRunningOnMobile())
+	{
+		// Mobile needs GameAndUI for virtual joystick to work
+		FInputModeGameAndUI InputMode;
+		InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+		InputMode.SetHideCursorDuringCapture(false);
+		PlayerController->SetInputMode(InputMode);
+		PlayerController->bShowMouseCursor = false;
+	}
+	else
+	{
+		// Desktop stays as GameOnly
+		PlayerController->SetInputMode(FInputModeGameOnly());
+	}
 }
 
 }
