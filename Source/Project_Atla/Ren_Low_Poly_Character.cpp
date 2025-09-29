@@ -4174,8 +4174,7 @@ if (PC)
 		PC->SetInputMode(InputMode);
 		PC->bShowMouseCursor = false;
 
-		// Enable touch interface
-		PC->ActivateTouchInterface(nullptr);
+		//PC->ActivateTouchInterface(nullptr);
 
 		// Enable touch events
 		PC->bEnableClickEvents = true;

@@ -1152,37 +1152,52 @@ void ALowPoly_Survival_GameMode::StartGameAfterObjective()
 
         // Add debug message before enabling input
         UE_LOG(LogTemp, Warning, TEXT("About to re-enable input in StartGameAfterObjective"));
-        //GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Re-enabling input..."));
 
         // Reset any UI flags on the character
         PlayerCharacter->bIsInUIMode = false;
 
         FTimerHandle InputEnableTimer;
-
         // Add a slight delay before re-enabling input to ensure all transitions are complete
         GetWorld()->GetTimerManager().SetTimer(
             InputEnableTimer,
-            [PlayerController]()
+            [PlayerController, PlayerCharacter]()  // Capture both
             {
-                if (PlayerController && PlayerController->IsValidLowLevel())
+                if (PlayerController && PlayerController->IsValidLowLevel() && PlayerCharacter)
                 {
                     // Re-enable all input types
                     PlayerController->EnableInput(PlayerController);
                     PlayerController->SetIgnoreLookInput(false);
                     PlayerController->SetIgnoreMoveInput(false);
 
-                    // Explicitly set game-only input mode
-                    FInputModeGameOnly GameOnlyMode;
-                    PlayerController->SetInputMode(GameOnlyMode);
+                    // THE FIX: Use GameAndUI mode for BOTH mobile and PC testing
+                    FInputModeGameAndUI InputMode;
+                    InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+                    InputMode.SetHideCursorDuringCapture(false);
+                    InputMode.SetWidgetToFocus(nullptr); // IMPORTANT: Don't lock focus to any widget
+                    PlayerController->SetInputMode(InputMode);
 
-                    // Restore mouse settings
-                    PlayerController->bShowMouseCursor = false;
+                    // Enable all input events
+                    PlayerController->bEnableClickEvents = true;
+                    PlayerController->bEnableTouchEvents = true;
+                    PlayerController->bEnableTouchOverEvents = true;
                     PlayerController->bEnableMouseOverEvents = true;
+
+                    // Cursor visibility based on platform
+                    if (PlayerCharacter->IsRunningOnMobile())
+                    {
+                        PlayerController->bShowMouseCursor = false; // Hide on mobile
+                        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Mobile Mode: Virtual Joystick Enabled"));
+                    }
+                    else
+                    {
+                        PlayerController->bShowMouseCursor = true; // Show for PC testing
+                        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("PC Mode: Mouse Cursor Visible for Testing"));
+                    }
                 }
             },
             1.0f,
-                false
-                );
+            false
+        );
     }
 
     if (LevelMusic)
