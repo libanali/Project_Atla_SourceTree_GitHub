@@ -831,6 +831,7 @@ public:
 	FTimerHandle RegenHealthDurationTimer;
 	FTimerHandle DoublePointsTimer;
 	FTimerHandle ElementalAttackInitTimerHandle;
+	FTimerHandle DebugTimerHandle;
 	//Power-Up system
 
 
@@ -1245,7 +1246,11 @@ protected:
 
 	bool IsControllerConnected() const;
 
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+	void DebugTouchBlocking();
 
+	UFUNCTION(BlueprintCallable, Category = "Debug")
+	void ForceFixJoystick();
 
 private:
 

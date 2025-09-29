@@ -4141,7 +4141,6 @@ Super::BeginPlay();
 
 
 
-
 LoadHighScore();
 LoadPlayerProgress();
 
@@ -4496,7 +4495,8 @@ if (CommandMenuWidgetClass)
 	CommandMenuWidget = CreateWidget<UCommand_Menu_Widget>(GetWorld(), CommandMenuWidgetClass);
 	if (CommandMenuWidget)
 	{
-		CommandMenuWidget->AddToViewport(); // Add it to the player's viewport
+		CommandMenuWidget->AddToViewport(1); 
+		CommandMenuWidget->SetVisibility(ESlateVisibility::SelfHitTestInvisible);
 	}
 }
 
@@ -4623,6 +4623,14 @@ else
 	UE_LOG(LogTemp, Warning, TEXT("Staff proficiency not found!"));
 
 }
+
+GetWorld()->GetTimerManager().SetTimer(
+	DebugTimerHandle,  // You'll need to add FTimerHandle DebugTimerHandle; to your header
+	this,
+	&ARen_Low_Poly_Character::DebugTouchBlocking,
+	2.0f,  // Call every 2 seconds
+	true   // Loop
+);
 
 }
 
@@ -5362,6 +5370,67 @@ bool ARen_Low_Poly_Character::IsControllerConnected() const
 	return FSlateApplication::Get().IsGamepadAttached();
 }
 
+
+
+void ARen_Low_Poly_Character::DebugTouchBlocking()
+{
+
+	UE_LOG(LogTemp, Warning, TEXT("=== TOUCH INPUT DEBUG ==="));
+
+	// Check all widgets that could be blocking
+	if (CommandMenuWidget)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("CommandMenuWidget: Visibility = %d, In Viewport = %d"),
+			(int)CommandMenuWidget->GetVisibility(),
+			CommandMenuWidget->IsInViewport());
+	}
+
+	if (NotificationWidget)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NotificationWidget: Visibility = %d, In Viewport = %d"),
+			(int)NotificationWidget->GetVisibility(),
+			NotificationWidget->IsInViewport());
+	}
+
+	// Check enemy arrows
+	UE_LOG(LogTemp, Warning, TEXT("Enemy Arrow Count: %d"), EnemyArrowMap.Num());
+	for (auto& Pair : EnemyArrowMap)
+	{
+		if (Pair.Value)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Arrow Widget: Visibility = %d"),
+				(int)Pair.Value->GetVisibility());
+		}
+	}
+
+	// Check player controller settings
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (PC)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Touch Events: %d, Click Events: %d, ShowMouseCursor: %d"),
+			PC->bEnableTouchEvents, PC->bEnableClickEvents, PC->bShowMouseCursor);
+	}
+
+
+}
+
+void ARen_Low_Poly_Character::ForceFixJoystick()
+{
+	APlayerController* PC = Cast<APlayerController>(GetController());
+	if (PC)
+	{
+		// Force game-only mode with cursor hidden
+		FInputModeGameOnly GameMode;
+		PC->SetInputMode(GameMode);
+		PC->bShowMouseCursor = false;  // THIS IS THE KEY
+		PC->ActivateTouchInterface(nullptr);
+
+		GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green,
+			TEXT("JOYSTICK FIX: Cursor hidden, should work now!"));
+	}
+
+}
+
 void ARen_Low_Poly_Character::EnablePPV()
 {
 //GEngine->AddOnScreenDebugMessage(-1, 2.5f, FColor::Yellow, TEXT("EnablePPV Called"));
@@ -5812,6 +5881,7 @@ PlayerInputComponent->BindAxis("MoveRight", this, &ARen_Low_Poly_Character::Move
 PlayerInputComponent->BindAction("Ability", IE_Pressed, this, &ARen_Low_Poly_Character::UseAbility);
 PlayerInputComponent->BindAction("Roll Dodge or Back", IE_Pressed, this, &ARen_Low_Poly_Character::HandleBackInput);
 PlayerInputComponent->BindAction("PauseGame", IE_Pressed, this, &ARen_Low_Poly_Character::HandlePauseGame);
+InputComponent->BindAction("Joy", IE_Pressed, this, &ARen_Low_Poly_Character::ForceFixJoystick);
 
 
 }
