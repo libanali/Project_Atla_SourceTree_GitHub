@@ -118,30 +118,48 @@ void UVirtualJoyStick_Widget::HandleInput(const FGeometry& InGeometry, const FPo
         return;
     }
 
-    // Get the local position where the user clicked/touched
-    FVector2D LocalPosition = InGeometry.AbsoluteToLocal(InEvent.GetScreenSpacePosition());
+    // Get the geometry of the background widget specifically
+    FGeometry BackgroundGeometry = InGeometry;
+    if (BackgroundImage)
+    {
+        // Try to get the background's actual geometry
+        BackgroundGeometry = BackgroundImage->GetCachedGeometry();
 
-    // Calculate the center of our joystick (center of the background image)
-    JoystickCenter = BackgroundSize / 2.0f;
+        // If that fails, use the full widget geometry
+        if (!BackgroundGeometry.GetLocalSize().IsNearlyZero())
+        {
+            // We have valid geometry
+        }
+        else
+        {
+            BackgroundGeometry = InGeometry;
+        }
+    }
+
+    // Get the local position relative to the BACKGROUND, not where we clicked
+    FVector2D LocalPosition = BackgroundGeometry.AbsoluteToLocal(InEvent.GetScreenSpacePosition());
+
+    // Calculate the center of our joystick
+    JoystickCenter = BackgroundGeometry.GetLocalSize() / 2.0f;
 
     // Calculate offset from center
     FVector2D Offset = LocalPosition - JoystickCenter;
 
-    // Clamp the offset to the joystick radius
+    // Clamp to radius
     float Distance = Offset.Size();
     if (Distance > JoystickRadius)
     {
         Offset = Offset.GetSafeNormal() * JoystickRadius;
     }
 
-    // Store the thumb position for visual update
+    // Store thumb position
     CurrentThumbPosition = Offset;
 
-    // Calculate input vector (normalized to -1 to 1 range)
+    // Calculate input vector (-1 to 1 range)
     InputVector.X = Offset.X / JoystickRadius;
-    InputVector.Y = -Offset.Y / JoystickRadius; // Invert Y for typical game controls
+    InputVector.Y = -Offset.Y / JoystickRadius;
 
-    // Update the visual position of the thumb
+    // Update the visual position
     UpdateThumbPosition();
 
 }
