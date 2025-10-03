@@ -22,6 +22,7 @@
 #include "Blueprint/WidgetBlueprintLibrary.h"
 #include "Elemental_Attacks_List_Widget.h"
 #include "End_Screen_Widget.h"
+#include "VirtualJoyStick_Widget.h"
 #include "GenericPlatform/GenericApplicationMessageHandler.h"
 #include "GenericPlatform/IInputInterface.h"
 #include "Framework/Application/SlateApplication.h"
@@ -1883,6 +1884,8 @@ float ARen_Low_Poly_Character::GetTargetHeightOffset(AActor * Enemy)
 	float Offset = EnemyHeight * 0.5f;
 	return FMath::Clamp(Offset, 20.0f, 200.0f); // Min 20, Max 200
 }
+
+
 
 
 
@@ -5859,8 +5862,10 @@ if (bCameraZoomInitialized && CameraBoom)
 
 		//GEngine->AddOnScreenDebugMessage(-1, 0.5f, FColor::Cyan,
 		//	FString::Printf(TEXT("Camera Zoom: %.2f"), CameraBoom->TargetArmLength));
+
 	}
 }
+
 
 }
 

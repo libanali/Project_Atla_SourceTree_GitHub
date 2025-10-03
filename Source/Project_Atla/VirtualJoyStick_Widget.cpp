@@ -7,6 +7,7 @@
 #include "Components/CanvasPanelSlot.h"
 #include "Engine/Texture2D.h"
 #include "Slate/SlateBrushAsset.h"
+#include "Ren_Low_Poly_Character.h"
 
 
 
@@ -165,6 +166,15 @@ void UVirtualJoyStick_Widget::HandleInput(const FGeometry& InGeometry, const FPo
                 InputVector.Y = -Offset.Y / JoystickRadius;
             }
 
+            if (APlayerController* PC = GetOwningPlayer())
+            {
+                if (ARen_Low_Poly_Character* MyChar = Cast<ARen_Low_Poly_Character>(PC->GetPawn()))
+                {
+                    MyChar->MoveForward(InputVector.Y);
+                    MyChar->MoveRight(InputVector.X);
+                }
+            }
+
             // Update visual position
             UpdateThumbPosition();
         }
@@ -183,6 +193,15 @@ void UVirtualJoyStick_Widget::ResetJoystick()
         {
             // Snap back to the original UMG position
             ThumbSlot->SetPosition(InitialThumbPosition);
+        }
+    }
+
+    if (APlayerController* PC = GetOwningPlayer())
+    {
+        if (ARen_Low_Poly_Character* MyChar = Cast<ARen_Low_Poly_Character>(PC->GetPawn()))
+        {
+            MyChar->MoveForward(0.0f);
+            MyChar->MoveRight(0.0f);
         }
     }
 }

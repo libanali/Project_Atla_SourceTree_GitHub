@@ -48,6 +48,10 @@ public:
     // Optional: Initialize with textures from code
     void InitializeJoystick(UTexture2D* InBackgroundTexture, UTexture2D* InThumbTexture);
 
+
+    FVector2D GetInputVector() const { return InputVector; }
+
+
 protected:
     virtual void NativeConstruct() override;
     virtual void NativeDestruct() override;

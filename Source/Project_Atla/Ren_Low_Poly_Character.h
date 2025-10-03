@@ -1252,6 +1252,12 @@ protected:
 	UFUNCTION(BlueprintCallable, Category = "Debug")
 	void ForceFixJoystick();
 
+	UPROPERTY()
+	class UVirtualJoyStick_Widget* VirtualJoystickWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<class UVirtualJoyStick_Widget> VirtualJoystickWidgetClass;
+
 private:
 
 	// Camera zoom for command menu
