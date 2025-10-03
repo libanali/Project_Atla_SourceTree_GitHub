@@ -166,15 +166,6 @@ void UVirtualJoyStick_Widget::HandleInput(const FGeometry& InGeometry, const FPo
                 InputVector.Y = -Offset.Y / JoystickRadius;
             }
 
-            if (APlayerController* PC = GetOwningPlayer())
-            {
-                if (ARen_Low_Poly_Character* MyChar = Cast<ARen_Low_Poly_Character>(PC->GetPawn()))
-                {
-                    MyChar->MoveForward(InputVector.Y);
-                    MyChar->MoveRight(InputVector.X);
-                }
-            }
-
             // Update visual position
             UpdateThumbPosition();
         }
@@ -225,4 +216,21 @@ void UVirtualJoyStick_Widget::NativeDestruct()
 
     Super::NativeDestruct();
 
+}
+
+void UVirtualJoyStick_Widget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
+{
+
+    // Continuously apply input while joystick is pressed
+    if (bIsPressed)
+    {
+        if (APlayerController* PC = GetOwningPlayer())
+        {
+            if (ARen_Low_Poly_Character* MyChar = Cast<ARen_Low_Poly_Character>(PC->GetPawn()))
+            {
+                MyChar->MoveForward(InputVector.Y);
+                MyChar->MoveRight(InputVector.X);
+            }
+        }
+    }
 }
