@@ -70,4 +70,6 @@ private:
     void HandleInput(const FGeometry& InGeometry, const FPointerEvent& InEvent, bool bPressed);
     void ResetJoystick();
     void UpdateThumbPosition();
+    FVector2D InitialThumbPosition;
+
 };

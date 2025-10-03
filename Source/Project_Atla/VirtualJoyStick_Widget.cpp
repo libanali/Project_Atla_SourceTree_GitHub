@@ -30,6 +30,15 @@ void UVirtualJoyStick_Widget::NativeConstruct()
         ThumbImage->SetBrushFromTexture(ThumbTexture);
     }
 
+    if (ThumbImage)
+    {
+        if (UCanvasPanelSlot* ThumbSlot = Cast<UCanvasPanelSlot>(ThumbImage->Slot))
+        {
+            // Save the designer-set position as the "true center"
+            InitialThumbPosition = ThumbSlot->GetPosition();
+        }
+    }
+
     // Make sure widget is visible and can receive input
     SetVisibility(ESlateVisibility::Visible);
 
@@ -118,50 +127,48 @@ void UVirtualJoyStick_Widget::HandleInput(const FGeometry& InGeometry, const FPo
         return;
     }
 
-    // Get the geometry of the background widget specifically
-    FGeometry BackgroundGeometry = InGeometry;
+    // Get the local position relative to the entire widget
+    FVector2D LocalPosition = InGeometry.AbsoluteToLocal(InEvent.GetScreenSpacePosition());
+
+    // Get the background position to calculate relative position
     if (BackgroundImage)
     {
-        // Try to get the background's actual geometry
-        BackgroundGeometry = BackgroundImage->GetCachedGeometry();
+        UCanvasPanelSlot* BGSlot = Cast<UCanvasPanelSlot>(BackgroundImage->Slot);
+        if (BGSlot)
+        {
+            FVector2D BackgroundPosition = BGSlot->GetPosition();
+            FVector2D BGSize = BGSlot->GetSize();  // Changed from BackgroundSize to BGSize
 
-        // If that fails, use the full widget geometry
-        if (!BackgroundGeometry.GetLocalSize().IsNearlyZero())
-        {
-            // We have valid geometry
-        }
-        else
-        {
-            BackgroundGeometry = InGeometry;
+            // Calculate joystick center
+            JoystickCenter = BGSize / 2.0f;
+
+            // Adjust local position to be relative to background
+            LocalPosition = LocalPosition - BackgroundPosition;
+
+            // Calculate offset from center
+            FVector2D Offset = LocalPosition - JoystickCenter;
+
+            // Clamp to radius
+            float Distance = Offset.Size();
+            if (Distance > JoystickRadius)
+            {
+                Offset = Offset.GetSafeNormal() * JoystickRadius;
+            }
+
+            // Store thumb position
+            CurrentThumbPosition = Offset;
+
+            // Calculate input vector
+            if (JoystickRadius > 0)
+            {
+                InputVector.X = Offset.X / JoystickRadius;
+                InputVector.Y = -Offset.Y / JoystickRadius;
+            }
+
+            // Update visual position
+            UpdateThumbPosition();
         }
     }
-
-    // Get the local position relative to the BACKGROUND, not where we clicked
-    FVector2D LocalPosition = BackgroundGeometry.AbsoluteToLocal(InEvent.GetScreenSpacePosition());
-
-    // Calculate the center of our joystick
-    JoystickCenter = BackgroundGeometry.GetLocalSize() / 2.0f;
-
-    // Calculate offset from center
-    FVector2D Offset = LocalPosition - JoystickCenter;
-
-    // Clamp to radius
-    float Distance = Offset.Size();
-    if (Distance > JoystickRadius)
-    {
-        Offset = Offset.GetSafeNormal() * JoystickRadius;
-    }
-
-    // Store thumb position
-    CurrentThumbPosition = Offset;
-
-    // Calculate input vector (-1 to 1 range)
-    InputVector.X = Offset.X / JoystickRadius;
-    InputVector.Y = -Offset.Y / JoystickRadius;
-
-    // Update the visual position
-    UpdateThumbPosition();
-
 }
 
 void UVirtualJoyStick_Widget::ResetJoystick()
@@ -170,19 +177,23 @@ void UVirtualJoyStick_Widget::ResetJoystick()
     InputVector = FVector2D::ZeroVector;
     CurrentThumbPosition = FVector2D::ZeroVector;
 
-    // Reset thumb to center
-    UpdateThumbPosition();
+    if (ThumbImage)
+    {
+        if (UCanvasPanelSlot* ThumbSlot = Cast<UCanvasPanelSlot>(ThumbImage->Slot))
+        {
+            // Snap back to the original UMG position
+            ThumbSlot->SetPosition(InitialThumbPosition);
+        }
+    }
 }
 
 void UVirtualJoyStick_Widget::UpdateThumbPosition()
 {
     if (ThumbImage)
     {
-        UCanvasPanelSlot* ThumbSlot = Cast<UCanvasPanelSlot>(ThumbImage->Slot);
-        if (ThumbSlot)
+        if (UCanvasPanelSlot* ThumbSlot = Cast<UCanvasPanelSlot>(ThumbImage->Slot))
         {
-            // Calculate new position (center + offset - half thumb size)
-            FVector2D NewPosition = JoystickCenter + CurrentThumbPosition - (ThumbSize / 2.0f);
+            FVector2D NewPosition = InitialThumbPosition + CurrentThumbPosition;
             ThumbSlot->SetPosition(NewPosition);
         }
     }
