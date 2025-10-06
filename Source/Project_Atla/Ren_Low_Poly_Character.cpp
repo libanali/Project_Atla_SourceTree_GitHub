@@ -4163,7 +4163,6 @@ else
 	UE_LOG(LogTemp, Error, TEXT("Failed to cast to ALowPoly_Survival_GameMode. Check the level's game mode settings."));
 }
 
-
 APlayerController* PC = UGameplayStatics::GetPlayerController(GetWorld(), 0);
 
 if (PC)
@@ -4177,7 +4176,8 @@ if (PC)
 		PC->SetInputMode(InputMode);
 		PC->bShowMouseCursor = false;
 
-		//PC->ActivateTouchInterface(nullptr);
+		// Enable touch interface
+		PC->ActivateTouchInterface(nullptr);
 
 		// Enable touch events
 		PC->bEnableClickEvents = true;
@@ -4195,8 +4195,6 @@ if (PC)
 		}
 	}
 }
-
-
 
 CreateNotificationWidget();
 
@@ -4569,7 +4567,6 @@ for (AActor* EnemyActor : FoundEnemies)
 TechniqueAvailability.Init(false, Techniques.Num());
 
 	
-// Bind the input action
 InputComponent->BindAction("Open Commands Menu", IE_Pressed, this, &ARen_Low_Poly_Character::ToggleCommandMenu);
 InputComponent->BindAction("Roll Dodge or Back", IE_Pressed, this, &ARen_Low_Poly_Character::HandleBackInput);
 
@@ -5885,7 +5882,6 @@ PlayerInputComponent->BindAxis("MoveRight", this, &ARen_Low_Poly_Character::Move
 PlayerInputComponent->BindAction("Ability", IE_Pressed, this, &ARen_Low_Poly_Character::UseAbility);
 PlayerInputComponent->BindAction("Roll Dodge or Back", IE_Pressed, this, &ARen_Low_Poly_Character::HandleBackInput);
 PlayerInputComponent->BindAction("PauseGame", IE_Pressed, this, &ARen_Low_Poly_Character::HandlePauseGame);
-InputComponent->BindAction("Joy", IE_Pressed, this, &ARen_Low_Poly_Character::ForceFixJoystick);
 
 
 }

@@ -921,7 +921,7 @@ public:
 	UFUNCTION()
 		void OpenElementalAttacks();
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 		void HandleBackInput();
 
 	UFUNCTION()

@@ -45,6 +45,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
         class UTextBlock* DescriptionText;
 
+    UPROPERTY(meta = (BindWidget))
+        class UButton* MobileBackButton_Tutorial;
+
     
     void PopulateElementalAttackList();
 

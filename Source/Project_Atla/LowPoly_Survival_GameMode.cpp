@@ -21,6 +21,7 @@
 #include "Steam/steam_api.h"
 #include "Steam/isteaminput.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "GameFramework/PlayerController.h"
 
 
 
@@ -1150,17 +1151,15 @@ void ALowPoly_Survival_GameMode::StartGameAfterObjective()
     {
         PlayerController->SetViewTargetWithBlend(PlayerCharacter, 0.6f, EViewTargetBlendFunction::VTBlend_Linear, 0.0f, false);
 
-        // Add debug message before enabling input
         UE_LOG(LogTemp, Warning, TEXT("About to re-enable input in StartGameAfterObjective"));
 
         // Reset any UI flags on the character
         PlayerCharacter->bIsInUIMode = false;
 
         FTimerHandle InputEnableTimer;
-        // Add a slight delay before re-enabling input to ensure all transitions are complete
         GetWorld()->GetTimerManager().SetTimer(
             InputEnableTimer,
-            [PlayerController, PlayerCharacter]()  // Capture both
+            [PlayerController, PlayerCharacter]()
             {
                 if (PlayerController && PlayerController->IsValidLowLevel() && PlayerCharacter)
                 {
@@ -1169,30 +1168,38 @@ void ALowPoly_Survival_GameMode::StartGameAfterObjective()
                     PlayerController->SetIgnoreLookInput(false);
                     PlayerController->SetIgnoreMoveInput(false);
 
-                    // THE FIX: Use GameAndUI mode for BOTH mobile and PC testing
-                    FInputModeGameAndUI InputMode;
-                    InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
-                    InputMode.SetHideCursorDuringCapture(false);
-                    InputMode.SetWidgetToFocus(nullptr); // IMPORTANT: Don't lock focus to any widget
-                    PlayerController->SetInputMode(InputMode);
-
-                    // Enable all input events
-                    PlayerController->bEnableClickEvents = true;
-                    PlayerController->bEnableTouchEvents = true;
-                    PlayerController->bEnableTouchOverEvents = true;
-                    PlayerController->bEnableMouseOverEvents = true;
-
-                    // Cursor visibility based on platform
+                    // **THE FIX: Use different input modes for mobile vs desktop**
                     if (PlayerCharacter->IsRunningOnMobile())
                     {
-                        PlayerController->bShowMouseCursor = false; // Hide on mobile
+                        // Mobile needs GameAndUI for touch controls
+                        FInputModeGameAndUI InputMode;
+                        InputMode.SetLockMouseToViewportBehavior(EMouseLockMode::DoNotLock);
+                        InputMode.SetHideCursorDuringCapture(false);
+                        InputMode.SetWidgetToFocus(nullptr);
+                        PlayerController->SetInputMode(InputMode);
+
+                        PlayerController->bEnableClickEvents = true;
+                        PlayerController->bEnableTouchEvents = true;
+                        PlayerController->bEnableTouchOverEvents = true;
+                        PlayerController->bShowMouseCursor = false;
+
                         GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Mobile Mode: Virtual Joystick Enabled"));
                     }
                     else
                     {
-                        PlayerController->bShowMouseCursor = true; // Show for PC testing
-                        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("PC Mode: Mouse Cursor Visible for Testing"));
+                        // **Desktop uses GameOnly for immediate keyboard/mouse input**
+                        FInputModeGameOnly InputMode;
+                        PlayerController->SetInputMode(InputMode);
+                        PlayerController->bShowMouseCursor = false;
+
+                        // **CRITICAL: Give focus to viewport so input works immediate
+                        PlayerController->SetInputMode(FInputModeGameOnly());
+
+                        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Yellow, TEXT("PC Mode: Game Input Active"));
                     }
+
+                    // Mouse over events only if needed
+                    PlayerController->bEnableMouseOverEvents = false;
                 }
             },
             1.0f,
@@ -1200,36 +1207,25 @@ void ALowPoly_Survival_GameMode::StartGameAfterObjective()
         );
     }
 
+    // ... rest of your music code stays the same ...
     if (LevelMusic)
     {
-        // Play the music with fade-in
         LevelMusicComponent = UGameplayStatics::SpawnSound2D(this, LevelMusic);
         if (LevelMusicComponent)
         {
-            // Get the master volume from game settings
             float MasterVolume = 1.0f;
             if (UGame_Instance* GameInstance = Cast<UGame_Instance>(GetGameInstance()))
             {
                 MasterVolume = GameInstance->GameSettings.MasterVolume;
             }
-
-            // Apply the master volume
             LevelMusicComponent->SetVolumeMultiplier(MasterVolume);
-
-            // Then fade in from silence
             LevelMusicComponent->FadeIn(2.0f, MasterVolume);
-
-            // Make sure it doesn't automatically destroy when sound finishes
             LevelMusicComponent->bAutoDestroy = false;
         }
     }
 
-    // Mark that we've shown the objective
     bHasShownObjectiveMessage = true;
-
-    // Start the first round
     StartNextRound();
-
 }
 
 
