@@ -35,8 +35,7 @@ public:
         class UVerticalBox* ItemScrollBoxAndDescription;
 
 
-    UPROPERTY(meta = (BindWidget))
-        class UButton* MobileBackButton_Tutorial;
+   
 
     void SetupWidget(class ARen_Low_Poly_Character* Character);
     void PopulateItemList();
